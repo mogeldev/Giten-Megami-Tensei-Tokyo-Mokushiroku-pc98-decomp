@@ -1,0 +1,3 @@
+kind,ref,note
+NOTE,,MZ hat keine Importtabelle; DOS-Zugriffe laufen ueber INT (21h etc.)
+RTL,,"MS-C-8-CRT (Banner 1992 in der Binary) als Fremdcode markieren, sobald Region per Kalibrierung identifiziert"
