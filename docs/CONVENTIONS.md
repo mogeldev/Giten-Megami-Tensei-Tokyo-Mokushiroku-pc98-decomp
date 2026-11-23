@@ -22,23 +22,27 @@ Gilt für das Byte-Match-Projekt zu **Giten Megami Tensei** (Spiel-Engine `DDS98
 - Dateioffset = `linear − 0x10000 + 0x3800`, gültig bis Offset 339 735 (danach Overlay).
 - MZ ist laufzeit-relocierbar (3 562 Relocs): Vergleiche immer **image-relativ gegen die Ghidra-Abbildung**; welche Bytes Linker-Operanden sind, **aus der Objekt-Relocation-Tabelle lesen**, nie raten.
 
-## Phase-0-Befund Runde 25 — Compiler-Generation pruefen (offener Punkt!)
+## Phase-0-Befund Runde 25/26 — Compiler-Generation: MSC 6.0 GETESTET und WIDERLEGT
 Byte-Statistik der Original-Binary (Load-Image, 294 603 Code-Bytes):
 
-| Muster | Original | MSC 7.0 (/Os) | Bewertung |
-|---|---|---|---|
-| `03 DB` (add bx,bx) | **74x** | erzeugt `D1 E3` (shl) | Original nutzt ADD |
-| `D1 E3` (shl bx,1) | 18x | Standard bei MSC7 | selten im Original |
-| `C7 06 .. 00 00` (Zero-Immediate-Store) | **130x** | /Os faltet zu `33 C0 A3` | Original nutzt Immediate |
-| `33 C0 A3` (Zero-Fold) | 32x | Standard bei MSC7 /Os | selten im Original |
-| `55 8B EC` (Rahmen) | 1184x | /Os erzeugt Rahmen | passt zu /Os |
+| Muster | Original | MSC 7.0 | MSC 6.00ax | Bewertung |
+|---|---|---|---|---|
+| `03 DB` (add bx,bx) | **74x** | `D1 E3` | `D1 E3` | beide erzeugen SHL |
+| `C7 06 .. 00 00` (Zero-Immediate) | **130x** | /O2 ja, aber mit Rahmen | /O2 ja, mit Rahmen | Original: ohne Rahmen |
+| `33 C0 A3` (Zero-Fold) | 32x | Standard (jede Opt-Stufe) | Standard (auch /Od!) | Original nutzt es selten |
+| `55 8B EC` (Rahmen) | 1184x | passt zu /Os | passt zu /Os | — |
 
-Die beiden haeufigsten Codegen-Formen des Originals (`add bx,bx`, Zero-Immediate)
-erzeugt MSC 7.0 in keiner getesteten Flagskombination; gleichzeitig passt die
-Rahmen-Dichte zu /Os. Arbeitshypothese: **Spielmodule mit MSC 6.x uebersetzt,
-gegen CRT 7 gelinkt**. Naechster Phase-0-Schritt: MSC 6.0 beschaffen, Kalibrier-
-Familien damit wiederholen. Erst danach neue PENDINGs als Hand-ASM einordnen —
-sonst wird eine falsche Toolchain-Annahme als "Hand-ASM" fehldiagnostiziert.
+**Ergebnis Runde 26:** MSC 6.00ax beschafft (archive.org, `SZ`-Format), integriert
+(`build.py --msc-dir MSC6I --no-dpmi`), und fuer die Init-Familie geprueft:
+/Os, /Od, /Oa /Od liefern **alle** `33 C0 A3 A3` — identisch zu MSC 7.0.
+Die Hypothese "MSC 6.x" ist damit widerlegt, nicht bestaetigt.
+
+**Konsequenz:** Die verbleibenden Abweichungen (`C7 06`-Zero-Stores ohne Rahmen,
+`add bx,bx`, DX-Temps, Sprung-Merge) sind mit keiner der beiden Compiler-
+Generationen und keiner getesteten Flagskombination erzeugbar. Das stuetzt die
+**Hand-/Inline-ASM-Hypothese** fuer diese Module (Slot-Subsystem, Clamp-Familie,
+Init-Familie, CONV). Vor einem `__asm`-Neuaufbau bleibt der Aufrufer-Kontext
+die einzige Gegenprobe.
 
 ## Ledger (`docs/MATCHING.md`)
 Eine Zeile pro Adresse, Duplikate verboten, Größe ≠ 0:

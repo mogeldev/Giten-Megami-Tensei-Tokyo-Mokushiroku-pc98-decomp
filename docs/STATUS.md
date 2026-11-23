@@ -59,13 +59,12 @@ Code-Funktionen: **1956**, davon verifiziert **14**.
 
 ## Offen (Reihenfolge fuer die naechsten Runden)
 
-1. **MSC 6.0 beschaffen und Phase-0-Kalibrierung wiederholen** — die haeufigsten
-   Codegen-Formen des Originals (`add bx,bx` 74x, Zero-Immediate-Stores 130x)
-   erzeugt MSC 7.0 in keiner Flagskombination (s. `docs/CONVENTIONS.md`). Erst
-   danach neue PENDINGs als Hand-ASM einordnen.
-2. `LINK.EXE` (DOSX16) haengt unter dosbox-x in allen DPMI-Varianten — Voraussetzung
+1. `LINK.EXE` (DOSX16) haengt unter dosbox-x in allen DPMI-Varianten — Voraussetzung
    fuer `build_replacement` (Phase 6); Kandidat: nativer OMF-Linker (jwlink)
-3. Build-Cache (Flags+mtime) fuer `verify.py`, damit der Rebuild nicht jedes Mal
+2. Build-Cache (Flags+mtime) fuer `verify.py`, damit der Rebuild nicht jedes Mal
    ~25 s kostet (Vorlage Phase 3 nennt den Cache ausdruecklich)
-4. Weiter im Familien-Workflow: ALU-/DOS-Helfer mit `55 8b ec`-Rahmen
+3. Weiter im Familien-Workflow: ALU-/DOS-Helfer mit `55 8b ec`-Rahmen
+4. Bei naechstem PENDING-Kandidaten zuerst pruefen, ob ein Aufrufer die Semantik
+   festnagelt — sonst bleibt die Hand-ASM-Frage offen (Runde 26 widerlegte die
+   MSC-6-Hypothese; MSC 7.0 bleibt die Toolchain, `--msc-dir MSC6I` steht bereit)
 <!-- MANUAL-END -->

@@ -28,6 +28,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("source")
     ap.add_argument("--flags", default="")
+    ap.add_argument("--msc-dir", default="MSC7I",
+                    help="DOS-Verzeichnis der Toolchain auf Laufwerk C: "
+                         "(MSC7I = MS C 7.0, MSC6I = MS C 6.00ax)")
+    ap.add_argument("--no-dpmi", action="store_true",
+                    help="HDPMI32-TSR nicht laden (MSC 6.0 braucht kein DPMI)")
     a = ap.parse_args()
 
     src_abs = os.path.abspath(os.path.join(ROOT, a.source))
@@ -52,12 +57,14 @@ def main():
         f'mount C "{TC}"',
         f'mount D "{ROOT}"',
         "C:",
-        "SET PATH=C:\\MSC7I\\BIN",
-        "SET INCLUDE=C:\\MSC7I\\INCLUDE",
-        "SET LIB=C:\\MSC7I\\LIB",
-        "HDPMI32",
-        f'MSC7I\\BIN\\CL.EXE /c {a.flags} /Fo{obj} {src_f} > D:\\BUILD\\{base}.CL.TXT',
+        f"SET PATH=C:\\{a.msc_dir}\\BIN",
+        f"SET INCLUDE=C:\\{a.msc_dir}\\INCLUDE",
+        f"SET LIB=C:\\{a.msc_dir}\\LIB",
     ]
+    if not a.no_dpmi:
+        lines.append("HDPMI32")
+    lines.append(f'{a.msc_dir}\\BIN\\CL.EXE /c {a.flags} /Fo{obj} {src_f} '
+                 f'> D:\\BUILD\\{base}.CL.TXT')
     conf = "[cpu]\r\ncycles=max\r\n[autoexec]\r\n" + "\r\n".join(lines) + "\r\nexit\r\n"
     with open(CONF, "w", encoding="ascii", newline="") as f:
         f.write(conf)

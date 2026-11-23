@@ -1,5 +1,17 @@
 # PROGRESS
 
+## Runde 26 — MSC 6.00ax beschafft, Hypothese getestet und widerlegt (2026-11-23)
+- MSC 6.00ax von archive.org geholt (SHA1 verifiziert), Disketten entpackt.
+  Format ist `SZ` (nicht `KWAJ`) — der MSC-7-`DECOMP` kann beide; 34 Header +
+  8 Compiler-Paesse dekomprimiert (jetzt unter **dosbox-x**, eine Umgebung statt zwei).
+- `build.py` erweitert: `--msc-dir MSC6I` und `--no-dpmi` (MSC 6.0 ist reines
+  16-Bit, kein DOSX32/DPMI). MSC-7-Standardpfad weiterhin gruen (verify: 14 RELOCS).
+- **Test der Hypothese:** Init-Familie mit MSC 6.0 unter /Os, /Od, /Oa /Od ->
+  immer `33 C0 A3 A3`, also identisch zu MSC 7.0. Die Vermutung "Spielmodule mit
+  MSC 6.x" ist damit **widerlegt** (in CONVENTIONS.md dokumentiert).
+- Konsequenz: Hand-/Inline-ASM-Hypothese fuer Slot-Subsystem, Clamp- und
+  Init-Familie sowie CONV wird gestuetzt; Gegenprobe bleibt der Aufrufer-Kontext.
+
 ## Runde 25 — Verdacht: falsche Compiler-Generation (Phase-0-Rueckfall) (2026-11-23)
 - Init-Familie (2x22 B: `g1=0; g2=0; far_call(0x18,1)`) vollstaendig entschluesselt
   (pascal-Konvention, Argumentordnung aus Push-Reihenfolge bewiesen) — aber nicht
