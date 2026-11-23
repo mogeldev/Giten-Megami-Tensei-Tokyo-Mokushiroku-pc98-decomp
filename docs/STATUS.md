@@ -7,8 +7,8 @@
 
 | Status | Count |
 |---|---|
-| MATCH | 35 |
-| RELOCS | **142** |
+| MATCH | 36 |
+| RELOCS | **141** |
 | ASM (excluded from C coverage) | 1 |
 | PENDING | **24** |
 

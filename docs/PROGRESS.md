@@ -1,5 +1,11 @@
 # PROGRESS
 
+## Verification now checks the recorded match class
+Both MATCH and RELOCS return success from the matcher, so checking only its
+exit code let the ledger report an incorrect class. The verifier now checks
+which class was returned. The audit corrected `37c1:001e` to MATCH: all four
+bytes already matched without masking. This does not change byte coverage.
+
 ## Backward packed-table traversal verified
 `4332:000c` (TAKE_COUNTS, 59 B) verifies as RELOCS. The entry pointer walks
 backward in DI while the index stays in SI for the helper call. The loop

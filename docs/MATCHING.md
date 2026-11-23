@@ -99,7 +99,7 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 3f3c:0016 | _f_3f3c_0016 | 7 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; initialiser `g_2a1c = 0;` (`C7 06`); hidden unit |
 | 3fcc:001a | _f_3fcc_001a | 7 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; initialiser `g_2a2c = 1;` (`C7 06`); hidden unit |
 | 50c7:00aa | _f_50c7_00aa | 7 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; initialiser `g_408e = 1;` (`C7 06`); hidden unit |
-| 37c1:001e | f_37c1_001e | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; `int __near f(void) { return -1; }` (`B8 FF FF C3`); hidden unit |
+| 37c1:001e | f_37c1_001e | 4 | MATCH | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; `int __near f(void) { return -1; }` (`B8 FF FF C3`); hidden unit |
 | 473f:0036 | _far_long_const | 7 | PENDING | Returns the long 0x43A30000. Original materialises the low word with `B8 00 00` (mov ax,0); MSC 7 emits `33 C0` (xor ax,ax) under /Os, /Ot and /Ox, and the far-pointer formulation `(char __far *)0x43A30000L` gives the same xor. Kept PENDING |
 | 1534:02aa | @set_near_a4 | 4 | RELOCS | src=src/calib/cunit4.c; flags="/G1 /AM /Gs /Os"; `void __near __fastcall f(int v) { g_00a4 = v; }` (`A3 <disp> C3`) |
 | 25f0:013a | @set_far_409e | 4 | RELOCS | src=src/calib/cunit4.c; flags="/G1 /AM /Gs /Os"; `void __far __fastcall f(int v) { g_409e = v; }` (`A3 <disp> CB`); hidden unit |

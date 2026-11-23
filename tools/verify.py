@@ -61,7 +61,24 @@ def window_problem(b):
     return None
 
 
+def status_matches(row, output):
+    # ASM describes the source, not the matcher's relocation result.
+    return row["status"] == "ASM" or output.startswith(
+        f"{row['va']} {row['name']}: {row['status']}  (")
+
+
 def main():
+    if "--selftest" in sys.argv:
+        row = {"va": "1000:0000", "name": "TEST", "status": "MATCH"}
+        exact = "1000:0000 TEST: MATCH  (size=4, reloc-masked=0)"
+        masked = "1000:0000 TEST: RELOCS  (size=4, reloc-masked=2)"
+        assert status_matches(row, exact) and not status_matches(row, masked)
+        row["status"] = "RELOCS"
+        assert status_matches(row, masked) and not status_matches(row, exact)
+        row["status"] = "ASM"
+        assert status_matches(row, masked)
+        print("verify selftest: ok")
+        return
     fast = "--fast" in sys.argv
     rows, fails = parse_ledger()
 
@@ -126,6 +143,8 @@ def main():
         if q.returncode != 0:
             fails.append(f"{r['va']} {r['name']}: REGRESSION\n{out[:500]}")
             print(f"  {r['va']} {r['name']}: ERROR")
+        elif not status_matches(r, out):
+            fails.append(f"{r['va']} {r['name']}: expected {r['status']}\n{out[:500]}")
         else:
             if r["status"] == "MATCH":
                 n_match += 1
