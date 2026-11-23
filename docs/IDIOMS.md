@@ -3,6 +3,18 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 39 — the inventory undercounts functions, and link-time alignment
+- **189 inventory entries contain 2..6 real functions** (`terminator + gap +
+  new prologue`). 461 units are hidden this way. Any progress metric computed
+  against `ground_truth/functions.csv` therefore overstates completion; split
+  blobs before judging coverage. Detection recipe is described in PROGRESS.md.
+- **Wrapper families**: four siblings that differ only in a pushed constant are
+  a reliable MATCH/RELOCS source — all 21 bytes each, one masked far call.
+- **A lone `90` after an unconditional `jmp` is usually link-time alignment**,
+  not a source difference: the label is aligned based on the unit's final image
+  offset, which we cannot control from a single-object compile. Classify such a
+  diff separately instead of hunting for another C variant.
+
 ## Round 36 — far-pointer algorithms
 - **`lds`/`les` analyses**: a function that loads a far pointer with `lds`
   clobbers DS, so the compiler emits `push ss / pop ds` before returning. Seeing

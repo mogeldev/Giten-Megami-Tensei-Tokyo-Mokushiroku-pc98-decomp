@@ -8,8 +8,8 @@
 | Status | Count |
 |---|---|
 | MATCH | 10 |
-| RELOCS | **39** |
-| PENDING | **13** |
+| RELOCS | **43** |
+| PENDING | **14** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -19,6 +19,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `35ca:209c` **SWAP_LONG_13F6** (38 B) — Sibling of SWAP_LONG_40C0 with the long at 0x13F6/0x13F8, identical cause
 - `2603:463c` **SET_BIT** (38 B) — `table[n / 8]
 - `1871:7874` **SEG_OF** (24 B) — Returns the segment half of a far pointer. Original loads it with `C4 46 06` (les) + `8C C0` (mov ax,es) after initialising a local to 0
+- `31e3:0064` **W_COND** (32 B) — `if (b == 1) f1(a)
 - `4fab:000a` **get_39f8_clamped** (16 B) — slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs
 - `1f2d:000e` **CLAMP_A** (20 B) — min(max(x,1),g), __fastcall (arg in AX, bare retn), global 0x4688. Original frameless with DX temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`)
 - `1f2f:0002` **CLAMP_B** (20 B) — Sibling of CLAMP_A, global 0x468A, same cause
@@ -36,10 +37,10 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | Code bytes | 294603 |
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293640** |
-| of which **verified** | **627 (0.214%)** |
-| PENDING bytes | 452 |
+| of which **verified** | **711 (0.242%)** |
+| PENDING bytes | 484 |
 
-Code functions: **1956**, of which verified **49**.
+Code functions: **1956**, of which verified **53**.
 
 ## Regions (64 KiB)
 
@@ -47,7 +48,7 @@ Code functions: **1956**, of which verified **49**.
 |---|---|---|---|---|---|---|---|
 | 0x0000 | 534 | 6 | 65244 | 74 (0.1%) | 897 | 360 | 102 |
 | 0x0001 | 406 | 8 | 65783 | 126 (0.2%) | 0 | 569 | 38 |
-| 0x0002 | 545 | 18 | 65692 | 213 (0.3%) | 0 | 0 | 92 |
+| 0x0002 | 545 | 22 | 65692 | 297 (0.5%) | 0 | 0 | 124 |
 | 0x0003 | 429 | 17 | 64548 | 214 (0.3%) | 0 | 0 | 220 |
 | 0x0004 | 42 | 0 | 33336 | 0 (0.0%) | 66 | 11282 | 0 |
 

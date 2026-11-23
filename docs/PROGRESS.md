@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 39 — merged blobs quantified: 461 hidden functions (53 verified)
+- Built a detector for merged inventory entries (terminator + gap + new
+  prologue) and measured the structural damage: **189 inventory entries hide at
+  least two real functions, 461 units in total**. The inventory's 1,956 entries
+  therefore represent roughly 2,230 real functions. This is the single most
+  important measurement of the whole project for future work: coverage numbers
+  computed against the inventory understate the remaining work badly.
+- Verified the biggest regular case: `31e3:000c` (one 120-byte entry) is **five**
+  units — four wrappers of 21 bytes that differ only in one constant
+  (`ext(a, 0x1000|0x2000|0x8000|0x4000, b)`) plus a 32-byte conditional. The four
+  wrappers are RELOCS (`src/calib/cwrap2.c`).
+- The conditional stays PENDING: ours emits `75 0A … EB 08`, the original
+  `75 0B … EB 09 90`. The single extra `90` after the `jmp` is most likely
+  jump-target alignment decided at **link** time (the unit sits at an odd image
+  offset), which no compiler flag on our side can reproduce — a new class of
+  diff worth keeping separate from source-form diffs.
+- Ledger: 67 rows — MATCH 10, **RELOCS 43**, PENDING 14.
+
 ## Round 38 — six RELOCS from two multi-function blobs (49 verified)
 - `458e:705a` (inventory: one 44-byte function) is really **three units of
   19 + 19 + 4 bytes** separated by gap bytes: two far-pascal exchanges with the
