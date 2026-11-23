@@ -1,5 +1,20 @@
 # PROGRESS
 
+## Round 59 — store-setter sweep automated: three RELOCS from one run
+- New tool **`tools/setters.py`**: finds far-pascal store-setter units
+  (`55 8B EC (8B 46 xx A3 <disp>)+ (C7 06 <disp> <imm>)? C9 CA/C2 imm16`),
+  generates the C, builds once and matches every member. First run: **3/3
+  verified** — `1ef8:0054` (13 B), `3bd6:003e` (13 B), `4c96:000e` (43 B, five
+  parameter stores to 0x8600..0x8608 plus a `C7 06` initialiser).
+  All three in `src/calib/cset6.c`.
+- **Own mistake, and the fix that came out of it**: the generator was first named
+  `cset5.c`, which **silently overwrote** the round-34 calibration source of the
+  same name (OFF4/OFF6/OFF1/WRAP3/TEST80). `verify` caught it immediately
+  (`BUILD FAILED … source missing`), the file was restored from git, and
+  `setters.py` now refuses to write a file the ledger references. Lesson: any
+  generator must check name collisions against the ledger before writing.
+- Ledger: 121 rows — MATCH 22, **RELOCS 81**, PENDING 18.
+
 ## Round 58 — one MATCH from the band, two near-misses at a single byte
 - `1e14:0008` **KIND_OF** (32 B, **MATCH**, `src/calib/csm1.c`, `/Ox /Oa /Os`):
   `int __far __pascal f(unsigned v) { if (v == 0) return 0; return (v > 0xFF) ? 2 : 1; }`

@@ -3,6 +3,15 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 59 - generated sources must not collide with the ledger
+- A generator that writes `src/calib/<name>.c` can silently destroy a verified
+  calibration source if the name is reused. Two rules: pick generated names that
+  cannot clash with hand-written ones (`cset6` was fine, `cset5` was not), and
+  have the generator refuse to write a path that appears in `docs/MATCHING.md`.
+- `tools/setters.py` sweeps the **store-setter shape**
+  `55 8B EC (8B 46 xx A3 d)+ (C7 06 d imm)? C9 CA/C2 imm` and verified 3/3 on its
+  first run - a fully mechanical family, so it should be re-run after every split
+  or inventory change.
 ## Round 57 - callbacks with permuted arguments
 - **A callback's argument order is visible in the push sequence.** With pascal and
   four parameters, `push [bp+6] / [bp+4] / [bp+8] / [bp+0xA]` means the callee
