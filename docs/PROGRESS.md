@@ -1,5 +1,34 @@
 # PROGRESS
 
+## Round 72 — quantified gap analysis, and the README brought up to date
+No new verified bytes; this round turns 70 rounds of near-misses into a measurement.
+
+- New tool **`tools/gap.py`** classifies every unmatched unit against the eight
+  codegen traits established since round 34 and writes **`docs/GAP.md`**. Over
+  2365 unmatched units (290 897 B):
+  | Trait | Units | Bytes |
+  |---|---|---|
+  | interior `90` padding | 1400 | 225 317 |
+  | `push cs; call far` | 1232 | 180 177 |
+  | direct far call (`9A`) | 881 | 183 276 |
+  | split pointer load | 367 | 84 175 |
+  | `add r,r` doubling | 204 | 66 762 |
+  | epilogue `8B E5 5D` | 144 | 24 280 |
+  | epilogue `5D` | 74 | 6 814 |
+  | absolute ESA access | 6 | 17 323 |
+  | **blocked by nothing** | **514** | **27 492** |
+  | — of which framed | 185 | 9 744 |
+- The rows overlap (traits co-occur), and the trait counts are **byte-pattern upper
+  bounds** — a `90` can sit inside a displacement. So `blocked by nothing` is a
+  *lower* bound on reachability. Both caveats are stated in the document.
+- The number that matters: **9 744 bytes of framed code** are reachable by this
+  toolchain — about 19 more rounds at the recent rate, assuming every attempt
+  succeeds, which the last four rounds show it does not.
+- **README corrected**: it still claimed 53 functions and 0.242 % coverage (stale
+  since the 0.2 % era). Now 137 functions / MATCH 32 / RELOCS 105 / 22 PENDING,
+  2067 of 293 211 bytes (0.705 %), with `docs/GAP.md` linked from the front page.
+- Ledger unchanged: 159 rows — MATCH 32, RELOCS 105, PENDING 22.
+
 ## Round 71 — one MATCH from a branchless sweep; the vein is nearly dry
 - Built a **branchless filter** (no conditional jumps, no calls, no blocking
   traits, 12..160 B) on the reasoning that padding and block-order cannot bite
