@@ -84,6 +84,15 @@ FAMILIES = {
         lambda h: (["int %s;" % g(h["d1"])],
                    "%s %s(void) { %s--; return %s; }" % (conv(h), name(h), g(h["d1"]), g(h["d1"])),
                    name(h))),
+    # --- round 60: framed single-statement forms ---------------------------
+    "param_store": (
+        rb"\x55\x8B\xEC\x8B\x46.\xA3(?P<d1>..)\xC9(?P<ret>\xCA|\xC2)(?P<imm16>..)",
+        lambda h: (["int %s;" % g(h["d1"])],
+                   "%s __pascal %s(int a) { %s = a; }" % (conv(h), name(h), g(h["d1"])), name(h).upper())),
+    "far_get": (
+        rb"\x55\x8B\xEC\xC4\x5E\x06\x26\x8B\x07\xC9(?P<ret>\xCA|\xC2)(?P<imm16>..)",
+        lambda h: ([],
+                   "int __far __pascal %s(int __far *p) { return *p; }" % name(h), name(h).upper())),
 }
 
 
@@ -130,12 +139,15 @@ def find(family):
         if lin in done:
             continue
         d = {k: m.group(k) for k in ("d1", "d2", "imm") if m.groupdict().get(k)}
+        # A far return is CB (retf) or CA (retf imm16); C3/C2 are near. The size
+        # must include the imm16 bytes of CA/C2, otherwise the window is short.
+        end = m.end("imm16") if m.groupdict().get("imm16") else m.end("ret")
         h = {
             "va": va,
             "lin": lin,
-            "size": m.end("ret") - m.start(),
-            "far": m.group("ret") == b"\xCB",
-            "bytes": IMG[off:off + (m.end("ret") - m.start())].hex(),
+            "size": end - m.start(),
+            "far": m.group("ret") in (b"\xCB", b"\xCA"),
+            "bytes": IMG[off:off + (end - m.start())].hex(),
         }
         if "imm" in d:
             h["imm"] = int.from_bytes(d["imm"], "little")

@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 60 — three RELOCS; the sweeper itself was the bug
+- Re-ran every `sweep.py` family against the split inventory: only `byte_store`
+  still had a member (`1466:005b`, 6 B). Added two new families — `param_store`
+  (`55 8B EC 8B 46 xx A3 <disp> C9 (CA|C2) imm16`) and `far_get` — and
+  `param_store` yielded **2/2 verified** (`29f3:006e`, `3fcc:0022`, 13 B each).
+- **Three bugs in `sweep.py` surfaced by writing the new families**, all in shared
+  code that the earlier families happened to avoid:
+  1. `far` was inferred from `CB` only, so `retf imm16` (`CA`) was treated as
+     near — generated wrong conventions for every `C9 CA` unit;
+  2. the recorded size stopped at the `ret` opcode, **excluding the imm16 bytes**
+     of `CA`/`C2`, which made every window 2 bytes too short (the exact defect
+     `verify.py` was hardened against in round 41 — the tool was producing it);
+  3. the generated functions were declared without `__pascal`, so the epilogue was
+     plain `retf` instead of `retf 2`; and pascal-uppercased symbols were then
+     looked up in lowercase.
+  All three fixed in the shared helpers, so every family benefits.
+- Also repaired my own damage: a careless `str.replace` had duplicated a block
+  into `sweep.py`; restored from git and redone with a targeted edit.
+- Ledger: 124 rows — MATCH 22, **RELOCS 84**, PENDING 18.
+
 ## Round 59 — store-setter sweep automated: three RELOCS from one run
 - New tool **`tools/setters.py`**: finds far-pascal store-setter units
   (`55 8B EC (8B 46 xx A3 <disp>)+ (C7 06 <disp> <imm>)? C9 CA/C2 imm16`),

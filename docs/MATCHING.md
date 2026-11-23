@@ -132,3 +132,6 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 1ef8:0054 | SET_1EF8_0054 | 13 | RELOCS | src=src/calib/cset6.c; flags="/G1 /AM /Gs /Os"; generated store-setter (two stores), verified by tools/setters.py |
 | 3bd6:003e | SET_3BD6_003E | 13 | RELOCS | src=src/calib/cset6.c; flags="/G1 /AM /Gs /Os"; generated store-setter (two stores) |
 | 4c96:000e | SET_4C96_000E | 43 | RELOCS | src=src/calib/cset6.c; flags="/G1 /AM /Gs /Os"; generated store-setter: five parameter stores to 0x8600..0x8608 plus a `C7 06` initialiser of 0x2C0E |
+| 1466:005b | f_146b_000b | 6 | RELOCS | src=src/calib/swbytest.c; flags="/G1 /AM /Gs /Os"; byte_store family (`C6 06 <disp8> <imm8> CB`) |
+| 29f3:006e | F_29F9_000E | 13 | RELOCS | src=src/calib/swparams.c; flags="/G1 /AM /Gs /Os"; param_store family: `void __far __pascal f(int a) { g = a; }` |
+| 3fcc:0022 | F_3FCE_0002 | 13 | RELOCS | src=src/calib/swparams.c; flags="/G1 /AM /Gs /Os"; param_store family, second unit |

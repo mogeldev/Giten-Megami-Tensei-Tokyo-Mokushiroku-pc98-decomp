@@ -3,6 +3,17 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 60 - conventions inside the sweeper
+- When a generated family verifies 0 hits, suspect the **generator** before the
+  binary. Three shared bugs made every `C9 CA` unit look like a source mismatch:
+  `far` inferred from `CB` only (`CA` is far too), the window size excluding
+  the `retf imm16` bytes, and missing `__pascal` (so `retf` instead of
+  `retf 2`). A family that suddenly matches 2/2 after those fixes is the signal
+  that the code was never wrong.
+- **Pascal uppercases symbols**: a generated function `f_29f9_000e` is exported
+  as `F_29F9_000E`, so match the uppercase name.
+- `param_store` = `55 8B EC 8B 46 xx A3 <disp> C9 (CA|C2) imm16` is a fully
+  mechanical family: `void __far __pascal f(int a) { g = a; }`, 13 bytes.
 ## Round 59 - generated sources must not collide with the ledger
 - A generator that writes `src/calib/<name>.c` can silently destroy a verified
   calibration source if the name is reused. Two rules: pick generated names that
