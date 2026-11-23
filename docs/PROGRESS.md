@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 73 — three RELOCS from call-wrappers
+- **New vein that the earlier filters missed: functions whose only "unknown" is a
+  call target.** `match.py` masks relocation bytes, so a generated call to an
+  external symbol compares clean against the original's `E8 rel16`. That makes the
+  whole call-wrapper family harvestable, provided the *call form* is `E8` (not
+  `push cs; call`).
+- Verified (`src/calib/ccall1.c`, `/G1 /AM /Gs /Os`):
+  - `3eb3:000a` **PLUS20** (16 B) — `return HELP_A(a) + 0x14;`, arithmetic on a
+    call result;
+  - `355a:000e` **NESTED** (17 B) — `return HELP_B(HELP_A(a));`, nested near calls
+    with the first result pushed for the second;
+  - `3725:0048` **CLEAR_BIT1** (20 B) — `*p &= ~1; HELP_V(); return 1;`.
+- Only three framed units in 10..40 B have exactly one `E8` and no blocking trait,
+  so this vein is small at that size; it should be re-scanned at larger sizes next.
+- `GETBYTE_U` (zero-extended byte fetch) remains blocked: the original zeroes AH
+  *before* the load (`2A E4 / 8A 87 …`), MSC 7 loads first then zeroes — an
+  ordering difference, not a source error.
+- Ledger: 162 rows — MATCH 32, **RELOCS 108**, PENDING 22.
+
 ## Round 72 — quantified gap analysis, and the README brought up to date
 No new verified bytes; this round turns 70 rounds of near-misses into a measurement.
 

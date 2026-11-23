@@ -15,6 +15,16 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 73 - call wrappers are harvestable
+- **A call target is a relocation, so it gets masked.** Any function whose unknown
+  part is "which function does it call" can still verify byte-exactly, as long as
+  the call encoding is `E8`. Declare the callee (`extern int __near __pascal
+  HELP_A(int);`) and the rest matches.
+- Check the family: `push [bp+6]; E8 rel` + arithmetic, `E8` nested
+  (`HELP_B(HELP_A(a))`), and bit ops before/after a void call. The call form
+  matters - `0E E8` (push cs) is still unavailable.
+- Byte offsets that hold a call or a global are not evidence of a wrong source
+  once the relocation is masked; only the *shape* around them has to match.
 ## Round 71 - branchless units are only 18 in the whole binary
 - The branchless filter (no conditional jumps, no calls, no blocking trait,
   12..160 B) leaves **18 units**. That number is the useful result: the remaining

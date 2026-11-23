@@ -170,3 +170,6 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 2e01:001c | MIX_LONG | 23 | RELOCS | src=src/calib/cmisc1.c; flags="/G1 /AM /Gs /Os"; two statements `g &= 0x3FC0; g |= (v >> 16) & 0xC03F;` produce the memory-operand `81 26 <g> C0 3F` that the single-expression form does not |
 | 4a91:0002 | KEEP_PTR | 27 | MATCH | src=src/calib/cbranch1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; `char __far *f(char __far *p) { if (!p) return 0; return p; }` - the null test is `or ax,bx` over both words of the far pointer; byte-identical |
 | 37ad:000c | SPAN8 | 23 | MATCH | src=src/calib/cnb1.c; flags="/G1 /AM /Gs /Os"; `return ((p[2] - p[0]) << 3) + a;` for a far int pointer and a near pascal frame; byte-identical |
+| 3eb3:000a | PLUS20 | 16 | RELOCS | src=src/calib/ccall1.c; flags="/G1 /AM /Gs /Os"; `return HELP_A(a) + 0x14;` — near-call wrapper with arithmetic on the result |
+| 355a:000e | NESTED | 17 | RELOCS | src=src/calib/ccall1.c; flags="/G1 /AM /Gs /Os"; `return HELP_B(HELP_A(a));` — nested near calls, the result of the first pushed for the second |
+| 3725:0048 | CLEAR_BIT1 | 20 | RELOCS | src=src/calib/ccall1.c; flags="/G1 /AM /Gs /Os"; `*p &= ~1; HELP_V(); return 1;` — bit clear on a far byte followed by a void call |
