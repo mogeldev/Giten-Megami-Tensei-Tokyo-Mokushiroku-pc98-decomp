@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 88 — no new rows; three more near-misses characterised
+Third round without an increment. Everything tried is recorded so the next attempt
+starts from truth rather than hope.
+
+- **Unframed 12..20 B units (23 of them): almost all fragments.** My terminator
+  filter is not enough — a fragment can end at a `ret` too. Discriminator: a real
+  function never starts by *using* registers it has not set (e.g. `26 89 7C 0E`
+  storing DI, or `or ah,2`), and never relies on AX being preloaded. `155e:000e`
+  looked plausible until `80 CC 02` (`or ah,2`) showed it was the tail of something.
+- `3e5c:0006` (`return g_1bc0 == 1;`) — the original tests with `or ax,ax / je /
+  dec ax / je` (decrement-based), MSC 7 with `cmp [g],1 / jne`. Strength-reduction
+  difference, not fixable from C.
+- `4e8e:0098` **RELAY_GLOBALS** — `HELP6(g_995b, g_995c, g_9954, g_9956, g_9958, a)`
+  is otherwise byte-exact but **MSC omits the `2A E4` that zeroes AH before pushing
+  the first `unsigned char`**, under `/Os`, `/Ox /Oa /Os` and `/Ot` alike. The
+  original zero-extends explicitly; MSC implicitly assumes AH is already clear. Two
+  bytes, not steerable.
+- Cleanup kept honest: two probing sources moved to `src/attic/`, `checkled.py`
+  green again.
+- Ledger unchanged: 182 rows — MATCH 32, RELOCS 128, PENDING 22.
+
 ## Round 87 — audited my own PENDING diagnoses; four were wrong or incomplete
 No new rows. The round re-tested PENDING entries whose stated cause predated the
 convention and frame-type tells, and **four diagnoses did not survive the audit**:

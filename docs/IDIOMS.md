@@ -15,6 +15,16 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 88 - fragments can end at a ret
+- A terminator does not prove a unit is a function. **Fragments end at `ret` too.**
+  Two tells that a unit is a tail: it *uses* registers it never set (`26 89 7C 0E`
+  stores DI, `80 CC 02` modifies AH) or it relies on AX already holding a value.
+  Check what the first instruction consumes, not just how the unit ends.
+- MSC 7 does **not** zero AH before pushing an `unsigned char` global as an int
+  argument (`A0 <disp> / 50`); the original emits `2A E4` first. Unchanged by
+  /Os, /Ox, /Ot. Two-byte mismatch, out of reach.
+- `return g == 1;` compiles as `cmp [g],1` (MSC) vs `or ax,ax / je / dec ax /
+  je` (original) - decrement-based testing, another strength-reduction difference.
 ## Round 87 - audit old diagnoses when you learn a new tell
 - Four PENDING rows carried causes written before the callee-convention and frame-type
   tells existed; two were simply wrong. **Re-read old diagnoses after every new
