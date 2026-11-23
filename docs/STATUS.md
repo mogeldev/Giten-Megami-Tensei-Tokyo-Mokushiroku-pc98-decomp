@@ -9,7 +9,7 @@
 |---|---|
 | MATCH | 24 |
 | RELOCS | **88** |
-| PENDING | **21** |
+| PENDING | **22** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -34,6 +34,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `11d8:000c` **SET4** (60 B) — `struct S4 __far *__far f(int a,int b,int c,int d)` storing three words plus `d & 0x7FFF` into a 4-int struct and returning a far pointer to it. **58 
 - `1e38:0002` **RECORD_CFG** (56 B) — Saves `g_40ba` in DX, stores two arguments, records a code (`(c == -1) ? 7 : c` when `c != 0`), sets a flag and returns the saved word. With /Ox /Oa /
 - `465d:0000` **UPD** (60 B) — `if (s) { if (x != -1) s->t->x = x
+- `4e11:007e` **WEIGHT2** (40 B) — `return 2*(5*(abs(a)+1) + abs(b)) + c
 
 ## Coverage (honest byte metric)
 
@@ -45,7 +46,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
 | of which **verified** | **1586 (0.541%)** |
-| PENDING bytes | 782 |
+| PENDING bytes | 822 |
 
 Code functions: **2523**, of which verified **112**.
 
@@ -56,7 +57,7 @@ Code functions: **2523**, of which verified **112**.
 | 0x0000 | 619 | 17 | 65131 | 224 (0.3%) | 897 | 360 | 191 |
 | 0x0001 | 525 | 19 | 65757 | 276 (0.4%) | 0 | 569 | 148 |
 | 0x0002 | 763 | 51 | 65522 | 700 (1.1%) | 0 | 0 | 124 |
-| 0x0003 | 561 | 23 | 64435 | 375 (0.6%) | 0 | 0 | 319 |
+| 0x0003 | 561 | 23 | 64435 | 375 (0.6%) | 0 | 0 | 359 |
 | 0x0004 | 55 | 2 | 33329 | 11 (0.0%) | 66 | 11282 | 0 |
 
 <!-- MANUAL-BEGIN -->

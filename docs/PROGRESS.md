@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 64 — the `add bx,bx` anomaly is solved (it is not hand-written assembly)
+No new verified bytes this round, but it closes the project's oldest open question.
+
+- Clustered the 33..64 band (646 units) and filtered to **pure straight-line
+  bodies** (no calls, no jumps): only 10 units. Two were transcribed.
+- **`4e11:007e` WEIGHT2** (`return 2*(5*(abs(a)+1) + abs(b)) + c;`) matches under
+  `/Ot /Oi` in **every instruction except the final doubling**: the original has
+  `03 C0` (`add ax,ax`), MSC 7 emits `D1 E0` (`shl ax,1`).
+  **This is the same instruction family as the `add bx,bx` (round 48 census, 74
+  occurrences vs 18 `shl`)** that had been unexplained since round 34 and was
+  tentatively attributed to hand-written assembly. It is not: it is this
+  compiler's strength-reduction choice ("double with `add`"). The
+  `CONVENTIONS.md` section has been corrected accordingly.
+- Two new flag facts: **`abs()` is an intrinsic** (`/Oi` → `99 33 C2 2B C2`), and
+  `/Ot` is required for the `*5` form `8B D0 C1 E0 02 03 C2` instead of `imul`.
+- `43b0:0200`/`43d2:000a` (the duplicate pair) remain PENDING: the original loads
+  the far pointer as `8B 5E 08` + `8E 46 0A` around the global stores, while MSC 7
+  emits a single `les` — the split-load family again.
+- Ledger: 134 rows — MATCH 24, RELOCS 88, PENDING 22.
+
 ## Round 63 — wrapper family automated; a 213-unit family identified as blocked
 - Measured where the remaining mass is before choosing a target: small units
   (≤32 B) are only ~4.7 % of unmined bytes, the bulk is 65 B and up (85 %). Since

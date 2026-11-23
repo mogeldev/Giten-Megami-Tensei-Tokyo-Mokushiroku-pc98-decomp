@@ -3,6 +3,19 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 64 - the dd reg,reg anomaly explained
+- **bs() is an intrinsic**: with `/Oi` it expands to `99 33 C2 2B C2`
+  (`cwd / xor ax,dx / sub ax,dx`), which is exactly what the binary contains.
+  Without `/Oi` MSC emits a far call instead. Use `/Oi` for any function with
+  `abs` in it.
+- **Doubling is an instruction-selection fingerprint**: the original emits
+  `03 C0` (`add ax,ax`) where MSC 7 emits `D1 E0` (`shl ax,1`). This is
+  the same family as the `add bx,bx` (`03 DB`) that the round-48 census found
+  and could not explain. So that anomaly is **not hand-written assembly** - it is
+  this compiler's choice of `add` over `shl` for doubling. Any unit with a
+  doubled index is therefore unreachable from MSC 7 by exactly two bytes.
+- `/Ot` is needed for the `*5` strength reduction to appear as
+  `8B D0 C1 E0 02 03 C2` (mov/shl/add) rather than `6B C0 05` (imul).
 ## Round 63 - two far-call encodings, one of them unavailable
 - The binary contains **213 units** with `90 0E E8 <rel16>` (`push cs` then a
   near call) and **86** with `9A` (direct far call, often to an absolute

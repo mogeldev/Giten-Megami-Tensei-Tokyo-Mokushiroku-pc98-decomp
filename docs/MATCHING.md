@@ -144,3 +144,4 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 256e:000a | W_256E_000A | 22 | RELOCS | src=src/calib/cwraps.c; flags="/G1 /AM /Gs /Os"; generated wrapper, 4 arguments |
 | 257d:000a | W_257D_000A | 22 | RELOCS | src=src/calib/cwraps.c; flags="/G1 /AM /Gs /Os"; generated wrapper, 4 arguments |
 | 39dc:000a | W_39DC_000A | 27 | RELOCS | src=src/calib/cwraps.c; flags="/G1 /AM /Gs /Os"; generated wrapper, 6 pushed arguments including a zero constant |
+| 4e11:007e | WEIGHT2 | 40 | PENDING | `return 2*(5*(abs(a)+1) + abs(b)) + c;` with `abs` as an intrinsic (/Oi). Everything matches under `/Ot /Oi` except the final doubling: original `03 C0` (add ax,ax), MSC 7 emits `D1 E0` (shl ax,1). **This is the same instruction-selection family as the `add bx,bx` anomaly (idx_142a, round 48)** - the second-generation compiler doubles with add, MSC 7 with shl. Two bytes apart, semantics identical |

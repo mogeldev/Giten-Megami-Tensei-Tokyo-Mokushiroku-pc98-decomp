@@ -22,15 +22,19 @@ Applies to the byte-match project for **Giten Megami Tensei** (game engine `DDS9
 - File offset = `linear − 0x10000 + 0x3800`, valid up to offset 339 735 (after that: overlay).
 - MZ is relocatable at load time (3 562 relocs): always compare **image-relative against the Ghidra mapping**; which bytes are linker operands, **read from the object relocation table**, never guess.
 
-## Hand-ASM evidence - `add bx,bx` (round 34, strongest signal so far)
+## Hand-ASM evidence - `add bx,bx` (round 34, **corrected in round 64**)
 The binary contains 74 occurrences of `03 DB` (`add bx,bx`, index*2) against
 only 18 of `D1 E3` (`shl bx,1`). MSC 7.0 was tested with
 `return g_142a[i]` under /Os, /Ox, /Ot, /Od and /O2: **every** combination emits
-`D1 E3`. Together with the earlier `C7 06` zero-store finding (rounds 25/26)
-this means a subset of the modules cannot come from either compiler generation
-with any tested flag set - the working assumption is hand-written (or inline)
-assembly for those units. Ledger rows that depend on `03 DB` stay PENDING and
-are not rewritten as C just to raise the count.
+`D1 E3`.
+
+**Round 64 correction:** this is not hand-written assembly. In `4e11:007e`
+(`return 2*(5*(abs(a)+1) + abs(b)) + c;`) every instruction matches MSC 7 under
+`/Ot /Oi` **except** the final doubling, where the original has `03 C0`
+(`add ax,ax`) and MSC 7 emits `D1 E0` (`shl ax,1`). So the pattern is a
+**strength-reduction choice of this compiler** ("double with add"), not evidence of
+an assembler source. Units containing a doubled index remain unreachable from
+MSC 7 — but by exactly two bytes and for a now-understood reason.
 ## Round 55 - obtaining a DOS-hosted MSC 5.1 (and why it still is not usable)
 - Source that works: the **decompme compiler archive** on archive.org
   (`compiler-microsoft-microsoft-c-5.1-dos`) ships `msc-5.1.tar.gz` with
