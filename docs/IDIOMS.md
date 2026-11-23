@@ -15,6 +15,17 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 70 - jump-target padding is the fourth unsteerable trait
+- The original compiler **pads jump targets with `90` even in size-optimised
+  code**. MSC 7's `/Os` never pads, and `/Ot` does not merely add the nops - it
+  restructures returns into early exits (`mov ax,r / retf` per block). So a unit
+  whose source is otherwise correct can still be 2 bytes short and out of reach.
+- Symptom to recognise: displacements in every branch off by exactly 1-2, with
+  `90` bytes present at the corresponding places in the original. Stop
+  investigating the source once you see it - it is padding, not logic.
+- Confirmed on two independent units (`47ef:0008`, `2aa3:0002`). Together with
+  block order and evaluation order, that is **four** codegen choices no C variant
+  or flag combination reaches.
 ## Round 69 - what the misses are now made of
 - The remaining near-misses in the reachable set cluster into three codegen
   choices that cannot be steered from C: **branch-block order** (which arm falls

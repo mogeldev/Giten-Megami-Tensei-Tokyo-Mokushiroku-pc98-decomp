@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 70 — no new verified bytes; jump-target padding is the fourth blocker
+Reported plainly: **no ledger increment this round.** It went into the 65..128 B
+band (only 34 units survive the reachability filter) and the one candidate worth
+pursuing turned out to be blocked by a trait I can now name precisely.
+
+- `2aa3:0002` VALIDATE3 (69 B) is a clean three-range validator
+  (`a ∈ [-0x9AB,0x9AB]`, `b ∈ [0,0x175]`, `c ∈ [0x119,0x902]`, returning
+  `-1/-2/-3/0`). I got the source *right*: with an if/else chain assigning to a
+  result variable and `/Ox /Oa /Os`, the instruction stream matches including the
+  shared epilogue — **except that the original has two `90` bytes** aligning the
+  `mov ax,-2` and `mov ax,-1` blocks, and the branch displacements are 2 bytes
+  longer as a result.
+- `47ef:0008` (CLAMP_1_999, round 69) has exactly the same residual (`EB 03 90`
+  vs `EB 02`). So this is **not** a one-off: the original compiler pads jump
+  targets **even in size-optimised code**, while MSC 7's `/Os` does not, and its
+  `/Ot` changes the block structure to early returns instead of just adding the
+  nops. No flag combination gives "shared epilogue + padding".
+- Second candidate, `4e9b:0008` (two stores returning a long), differs only in
+  evaluation order: the original loads both arguments before storing
+  (`8B 5E 06 / 8B 46 08 / 89 1E / A3`), MSC stores one at a time, and `/Ox`
+  switches to `SI` with a save/restore.
+- Ledger unchanged: 158 rows — MATCH 31, RELOCS 105, PENDING 22.
+
 ## Round 69 — one MATCH; the branch-block order is not steerable
 Small round, reported as such: **1 new verified function** (`4a91:0002` KEEP_PTR,
 27 B, **MATCH**) plus four candidates with fully understood misses.
