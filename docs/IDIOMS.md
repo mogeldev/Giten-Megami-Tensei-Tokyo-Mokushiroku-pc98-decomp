@@ -3,6 +3,20 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 50 - duplicates exist; scan them correctly
+- **Byte-identical duplicates are real** and each one yields a free ledger row
+  (one transcription, several addresses). They must be found with a correct
+  terminator test: a unit ends with `CB`/`C3` at `b[-1]` **or** with
+  `CA`/`C2` at `b[-3]` (the `retf imm16` opcode, not `b[-2]`). Getting
+  this wrong silently hides most of the binary - it cost a false "no duplicates"
+  conclusion in round 49.
+- Found groups: `1df5:0008`/`1dfc:0066`, `1e1e:0046`/`1e1e:0068`,
+  `43b0:0200`/`43d2:000a`, plus duplicates of two already-verified ALU helpers.
+- **`int __far __pascal f(int __far *p) { return *p; }`** is 13 bytes:
+  `55 8B EC C4 5E 06 26 8B 07 C9 CA 04 00` (MATCH).
+- Units that keep the far pointer in `BX:ES` and never write the parameter back
+  are NOT reproduced by MSC 7 (it increments the parameter in memory or spills a
+  frame); that is the same second-generation codegen as the `5D` epilogue.
 ## Round 45 — the full flag set, and two silent failure modes
 - **`/Ox /Oa /Os` is a real combination.** `/Oa` = assume no aliasing -> the
   compiler keeps a global in a register across a comparison (`8B 16 <disp>` /

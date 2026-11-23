@@ -112,3 +112,6 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 2603:c476 | count_up | 18 | RELOCS | src=src/calib/cunit6.c; flags="/G1 /AM /Gs /Os"; `if (g_1cf0 > 0) g_1cf2++;` — 32-bit increment as `83 06 .. 01` + `83 16 .. 00` |
 | 1000:1364 | abs_branch | 13 | PENDING | `int __far f(int v) { return (v < 0) ? -v : v; }` reproduces the body exactly (`99` cwd / `33 C2` / `2B C2`) but the epilogue differs: original `5D CB` (pop bp; retf), MSC 7 emits `C9 CB` (leave; retf) at /Os, /Ot, /Ox /Oa /Os and /Oy /Os. Epilogue style is a compiler-generation fingerprint - see CONVENTIONS.md |
 | 35ca:804e | @exch_zero | 16 | RELOCS | src=src/calib/cexch1.c; flags="/G1 /AM /Gs /Ox"; `int __far __fastcall f(int v) { old = g_78ca; g_78ca = v; g_78cc = 0; return old; }` - DX temp requires /Ox; unit alias 3dce:000e |
+| 3ded:000e | DEREF_WORD | 13 | MATCH | src=src/calib/cderf1.c; flags="/G1 /AM /Gs /Os"; `int __far __pascal f(int __far *p) { return *p; }` (`C4 5E 06` les + `26 8B 07`); byte-identical |
+| 3b16:0030 | OR_MASK | 16 | MATCH | src=src/calib/cunit6.c; flags="/G1 /AM /Gs /Os"; byte-identical duplicate of 35ca:5198 found by the fixed duplicate scan |
+| 3b1a:0000 | ANDNOT_MASK | 18 | MATCH | src=src/calib/cunit6.c; flags="/G1 /AM /Gs /Os"; byte-identical duplicate of 35ca:51a8 |

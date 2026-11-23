@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 50 — duplicate scan bug fixed, three MATCHes (two of them duplicates)
+- **Correction to round 49.** The claim "no copy-paste duplicates in own code" was
+  wrong: the scanner tested `b[-2]` for the `retf imm16` opcode, but it sits at
+  `b[-3]`, so **every `CA`-terminated function was skipped** — which is most of
+  them. `tools/dups.py` now has the corrected terminator test and is a kept tool,
+  not a scratch script.
+- Real duplicate groups among unmatched units: **4**, of which 3 are game code
+  (`1df5:0008`/`1dfc:0066`, `1e1e:0046`/`1e1e:0068`, `43b0:0200`/`43d2:000a`) and
+  one is CRT. Two further duplicates were hiding as unrelated candidates:
+  `3b16:0030` = `35ca:5198` (OR_MASK) and `3b1a:0000` = `35ca:51a8` (ANDNOT_MASK).
+- New verified rows, all **MATCH**:
+  - `3ded:000e` DEREF_WORD (13 B, `src/calib/cderf1.c`) — `int __far __pascal f(int __far *p) { return *p; }`;
+  - `3b16:0030` OR_MASK and `3b1a:0000` ANDNOT_MASK (duplicates, reuse `cunit6.c`).
+- The two duplicate groups that are *not* yet transcribed (`1e1e:0046` put-a-word,
+  `1df5:0008` skip-whitespace) resist for an interesting reason: the original
+  keeps the far pointer in `BX:ES` and never writes it back, while MSC 7 either
+  increments the parameter in memory or spills an 8-byte frame. The plain
+  formulations are documented in the round; the shape looks like the same
+  second-generation codegen as the `5D` epilogue.
+- Ledger: 104 rows — **MATCH 15**, RELOCS 74, PENDING 15.
+
 ## Round 49 — one RELOCS; duplicate-function idea measured as exhausted
 - `35ca:804e` `@exch_zero` (16 B, `src/calib/cexch1.c`, `/G1 /AM /Gs /Ox`):
   `old = g_78ca; g_78ca = v; g_78cc = 0; return old;` — the exchange family with a
