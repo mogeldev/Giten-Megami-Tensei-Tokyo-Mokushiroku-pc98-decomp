@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 16: a five-call long chain and a guarded double call (143 B)
+`crelay30.c` (`/Os`):
+
+- `33c1:0006` and `33c4:0006` (48 B each) - five calls in a row:
+  `h4(h3(c2(c1(-1), a))); return h5(1);`. Two rules decide the match:
+  `h4`'s result must be **discarded** (a separate statement; folding it into one
+  nested expression keeps the value and changes the pushes), and the wrapper
+  must return **`int`** - declaring it `long` makes MSC insert a `cwd` before
+  `leave`. The chain mixes longs (`c1` returns long, `c2` takes two longs) with
+  an int argument/return at the ends.
+- `48aa:0008` (47 B) - the same outer guard as `48ad:0008`, but the body calls
+  twice (`fc0()` then `fc2(0, 1)`), which moves the `75 21` skip.
+
+Process note: `match.py` accepted `33c1` at 47 bytes because that is a prefix
+match; `verify.py`'s window check (window must end at a return) caught the
+missing byte and the sizes were corrected to 48. Keeping that check strict is
+worth the occasional round-trip - a prefix match alone would have put a wrong
+size in the ledger.
+
+Ledger 406 rows - MATCH 37, RELOCS 345, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 7 752 B (2.644 %).
+
 ## Round 15: two medium wrappers (88 B) and two source-level rules
 `crelay29.c` (`/Os`):
 
