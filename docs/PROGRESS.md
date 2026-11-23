@@ -1,5 +1,20 @@
 # PROGRESS
 
+## Round 84 — three RELOCS; nested calls are the productive shape
+- Enumerated the size-26 and size-28 classes (10 framed reachable units each).
+  Size 28 yields nothing new — it is dominated by the blocked families
+  (`3839`/`3898`/`39ed`/`3a66` use the `8B D8 / 8E C2` order, `2a28`/`2a29` the
+  evaluation order, `2dce` a `rep stosw`). Size 26 gave three:
+  - `4dae:0002` **NESTED4** (25 B) — `HELP2(HELP1(z, 0, x, y))`, four arguments to
+    the inner call;
+  - `4e6f:0006` **NESTED_PTR** and `4e71:0000` **NESTED_PTR2** (26 B each) —
+    `SINK3(WHERE0(0), 0x1F, v & 0x7F)`, where the inner call's **far pointer result
+    is pushed as two words** (`52 50` = `push dx; push ax`).
+- All in `src/calib/cnest1.c`. **Nested calls are now the most reliable remaining
+  shape**: they are pure composition, so the traits that block arithmetic
+  (register choice, padding, load order) rarely get a chance to interfere.
+- Ledger: 181 rows — MATCH 32, **RELOCS 127**, PENDING 22.
+
 ## Round 83 — best round in a while: seven RELOCS, two families enumerated
 - Instead of guessing a shape, I measured: among the 488 reachable units, **size 24
   is the largest framed cluster (16 units)**, so I enumerated all 16 and found two

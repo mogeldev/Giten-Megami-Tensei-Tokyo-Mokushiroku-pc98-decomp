@@ -15,6 +15,17 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 84 - nested calls are the reliable remaining shape
+- **Composition beats arithmetic.** `HELP2(HELP1(z, 0, x, y))` and
+  `SINK3(WHERE0(0), 0x1F, v & 0x7F)` verify first time, because the code is only
+  pushes plus calls - no register choice, no jump padding, no load order for the
+  traits to corrupt.
+- **A far pointer returned by an inner call is pushed as two words**:
+  `52 50` = `push dx` then `push ax`, in that order (segment first). That is
+  the far-pointer argument convention in action at a call site.
+- When enumerating a size class, expect most of it to be blocked: the size-28 class
+  (10 units) had zero transcribable members, size 26 had three. Sample the whole
+  class anyway - it is cheap and the hit rate is what it is.
 ## Round 83 - enumerate a size class instead of guessing a shape
 - **Sort the reachable set by unit size and take the biggest framed cluster.** That
   is what produced seven rows this round after four rounds of one-or-zero: 16 units

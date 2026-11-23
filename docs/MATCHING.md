@@ -189,3 +189,6 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 21fb:000e | FIVE_ZEROS | 23 | RELOCS | src=src/calib/cmix2.c; flags="/G1 /AM /Gs /Os"; `HELP5(a, 0, 0, 0, 0); return 0;` - near pascal, four `6A 00` zero pushes |
 | 4e2d:0002 | DGROUP_CALL | 24 | RELOCS | src=src/calib/cmix2.c; flags="/G1 /AM /Gs /Os"; `HELP(&g_2c82, a, b, c)` with a char argument - near pascal, DGROUP pointer pushed as `1E 68 <off>` |
 | 4e2f:000e | DGROUP_CALL2 | 24 | RELOCS | src=src/calib/cmix2.c; flags="/G1 /AM /Gs /Os"; same shape, second DGROUP object |
+| 4dae:0002 | NESTED4 | 25 | RELOCS | src=src/calib/cnest1.c; flags="/G1 /AM /Gs /Os"; `HELP2(HELP1(z, 0, x, y))` - four arguments to the inner call, result pushed for the outer one |
+| 4e6f:0006 | NESTED_PTR | 26 | RELOCS | src=src/calib/cnest1.c; flags="/G1 /AM /Gs /Os"; `SINK3(WHERE0(0), 0x1F, v & 0x7F)` - a far pointer returned by the inner call is pushed as two words (`52 50` = push dx; push ax) |
+| 4e71:0000 | NESTED_PTR2 | 26 | RELOCS | src=src/calib/cnest1.c; flags="/G1 /AM /Gs /Os"; same shape with a different inner helper and constant |
