@@ -247,3 +247,6 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 4e22:000a | _relay_91c4 | 11 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; near relay of constants 0 and 4096 |
 | 4f54:0070 | RELAY_4718 | 19 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; prepend DGROUP:0x860E to a word |
 | 5096:000a | _relay_4f64 | 14 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; pass DGROUP:0x3970 and two zero words |
+| 307b:000c | _save_01a4 | 11 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; call far Pascal with zero and store the result at DGROUP:0x1CD4 |
+| 4182:000c | _save_883e | 9 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; call a far no-argument routine and save AX at DGROUP:0x85F4 |
+| 4183:0006 | _use_85f4 | 9 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; load DGROUP:0x85F4 into AX for a far fastcall |

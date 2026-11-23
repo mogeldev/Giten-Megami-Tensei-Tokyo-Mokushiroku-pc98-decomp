@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Three far-call adapters verified
+`307b:000c` and `4182:000c` save a far call's AX result to DGROUP.
+`4183:0006` reloads the latter word into AX for a far fastcall. The three
+routines add 29 B as RELOCS in the existing relay compilation unit.
+
 ## Ten more direct far-call wrappers verified
 One build covers ten wrappers that add constants, DGROUP words, or DGROUP
 far pointers to a Pascal call. This adds 163 B as RELOCS, including the
