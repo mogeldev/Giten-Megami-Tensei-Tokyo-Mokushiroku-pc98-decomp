@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 77 — a function that is not in the inventory
+- `4e8e:0070` **_five_neg** (14 B, RELOCS, `src/calib/cfive1.c`) —
+  `HELP5(-1, -1, -1, -1, -1)` to a near pascal callee.
+  **It is not a unit boundary**: `units.csv` merges it with the 65-byte function
+  before it, because `split.py`'s prologue set has no entry for a function that
+  starts with `6A` (push imm8) after `C9 C2 0C 00` + one padding byte. The ledger
+  row is therefore *finer than the inventory*.
+- That is a new lead rather than a one-off: if the splitter misses functions that
+  begin with `6A`/`1E`/`56`/`57`/`B8`/`A1` after a return, then some of the "one
+  big unit" rows in `units.csv` contain two or three verifiable functions each.
+  Quantifying that is the next step — it changes the denominator, not just the
+  numerator.
+- Also re-checked the candidate filter: excluding any unit containing `90` was too
+  aggressive (`90` is a legitimate operand byte), so the "reachable" list used this
+  round kept them. 156 framed candidates in 10..60 B, but most still hit the
+  documented traits (interrupt wrappers, bare `5D` epilogue, `SI` registers).
+- Ledger: 168 rows — MATCH 32, **RELOCS 114**, PENDING 22.
+
 ## Round 76 — the traits are now one table with evidence, in CONVENTIONS.md
 No new verified bytes; this round makes the accumulated knowledge usable.
 

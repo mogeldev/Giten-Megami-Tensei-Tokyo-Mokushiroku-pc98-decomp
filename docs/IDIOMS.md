@@ -15,6 +15,17 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 77 - the ledger can be finer than the inventory
+- **`units.csv` is not the truth about function boundaries.** `4e8e:0070` is a
+  14-byte function that the splitter merged into the preceding 65-byte unit: it
+  begins with `6A` (push imm8) right after a `C9 C2 0C 00` and a padding byte,
+  and `split.py`'s prologue set has no `6A` entry.
+- Consequence: when a unit looks like "a function plus trailing bytes", check for an
+  internal return followed by a plausible prologue *before* assuming the unit is one
+  function. The ledger row is addressed directly, so it does not need the unit.
+- `90` is a legitimate operand byte, so treating its presence as "blocked by
+  padding" hides real candidates. Only treat it as padding when a *displacement* is
+  off by the number of `90` bytes at the targets.
 ## Round 75 - MUL vs IMUL names the signedness
 - `F7 66 <disp>` is unsigned `MUL`, `F7 6E <disp>` is `IMUL`; likewise
   `F7 E1` vs `F7 E9` for `mul cx`. When a multiply shape matches except for
