@@ -1,5 +1,18 @@
 # PROGRESS
 
+## Round 80 — one RELOCS from the selector family
+- `1e3b:00f0` **PICK_FLAG** (29 B, RELOCS, `src/calib/cpick2.c`, `/G1 /AM /Gs /Os`) —
+  `if (flag == 0) return g_pa; return g_pb;`, a two-way far-pointer selector.
+  Useful contrast with round 79: here the parameter is compared **in memory**
+  (`83 7E 06 00`), so `/Os` is the right flag, while `PICK_PTR` staged it in `BX`
+  and needed `/Ox`. Which flag applies is visible in the bytes, not guessable.
+- Scanned for the whole family (units with two or more far-pointer global loads):
+  only **4 units** exist. The other three are `1e2f:0008` (already blocked on a
+  `7C`/`7F` branch pair), `3d52:000a` (84 B, long global-vs-parameter chain) and
+  `3074:000c`, which is a four-way selector — but it carries a `90` after **every**
+  jump (`EB 22 90`, `EB 19 90`, …), i.e. the padding trait, so it is out of reach.
+- Ledger: 171 rows — MATCH 32, **RELOCS 117**, PENDING 22.
+
 ## Round 79 — one 44-byte RELOCS
 - `1f6f:000c` **PICK_PTR** (44 B, RELOCS, `src/calib/cpick1.c`, `/Ox /Oa /Os`) —
   a three-way far-pointer selector:

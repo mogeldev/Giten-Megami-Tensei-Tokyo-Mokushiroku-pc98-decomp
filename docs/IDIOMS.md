@@ -15,6 +15,15 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 80 - the same selector needs different flags
+- Two far-pointer selectors, same source shape, **different flags**: `PICK_PTR`
+  (`1f6f:000c`) stages the kind in BX (`8B 5E 06 / 0B DB`) and needs `/Ox`;
+  `PICK_FLAG` (`1e3b:00f0`) compares in memory (`83 7E 06 00`) and needs
+  `/Os`. Read which form the binary uses before choosing the flag - do not default
+  to /Ox.
+- The "far pointer selector" family is small: only 4 units in the whole binary have
+  two or more `A1 <off> / 8B 16 <seg>` pairs, and two of those are blocked by
+  branch polarity or jump padding.
 ## Round 79 - far pointers to globals load in halves
 - Returning a global far pointer loads `A1 <offset>` then `8B 16 <segment+2>` -
   **not** `les`. So a DGROUP `char __far *` global read for a return value keeps
