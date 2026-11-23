@@ -29,3 +29,10 @@ extern void __far __fastcall f8850(int);
 void __far save_01a4(void) { g_1cd4 = f01a4(0); }
 void __near save_883e(void) { g_85f4 = f883e(); }
 void __near use_85f4(void) { f8850(g_85f4); }
+
+extern int g_7f92;
+extern int __far __fastcall f80a0(int);
+
+int __far __pascal relay_80a0(int a) { return f80a0(a); }
+void __near save_883e_7f92(void) { g_7f92 = f883e(); }
+void __near use_7f92(void) { f8850(g_7f92); }

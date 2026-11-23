@@ -1,5 +1,10 @@
 # PROGRESS
 
+## AX fastcall relay and second save/reload pair verified
+`3220:00a2` forwards a Pascal stack argument in AX. `36e7:020e` and
+`36e7:0218` mirror the previous save/reload pair at a different DGROUP word;
+the save entry is inside a merged inventory unit. All three add 33 B as RELOCS.
+
 ## Three far-call adapters verified
 `307b:000c` and `4182:000c` save a far call's AX result to DGROUP.
 `4183:0006` reloads the latter word into AX for a far fastcall. The three

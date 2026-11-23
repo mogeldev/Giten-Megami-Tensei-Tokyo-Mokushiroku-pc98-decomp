@@ -250,3 +250,6 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 307b:000c | _save_01a4 | 11 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; call far Pascal with zero and store the result at DGROUP:0x1CD4 |
 | 4182:000c | _save_883e | 9 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; call a far no-argument routine and save AX at DGROUP:0x85F4 |
 | 4183:0006 | _use_85f4 | 9 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; load DGROUP:0x85F4 into AX for a far fastcall |
+| 3220:00a2 | RELAY_80A0 | 15 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; forward a far Pascal stack argument in AX to a far fastcall |
+| 36e7:020e | _save_883e_7f92 | 9 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; save the same far call's result to DGROUP:0x7F92; starts inside a merged inventory unit |
+| 36e7:0218 | _use_7f92 | 9 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; reload DGROUP:0x7F92 into AX for the companion far fastcall |
