@@ -1,5 +1,14 @@
 # PROGRESS
 
+## Runde 10 — 0x39F8-Paar: 1 RELOCS, 1 ehrliches PENDING (2026-11-23)
+- inc_39f8_capped (4fac:000a): RELOCS — `if (g<0x10) g++;` Form exakt.
+- get_39f8_clamped (4fab:000a): PENDING — MSC7-/Os kompiliert Ternaer zur
+  Early-Return-Form; das Original benutzt Sprung-Merge mit einem RET. Zwei
+  Hypothesen (Ternaer, if/else+r) dokumentiert; dritte folgt mit Aufrufer-Kontext.
+- IDIOMS.md erstmals mit verifizierten MSC-Idiomen befuellt (Vorlage 4: nach
+  jeder geloesten Diff-Ursache ergaenzen — hier: die ungeloesste auch).
+- verify: gruen — 13 Ledger-Zeilen, RELOCS 12, PENDING 1.
+
 ## Runde 9 — 32-Bit-Getter-Paar + Flag-Op: 11 RELOCS gesamt (2026-11-23)
 - cget3.c: get_l (far) + get_ln (__near) — DX:AX-Rueckgabe, je 2x disp16-Fixup,
   Original 1871:d0e4 / 35ca:3c34 (Ghidra hatte get_l als 16-Bit fehltypisiert).

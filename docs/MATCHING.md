@@ -17,3 +17,5 @@ Notiz-Konvention: `obj=<Pfad>` verweist auf das OMF-Objekt für verify.py.
 | 257f:0004 | get_l | 8 | RELOCS | obj=build/cget3.OBJ, 2x disp16-Fixup (DGROUP 0x13D2, DX:AX-Rueckgabe); Ghidra FUN_1871_d0e4 |
 | 398d:0004 | get_ln | 8 | RELOCS | obj=build/cget3.OBJ, __near, 2x disp16-Fixup (DGROUP 0x14C4); Ghidra FUN_35ca_3c34 |
 | 2131:000c | set_flag | 6 | RELOCS | obj=build/cflag1.OBJ, disp16-Fixup (DGROUP 0x0F44), imm8 0x40; src/calib/cflag1.c |
+| 4fac:000a | inc_39f8_capped | 12 | RELOCS | obj=build/cinc1.OBJ, 2x disp16-Fixup (DGROUP 0x39F8); if (g<0x10) g++; |
+| 4fab:000a | get_39f8_clamped | 16 | PENDING | 2 Diff-Versuche: Ternaer -> MSC7/Os erzeugt Early-Return-Form (zwei RET), Original hat Sprung-Merge (ein RET); if/else+r -> ENTER+Stackslot. Diff @+0x6 (jl +5 vs +4), @+0xa (EB vs C3) |
