@@ -1,5 +1,15 @@
 # PROGRESS
 
+## Runde 22 — report.py: STATUS.md wird generiert (2026-11-23)
+- `tools/coverage.py` in `compute()` (Zahlen) + `main()` (Konsolenausgabe) getrennt,
+  damit `tools/report.py` dieselben Zahlen ohne Doppel-Logik nutzen kann.
+- `tools/report.py` schreibt `docs/STATUS.md`: Ledger-Zaehler (MATCH/RELOCS/PENDING),
+  PENDING-Liste, Coverage-Tabelle, Regions-Tabelle. Handgeschriebener Teil steht
+  zwischen `MANUAL-BEGIN`/`MANUAL-END` und bleibt bei jedem Lauf erhalten (getestet).
+- Damit sind die Zaehler nicht mehr handgepflegt — STATUS kann nicht mehr
+  veralten oder widerspruechlich werden (die Ursache der Runde-21-Bereinigung).
+- verify gruen, Coverage-Zahlen unveraendert (100 / 293 640 B = 0,034 %).
+
 ## Runde 21 — Inventar bereinigt: 1956 Code-Funktionen statt 1970 (2026-11-23)
 - `functions.csv` traegt jetzt `section=CODE|DATA`; `gt.py` setzt die Markierung aus
   `not_code.csv`, `coverage.py` zaehlt nur CODE-Zeilen als Funktionen.
