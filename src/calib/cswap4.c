@@ -64,3 +64,23 @@ int __far __pascal x_4df5_000e(int v)
     g_2c6e = v;
     return old;
 }
+
+/* Added by scanning the 19-byte body, not the merged inventory window. */
+int g_00c8;
+int g_192c;
+
+int __far __pascal swap_00c8(int v)
+{
+    int old = g_00c8;
+
+    g_00c8 = v;
+    return old;
+}
+
+int __far __pascal swap_192c(int v)
+{
+    int old = g_192c;
+
+    g_192c = v;
+    return old;
+}

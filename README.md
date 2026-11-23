@@ -16,18 +16,13 @@ OMF linker relocations), or **PENDING** with a documented cause — nothing is f
 - Base flags **`/G1 /AM /Gs /Os`** (80186, medium model, no stack checks, size
   optimization). Flags are chosen **per source file**: `/Ox` is required for
   functions whose original keeps a value in `DX`/`BX` instead of spilling it.
-- **162 functions byte-verified**: **MATCH 32**, **RELOCS 130**, plus
-  **25 PENDING** rows, each with the tested variants and the surviving diff.
-  Start with **`docs/HOWTO.md`** — reproduce a row, extend the ledger, or diagnose a
-  mismatch. Ledger: `docs/MATCHING.md`. `tools/verify.py` rebuilds every source from
-  scratch and re-checks every row (exit 0 = green); `tools/checkled.py` proves the
-  bookkeeping.
-- Coverage: **2631 / 293 211 own code bytes (0.897 %)** — the honest byte metric
-  from `tools/coverage.py`; ~12 KB of the image are data, 963 bytes are foreign CRT.
-- **How far this can go, measured**: `docs/GAP.md` counts, per codegen trait, how
-  much of the binary Microsoft C 7 cannot reproduce; `docs/CONVENTIONS.md` lists the
-  nine traits with the function that isolates each one. Only ~24.5 KB of code is
-  blocked by nothing at all; the rest needs the original compiler generation.
+- [Current ledger totals and C coverage](docs/STATUS.md) are generated from the
+  [matching ledger](docs/MATCHING.md). ASM-assisted rows are reported separately.
+  Start with the [reproduction guide](docs/HOWTO.md) to rebuild a row, extend the
+  ledger, or diagnose a mismatch.
+- The [gap report](docs/GAP.md) counts byte patterns associated with known codegen
+  differences. It is a candidate filter, not a reachability ceiling; see the
+  [calibration evidence](docs/CONVENTIONS.md).
 
 ## What is proven, and what is not
 

@@ -1,5 +1,11 @@
 # PROGRESS
 
+## Round 98 - two swap functions recovered from merged windows
+A near-twin scan found `1fb1:0006` and `3bd6:001a`: both share the verified
+swap-and-return body, with different DGROUP operands. The inventory reports 62
+and 36 bytes, so the existing exact-size sweep skipped both. The actual bodies
+end at `retf 2` after 19 bytes. Both compile from C and verify as RELOCS (+38 B).
+
 ## Round 97 - new tool finds a real function the inventory had lost
 A different angle, and it produced a verified function plus a reusable tool.
 

@@ -45,6 +45,7 @@ def main():
         "|---|---|",
         f"| MATCH | {s['n_match']} |",
         f"| RELOCS | **{s['n_relocs']}** |",
+        f"| ASM (excluded from C coverage) | {sum(row[3] == 'ASM' for row in s['ledger'].values())} |",
         f"| PENDING | **{s['n_pending']}** |",
         "",
         "PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):",
