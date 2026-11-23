@@ -3,6 +3,17 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 54 - struct callbacks
+- **Callback member at a struct offset**: `if (s->fn) s->fn(s, a, b);` with
+  `fn` at `+0x10` compiles exactly as the binary shows once the struct is
+  declared honestly: `les bx,[bp+8]`, null test via
+  `26 8B 47 12 / 26 0B 47 10` (segment and offset of the member), then
+  `push es / push bx` to pass the struct itself as the first argument and
+  `26 FF 5F 10` for the indirect call.
+- **Return + push order determines the signature.** `retn 8` with a far struct
+  pointer plus two words means 4 + 2 + 2 bytes, and pascal pushes left to right,
+  so the struct pointer must be the first declared parameter. Getting this right
+  from the bytes avoids trial and error.
 ## Round 53 - indirect call and ternary-mask idioms
 - **Far function pointer null test**: `if (fp) fp(...)` compiles to
   `A1 <seg> / 0B 06 <off> / 74 xx` (or ax,seg with ax,off) followed by

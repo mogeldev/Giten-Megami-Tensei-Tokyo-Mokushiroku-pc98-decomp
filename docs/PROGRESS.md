@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 54 — callback-through-struct MATCH on the first attempt
+- `4665:0004` **CB_STRUCT** (32 B, **MATCH**, `src/calib/ccb1.c`, `/G1 /AM /Gs /Os`):
+  ```c
+  struct S { char pad[0x10]; void (__far __pascal *fn)(struct S __far *, int, int); };
+  void __near __pascal cb_struct(struct S __far *s, int a, int b)
+  { if (s->fn) s->fn(s, a, b); }
+  ```
+  `retn 8` plus pascal push order pinned the signature down (`s` is the first
+  declared parameter), and the round-53 pointer-null idiom made the guard
+  predictable. Byte-identical, no relocation to mask.
+- `4737:0002` **SLOT_PTR** (32 B) added as PENDING with its diagnosis: the
+  semantics are `i = (v < 0 || v > 0xF) ? 0xF : v;` returning a far pointer
+  `0x43A3:(i * 0x21F)`. The original keeps `i` in **BX** and lays the guard out as
+  `or bx,bx / jl +5 / cmp bx,0x10 / jl +3 / mov bx,0xF`; MSC 7 uses `DX` with
+  different block bodies (`jl +9`) at `/Os`, `/Ox` and `/Ox /Oa /Os`. Body
+  verified, layout not — recorded rather than forced.
+- `tools/twins.py`: no new twins.
+- Ledger: 113 rows — **MATCH 21**, RELOCS 76, PENDING 16.
+
 ## Round 53 — CALL_CB (RELOCS) and TWOBITS (MATCH) from the 30..64 band
 - `39eb:000a` **CALL_CB** (29 B, RELOCS, `src/calib/cind1.c`, `/G1 /AM /Gs /Os`):
   `void __near __pascal f(int a, int b, int c) { if (g_cb) g_cb(a, b, c); }` —
