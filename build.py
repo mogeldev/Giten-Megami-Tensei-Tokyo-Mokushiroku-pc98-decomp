@@ -33,6 +33,8 @@ def main():
                          "(MSC7I = MS C 7.0, MSC6I = MS C 6.00ax)")
     ap.add_argument("--no-dpmi", action="store_true",
                     help="do not load the HDPMI32 TSR (MSC 6.0 needs no DPMI)")
+    ap.add_argument("--force", action="store_true",
+                    help="rebuild even if the cache stamp matches")
     a = ap.parse_args()
 
     src_abs = os.path.abspath(os.path.join(ROOT, a.source))
@@ -50,6 +52,15 @@ def main():
 
     base = os.path.splitext(os.path.basename(a.source))[0]
     obj = f"D:\\BUILD\\{base}.OBJ"
+    obj_path = os.path.join(BUILD_DIR, f"{base}.OBJ")
+    stamp_path = os.path.join(BUILD_DIR, f"{base}.stamp")
+    stamp = (f"flags={a.flags}\nmsc={a.msc_dir}\ndpmi={not a.no_dpmi}\n"
+             f"src={os.path.getmtime(src_abs):.6f}\nsize={os.path.getsize(src_abs)}\n")
+    if not a.force and os.path.isfile(obj_path) and os.path.isfile(stamp_path):
+        with open(stamp_path, encoding="ascii") as f:
+            if f.read() == stamp:
+                print(f"CACHED: {obj_path} (flags/source unchanged)")
+                return 0
     src_d = "D:\\" + os.path.dirname(a.source).replace("/", "\\").upper()
     src_f = f"{src_d}\\{os.path.basename(a.source).upper()}"
 
@@ -86,6 +97,8 @@ def main():
 
     obj_path = os.path.join(BUILD_DIR, f"{base}.OBJ")
     if os.path.isfile(obj_path):
+        with open(stamp_path, "w", encoding="ascii") as f:
+            f.write(stamp)
         print(f"OK: {obj_path} ({os.path.getsize(obj_path)} Bytes)")
         return 0
     log = os.path.join(BUILD_DIR, f"{base}.CL.TXT")

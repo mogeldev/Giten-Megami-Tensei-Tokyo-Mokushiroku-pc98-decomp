@@ -61,10 +61,11 @@ Code functions: **1956**, of which verified **22**.
 
 1. `LINK.EXE` (DOSX16) hangs under dosbox-x in all DPMI variants — prerequisite
    for `build_replacement` (phase 6); candidate: native OMF linker (jwlink)
-2. Build cache (flags+mtime) for `verify.py`, so the rebuild does not cost
-   ~25 s every time (template phase 3 explicitly names the cache)
-3. Continue the family workflow: ALU/DOS helpers with `55 8b ec` frame
-4. For the next PENDING candidate, first check whether a caller pins down the
+2. Continue the family workflow: functions with a `55 8b ec` frame whose
+   decompiled body is a single simple statement (setter / arithmetic forms)
+3. For the next PENDING candidate, first check whether a caller pins down the
    semantics — otherwise the hand-ASM question stays open (round 26 disproved the
    MSC-6 hypothesis; MSC 7.0 remains the toolchain, `--msc-dir MSC6I` is ready)
+4. Two-parameter `retf 4` shapes and skeleton clustering produced no family in
+   round 29 — revisit only when a concrete caller proves such a shape exists
 <!-- MANUAL-END -->

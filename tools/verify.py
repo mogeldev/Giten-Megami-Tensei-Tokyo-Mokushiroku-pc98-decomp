@@ -67,10 +67,11 @@ def main():
         stem = os.path.splitext(os.path.basename(src))[0]
         obj = os.path.join(BUILD, f"{stem}.OBJ")
         if not fast:
-            print(f"build {src} [{flags}] ...", flush=True)
             r = subprocess.run([PY, os.path.join(ROOT, "build.py"), src,
                                 "--flags", flags],
                                capture_output=True, text=True)
+            tag = "CACHED" if (r.stdout or "").startswith("CACHED") else "built"
+            print(f"{tag:<6} {src} [{flags}]", flush=True)
             if r.returncode != 0:
                 fails.append(f"BUILD FAILED {src} [{flags}]\n"
                              f"{(r.stdout or '')[-400:]}{(r.stderr or '')[-400:]}")

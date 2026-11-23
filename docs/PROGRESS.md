@@ -1,5 +1,17 @@
 # PROGRESS
 
+## Round 29 — build cache implemented (verify 18.6 s -> 0.8 s)
+- `build.py` writes a stamp (`flags`, toolchain dir, DPMI flag, source mtime and
+  size) next to each object and skips the compile when all of it matches; `--force`
+  bypasses the cache. Template phase 3 asks for exactly this.
+- `verify.py` reports `CACHED` vs `built` per source file, so a stale cache can
+  never pass silently — a flag or source change invalidates the stamp.
+- Measured on this machine: first verify (8 source files around dosbox-x)
+  **18.6 s**, cached verify **0.8 s**.
+- Matching vein for the round: two-parameter canonical shapes (`retf 4`) and a
+  masked-skeleton clustering over all 589 remaining candidates both produced no
+  family — documented here so the next round does not repeat the dead ends.
+
 ## Round 28 — three more canonical forms matched (22 RELOCS total)
 - Shape scan over real function boundaries found three further canonical
   far-pascal one-parameter units (src/calib/coset2.c, `/G1 /AM /Gs /Os`):
