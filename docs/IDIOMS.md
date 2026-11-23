@@ -15,6 +15,14 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 85 - retf imm16 reconciles pushes with parameters
+- **`retf imm16` gives the callee's argument byte count.** If the push list is
+  longer than `imm16/2` words, the excess are **constants**, not parameters:
+  `HELP12(a,b,c,d,e, 0,0,0,0, 0x4F, 0x18F, f)` pushes 12 words for a 12-byte
+  return - six parameters plus six literals. Counting pushes and dividing by two is
+  the fastest way to decide which pushes are arguments.
+- `68 <imm16>` (push imm16) appears only for constants above 0x7F; smaller ones use
+  `6A <imm8>`. Both are fine in the same list.
 ## Round 84 - nested calls are the reliable remaining shape
 - **Composition beats arithmetic.** `HELP2(HELP1(z, 0, x, y))` and
   `SINK3(WHERE0(0), 0x1F, v & 0x7F)` verify first time, because the code is only

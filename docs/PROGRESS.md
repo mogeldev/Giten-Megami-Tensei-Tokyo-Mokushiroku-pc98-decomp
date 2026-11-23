@@ -1,5 +1,20 @@
 # PROGRESS
 
+## Round 85 — one 41-byte RELOCS from a relay call
+- Enumerated sizes 32 (8 framed) and 42 (7 framed), calls first:
+  - `23d7:0000` **BIG_CALL** (41 B, RELOCS, `src/calib/cs32.c`) —
+    `HELP12(a,b,c,d,e, 0,0,0,0, 0x4F, 0x18F, f)`: six parameters relayed plus six
+    constants. **`retf 12` fixes the argument count at six words**, which is how you
+    know the constant run in the middle is literals rather than parameters — 12
+    pushes against 6 arguments.
+  - `3ea6:0008` SLOT_INDEX (32 B) stayed PENDING: the original loads the byte global
+    (`A0 <disp>`) *before* the parameter, ours loads the parameter first — load
+    order again, unchanged by `/Os` or `/Ox`.
+  - `42ac:002c` and the size-42 group are the usual blocked shapes (`3ea6`-type
+    arithmetic ordering, `1bfd`/`1c00` interrupt wrappers with `CD 21`,
+    `37a8`/`37ab` far-field arithmetic).
+- Ledger: 182 rows — MATCH 32, **RELOCS 128**, PENDING 22.
+
 ## Round 84 — three RELOCS; nested calls are the productive shape
 - Enumerated the size-26 and size-28 classes (10 framed reachable units each).
   Size 28 yields nothing new — it is dominated by the blocked families
