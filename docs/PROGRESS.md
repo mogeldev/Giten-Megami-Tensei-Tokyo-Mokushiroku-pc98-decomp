@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Backward packed-table traversal verified
+`4332:000c` (TAKE_COUNTS, 59 B) verifies as RELOCS. The entry pointer walks
+backward in DI while the index stays in SI for the helper call. The loop
+stops early when subtraction leaves a nonpositive count.
+
 ## Packed table count adjustment verified
 `4369:0084` (APPLY_COUNT, 49 B) verifies as RELOCS. A signed 11-bit field
 reproduces the shift pair used to extract the key. With `/Ox`, the index

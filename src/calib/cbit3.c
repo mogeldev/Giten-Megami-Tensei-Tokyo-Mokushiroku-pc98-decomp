@@ -15,3 +15,22 @@ int __far __pascal apply_count(int index, int key, int count)
         count -= take_count(index, count);
     return finish_count(key, count);
 }
+
+int __near __pascal take_counts(int key, int count)
+{
+    register int index = 63;
+    register struct Entry *entry = g_866e + 63;
+
+    do {
+        if (entry->key == key) {
+            count -= take_count(index, count);
+            if (count <= 0)
+                break;
+        }
+        --index;
+        /* Match the original 16-bit DGROUP offset comparison, including
+           the final step before the table. That offset is not dereferenced. */
+        --entry;
+    } while (entry >= g_866e);
+    return count;
+}
