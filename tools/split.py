@@ -31,14 +31,20 @@ IMG_END = 339735
 # The unit ends at the terminator; the gap bytes are captured so the NEXT unit
 # starts after them. Unit lengths therefore stay gap-free.
 #
-# Prologue alternatives: a framed start (55 8B EC / enter), a word getter (A1),
-# a byte getter (A0), and the frameless updaters/initialisers that follow a bare
-# CB (FF 06 = inc word, FF 0E = dec word, FF 36 = push, C7 06 / C6 06 = stores,
-# 89 06 = store AX, B8 = load immediate). The bare-CB cases were missing until
-# round 43: 3e24:006c held three such units.
+# Prologue alternatives, widened in two steps (rounds 43/44) by measuring how many
+# boundaries each opcode would add and eyeballing the surrounding bytes:
+#   55 8B EC / enter         framed entry
+#   A1 / A0 / 8B 16 / 8B 0E / 8B 36 / 8B 3E / 8B 1E   word/byte loads from disp16
+#   A3 / A2 / 89 06 / C7 06 / C6 06                  stores to disp16
+#   FF 06 / FF 0E / FF 36                            inc / dec / push
+#   B8 .. / 80 0E / 26 89                            load imm / or byte / es: mov
+# Deliberately NOT included: `31` (xor) - measurement showed it fires in the
+# middle of functions (`31 46 FE` = xor [bp-2],ax).
 TERM = re.compile(rb"(?:\xC9)?(?:\xCB|\xC3|\xCA..|\xC2..)(\x00{0,2})"
-                  rb"(?=(\x55\x8B\xEC|\xC8..\x00|\xA1..|\xA0..|\xFF\x06|\xFF\x0E"
-                  rb"|\xFF\x36|\xC7\x06|\xC6\x06|\x89\x06|\xB8..))", re.S)
+                  rb"(?=(\x55\x8B\xEC|\xC8..\x00|\xA1..|\xA0..|\x8B\x16|\x8B\x0E"
+                  rb"|\x8B\x36|\x8B\x3E|\x8B\x1E|\xA3..|\xA2..|\x89\x06|\xC7\x06"
+                  rb"|\xC6\x06|\xFF\x06|\xFF\x0E|\xFF\x36|\xB8..|\x80\x0E"
+                  rb"|\x26\x89))", re.S)
 
 # regression check: linear address of the FIRST unit -> expected unit count
 EXPECTED = {

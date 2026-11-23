@@ -8,7 +8,7 @@
 | Status | Count |
 |---|---|
 | MATCH | 10 |
-| RELOCS | **65** |
+| RELOCS | **69** |
 | PENDING | **16** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
@@ -34,24 +34,24 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
 | Category | Value |
 |---|---|
-| Inventory entries | **2517** code functions + **14** data |
+| Inventory entries | **2554** code functions + **14** data |
 | Data (proven, `not_code.csv`) | 12211 B |
 | Code bytes | 294169 |
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293206** |
-| of which **verified** | **841 (0.287%)** |
+| of which **verified** | **857 (0.292%)** |
 | PENDING bytes | 528 |
 
-Code functions: **2517**, of which verified **75**.
+Code functions: **2554**, of which verified **79**.
 
 ## Regions (64 KiB)
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
-| 0x0000 | 611 | 8 | 65131 | 83 (0.1%) | 897 | 360 | 102 |
-| 0x0001 | 520 | 13 | 65756 | 150 (0.2%) | 0 | 569 | 75 |
-| 0x0002 | 763 | 33 | 65521 | 364 (0.6%) | 0 | 0 | 124 |
-| 0x0003 | 567 | 19 | 64433 | 233 (0.4%) | 0 | 0 | 227 |
+| 0x0000 | 638 | 11 | 65131 | 95 (0.1%) | 897 | 360 | 102 |
+| 0x0001 | 527 | 14 | 65756 | 154 (0.2%) | 0 | 569 | 75 |
+| 0x0002 | 765 | 33 | 65521 | 364 (0.6%) | 0 | 0 | 124 |
+| 0x0003 | 568 | 19 | 64433 | 233 (0.4%) | 0 | 0 | 227 |
 | 0x0004 | 56 | 2 | 33328 | 11 (0.0%) | 66 | 11282 | 0 |
 
 <!-- MANUAL-BEGIN -->

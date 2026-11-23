@@ -3,6 +3,18 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 44 — the 4-byte fastcall class, and how to grow the splitter
+- **Fastcall store setter**: `void __near __fastcall f(int v) { g = v; }` is
+  `A3 <disp> C3` (4 B); the far variant ends `CB`. The value arrives in AX and
+  there is no prologue, so the terminator is the only clue for the model.
+  **In the medium model `/AM` the default for `__fastcall` is `__far`**, so a near
+  variant must say `__near` explicitly or the object ends in `CB`.
+- **Growing the split rule**: measure each candidate prologue opcode (number of
+  boundaries added + sample bytes) instead of adding them by intuition. `31` (xor)
+  is a trap: it matches inside functions (`31 46 FE` = `xor [bp-2],ax`).
+- The 4-byte getter/setter class is exhausted in this binary (dedicated sweep:
+  0 getters, 2 setters left after excluding the ledger).
+
 ## Round 41 — split the inventory, and guard the window length
 - **The inventory merges functions.** `tools/split.py` recovers 507 hidden units
   (2 463 real vs 1 956 entries). Split before judging progress or mining
