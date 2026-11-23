@@ -1,5 +1,38 @@
 # PROGRESS
 
+## Round 14: family-first harvesting (5 rows, 243 B)
+Instead of walking the pool in address order, this round grouped every
+unmatched unit by a **normalised byte pattern** (call targets masked) and worked
+the largest groups. That found:
+
+- three more members of the round-13 `36e7` family - `36e7:013e`, `0168`,
+  `0192` - which the address-ordered scan had skipped; they match the existing
+  `crelay25.c` source unchanged (41 B each);
+- `crelay28.c` (60 B each): `1f57:0008` and `1f5b:0004` - `long f(long v, int n)`
+  with `if (n < 0) return lfc1(v, -n); if (n > 0) return lfc2(v, n); return v;`.
+
+**New decompilation rule learned:** the two branches must call *different*
+symbols. With one callee MSC merges the two identical call sequences into a
+tail jump (`EB E8` back into the first block), which the original does not have;
+two distinct externs prevent the merge and reproduce the original byte layout.
+This is the first case where a *source-level* naming choice (not a flag) decides
+the match.
+
+Family scan caveat recorded for the next rounds: 22 families are "identical
+modulo call targets", but most of them are blocked by other traits -
+`4101:0002` by the split far-pointer load (`8E 46`), `391a`, `2edb`, `3117`,
+`1dfc:000c` by `ENTER` frames, `1131` by a `rep movsw` intrinsic sequence. The
+clean remainder is small, so family-first scanning helps but does not replace
+transcribing new shapes.
+
+Probed and left open: `1dfc:0116` (cdecl call with `83 C4 08` cleanup and
+SI/AX-staged arguments - MSC uses `8B E5` instead of `add sp,8` for a
+long-returning callee), `1e1e:0046` (the original keeps the value in CX and uses
+CL/CH; MSC loads AL twice), `33c1:0006` (six-call long chain).
+
+Ledger 401 rows - MATCH 37, RELOCS 340, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 7 521 B (2.565 %).
+
 ## Round 13: thirteen rows (508 B) - the 36e7 family and nested chains
 The best find of the round was a six-member family with one shape, in
 `crelay25.c` (`/Os`): `36e7:0042`, `006c`, `0096`, `00c0`, `00ea`, `0114`
