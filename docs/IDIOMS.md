@@ -15,6 +15,14 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 71 - branchless units are only 18 in the whole binary
+- The branchless filter (no conditional jumps, no calls, no blocking trait,
+  12..160 B) leaves **18 units**. That number is the useful result: the remaining
+  unrecovered code is almost entirely control flow, so padding, block order and
+  evaluation order will block most of it forever.
+- What still matches in that set: pure address arithmetic on far pointers with no
+  decisions - `((p[2] - p[0]) << 3) + a` and similar. Transcribe those
+  opportunistically; do not expect volume.
 ## Round 70 - jump-target padding is the fourth unsteerable trait
 - The original compiler **pads jump targets with `90` even in size-optimised
   code**. MSC 7's `/Os` never pads, and `/Ot` does not merely add the nops - it

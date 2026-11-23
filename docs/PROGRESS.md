@@ -1,5 +1,21 @@
 # PROGRESS
 
+## Round 71 — one MATCH from a branchless sweep; the vein is nearly dry
+- Built a **branchless filter** (no conditional jumps, no calls, no blocking
+  traits, 12..160 B) on the reasoning that padding and block-order cannot bite
+  where there are no branches. It yields only **18 units** in the whole binary,
+  which is itself the finding: nearly everything left has control flow.
+- `37ad:000c` **SPAN8** (23 B, **MATCH**, `src/calib/cnb1.c`):
+  `return ((p[2] - p[0]) << 3) + a;` for `int __far *p` in a near pascal frame —
+  the pointer occupies `bp+6..9`, the int sits at `bp+4`.
+- Of the other 17 branchless units, the misses are all previously named traits:
+  the fixed-segment group (`2d62`, `2d64`, `2d84`, `2d86`, `2e4a`, `21f0`),
+  `SI`-with-push/pop register choice (`37ef:000c`/`37ef:002a` flag set/clear on a
+  stride-26 table — parameters and strides all correct, only the register
+  differs), and one `rep stosw` loop (`4080:0008`) that MSC compiles as a frame
+  with a counter instead.
+- Ledger: 159 rows — **MATCH 32**, RELOCS 105, PENDING 22.
+
 ## Round 70 — no new verified bytes; jump-target padding is the fourth blocker
 Reported plainly: **no ledger increment this round.** It went into the 65..128 B
 band (only 34 units survive the reachability filter) and the one candidate worth
