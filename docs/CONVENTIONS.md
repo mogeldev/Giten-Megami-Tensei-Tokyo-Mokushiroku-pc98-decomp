@@ -41,6 +41,7 @@ Every one was also tested against the flag matrix (`/Os`, `/Ot`, `/Od`, `/Ox`,
 | 6 | register-passed arguments (`mov ah,imm` then `call`) | `1cb7:0018`, `1cb9:0008`, `1cbf:0020` etc. No Microsoft C 7 construct emits `mov ah,imm` before a call — its `__fastcall` uses BX/CX/DX | 12 / 6 747 |
 | 7 | absolute ESA addressing (`mov es,imm16` then `es:[disp16]`) | `2d64:0008`; MSC always addresses a far object through a base register, even with `MK_FP(const_seg, const_off)` | 6 / 17 323 |
 | 8 | **`SI` as far-pointer base** (`push si` / `mov si,ax` / `es:[si+N]`) | `3a24:0006` (`clear32`), `38ad:000e` (`swap14`), `1df5:0008`, `2aa3:0048`, `37ef:000c`. MSC 7 puts the offset in **BX**. **Nuance (round 91):** `register` *does* steer a **loop counter** into SI - `4f89:0008` verifies with `register int i` - but it moves a pointer temporary to DI instead, so it does not rescue the far-pointer cases | 196 / 26 435 |
+| 9 | **explicit zero materialisation** (`B8 00 00`, `C7 06 <g> 00 00`) | `473f:0036` (`return 0x43A30000L;`): MSC emits `33 C0 / BA A3 43`, the binary has `B8 00 00 / BA A3 43`. Same style produces the `C7 06` zero stores of rounds 25/26. MSC always uses the shorter xor idiom | 106 / 32 862 |
 
 Softer variants that also block a byte-exact match but are harder to count:
 **branch-block order** (which arm falls through), **operand evaluation order**, and

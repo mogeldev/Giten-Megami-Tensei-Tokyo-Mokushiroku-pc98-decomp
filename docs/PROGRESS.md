@@ -1,5 +1,22 @@
 # PROGRESS
 
+## Round 94 — no rows; documentation inconsistency found and fixed
+No new bytes. Two attempts and a real fix to the deliverable.
+
+- **Stride-4 table accessors** looked promising (the family that gave ADDR4/SEXT11/
+  MASKBYTE): `42e8:006c` (`at`: bounds-checked `&g_866e[i]`) and `43a1:0000`
+  (`fetch`: bounds-checked `g_8870[i*4]`) both reproduce *almost* exactly under
+  `/Ox /Oa /Os` — same `8B 5E 04 / 0B DB / 7C .. / 83 FB 40 / 7D ..` prologue — and
+  differ only by the `90` padding the original carries before the failure block
+  (`EB 04 90` vs `EB 03`). Trait 4 again.
+- **Documentation inconsistency fixed.** The README still said "seven traits" while
+  `docs/GAP.md` measured nine, and `CONVENTIONS.md` was missing row 9 (explicit zero
+  materialisation) even though `gap.py` had been counting it since round 87. Both are
+  now correct: **nine traits, table and counts agree**. A cross-check script
+  (`GAP.md` trait names vs `CONVENTIONS.md`) reports only the expected naming
+  difference (`interior 90 padding` = trait 4 `jump targets padded with 90`).
+- Ledger unchanged: 187 rows — MATCH 32, RELOCS 130, PENDING 25.
+
 ## Round 93 — the three-unit duplicate group is now in the ledger, not in a lost round
 Maintenance round. No new bytes, but round 92's analysis would otherwise have
 evaporated, so it is recorded where a reader will find it.

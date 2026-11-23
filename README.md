@@ -26,9 +26,8 @@ OMF linker relocations), or **PENDING** with a documented cause — nothing is f
   from `tools/coverage.py`; ~12 KB of the image are data, 963 bytes are foreign CRT.
 - **How far this can go, measured**: `docs/GAP.md` counts, per codegen trait, how
   much of the binary Microsoft C 7 cannot reproduce; `docs/CONVENTIONS.md` lists the
-  seven traits with the function that isolates each one. Only ~27 KB of code is
-  blocked by nothing at all, of which ~9.7 KB is framed; the rest needs the original
-  compiler generation.
+  nine traits with the function that isolates each one. Only ~24.5 KB of code is
+  blocked by nothing at all; the rest needs the original compiler generation.
 
 ## What is proven, and what is not
 
