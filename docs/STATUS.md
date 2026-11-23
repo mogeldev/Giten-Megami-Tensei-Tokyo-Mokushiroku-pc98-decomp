@@ -7,9 +7,9 @@
 
 | Status | Count |
 |---|---|
-| MATCH | 10 |
-| RELOCS | **72** |
-| PENDING | **14** |
+| MATCH | 12 |
+| RELOCS | **73** |
+| PENDING | **15** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -27,6 +27,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `458e:a20e` **SLOT_FILL** (166 B) — Slot fill routine (pascal, 1 far param). Best variant 162/166 B
 - `4fad:0006` **CONV** (16 B) — Lookup table[c] (word table DGROUP 0x396A, near-pascal). /Os gives everything identical except 2 B: `D1 E3` (shl bx,1) instead of `03 DB` (add bx,bx)
 - `473f:0036` **_far_long_const** (7 B) — Returns the long 0x43A30000. Original materialises the low word with `B8 00 00` (mov ax,0)
+- `1000:1364` **abs_branch** (13 B) — `int __far f(int v) { return (v < 0) ? -v : v
 
 ## Coverage (honest byte metric)
 
@@ -37,18 +38,18 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | Code bytes | 294174 |
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
-| of which **verified** | **916 (0.312%)** |
-| PENDING bytes | 488 |
+| of which **verified** | **968 (0.330%)** |
+| PENDING bytes | 501 |
 
-Code functions: **2523**, of which verified **82**.
+Code functions: **2523**, of which verified **85**.
 
 ## Regions (64 KiB)
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
-| 0x0000 | 619 | 13 | 65131 | 135 (0.2%) | 897 | 360 | 62 |
+| 0x0000 | 619 | 13 | 65131 | 135 (0.2%) | 897 | 360 | 75 |
 | 0x0001 | 525 | 15 | 65757 | 173 (0.3%) | 0 | 569 | 75 |
-| 0x0002 | 763 | 33 | 65522 | 364 (0.6%) | 0 | 0 | 124 |
+| 0x0002 | 763 | 36 | 65522 | 416 (0.6%) | 0 | 0 | 124 |
 | 0x0003 | 561 | 19 | 64435 | 233 (0.4%) | 0 | 0 | 227 |
 | 0x0004 | 55 | 2 | 33329 | 11 (0.0%) | 66 | 11282 | 0 |
 

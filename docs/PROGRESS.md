@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 48 — three functions verified (2 MATCH), second-compiler fingerprint found
+- `src/calib/cunit6.c` (`/G1 /AM /Gs /Os`), three new rows:
+  - `35ca:5198` **OR_MASK** (16 B) — `*p |= mask;` through a far pointer, MATCH;
+  - `35ca:51a8` **ANDNOT_MASK** (18 B) — `*p &= ~mask;`, MATCH;
+  - `2603:c476` **count_up** (18 B, RELOCS) — `if (g_1cf0 > 0) g_1cf2++;` where the
+    counter is a `long`: `83 06 .. 01` + `83 16 .. 00` (add/adc pair).
+- **Phase-0 evidence**: counted epilogue styles in the image — 1 754 `C9` (leave),
+  230 `5D` (pop bp), 156 `8B E5 5D`. MSC 7 never emits the latter two at any tested
+  level, so those units come from a **second compiler generation** or hand-written
+  assembly. Recorded in CONVENTIONS.md; this replaces guesswork about the
+  remaining toolchain question with a measurable fingerprint.
+- `1000:1364` (abs) stays PENDING with that diagnosis: the body matches exactly
+  (`99 / 33 C2 / 2B C2` from `(v < 0) ? -v : v`), only the epilogue byte differs.
+  `abs()` itself is a library call in MSC 7, not an intrinsic.
+- The two biggest PENDINGs resisted again with the new flags: `SLOT_FILL` gives
+  ENTER 8 (original ENTER 2) or no local at all, and the 32-bit exchanges spill
+  the low word where the original keeps it in BX — both are allocator decisions
+  that no flag combination reached.
+- Ledger: 100 rows — **MATCH 12**, RELOCS 73, PENDING 15.
+
 ## Round 47 — MSC 6 dead end confirmed, one more RELOCS from a hidden unit
 - Closed the last open question about the MSC 6 set: it is **not** a DPMI issue.
   Loading HDPMI32 before the driver (it is labelled "DOS-extended") produces the

@@ -31,6 +31,26 @@ this means a subset of the modules cannot come from either compiler generation
 with any tested flag set - the working assumption is hand-written (or inline)
 assembly for those units. Ledger rows that depend on `03 DB` stay PENDING and
 are not rewritten as C just to raise the count.
+## Phase-0 evidence round 48 — two epilogue styles = two compiler generations
+Counted in the load image (byte patterns, so read as a strong pointer, not proof):
+
+| Epilogue | Count | Who emits it |
+|---|---|---|
+| `C9` + ret (leave) | **1 754** | MSC 7 at every level tested |
+| `5D` + ret (pop bp, SP unchanged) | **230** | **never** by MSC 7 |
+| `8B E5 5D` + ret (mov sp,bp; pop bp) | **156** | never observed from MSC 7 either |
+
+MSC 7 emits `leave` for a frame it opened with `push bp; mov bp,sp`, including at
+`/Ox /Oa /Os` and `/Oy /Os`. The 386 non-`leave` epilogues are therefore a
+fingerprint of a **second compiler generation** (or of hand-written assembly) and
+they explain why some units differ by exactly one byte in the epilogue while the
+body matches perfectly (`1000:1364` abs is the clearest case: `99 / 33 C2 / 2B C2`
+identical, only `5D` vs `C9` differs).
+
+Consequence for matching: for units with a `5D` epilogue, a body-exact C match is
+still worth recording — the remaining diff is evidence about the toolchain, not a
+missing source construct.
+
 ## Phase-0 finding round 25/26 — compiler generation: MSC 6.0 **NOT ACTUALLY TESTED**
 Byte statistics of the original binary (load image, 294 603 code bytes):
 
