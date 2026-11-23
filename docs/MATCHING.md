@@ -42,6 +42,13 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 2603:3efc | F_3EFC | 13 | MATCH | src=src/calib/cset4.c; flags="/G1 /AM /Gs /Os"; `return d - b` with 4 word args (`retf 8`) — byte-identical, no relocation to mask |
 | 458e:8306 | f_8306 | 10 | RELOCS | src=src/calib/cset4.c; flags="/G1 /AM /Gs /Os"; `int __near f(void) { return 1 << g_b9958; }` (`B8 01 00` / `8A 0E` / `D3 E0` / `C3`) |
 | 35ca:8072 | @swap_78cc | 10 | RELOCS | src=src/calib/cswap1.c; flags="/G1 /AM /Gs /Ox"; `__fastcall` exchange `old = g; g = v; return old` — /Ox picks DX as temp, /Os and /Ot pick CX |
+| 35ca:825a | OFF4 | 14 | MATCH | src=src/calib/cset5.c; flags="/G1 /AM /Gs /Os"; word at offset +4 of a far parameter (`C4 5E 06` les, `26 8B 47 04` es:[bx+4]); byte-identical |
+| 35ca:8268 | OFF6 | 14 | MATCH | src=src/calib/cset5.c; flags="/G1 /AM /Gs /Os"; same accessor with offset +6 |
+| 35ca:8d52 | OFF1 | 14 | MATCH | src=src/calib/cset5.c; flags="/G1 /AM /Gs /Os"; same accessor with offset +1 (unaligned word read) |
+| 2603:53a0 | WRAP3 | 18 | MATCH | src=src/calib/cset5.c; flags="/G1 /AM /Gs /Os"; `return ((b - a) + 2) & 3` with byte parameters (`2C FE` = sub al,-2); byte-identical |
+| 458e:8e08 | TEST80 | 13 | MATCH | src=src/calib/cset5.c; flags="/G1 /AM /Gs /Os"; `return v & 0x80` with byte parameter (inventory 14: trailing gap byte) |
+| 2603:ccda | NEG_MINUS1 | 16 | PENDING | `return -1 - v`: original stages through DX (`8B 56 06 / 2B C2`), MSC 7 emits `2B 46 06` under /Os, /Ox, /Ot and a framed version under /Od, /O2. Three source variants (local temp, assignment-chain, `-1 + -v`) all give the memory-operand form |
+| 35ca:2306 | IDX_142A | 16 | PENDING | near pascal `return g_142a[i]`; original multiplies the index with `03 DB` (add bx,bx), MSC 6 and MSC 7 emit `D1 E3` (shl) at every tested level — see the hand-ASM note in CONVENTIONS.md |
 | 4fab:000a | get_39f8_clamped | 16 | PENDING | slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs. `EB 03` (jump merge, one ret). Tested: /Os, /Od, /O1, /O2, /Ox, /Os /Oy, ternary both polarities, if/else+local |
 | 1f2d:000e | CLAMP_A | 20 | PENDING | min(max(x,1),g), __fastcall (arg in AX, bare retn), global 0x4688. Original frameless with DX temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`); MSC7 produces memory operands under /Ox (`39 06 d / 7D 03 / A1 d`), a frame under /Os. 6 variants tested |
 | 1f2f:0002 | CLAMP_B | 20 | PENDING | Sibling of CLAMP_A, global 0x468A, same cause |

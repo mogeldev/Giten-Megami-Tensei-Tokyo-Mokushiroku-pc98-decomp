@@ -7,12 +7,14 @@
 
 | Status | Count |
 |---|---|
-| MATCH | 1 |
+| MATCH | 6 |
 | RELOCS | **30** |
-| PENDING | **7** |
+| PENDING | **9** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
+- `2603:ccda` **NEG_MINUS1** (16 B) — `return -1 - v`: original stages through DX (`8B 56 06 / 2B C2`), MSC 7 emits `2B 46 06` under /Os, /Ox, /Ot and a framed version under /Od, /O2. Thre
+- `35ca:2306` **IDX_142A** (16 B) — near pascal `return g_142a[i]`
 - `4fab:000a` **get_39f8_clamped** (16 B) — slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs
 - `1f2d:000e` **CLAMP_A** (20 B) — min(max(x,1),g), __fastcall (arg in AX, bare retn), global 0x4688. Original frameless with DX temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`)
 - `1f2f:0002` **CLAMP_B** (20 B) — Sibling of CLAMP_A, global 0x468A, same cause
@@ -30,19 +32,19 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | Code bytes | 294603 |
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293640** |
-| of which **verified** | **289 (0.098%)** |
-| PENDING bytes | 282 |
+| of which **verified** | **362 (0.123%)** |
+| PENDING bytes | 314 |
 
-Code functions: **1956**, of which verified **31**.
+Code functions: **1956**, of which verified **36**.
 
 ## Regions (64 KiB)
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
 | 0x0000 | 534 | 6 | 65244 | 74 (0.1%) | 897 | 360 | 40 |
-| 0x0001 | 406 | 6 | 65783 | 74 (0.1%) | 0 | 569 | 0 |
-| 0x0002 | 545 | 10 | 65692 | 73 (0.1%) | 0 | 0 | 22 |
-| 0x0003 | 429 | 9 | 64548 | 68 (0.1%) | 0 | 0 | 220 |
+| 0x0001 | 406 | 7 | 65783 | 92 (0.1%) | 0 | 569 | 0 |
+| 0x0002 | 545 | 13 | 65692 | 115 (0.2%) | 0 | 0 | 54 |
+| 0x0003 | 429 | 10 | 64548 | 81 (0.1%) | 0 | 0 | 220 |
 | 0x0004 | 42 | 0 | 33336 | 0 (0.0%) | 66 | 11282 | 0 |
 
 <!-- MANUAL-BEGIN -->

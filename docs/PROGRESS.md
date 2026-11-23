@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 34 — five MATCHes in one batch (73 bytes, six MATCH rows total)
+- Mined the 12..22-byte band and transcribed six forms. Five are **byte-identical
+  with zero relocations** (`src/calib/cset5.c`, `/G1 /AM /Gs /Os`):
+  `35ca:825a` OFF4, `35ca:8268` OFF6, `35ca:8d52` OFF1 (word at +4/+6/+1 of a far
+  parameter), `2603:53a0` WRAP3 (`((b - a) + 2) & 3`), `458e:8e08` TEST80 (`v & 0x80`).
+- Two fixes were needed and both came straight from the byte diff:
+  - the dereference must be `*(int __far *)` — with a near cast MSC emits
+    `8B 5E 06` instead of `C4 5E 06` (`les`), losing the segment load;
+  - byte arguments follow the same pascal rule as words: `[bp+6]` is the last
+    declared one, so the subtraction order had to be flipped.
+- `458e:8e08` was 13 bytes, not the inventory's 14 (trailing gap).
+- **`add bx,bx` (03 DB) is never produced by MSC 6 or MSC 7** — tested /Os, /Ox,
+  /Ot, /Od, /O2 on `return g_142a[i]`; all emit `D1 E3` (shl). Since the binary
+  contains 74 such sites, this is now solid evidence that those functions are
+  hand-written assembly, not C. Recorded in CONVENTIONS.md.
+- Two new PENDINGs with full evidence: `2603:ccda` (DX staging for `-1 - v`) and
+  `35ca:2306` (the array index above).
+- Ledger: 45 rows — **MATCH 6, RELOCS 30**, PENDING 9.
+
 ## Round 33 — first MATCH, plus two RELOCS (31 verified)
 - **`2603:3efc` F_3EFC (13 B) is the first MATCH in the project**: bytes identical
   with no relocation to mask. Form `return d - b` with four word arguments

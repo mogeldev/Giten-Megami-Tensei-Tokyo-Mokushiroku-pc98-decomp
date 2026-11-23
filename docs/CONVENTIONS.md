@@ -22,6 +22,15 @@ Applies to the byte-match project for **Giten Megami Tensei** (game engine `DDS9
 - File offset = `linear − 0x10000 + 0x3800`, valid up to offset 339 735 (after that: overlay).
 - MZ is relocatable at load time (3 562 relocs): always compare **image-relative against the Ghidra mapping**; which bytes are linker operands, **read from the object relocation table**, never guess.
 
+## Hand-ASM evidence - `add bx,bx` (round 34, strongest signal so far)
+The binary contains 74 occurrences of `03 DB` (`add bx,bx`, index*2) against
+only 18 of `D1 E3` (`shl bx,1`). MSC 6.00ax and MSC 7.0 were both tested with
+`return g_142a[i]` under /Os, /Ox, /Ot, /Od and /O2: **every** combination emits
+`D1 E3`. Together with the earlier `C7 06` zero-store finding (rounds 25/26)
+this means a subset of the modules cannot come from either compiler generation
+with any tested flag set - the working assumption is hand-written (or inline)
+assembly for those units. Ledger rows that depend on `03 DB` stay PENDING and
+are not rewritten as C just to raise the count.
 ## Phase-0 finding round 25/26 — compiler generation: MSC 6.0 TESTED and DISPROVED
 Byte statistics of the original binary (load image, 294 603 code bytes):
 
