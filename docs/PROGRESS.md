@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Runde 15 — Coverage trennt Fremdcode (2026-11-23, abends)
+- coverage.py zeigt 'Fremd-CRT'-Spalte: 963 B (35 eindeutige Bibliothekssignaturen)
+  werden von der Eigenbyte-Metrik abgezogen — Prozent jetzt gegen Eigenbytes
+  (66/305851 = 0,022 %). CRT-Anteil waechst mit weiteren Signaturtreffern.
+
 ## Runde 13 — CRT-Region abgesteckt (2026-11-23)
 - markcrt.py repariert: MS-Librarian richtet Module aus (Padding nach MODEND)
   — Scan zum naechsten THEADR; jetzt 379/379 Module aus MLIBCR.LIB.
