@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 35 — three MATCHes with far-pointer arithmetic (9 MATCH rows total)
+- Swept the far-pointer accessor family (word/byte accessors, far stores): only
+  the three found in round 34 exist. Wrapper/thunk families are almost absent —
+  exactly one forwarder in the whole image (`37ce:000c`, RELOCS).
+- Three new **MATCH** rows in `src/calib/cptr2.c` (`/G1 /AM /Gs /Os`):
+  `35ca:1e54` SUB_P3_P1 (21 B, near pascal `(p[3] - p[1]) + a`),
+  `35ca:1e7e` SUB_P1_P3 (22 B, far variant),
+  `35ca:5550` TEST_AND (22 B, `(*p & mask) != 0`, the
+  `cmp ax,1 / sbb ax,ax / inc ax` bool form).
+- The only diff was the **declaration order**: pascal pushes left to right, so
+  the argument at `bp+4` is the last declared one. Writing `(int a, p)` produced
+  the pointer at `bp+4`; `(p, a)` reproduces the original. Confirms the round-33
+  rule for mixed word/pointer argument lists.
+- Two more candidates skipped with reason: `2603:5306` and `1871:8b0a` scale the
+  index with `03 F6`/`03 DB` (`add si,si` / `add bx,bx`), which neither MSC
+  generation emits — consistent with the hand-ASM finding.
+- Ledger: 49 rows — **MATCH 9, RELOCS 31**, PENDING 9.
+
 ## Round 34 — five MATCHes in one batch (73 bytes, six MATCH rows total)
 - Mined the 12..22-byte band and transcribed six forms. Five are **byte-identical
   with zero relocations** (`src/calib/cset5.c`, `/G1 /AM /Gs /Os`):

@@ -49,6 +49,10 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 458e:8e08 | TEST80 | 13 | MATCH | src=src/calib/cset5.c; flags="/G1 /AM /Gs /Os"; `return v & 0x80` with byte parameter (inventory 14: trailing gap byte) |
 | 2603:ccda | NEG_MINUS1 | 16 | PENDING | `return -1 - v`: original stages through DX (`8B 56 06 / 2B C2`), MSC 7 emits `2B 46 06` under /Os, /Ox, /Ot and a framed version under /Od, /O2. Three source variants (local temp, assignment-chain, `-1 + -v`) all give the memory-operand form |
 | 35ca:2306 | IDX_142A | 16 | PENDING | near pascal `return g_142a[i]`; original multiplies the index with `03 DB` (add bx,bx), MSC 6 and MSC 7 emit `D1 E3` (shl) at every tested level — see the hand-ASM note in CONVENTIONS.md |
+| 37ce:000c | WRAP_37CE | 12 | RELOCS | src=src/calib/cwrap1.c; flags="/G1 /AM /Gs /Os"; forwarder `push [bp+4]; call inner; retn 2` (rel16 masked) |
+| 35ca:1e54 | SUB_P3_P1 | 21 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; near pascal `(p[3] - p[1]) + a`, declaration order `(int __far *p, int a)`; byte-identical |
+| 35ca:1e7e | SUB_P1_P3 | 22 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; far pascal `(p[1] - p[3]) + a`; byte-identical |
+| 35ca:5550 | TEST_AND | 22 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; `(*p & mask) != 0` — `cmp ax,1 / sbb ax,ax / inc ax` bool form; byte-identical |
 | 4fab:000a | get_39f8_clamped | 16 | PENDING | slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs. `EB 03` (jump merge, one ret). Tested: /Os, /Od, /O1, /O2, /Ox, /Os /Oy, ternary both polarities, if/else+local |
 | 1f2d:000e | CLAMP_A | 20 | PENDING | min(max(x,1),g), __fastcall (arg in AX, bare retn), global 0x4688. Original frameless with DX temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`); MSC7 produces memory operands under /Ox (`39 06 d / 7D 03 / A1 d`), a frame under /Os. 6 variants tested |
 | 1f2f:0002 | CLAMP_B | 20 | PENDING | Sibling of CLAMP_A, global 0x468A, same cause |
