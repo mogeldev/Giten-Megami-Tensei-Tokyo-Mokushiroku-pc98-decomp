@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 12: five framed wrappers (169 B) incl. the 32-bit long helpers
+`crelay23.c` (`/Os`):
+
+- `3e19:0024` (31 B) - three **fastcall** relays from a framed Pascal function
+  (`B8 0D 00` for the constant, then `8B 46 08` / `8B 46 06` for the parameters,
+  no pushes);
+- `2e39:000a` (33 B) - two far-pointer stores of zero-extended char results
+  (`2A E4` + `C4 5E xx` + `26 89 07`), i.e. `*p = (unsigned char)csub();`.
+
+`crelay22.c` (`/Os`): `2d9b:0058`, `2d9b:007c`, `2d9b:00a0` (35 B each) - the
+same wrapper three times around a **32-bit global** operation: `g_1be8 += g_1bec`
+(add/adc), `-=` (sub/sbb) and `&=` (and/and), each between a call with the
+argument and a no-argument call.
+
+Two more compiler crashes were found and are worth avoiding next time
+(silent aborts: no object, no log):
+1. `if (nf(a) + 1 == 0)` - a call result combined with an arithmetic constant in
+   a comparison. Rewriting as `nf(a) == -1` still aborted in that function, so a
+   local or a two-step form is needed.
+2. `fc1(fc1(fc3(a, a, b)))` - triple nesting with a two-argument call inside,
+   the same class as the round-9 crash (`sub3(sub2(a, a), 0)`).
+
+Ledger 381 rows - MATCH 37, RELOCS 320, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 6 704 B (2.286 %).
+
 ## Round 11: the second generation is pinned to "MSC 5.1 layout + MSC 6 zero"
 This round was an investigation, not a harvest: no new ledger rows, but the
 largest open question - which compiler produced the jump-merge/half-register

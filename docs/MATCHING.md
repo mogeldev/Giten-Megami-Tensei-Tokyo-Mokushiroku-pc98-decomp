@@ -394,3 +394,8 @@ eturn psub(g_78c4); one push [disp16] then the translated call; image `90 0E E8`
 | 2d49:0016 | F_2D49_16 | 29 | RELOCS | src=src/calib/crelay21.c; flags="/G1 /AM /Gs /Os"; `return d3(c3(1, 100, 0), a, 0);` - a constant-argument call nested as the first argument |
 | 31cf:0008 | F_31CF_08 | 29 | RELOCS | src=src/calib/crelay21.c; flags="/G1 /AM /Gs /Os"; `return l3((long)l2(c0(), a));` - the int result widened with `cwd` and pushed as a long |
 | 439f:0006 | F_439F | 22 | RELOCS | src=src/calib/crelay21.c; flags="/G1 /AM /Gs /Os"; `return ff(nf(a));` - near-Pascal callee (stays `E8`) nested into a far-Pascal callee; image `90 0E E8` = LINK /F translation of the outer `9A` |
+| 3e19:0024 | F_3E19_24 | 31 | RELOCS | src=src/calib/crelay23.c; flags="/G1 /AM /Gs /Os"; three fastcall relays from a framed Pascal function (`B8 0D 00` then parameter loads); image `90 0E E8` = LINK /F translation |
+| 2e39:000a | F_2E39 | 33 | RELOCS | src=src/calib/crelay23.c; flags="/G1 /AM /Gs /Os"; two far-pointer stores of zero-extended char results (`2A E4` + `C4 5E` + `26 89 07`); image `90 0E E8` = LINK /F translation |
+| 2d9b:0058 | F_2D9B_58 | 35 | RELOCS | src=src/calib/crelay22.c; flags="/G1 /AM /Gs /Os"; `g_1be8 += g_1bec` as add/adc between two calls |
+| 2d9b:007c | F_2D9B_7C | 35 | RELOCS | src=src/calib/crelay22.c; flags="/G1 /AM /Gs /Os"; sub/sbb sibling |
+| 2d9b:00a0 | F_2D9B_A0 | 35 | RELOCS | src=src/calib/crelay22.c; flags="/G1 /AM /Gs /Os"; and/and sibling |
