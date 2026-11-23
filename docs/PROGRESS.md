@@ -1,5 +1,18 @@
 # PROGRESS
 
+## Runde 7 — Phase 0 ABGESCHLOSSEN: 4 byte-verifizierte Funktionen (2026-11-23)
+- **Erste RELOCS-Matches**: Getter-Familie 35ca:8090..9c (get0..get3),
+  `mov ax,[disp16]; retf` — disp16 als einziger maskierter Linker-Fixup.
+- **CFLAGS bestätigt: `/G1 /AM /Gs /Os`** (Medium-Modell; /Gs = keine chkstk-
+  Prologen im Original; /Os = Bare-Leaf-Form; /G1 = 186-Idiome).
+  Korrektur: fruehere huge/large-Vermutung falsch (Near-Daten-Beweis).
+- match.py komplett: OMF-Extraktion (omfdump.py) + Reloc-Maskierung + Klassifikation.
+  MSC7-Fixups laufen als kompakte 0x9C-Records (COMENT-class-A2-Erweiterung).
+- verify.py steht, laeuft gruen: Ledger 4 Zeilen, 4 RELOCS, 0 PENDING.
+- Praxisecke: CL stirbt lautlos bei Quelldateien >8.3 Zeichen (Kalibrierquelle
+  umbenannt cget.c); LINK.EXE (DOSX16) unter dosbox-x bislang unbrauchbar (haengt
+  in allen DPMI-Varianten) — Phase-6-Thema.
+
 ## Runde 5/6 — Toolchain-Durchbruch (2026-11-23, 01:35)
 - **MSC 7.0 (CL 8.00) kompiliert**: `triv1.c /G1 /AL` → 480-Byte-OMF-Objekt.
 - Verifiziertes Rezept: dosbox-x + HDPMI32-TSR (HX-DOS 2.17) + `-nopromptfolder`

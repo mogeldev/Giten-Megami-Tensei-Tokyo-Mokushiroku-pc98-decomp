@@ -2,7 +2,8 @@
 
 (vorerst handgeführt; ab regelmäßigem Betrieb erzeugt `tools/report.py` diese Datei)
 
-- implementiert & MATCH/RELOCS: **0**
+- implementiert & MATCH: **0** / RELOCS: **4** (Ledger 2026-11-23: Getter-Familie
+  35ca:8090..9c, `/G1 /AM /Gs /Os` bestätigt)
 - PENDING: **0**
 - bekanntes Inventar: **1970** Funktionen (`ground_truth/functions.csv`);
   38 davon hatte Ghidra-Dekompilierungsfehler → zuerst klären (meist Daten-als-Code).

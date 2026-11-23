@@ -13,7 +13,7 @@ Gilt für das Byte-Match-Projekt zu **Giten Megami Tensei** (Spiel-Engine `DDS98
 | `<LOAD_BASE>`     | Ghidra-Abbildung **`0x1000:0000`** (linear `0x10000`); Entry **`0x1871:0BE5`** (Header `CS:IP 0871:0BE5`)              | MZ-Header + `DDS98_functions.txt` („entry") |
 | `<DISASM_EXPORT>`| Ghidra 12.2 PUBLIC — Projekt `ghidra_proj\GitenDecomp.gpr`, C-Export `decompiled\DDS98_decompiled.c` (1 970 Fkt.)      | vorhanden |
 | `<TOOLCHAIN>`     | **Kandidat: Microsoft C 8.00x (16-Bit, 1992/93)** — Binary enthält `MS Run-Time Library - Copyright (c) 1992, Microsoft Corp` + `run-time error`-Tabelle. Exakte Version/Linker: **Phase 0 per Kalibrier-Kompilierung**, nicht raten | CRT-Strings |
-| `<CFLAGS>`        | **Phase 0.** Sicher: kein tiny/small — Startup setzt `DS=0x58FC ≠ CS` → mindestens compact/medium; exaktes Memory-Modell + Optimierung per Kalibrierung | dekompiliertes Startup (FUN_1000_0010) |
+| `<CFLAGS>`        | **bestätigt: `/G1 /AM /Gs /Os`** (Kalibrier-Familie 35ca:8090..9c, 4× RELOCS). Medium-Modell: near-Daten + far-Code; `/Gs` (keine Stackchecks — das Original trägt keine chkstk-Aufrufe); `/Os` (Bare-Leaf-Form ohne toten ENTER-Rahmen); `/G1` (186-Idiome) | match.py, 2026-11-23 |
 | `<OBJ_DUMP>`      | Objektformat wird **OMF** sein → `wdis` (Open Watcom) / `tdump` (Borland) als Reader, sonst eigenes `tools/omfdump.py`   | folgt aus Toolchain |
 | `<HOST>`          | Windows x64; MSC 8 läuft nur unter DOS → **DOSBox-Wrapper im Build-Skript kapseln**                                    | System |
 
@@ -40,10 +40,19 @@ Nachweis: `python build.py src/calib/triv1.c --flags "/G1 /AL"` →
 Deko-Historie: die Disketten-Dateien sind KWAJ-komprimiert; `DECOMP.EXE`
 (Profiler-Diskette) in DOSBox 0.74 dekomprimiert (224/224, ~0,14 s/Datei).
 
-## Offen (Phase 0)
-1. CFLAGS-Kalibrierung gegen **echte** DDS98-Funktionen (`/G1` + `/AH` vs `/AL`) — Compiler läuft, Byte-Vergleiche offen
-2. OMF-Adapter für `match.py` (Symbol- + RELOC-Extraktion aus dem Objekt) — `wdis`/`tdump` oder eigenes `tools/omfdump.py`
-3. Overlay-Inhalt (≈141 KB) über die Laderoutinen klären
+## Offen (Phase 0 abgeschlossen — Restpunkte)
+1. Overlay-Inhalt (≈141 KB) über die Laderoutinen klären
+2. LINK.EXE (DOSX16) haengt unter dosbox-x in allen DPMI-Varianten (HDPMI32,
+   HDPMI16, intern) — fuer `gen_link_stubs.py`/`build_replacement` (Phase 6)
+   wird ein nativer OMF-Linker gebraucht (Kandidat: jwlink/wlink) oder eine
+   andere Emulator-Konfiguration
+
+## Regeln aus der Praxis (bei jedem Bau beachten)
+- **Quelldateien 8.3-konform** benennen: MSC-CL (1992) oeffnet keine
+  Langdateinamen und stirbt sonst LAUTLOS (cget.c vs. calib_get.c).
+- OMF-Objekte von MSC7 tragen Fixups als **kompakte 0x9C-Records** (nach
+  COMENT class 0xA2), nicht als klassisches FIXUPP 0xF4 — omfdump.py kann beide.
+- PUBDEF-Eintraege von MSC7 haben ein Typindex-Byte (0x00) hinter dem Offset.
 
 ## Fremdcode (Phase 1, getrennt führen)
 MS-C-CRT (Nachweis: Runtime-Banner in der Binary) als Bibliothek markieren und **nicht** decompilieren, sobald die CRT-Region per Kalibrier-Kompilierung abgesteckt ist.
@@ -55,12 +64,13 @@ MS-C-CRT (Nachweis: Runtime-Banner in der Binary) als Bibliothek markieren und *
 `0x67` = 0. → Kalibrier-Kandidat **`/G1`** (80186); `/G2` nur, falls ein echtes
 286-Idiom auftaucht.
 
-**Memory-Modell: large/huge.** 2 907 near-`CALL` vs 1 760 `CALLF`, 1 348 `RETF`;
-Code ≈ 306 KB über mehrere 64-K-Segmente; DGROUP (`DS=0x58FC`) bis Bildende
-(Paragraph `0x71E7`) ≈ 102 KB > 64 KB → **Tendenz `/AH` (huge)**; `/AL` nicht
-ausgeschlossen (Kalibrier-Kompilierung klärt exakt).
+**Memory-Modell: MEDIUM `/AM`** (korrigiert 2026-11-23 durch Kalibrierung):
+Getter-Familie 35ca:8090..9c liest Globals near (`mov ax,[disp16]`, DGROUP-relativ,
+Fixup-maskiert) und returnt `retf` → **near-Daten + far-Code = Medium**.
+Die fruehere large/huge-Vermutung war falsch; DGROUP ist vermutlich `0x58FC` + 64 KiB
+(bis Paragraph `0x68FC`), der Rest bis `0x71E7` sind FAR-Daten-Segmente.
 Bildlayout (Paragraphen): Code `0–0x52B1`, Stack `0x52B1–0x58FC` (`SS:SP=52B1:1000`),
-Daten `0x58FC–0x71E7`.
+DGROUP-Daten `0x58FC–0x68FC`, FAR-Daten `0x68FC–0x71E7`.
 
 **crt0 = Microsoft-C-16-Bit-Familie (bestätigt).** Entry `0x1871:0BE5`:
 `PUSH DS/ES; MOV AX,CS; MOV DS,AX; MOV [0x5],ES; ADD AX,0x10; MOV [0x9],AX`

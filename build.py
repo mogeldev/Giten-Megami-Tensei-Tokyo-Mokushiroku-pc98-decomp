@@ -33,6 +33,10 @@ def main():
     src_abs = os.path.abspath(os.path.join(ROOT, a.source))
     if not os.path.isfile(src_abs):
         sys.exit(f"FEHLER: Quelle fehlt: {src_abs}")
+    stem = os.path.splitext(os.path.basename(a.source))[0]
+    if len(stem) > 8:
+        sys.exit(f"FEHLER: '{stem}' ist laenger als 8 Zeichen — MSC-CL (1992) "
+                 "oeffnet keine Langdateinamen; Quelle bitte 8.3-konform nennen")
     for need in (DBX, os.path.join(TC, "HDPMI32.EXE"),
                  os.path.join(TC, "msc7i", "BIN", "CL.EXE")):
         if not os.path.isfile(need):
