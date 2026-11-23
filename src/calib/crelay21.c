@@ -7,6 +7,11 @@ extern int __far __pascal c3(int a);
 extern int __far __pascal d3(int a, int b, int c);
 extern int __far __pascal l2(int a, int b);
 extern int __far __pascal l3(long v);
+extern int __near __pascal nf(int a);
+extern int __far __pascal ff(int a);
 
 int __far __pascal F_2D49_16(int a) { return d3(c3(1, 100, 0), a, 0); }
 int __far __pascal F_31CF_08(int a) { return l3((long)l2(c0(), a)); }
+
+/* a near-Pascal callee nested into a far-Pascal one, argument kept in SI */
+int __far __pascal F_439F(register int a) { return ff(nf(a)); }

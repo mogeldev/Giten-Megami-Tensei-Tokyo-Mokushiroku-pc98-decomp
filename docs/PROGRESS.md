@@ -21,8 +21,17 @@ Near-miss recorded on purpose: `31dd:0008` calls `c0()` **before** pushing `a`,
 while MSC evaluates Pascal arguments left to right, so no source order
 reproduces it.
 
-Ledger 375 rows - MATCH 37, RELOCS 314, ASM 1, PENDING 23; verify and checkled
-green; own-code coverage 6 513 B (2.222 %).
+A fourth row came from the same pass: `439f:0006` (22 B) nests a
+**near**-Pascal call (stays `E8`) inside a far-Pascal one.
+
+Also probed and left open: `1dfc:00fa` needs the original's combination of
+Pascal push order with the cdecl `8B E5` SP restore after the call - an
+unprototyped `extern int __far cs2();` produces the restore but pushes the
+arguments right-to-left, a `__pascal` prototype produces the right order without
+the restore, and no single declaration gives both.
+
+Ledger 376 rows - MATCH 37, RELOCS 315, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 6 535 B (2.229 %).
 
 ## Round 9: eight more framed-family rows (211 B) and a compiler crash
 `src/calib/crelay20.c` (`/Os`) continues the framed + translated-call vein with
