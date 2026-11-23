@@ -1,5 +1,39 @@
 # PROGRESS
 
+## Round 13: thirteen rows (508 B) - the 36e7 family and nested chains
+The best find of the round was a six-member family with one shape, in
+`crelay25.c` (`/Os`): `36e7:0042`, `006c`, `0096`, `00c0`, `00ea`, `0114`
+(41 B each). Each relays four parameters, then calls again with a **DGROUP far
+pointer** (`1E 68 <disp>`), the third parameter and a constant
+(`fc3(g_21c6, c, 1)`), and finally returns the third parameter.
+
+`crelay26.c` (`/Os`, 38 B each):
+
+- `2d49:004a` and its sibling `2d50:0000` - `fc3(1 - h(fc1(fc0())), a, 0)`;
+  the `1 - x` shows up as `48 F7 D8` (`dec ax` / `neg ax`);
+- `3a3f:008c` - `nn(fc1(fc4(a, a, b, c)), d)`, a four-argument relay forwarded
+  through a near-Pascal call;
+- `48ad:0008` - a guarded store: the `g_234e = 0` write sits *inside* the outer
+  `if (!g_234c)` block, which is what makes the `75 18` skip reach the epilogue.
+
+`crelay27.c` (`/Os`, 36-37 B):
+
+- `1ec4:0100` - `if (fc0()) { fc1(1); fc2(a, b); return -1; }` with **no**
+  trailing `return`: the fall-through leaves AX as `fc0()`'s result and the
+  branch jumps straight to `leave`;
+- `3a3f:0066` - `fc1(fc1(fc4(a, a, b, c)))`, nesting that does *not* trip the
+  compiler bug reported in round 9 (the inner call has four arguments);
+- `2d97:001e` - `fc3(g_1bee, g_1bec, 0x1BE8)`: the third argument is a
+  *constant pointer* pushed with `68`, sitting between a relay and a
+  no-argument call.
+
+Left open: `223b:000e` needs the call result staged in SI (`8B F0 0B F0`) while
+every `register` variant puts the temp in DI instead, and `3874:000a` differs
+only in the order MSC loads the two register parameters.
+
+Ledger 396 rows - MATCH 37, RELOCS 335, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 7 278 B (2.482 %).
+
 ## Round 12: five framed wrappers (169 B) incl. the 32-bit long helpers
 `crelay23.c` (`/Os`):
 
