@@ -40,6 +40,10 @@ TRAITS = {
     # the original compilers prefer SI (callee-saved, so push/pop) for a far-pointer
     # base where MSC 7 uses BX without saving it: `push si; push [bp+x]` then
     # `mov si,ax` / `es:[si+N]`.
+    # the original materialises zero explicitly (`mov ax,0`, `mov word [g],0`)
+    # where MSC 7 always uses the xor idiom (`xor ax,ax`, `xor ax,ax; mov [g],ax`).
+    "explicit zero constant": lambda b: b"\xB8\x00\x00" in b or b"\xC7\x06" in b
+                                           and b"\x00\x00" in b,
     "SI base register":      lambda b: b"\x56\xFF\x76" in b or b"\x8B\xF0\x8E\xC2" in b,
 }
 

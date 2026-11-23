@@ -13,7 +13,7 @@
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
-- `2603:ccda` **NEG_MINUS1** (16 B) — `return -1 - v`: original stages through DX (`8B 56 06 / 2B C2`), MSC 7 emits `2B 46 06` under /Os, /Ox, /Ot and a framed version under /Od, /O2. Thre
+- `2603:ccda` **NEG_MINUS1** (15 B) — `return -1 - v
 - `35ca:2306` **IDX_142A** (16 B) — near pascal `return g_142a[i]`
 - `1871:5c26` **SWAP_LONG_40C0** (38 B) — `long f(long v) { long old = g
 - `35ca:209c` **SWAP_LONG_13F6** (38 B) — Sibling of SWAP_LONG_40C0 with the long at 0x13F6/0x13F8, identical cause
@@ -22,10 +22,10 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `31e3:0064` **W_COND** (32 B) — `if (b == 1) f1(a)
 - `20b4:0160` **_read24** (37 B) — Assembles a value from three bytes 0x0F3A/0x0F3B/0x0F3C without any runtime call: `A0`/`2B D2`/`8A E0`/`2A C0` pack g_f3C into AH, `ADD AX,CX` then `1
 - `4fab:000a` **get_39f8_clamped** (16 B) — slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs
-- `352a:0004` **reset_9b30** (22 B) — g1=0
-- `4527:000a` **reset_9b30b** (22 B) — Duplicate body of reset_9b30 (second code copy), same cause
+- `352a:0004` **reset_9b30** (22 B) — `g_9b30 = 0
+- `4527:000a` **reset_9b30b** (22 B) — duplicate body of reset_9b30 (second code copy), same two causes (explicit zero stores + `9A` far call)
 - `458e:a20e` **SLOT_FILL** (166 B) — Slot fill routine (pascal, 1 far param). Best variant 162/166 B
-- `4fad:0006` **CONV** (16 B) — Lookup table[c] (word table DGROUP 0x396A, near-pascal). /Os gives everything identical except 2 B: `D1 E3` (shl bx,1) instead of `03 DB` (add bx,bx)
+- `4fad:0006` **CONV** (16 B) — `table[c]` word lookup at DGROUP 0x396A. **Reclassified (round 87):** the original indexes with `03 DB` (`add bx,bx`), i.e. trait 1 (doubling by add).
 - `473f:0036` **_far_long_const** (7 B) — Returns the long 0x43A30000. Original materialises the low word with `B8 00 00` (mov ax,0)
 - `1000:1364` **abs_branch** (13 B) — `int __far f(int v) { return (v < 0) ? -v : v
 - `4737:0002` **SLOT_PTR** (32 B) — `i = (v < 0
@@ -46,7 +46,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
 | of which **verified** | **2608 (0.889%)** |
-| PENDING bytes | 822 |
+| PENDING bytes | 821 |
 
 Code functions: **2523**, of which verified **160**.
 
@@ -56,7 +56,7 @@ Code functions: **2523**, of which verified **160**.
 |---|---|---|---|---|---|---|---|
 | 0x0000 | 619 | 21 | 65131 | 329 (0.5%) | 897 | 360 | 191 |
 | 0x0001 | 525 | 25 | 65757 | 412 (0.6%) | 0 | 569 | 148 |
-| 0x0002 | 763 | 70 | 65522 | 1085 (1.7%) | 0 | 0 | 124 |
+| 0x0002 | 763 | 70 | 65522 | 1085 (1.7%) | 0 | 0 | 123 |
 | 0x0003 | 561 | 42 | 64435 | 771 (1.2%) | 0 | 0 | 359 |
 | 0x0004 | 55 | 2 | 33329 | 11 (0.0%) | 66 | 11282 | 0 |
 

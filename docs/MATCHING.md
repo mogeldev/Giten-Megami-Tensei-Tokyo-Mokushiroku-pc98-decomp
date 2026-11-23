@@ -47,7 +47,7 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 35ca:8d52 | OFF1 | 14 | MATCH | src=src/calib/cset5.c; flags="/G1 /AM /Gs /Os"; same accessor with offset +1 (unaligned word read) |
 | 2603:53a0 | WRAP3 | 18 | MATCH | src=src/calib/cset5.c; flags="/G1 /AM /Gs /Os"; `return ((b - a) + 2) & 3` with byte parameters (`2C FE` = sub al,-2); byte-identical |
 | 458e:8e08 | TEST80 | 13 | MATCH | src=src/calib/cset5.c; flags="/G1 /AM /Gs /Os"; `return v & 0x80` with byte parameter (inventory 14: trailing gap byte) |
-| 2603:ccda | NEG_MINUS1 | 16 | PENDING | `return -1 - v`: original stages through DX (`8B 56 06 / 2B C2`), MSC 7 emits `2B 46 06` under /Os, /Ox, /Ot and a framed version under /Od, /O2. Three source variants (local temp, assignment-chain, `-1 + -v`) all give the memory-operand form |
+| 2603:ccda | NEG_MINUS1 | 15 | PENDING | `return -1 - v;` with the value staged in DX (`8B 56 06 / 2B C2`). **Note:** the same source *does* match elsewhere - `418c:0266` (NEG1) verifies with the memory-operand form `2B 46 04` - so this unit was built differently or is not the same expression. Address is not a `units.csv` boundary; bytes measured directly |
 | 35ca:2306 | IDX_142A | 16 | PENDING | near pascal `return g_142a[i]`; original multiplies the index with `03 DB` (add bx,bx), MSC 6 and MSC 7 emit `D1 E3` (shl) at every tested level — see the hand-ASM note in CONVENTIONS.md |
 | 37ce:000c | WRAP_37CE | 13 | RELOCS | src=src/calib/cwrap1.c; flags="/G1 /AM /Gs /Os"; forwarder `push [bp+4]; call inner; retn 2` (rel16 masked) |
 | 35ca:1e54 | SUB_P3_P1 | 21 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; near pascal `(p[3] - p[1]) + a`, declaration order `(int __far *p, int a)`; byte-identical |
@@ -82,10 +82,10 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 4fab:000a | get_39f8_clamped | 16 | PENDING | slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs. `EB 03` (jump merge, one ret). Tested: /Os, /Od, /O1, /O2, /Ox, /Os /Oy, ternary both polarities, if/else+local |
 | 1f2d:000e | @clamp_4688 | 20 | RELOCS | src=src/calib/cclamp3.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; `if (v < 1) return 1; if (v > g_4688) return g_4688; return v;` — /Oa stages the global in DX (round 45), /Os removes the jump-target padding. PENDING since round 23 |
 | 1f2f:0002 | @clamp_468a | 20 | RELOCS | src=src/calib/cclamp3.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; same clamp for g_468A |
-| 352a:0004 | reset_9b30 | 22 | PENDING | g1=0; g2=0; far call(0x18,1) — pascal, callee cleans up. MSC7: /Os|/Ot|/Ox -> `33 C0 A3 A3` (8 B, frameless); /O2 -> `C7 06` x2 (12 B, with frame). Original: C7-06 stores WITHOUT frame -> codegen generation questionable (MSC 6.x?) |
-| 4527:000a | reset_9b30b | 22 | PENDING | Duplicate body of reset_9b30 (second code copy), same cause |
+| 352a:0004 | reset_9b30 | 22 | PENDING | `g_9b30 = 0; g_9b42 = 0;` then `far_call(0x18, 1)`. **Reclassified (round 87):** blocked by TWO traits - the zero stores use `C7 06 <g> 00 00` (explicit zero) and the call is a direct `9A` far call |
+| 4527:000a | reset_9b30b | 22 | PENDING | duplicate body of reset_9b30 (second code copy), same two causes (explicit zero stores + `9A` far call) |
 | 458e:a20e | SLOT_FILL | 166 | PENDING | Slot fill routine (pascal, 1 far param). Best variant 162/166 B; remaining diff: original walks the offset only in SI (no write-back of the parameter), MSC7 C writes the param/stack slot back |
-| 4fad:0006 | CONV | 16 | PENDING | Lookup table[c] (word table DGROUP 0x396A, near-pascal). /Os gives everything identical except 2 B: `D1 E3` (shl bx,1) instead of `03 DB` (add bx,bx); /Ox cross-checked, unchanged |
+| 4fad:0006 | CONV | 16 | PENDING | `table[c]` word lookup at DGROUP 0x396A. **Reclassified (round 87):** the original indexes with `03 DB` (`add bx,bx`), i.e. trait 1 (doubling by add). Not fixable from C |
 | 1ee7:0024 | f_1ee7_0024 | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_4670` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
 | 1ef8:0050 | f_1ef8_0050 | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_4686` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
 | 20b2:000e | f_20b2_000e | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_06de` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |

@@ -15,11 +15,12 @@ several traits. The final row is the set blocked by none of them.
 | add r,r doubling | 204 | 66762 | 23.0 % |
 | SI base register | 196 | 26435 | 9.1 % |
 | epilogue 8B E5 5D | 144 | 24280 | 8.4 % |
+| explicit zero constant | 106 | 32862 | 11.3 % |
 | epilogue 5D (no enter) | 74 | 6814 | 2.3 % |
 | register-passed args | 12 | 6747 | 2.3 % |
 | absolute ESA access | 6 | 17323 | 6.0 % |
-| **blocked by nothing** | 468 | 25867 | 8.9 % |
-| &nbsp;&nbsp;of which framed (`55 8B EC`) | 153 | 8910 | 3.1 % |
+| **blocked by nothing** | 457 | 24568 | 8.5 % |
+| &nbsp;&nbsp;of which framed (`55 8B EC`) | 149 | 8724 | 3.0 % |
 
 ## Reading
 
@@ -41,7 +42,7 @@ several traits. The final row is the set blocked by none of them.
 
 ## What this means for the ledger
 
-- Verified so far: see `STATUS.md`. Unmatched and reachable: **153 framed units, 8910 bytes** (plus 315 unframed).
+- Verified so far: see `STATUS.md`. Unmatched and reachable: **149 framed units, 8724 bytes** (plus 308 unframed).
 - At the recent rate (~500 verified bytes per round) the reachable framed
   remainder is about **17 more rounds** of work, and
   that assumes every attempt succeeds - which the last four rounds show it does

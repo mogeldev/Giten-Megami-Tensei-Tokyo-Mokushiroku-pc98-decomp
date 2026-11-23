@@ -17,3 +17,6 @@ Notable contents:
 - `cbe1.c` (PUT_BE byte selection), `cbyte2.c` (zero-extension order), `cbit1.c`,
   `cconv1.c`, `cidx1.c`, `cinit1.c` — near misses from the early idiom rounds.
 - `m0.c`, `triv1.c` — trivial probes used while calibrating the toolchain itself.
+- `clong2.c` (round 87) — `return 0x43A30000L;` gives `33 C0 / BA A3 43` from MSC 7 but
+  the original has `B8 00 00 / BA A3 43`: it materialises zero explicitly instead of
+  using the xor idiom (trait 9).

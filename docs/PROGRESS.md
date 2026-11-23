@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 87 — audited my own PENDING diagnoses; four were wrong or incomplete
+No new rows. The round re-tested PENDING entries whose stated cause predated the
+convention and frame-type tells, and **four diagnoses did not survive the audit**:
+
+| Row | Old diagnosis | What the bytes actually show |
+|---|---|---|
+| `4fad:0006` CONV | "identical except …" | indexes with `03 DB` (`add bx,bx`) — **trait 1**, doubling |
+| `352a:0004` reset_9b30 | "pascal, callee cleans up" | **two** traits: `C7 06 <g> 00 00` zero stores *and* a direct `9A` far call |
+| `4527:000a` reset_9b30b | same | same two causes |
+| `2603:ccda` NEG_MINUS1 | "original stages through DX" | true, **but** the same source *matches* at `418c:0266` (NEG1, memory-operand form) — so this unit was built differently or is not the same expression. Row also had the wrong size (16 → 15) and is **not a `units.csv` boundary** |
+
+- **New trait 9, measured:** the original materialises zero explicitly
+  (`B8 00 00`, `C7 06 <g> 00 00`) where MSC 7 always uses the xor idiom. Evidence:
+  `473f:0036` — `return 0x43A30000L;` gives `33 C0 / BA A3 43` from MSC, the binary
+  has `B8 00 00 / BA A3 43`. `tools/gap.py` now counts it: **106 units / 32 862 B**.
+- Ceiling corrected again: `blocked by nothing` is now **457 units / 24 568 B**
+  (was 468 / 25 867 last round, 495 / 27 062 two rounds ago).
+- `checkled.py` caught my own leftover: after the failed experiment I had left
+  `src/calib/clong2.c` unattested — it is now in `src/attic/` with a note.
+- Ledger: 182 rows — MATCH 32, RELOCS 128, PENDING 22.
+
 ## Round 86 — no new rows; the `SI` trait measured and added to the table
 - Sampled the **unframed** reachable units (22 with a call and a clean terminator).
   Two looked like real functions — `3a24:0006` `clear32` (zero a far struct field

@@ -15,6 +15,18 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 87 - audit old diagnoses when you learn a new tell
+- Four PENDING rows carried causes written before the callee-convention and frame-type
+  tells existed; two were simply wrong. **Re-read old diagnoses after every new
+  idiom** - a stale explanation is worse than none, because it stops the search.
+- One row was also **not a unit boundary** and had the wrong size. PENDING rows are
+  not rebuilt by `verify.py`, so their sizes are unchecked; measure the bytes when
+  revisiting one.
+- **Trait 9: explicit zero materialisation.** `return 0x43A30000L;` gives
+  `33 C0 / BA A3 43` from MSC 7 (xor idiom, shorter) while the original uses
+  `B8 00 00 / BA A3 43`. The same style produces `C7 06 <g> 00 00` zero stores.
+  MSC will never emit the longer form, so any unit that stores or loads an explicit
+  zero is out of reach.
 ## Round 85 - retf imm16 reconciles pushes with parameters
 - **`retf imm16` gives the callee's argument byte count.** If the push list is
   longer than `imm16/2` words, the excess are **constants**, not parameters:
