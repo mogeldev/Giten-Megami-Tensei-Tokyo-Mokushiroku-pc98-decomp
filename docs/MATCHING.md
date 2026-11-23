@@ -214,3 +214,5 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 4369:0084 | APPLY_COUNT | 49 | RELOCS | src=src/calib/cbit3.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; compare the signed 11-bit key in a four-byte table entry, conditionally subtract a helper result, then forward the key and adjusted count |
 | 4332:000c | TAKE_COUNTS | 59 | RELOCS | src=src/calib/cbit3.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; walk the packed table backward, reducing the count for matching signed keys and stopping when the count becomes nonpositive |
 | 42b9:0064 | _clear_entries | 21 | RELOCS | src=src/calib/ctable2.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; mark all 64 packed entries empty and zero their counts; starts after the preceding routine and its padding inside a merged inventory window |
+| 439c:0006 | TABLE_RELAY_A | 23 | RELOCS | src=src/calib/ctrelay.c; flags="/G1 /AM /Gs /Os"; hold the first argument in SI for the inner lookup and forward its result with the second argument |
+| 439d:000e | TABLE_RELAY_B | 23 | RELOCS | src=src/calib/ctrelay.c; flags="/G1 /AM /Gs /Os"; same register staging and nested-call shape with different targets |

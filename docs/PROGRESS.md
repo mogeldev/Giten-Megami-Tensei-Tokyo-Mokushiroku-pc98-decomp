@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Register-local staging recovers two table relays
+`439c:0006` and `439d:000e` (23 B each) verify as RELOCS. Both had been
+near-misses because the original saves SI and pushes the lookup argument
+from it. An explicit `register int` local with `/Os` reproduces that sequence.
+
 ## Packed-table reset verified
 `42b9:0064` (21 B, RELOCS) marks 64 entries empty and zeros their counts
 without modifying the flag bits. The reset starts after a return and padding
