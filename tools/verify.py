@@ -19,6 +19,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PY = sys.executable
 BUILD = os.path.join(ROOT, "build")
 NOTE_RE = re.compile(r'src=(\S+);\s*flags="([^"]*)"')
+IMG = open(os.path.join(ROOT, "..", "giten", "DDS98", "DDS98.EXE"), "rb").read()[896 * 16:339735]
 
 
 def parse_ledger():
@@ -34,6 +35,30 @@ def parse_ledger():
             rows.append({"va": parts[0], "name": parts[1], "size": parts[2],
                          "status": parts[3], "note": parts[4]})
     return rows, bad
+
+
+def window_problem(b):
+    """Return a complaint if the window is not exactly one function.
+
+    Two failure modes that a plain byte comparison cannot see:
+      - too SHORT: narrowing the comparison always passes (three rows recorded
+        12/24/20 bytes for functions of 13/25/19);
+      - too LONG: a trailing NOP/padding byte that the object also happens to
+        emit makes the row pass while the recorded length is not the function.
+    """
+    core = b
+    while core and core[-1] == 0x90:
+        core = core[:-1]
+    if not core:
+        return "window is empty or only padding"
+    ok = core[-1] in (0xC3, 0xCB, 0xCF) or (len(core) >= 3 and core[-3] in (0xCA, 0xC2))
+    if not ok:
+        return (f"does not end at a return instruction (ends {core[-4:].hex()}) "
+                f"- size too short")
+    if len(core) != len(b):
+        return (f"includes {len(b) - len(core)} trailing padding byte(s) "
+                f"- real length is {len(core)}")
+    return None
 
 
 def main():
@@ -87,6 +112,13 @@ def main():
         obj = objs.get(m.groups()) if m else None
         if not obj:
             continue
+        seg, off = r["va"].split(":")
+        lin = int(seg, 16) * 16 + int(off, 16)
+        size = int(r["size"])
+        window = IMG[lin - 0x10000: lin - 0x10000 + size]
+        problem = window_problem(window)
+        if problem:
+            fails.append(f"{r['va']}: {problem}")
         cmd = [PY, os.path.join(ROOT, "tools", "match.py"), r["va"], r["name"],
                "--obj", obj, "--size", r["size"]]
         q = subprocess.run(cmd, capture_output=True, text=True)

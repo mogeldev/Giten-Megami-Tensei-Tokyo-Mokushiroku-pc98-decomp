@@ -32,7 +32,7 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 1fc7:0002 | AND_00F6 | 14 | RELOCS | src=src/calib/coset1.c; flags="/G1 /AM /Gs /Os"; `return v & g_00f6` |
 | 2f22:0006 | SET_1C48 | 13 | RELOCS | src=src/calib/coset2.c; flags="/G1 /AM /Gs /Os"; far pascal setter `g_1c48 = v` (inventory size 340: Ghidra merged units) |
 | 1fc8:0000 | OR_RET_F6 | 17 | RELOCS | src=src/calib/coset2.c; flags="/G1 /AM /Gs /Os"; `g_00f6 \|= v; return g_00f6` (`09 06` then `A1`) |
-| 1fc8:0012 | ANDNOT_RET_F6 | 18 | RELOCS | src=src/calib/coset2.c; flags="/G1 /AM /Gs /Os"; `g_00f6 &= ~v; return g_00f6` (`F7 D0` then `21 06` then `A1`) |
+| 1fc8:0012 | ANDNOT_RET_F6 | 19 | RELOCS | src=src/calib/coset2.c; flags="/G1 /AM /Gs /Os"; `g_00f6 &= ~v; return g_00f6` (`F7 D0` then `21 06` then `A1`) |
 | 1871:37ce | set_9b3c | 7 | RELOCS | src=src/calib/cset2.c; flags="/G1 /AM /Gs /Os"; `void __near f(void) { g_9b3c = 1; }` (`C7 06` immediate store) |
 | 35ca:8df8 | get_b98ea | 6 | RELOCS | src=src/calib/cset2.c; flags="/G1 /AM /Gs /Os"; `int __far f(void) { return (unsigned char)g; }` (`A0` load + `2A E4` zero-extend) |
 | 458e:a206 | reset_slot_count | 7 | RELOCS | src=src/calib/cset3.c; flags="/G1 /AM /Gs /Os"; `g_39f8 = 0` — resets the slot counter proven in rounds 17/18 |
@@ -49,9 +49,9 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 458e:8e08 | TEST80 | 13 | MATCH | src=src/calib/cset5.c; flags="/G1 /AM /Gs /Os"; `return v & 0x80` with byte parameter (inventory 14: trailing gap byte) |
 | 2603:ccda | NEG_MINUS1 | 16 | PENDING | `return -1 - v`: original stages through DX (`8B 56 06 / 2B C2`), MSC 7 emits `2B 46 06` under /Os, /Ox, /Ot and a framed version under /Od, /O2. Three source variants (local temp, assignment-chain, `-1 + -v`) all give the memory-operand form |
 | 35ca:2306 | IDX_142A | 16 | PENDING | near pascal `return g_142a[i]`; original multiplies the index with `03 DB` (add bx,bx), MSC 6 and MSC 7 emit `D1 E3` (shl) at every tested level — see the hand-ASM note in CONVENTIONS.md |
-| 37ce:000c | WRAP_37CE | 12 | RELOCS | src=src/calib/cwrap1.c; flags="/G1 /AM /Gs /Os"; forwarder `push [bp+4]; call inner; retn 2` (rel16 masked) |
+| 37ce:000c | WRAP_37CE | 13 | RELOCS | src=src/calib/cwrap1.c; flags="/G1 /AM /Gs /Os"; forwarder `push [bp+4]; call inner; retn 2` (rel16 masked) |
 | 35ca:1e54 | SUB_P3_P1 | 21 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; near pascal `(p[3] - p[1]) + a`, declaration order `(int __far *p, int a)`; byte-identical |
-| 35ca:1e7e | SUB_P1_P3 | 22 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; far pascal `(p[1] - p[3]) + a`; byte-identical |
+| 35ca:1e7e | SUB_P1_P3 | 21 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; far pascal `(p[1] - p[3]) + a`; byte-identical |
 | 35ca:5550 | TEST_AND | 22 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; `(*p & mask) != 0` — `cmp ax,1 / sbb ax,ax / inc ax` bool form; byte-identical |
 | 35ca:8012 | @swap_reset | 21 | RELOCS | src=src/calib/cswap2.c; flags="/G1 /AM /Gs /Ox"; exchange plus three zero stores, temp in DX (per-file /Ox, inventory 22: gap byte) |
 | 2603:452e | SWAP_IF_LT | 34 | MATCH | src=src/calib/cswap3.c; flags="/G1 /AM /Gs /Ox"; `if (*b < *a) { t = *a; *a = *b; *b = t; }` through two far pointers, incl. the `push ss / pop ds` after `lds`; /Os and /Ot spill the temporary and produce ENTER 2 |
@@ -63,14 +63,18 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 458e:705a | SWAP_2C1A | 19 | RELOCS | src=src/calib/cex1.c; flags="/G1 /AM /Gs /Ox"; far pascal exchange, old value staged in DX (`8B 16` / `8B C2`); /Os and /Ot spill it into ENTER 2 |
 | 458e:706e | SWAP_2C24 | 19 | RELOCS | src=src/calib/cex1.c; flags="/G1 /AM /Gs /Ox"; same shape for the word at 0x2C24 |
 | 458e:7082 | _get_2c24 | 4 | RELOCS | src=src/calib/cex1.c; flags="/G1 /AM /Gs /Ox"; `return g_2c24` — `A1 <disp> CB` |
-| 458e:8642 | state_to_shadow | 12 | RELOCS | src=src/calib/cex2.c; flags="/G1 /AM /Gs /Os"; `g_2c54 = g_9954; g_2c56 = g_9956;` |
-| 458e:8650 | SHADOW_SET | 24 | RELOCS | src=src/calib/cex2.c; flags="/G1 /AM /Gs /Os"; far pascal three-argument setter; pascal order puts the first declared argument at `[bp+0xA]` |
-| 458e:866a | shadow_to_state | 20 | RELOCS | src=src/calib/cex2.c; flags="/G1 /AM /Gs /Os"; copy back three words (`g_9958 = g_9963` as the third) |
+| 458e:8642 | state_to_shadow | 13 | RELOCS | src=src/calib/cex2.c; flags="/G1 /AM /Gs /Os"; `g_2c54 = g_9954; g_2c56 = g_9956;` |
+| 458e:8650 | SHADOW_SET | 25 | RELOCS | src=src/calib/cex2.c; flags="/G1 /AM /Gs /Os"; far pascal three-argument setter; pascal order puts the first declared argument at `[bp+0xA]` |
+| 458e:866a | shadow_to_state | 19 | RELOCS | src=src/calib/cex2.c; flags="/G1 /AM /Gs /Os"; copy back three words (`g_9958 = g_9963` as the third) |
 | 31e3:000c | W_1000 | 21 | RELOCS | src=src/calib/cwrap2.c; flags="/G1 /AM /Gs /Os"; wrapper `ext(a, 0x1000, b)` — two parameter pushes, one constant, far call masked |
 | 31e3:0022 | W_2000 | 21 | RELOCS | src=src/calib/cwrap2.c; flags="/G1 /AM /Gs /Os"; same wrapper with 0x2000 |
 | 31e3:0038 | W_8000 | 21 | RELOCS | src=src/calib/cwrap2.c; flags="/G1 /AM /Gs /Os"; same wrapper with 0x8000 |
 | 31e3:004e | W_4000 | 21 | RELOCS | src=src/calib/cwrap2.c; flags="/G1 /AM /Gs /Os"; same wrapper with 0x4000 |
 | 31e3:0064 | W_COND | 32 | PENDING | `if (b == 1) f1(a); else f2(a);` — ours emits `75 0A … EB 08`, the original `75 0B … EB 09 90`. The single extra `90` after the `jmp` looks like jump-target alignment decided at link time (this unit sits at an odd image offset), not a source difference; kept PENDING until that can be proven |
+| 2e01:0014 | _get_long_7bc2 | 8 | RELOCS | src=src/calib/cunit1.c; flags="/G1 /AM /Gs /Os"; long getter `return g_7bc2;` (`A1`/`8B 16`); hidden unit recovered by `tools/split.py` |
+| 4a91:001e | _get_long_9973 | 8 | RELOCS | src=src/calib/cunit1.c; flags="/G1 /AM /Gs /Os"; same shape for the long at 0x9973; hidden unit |
+| 477b:0028 | _sext14 | 10 | RELOCS | src=src/calib/cunit1.c; flags="/G1 /AM /Gs /Os"; `return (g_9971 << 2) >> 2;` — sign-extend a 14-bit value (`shl ax,2` / `sar ax,2`); hidden unit |
+| 3eec:0058 | _copy_and_reset | 13 | RELOCS | src=src/calib/cunit1.c; flags="/G1 /AM /Gs /Os"; `g_29d0 = g_29ce; g_29c8 = -1;`; hidden unit |
 | 4fab:000a | get_39f8_clamped | 16 | PENDING | slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs. `EB 03` (jump merge, one ret). Tested: /Os, /Od, /O1, /O2, /Ox, /Os /Oy, ternary both polarities, if/else+local |
 | 1f2d:000e | CLAMP_A | 20 | PENDING | min(max(x,1),g), __fastcall (arg in AX, bare retn), global 0x4688. Original frameless with DX temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`); MSC7 produces memory operands under /Ox (`39 06 d / 7D 03 / A1 d`), a frame under /Os. 6 variants tested |
 | 1f2f:0002 | CLAMP_B | 20 | PENDING | Sibling of CLAMP_A, global 0x468A, same cause |

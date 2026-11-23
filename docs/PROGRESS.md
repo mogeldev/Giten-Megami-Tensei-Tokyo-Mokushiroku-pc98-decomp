@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 41 — inventory split into units (2 463), six wrong windows fixed, 4 new RELOCS
+- **`tools/split.py`** added with a `--selftest`: recovers the functions the
+  decompiler merged into bigger entries. Result: **2 463 units from 1 956
+  inventory entries — 507 hidden functions recovered** (lower bound; the rule is
+  conservative). Self-test asserts the three known blobs
+  (`31e3:000c` → 5 units, `458e:705a` → 3, `458e:8642` → 3).
+- **A real defect in my own ledger, found by the new self-test**: three rows
+  recorded windows that were one byte too SHORT (`458e:8642` 12 instead of 13,
+  `458e:8650` 24 instead of 25, `35ca:1e7e` 22 instead of 21) and three that
+  included a padding byte. Narrowing a comparison always passes, which is why
+  `verify` had been green. All six are corrected and still verify.
+- **`tools/verify.py` now rejects both window errors**: every window must end at
+  a `ret`/`retf`/`retf imm16` instruction, and trailing `90` padding inside the
+  window is reported as "real length is N". The check found all six rows
+  automatically, so this class cannot return silently.
+- `tools/mine.py --units` mines `ground_truth/units.csv`, i.e. the functions that
+  were invisible before. First harvest: **4 new RELOCS** in `src/calib/cunit1.c`
+  — two long getters (`2e01:0014`, `4a91:001e`), a 14-bit sign extension
+  (`477b:0028`, `shl ax,2 / sar ax,2`) and a copy-plus-reset (`3eec:0058`).
+- Ledger: 71 rows — MATCH 10, **RELOCS 47**, PENDING 14; coverage **752 /
+  293 640 (0.256 %)**.
+
 ## Round 40 — close-out: clean rebuild green, 53 functions verified
 - Wiped `build/` completely and re-ran `tools/verify.py`: **21 objects rebuilt from
   source, 67 ledger rows re-checked, exit 0, 47.7 s**. Nothing in this report

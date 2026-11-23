@@ -19,11 +19,44 @@ HDR = 896 * 16
 HEAD_RE = re.compile(r"(\S+) @ ([0-9a-f]{4}):([0-9a-f]{4}) \*\*\*\*/\s*\n(.*?)(?=\n\n\n|\Z)", re.S)
 
 
+def mine_units(a):
+    """Candidate finder over the split inventory (units hidden inside blobs)."""
+    import csv as _csv
+    img = open(BIN, "rb").read()[HDR:339735]
+    ledger = open(os.path.join(ROOT, "docs", "MATCHING.md"), encoding="utf-8").read()
+    done = {int(m.group(1), 16) * 16 + int(m.group(2), 16)
+            for m in re.finditer(r"^\|\s*([0-9a-f]{4}):([0-9a-f]{4})\s*\|", ledger, re.M)}
+    out = []
+    for r in _csv.DictReader(open(os.path.join(ROOT, "ground_truth", "units.csv"))):
+        lin, size = int(r["linear"], 16), int(r["size"])
+        if r["parent"] == r["va"]:      # already reachable via functions.csv
+            continue
+        if lin in done or not a.min <= size <= a.max:
+            continue
+        b = img[lin - 0x10000: lin - 0x10000 + size]
+        if any(x in b for x in (0xE8, 0x9A, 0xCD, 0xEB, 0xE9)):
+            continue
+        if b[-1] not in (0xC3, 0xCB) and b[-3:-1] not in (b"\xCA", b"\xC2"):
+            continue
+        out.append((size, r["va"], b.hex()))
+    out.sort()
+    print(f"# {len(out)} hidden units call-free and jump-free ({a.min}..{a.max} bytes)")
+    for size, va, hx in out:
+        print(f"{va}\t{size:>2}\t{hx}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--min", type=int, default=5)
     ap.add_argument("--max", type=int, default=24)
+    ap.add_argument("--units", action="store_true",
+                    help="use ground_truth/units.csv (split inventory: includes the "
+                         "functions merged into bigger entries). No decompiled text is "
+                         "available for those, so candidates are filtered on bytes only.")
     a = ap.parse_args()
+
+    if a.units:
+        return mine_units(a)
 
     src = open(DEC, encoding="utf-8", errors="replace").read()
     img = open(BIN, "rb").read()[HDR:339735]

@@ -3,6 +3,19 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 41 — split the inventory, and guard the window length
+- **The inventory merges functions.** `tools/split.py` recovers 507 hidden units
+  (2 463 real vs 1 956 entries). Split before judging progress or mining
+  candidates; `mine.py --units` works on the split list.
+- **A window that is too short always passes a byte comparison.** Both failure
+  modes are silent: too short (narrowing cannot fail) and too long (padding that
+  the object also emits). `verify.py` now requires every window to end at a
+  `ret`/`retf`/`retf imm16` and rejects trailing `90` padding, naming the real
+  length. Six rows were wrong before this check existed.
+- **Long getters** compile to `A1 <disp>` + `8B 16 <disp+2>` + `CB` (low word in
+  AX, high in DX).
+- **14-bit sign extension** is `(g << 2) >> 2` → `C1 E0 02` / `C1 F8 02`.
+
 ## Round 39 — the inventory undercounts functions, and link-time alignment
 - **189 inventory entries contain 2..6 real functions** (`terminator + gap +
   new prologue`). 461 units are hidden this way. Any progress metric computed
