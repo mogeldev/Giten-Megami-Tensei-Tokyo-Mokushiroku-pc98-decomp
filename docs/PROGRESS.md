@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 81 — no new rows; a diagnostic insight and a 7-unit family still blocked
+No ledger increment. Two results worth keeping.
+
+- **New diagnostic: `pop bx` right after a call means the callee was declared
+  cdecl.** In the `3883` family MSC emitted `E8 rel16 / 5B / …` because it was
+  discarding the pushed argument itself; the original has no cleanup, so its callee
+  **cleans the stack**, i.e. it is `__pascal`. Declaring the callee `__pascal` made
+  three bytes of mismatch disappear — all my earlier attempts at this family had
+  used the default (cdecl) convention. This applies to every generated wrapper: get
+  the callee's convention from the stack cleanup, not from the caller.
+- **The family still does not verify**, and the reason is narrow: after the call
+  MSC emits `8E C2 / 8B D8` (`es = dx; bx = ax`), the original emits `8B D8 /
+  8E C2` (`bx = ax; es = dx`). Two instructions, same values, opposite order — the
+  instruction-order trait. Seven units (`3883:0008`, `3884:000e`, `38a2:000e`,
+  `38ac:0008`, `396e:0004`, `39f3:0000`, `3839:0008`) are blocked by exactly this,
+  and no source formulation changed it (tried: pointer arithmetic, struct member,
+  `int __far *` and `char __far *` callee types, `/Os` and `/Ox /Oa /Os`).
+- Also tried and blocked on load order: `3de8:0008` (far-field swap; the original
+  reads the new value before the old field regardless of statement order) and
+  `29e9:000a` (list walk; the original rotates the loop with `EB 03` instead of
+  testing on entry).
+- Ledger unchanged: 171 rows — MATCH 32, RELOCS 117, PENDING 22.
+
 ## Round 80 — one RELOCS from the selector family
 - `1e3b:00f0` **PICK_FLAG** (29 B, RELOCS, `src/calib/cpick2.c`, `/G1 /AM /Gs /Os`) —
   `if (flag == 0) return g_pa; return g_pb;`, a two-way far-pointer selector.

@@ -15,6 +15,16 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 81 - the callee's convention is visible in the stack cleanup
+- **`pop bx` / `add sp,N` right after a call means the CALLER cleans**, so the
+  callee was declared cdecl in our source. If the original has no cleanup at all,
+  the real callee is `__pascal` (it pops its own arguments). Declaring the callee
+  `__pascal` removes the stray `5B`. Getting this wrong makes a correct source
+  look wrong by one instruction.
+- **A returned far pointer is normalised as `8E C2 / 8B D8`** (es=dx then bx=ax)
+  by MSC, where the original binary does `8B D8 / 8E C2`. This order is not
+  steerable - no pointer-expression form changed it - and it blocks the whole
+  "call returns a far pointer, read a field" family (7 units).
 ## Round 80 - the same selector needs different flags
 - Two far-pointer selectors, same source shape, **different flags**: `PICK_PTR`
   (`1f6f:000c`) stages the kind in BX (`8B 5E 06 / 0B DB`) and needs `/Ox`;
