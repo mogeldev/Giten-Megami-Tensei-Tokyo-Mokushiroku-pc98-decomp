@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 68 — MK_FP does not rescue the fixed-segment units; two more verified
+- **Tested the hypothesis from round 67 and it failed, cleanly.** With
+  `MK_FP(0x4827, …)` the compiler still emits `BB 27 48 / 8E C3` (segment via BX)
+  and then addresses `es:[bx]` through a base register, while `2d64:0008` uses
+  `B8 27 48 / 8E C0` and **absolute** `es:[62 08]`. So the earlier conclusion
+  stands, now with a second attempt behind it: MSC 7 cannot address a far object
+  by absolute `disp16`, and the whole fixed-segment family (`2d64:0008`,
+  `2d7d:0042`, `2d86:0008`) stays out of reach. No more attempts on it.
+- New verified (`src/calib/cmisc1.c`, `/G1 /AM /Gs /Os`):
+  - `4977:0006` **CLEAR_AT** (20 B, **MATCH**) — `p[i + 5] = 0;` for a far char
+    pointer with a near `int` index (`26 C6 40 05 00` = `es:[bx+si+5]`);
+  - `2e01:001c` **MIX_LONG** (23 B, RELOCS) — **two statements** are required:
+    `g &= 0x3FC0; g |= (v >> 16) & 0xC03F;` gives the memory-operand
+    `81 26 <g> C0 3F`, whereas the one-expression form loads the global into a
+    register first.
+- Two more candidates stopped on register choice (`SI` vs `BX` with a save/restore
+  the original needs and we do not).
+- Ledger: 157 rows — **MATCH 30**, RELOCS 105, PENDING 22.
+
 ## Round 67 — padding-tolerant generators; three more verified; MK_FP identified
 - Made `setters.py` and `wraps.py` **padding-tolerant** (prefix match, remaining
   bytes must be `00`/`90`), and made them record the *matched* length rather than

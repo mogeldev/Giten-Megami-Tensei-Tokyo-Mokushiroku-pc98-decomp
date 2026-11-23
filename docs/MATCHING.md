@@ -166,3 +166,5 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 4342:001c | ADDR4 | 18 | RELOCS | src=src/calib/carr1.c; flags="/G1 /AM /Gs /Os"; `return (char __far *)&g_866e[i * 2];` — array base into AX, DS into DX |
 | 4342:0004 | SEXT11 | 23 | RELOCS | src=src/calib/carr1.c; flags="/G1 /AM /Gs /Os"; `return (g_866e[i * 2] << 5) >> 5;` — `C1 E0 05 / C1 F8 05` sign-extends the low 11 bits |
 | 37a6:0016 | REC6 | 17 | MATCH | src=src/calib/carr1.c; flags="/G1 /AM /Gs /Os"; `return MK_FP(0x4363, i * 0x1E + 6);` — MK_FP with a constant segment gives `imul/add` for the offset plus `mov dx,0x4363`; byte-identical |
+| 4977:0006 | CLEAR_AT | 20 | MATCH | src=src/calib/cmisc1.c; flags="/G1 /AM /Gs /Os"; `p[i + 5] = 0;` for a far char pointer with a near int index — `26 C6 40 05 00` (es:[bx+si+5]); byte-identical |
+| 2e01:001c | MIX_LONG | 23 | RELOCS | src=src/calib/cmisc1.c; flags="/G1 /AM /Gs /Os"; two statements `g &= 0x3FC0; g |= (v >> 16) & 0xC03F;` produce the memory-operand `81 26 <g> C0 3F` that the single-expression form does not |

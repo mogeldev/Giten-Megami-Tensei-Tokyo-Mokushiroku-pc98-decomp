@@ -7,8 +7,8 @@
 
 | Status | Count |
 |---|---|
-| MATCH | 29 |
-| RELOCS | **104** |
+| MATCH | 30 |
+| RELOCS | **105** |
 | PENDING | **22** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
@@ -45,19 +45,19 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | Code bytes | 294174 |
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
-| of which **verified** | **1974 (0.673%)** |
+| of which **verified** | **2017 (0.688%)** |
 | PENDING bytes | 822 |
 
-Code functions: **2523**, of which verified **133**.
+Code functions: **2523**, of which verified **135**.
 
 ## Regions (64 KiB)
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
 | 0x0000 | 619 | 19 | 65131 | 256 (0.4%) | 897 | 360 | 191 |
-| 0x0001 | 525 | 19 | 65757 | 276 (0.4%) | 0 | 569 | 148 |
+| 0x0001 | 525 | 20 | 65757 | 299 (0.5%) | 0 | 569 | 148 |
 | 0x0002 | 763 | 61 | 65522 | 886 (1.4%) | 0 | 0 | 124 |
-| 0x0003 | 561 | 32 | 64435 | 545 (0.8%) | 0 | 0 | 359 |
+| 0x0003 | 561 | 33 | 64435 | 565 (0.9%) | 0 | 0 | 359 |
 | 0x0004 | 55 | 2 | 33329 | 11 (0.0%) | 66 | 11282 | 0 |
 
 <!-- MANUAL-BEGIN -->

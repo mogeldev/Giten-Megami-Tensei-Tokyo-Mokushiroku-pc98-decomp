@@ -15,6 +15,17 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 68 - absolute far addressing is unavailable; two statements beat one
+- **MSC 7 cannot emit `es:[disp16]`** for a far object: even with
+  `MK_FP(const_seg, const_off)` it loads the segment into a register and
+  addresses `es:[bx]`. Units that use absolute ESA addressing are therefore out
+  of reach - this is settled by two independent attempts, stop revisiting it.
+- **Split compound bit manipulation into statements.** `g = (g & M) | X;` makes
+  MSC load `g` into a register; `g &= M; g |= X;` produces the memory-operand
+  form `81 26 <g> M` that the binary contains. Same for `|=` after `&=`.
+- A near `int` index into a far `char` pointer gives `26 C6 40 dd 00`
+  (`es:[bx+si+disp]`) - that is `p[i + n] = 0` only when the index is signed
+  near; a plain `char __far *p` parameter is enough.
 ## Round 67 - MK_FP for fixed-segment far pointers
 - **`MK_FP(0x4363, off)` is how to write a far pointer whose segment is a
   constant.** Writing `(char __far *)(0x43630000L + off)` makes MSC compute the
