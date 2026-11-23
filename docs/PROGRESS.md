@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 74 — four RELOCS; the call-wrapper vein extended
+- Re-scanned **all sizes** for framed units whose only unusual feature is `E8`
+  calls and no other blocking trait: **66 units**. From them, four more verified
+  (`src/calib/cds1.c`, `/G1 /AM /Gs /Os`):
+  - `4e2e:000a` **CALL_A** (20 B) and `4e31:0006` **CALL_B** (20 B) —
+    `HELP(&g_2c82, a, b)`: a **DGROUP far pointer as the first argument**, pushed
+    as `1E 68 <off>` (segment and offset pushed separately, not `push` of a
+    pointer value);
+  - `218c:0002` **TWO_CALLS** (18 B) — `HELP_A(-1); return HELP_B(a);`, first
+    result discarded;
+  - `39dc:0026` **SIX_ARGS** (27 B) — `HELP6(p0, p1, p2, p3, 1, p4)`, a constant
+    argument in the middle of the push list.
+- One family stays out of reach and is now understood: `3883:0008` and its five
+  siblings (`call → far pointer → field read`) differ by a `pop bx` that MSC emits
+  around the call plus a different `mov bx,ax` / `mov es,dx` order — a register
+  allocation difference, not a wrong source.
+- Ledger: 166 rows — MATCH 32, **RELOCS 112**, PENDING 22.
+
 ## Round 73 — three RELOCS from call-wrappers
 - **New vein that the earlier filters missed: functions whose only "unknown" is a
   call target.** `match.py` masks relocation bytes, so a generated call to an

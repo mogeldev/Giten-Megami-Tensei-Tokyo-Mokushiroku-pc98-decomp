@@ -15,6 +15,17 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 74 - pushing a DGROUP far pointer
+- A far pointer to a global is pushed as **two separate pushes**
+  (`1E 68 <offset>` = push ds; push offset), not as a pointer value. So
+  `HELP(&g, a, b)` with a `char __far *` parameter produces exactly that, and
+  the parameter order is readable from the push sequence: the far pointer comes
+  first if it is the first declared argument.
+- A constant argument in the middle of a call (`6A 01`) is fine and matches;
+  only the pushes' *order* has to come from the source.
+- When generating a wrapper, count the pushes and confirm each maps to a parameter
+  or a literal - `retf imm16` gives the argument byte count, which must equal
+  the pushed total.
 ## Round 73 - call wrappers are harvestable
 - **A call target is a relocation, so it gets masked.** Any function whose unknown
   part is "which function does it call" can still verify byte-exactly, as long as

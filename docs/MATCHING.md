@@ -173,3 +173,7 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 3eb3:000a | PLUS20 | 16 | RELOCS | src=src/calib/ccall1.c; flags="/G1 /AM /Gs /Os"; `return HELP_A(a) + 0x14;` — near-call wrapper with arithmetic on the result |
 | 355a:000e | NESTED | 17 | RELOCS | src=src/calib/ccall1.c; flags="/G1 /AM /Gs /Os"; `return HELP_B(HELP_A(a));` — nested near calls, the result of the first pushed for the second |
 | 3725:0048 | CLEAR_BIT1 | 20 | RELOCS | src=src/calib/ccall1.c; flags="/G1 /AM /Gs /Os"; `*p &= ~1; HELP_V(); return 1;` — bit clear on a far byte followed by a void call |
+| 4e2e:000a | CALL_A | 20 | RELOCS | src=src/calib/cds1.c; flags="/G1 /AM /Gs /Os"; `HELP(&g_2c82, a, b)` — a DGROUP far pointer pushed first as `1E 68 <off>` |
+| 4e31:0006 | CALL_B | 20 | RELOCS | src=src/calib/cds1.c; flags="/G1 /AM /Gs /Os"; same call shape, second DGROUP object |
+| 218c:0002 | TWO_CALLS | 18 | RELOCS | src=src/calib/cds1.c; flags="/G1 /AM /Gs /Os"; `HELP_A(-1); return HELP_B(a);` — result of the first call discarded |
+| 39dc:0026 | SIX_ARGS | 27 | RELOCS | src=src/calib/cds1.c; flags="/G1 /AM /Gs /Os"; six pushes including a constant in the middle: `HELP6(p0,p1,p2,p3,1,p4)` |
