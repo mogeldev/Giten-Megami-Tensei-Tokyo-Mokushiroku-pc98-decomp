@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Ten more direct far-call wrappers verified
+One build covers ten wrappers that add constants, DGROUP words, or DGROUP
+far pointers to a Pascal call. This adds 163 B as RELOCS, including the
+22-byte routine at `3616:000e` inside an 85-byte inventory window.
+
 ## Nine direct far-call relays verified in one build
 Nine inventory-backed wrappers forward one to three words to far Pascal
 callees. The caller's own return can be near or far; the original `C2`/`CA`

@@ -237,3 +237,13 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 31f6:008c | RELAY_27FE | 15 | RELOCS | src=src/calib/cfrelay.c; flags="/G1 /AM /Gs /Os"; far Pascal relay of one word |
 | 3aa9:0002 | RELAY_AE58 | 18 | RELOCS | src=src/calib/cfrelay.c; flags="/G1 /AM /Gs /Os"; far Pascal relay of two words |
 | 4957:000e | RELAY_474A | 21 | RELOCS | src=src/calib/cfrelay.c; flags="/G1 /AM /Gs /Os"; far Pascal relay of three words |
+| 1f30:0006 | RELAY_0C7E | 22 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; prepend DGROUP:0x468C to two arguments |
+| 30ea:000e | _relay_7aa8_10 | 10 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; near relay of constants 1 and 10 |
+| 3616:000e | RELAY_0CD2 | 22 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; append DGROUP:0x7D8E; body ends before the rest of the merged 85-byte inventory window |
+| 3df1:0006 | RELAY_161E | 19 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; append DGROUP:0x79CE to a word |
+| 41da:000a | _relay_7aa8_70 | 10 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; far relay of constants 1 and 70 |
+| 41e9:0000 | _relay_9326_global | 10 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; relay the word at DGROUP:0x2F52 |
+| 4642:002a | RELAY_62F8 | 26 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; prepend two DGROUP words to the two caller arguments |
+| 4e22:000a | _relay_91c4 | 11 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; near relay of constants 0 and 4096 |
+| 4f54:0070 | RELAY_4718 | 19 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; prepend DGROUP:0x860E to a word |
+| 5096:000a | _relay_4f64 | 14 | RELOCS | src=src/calib/cfrly2.c; flags="/G1 /AM /Gs /Os"; pass DGROUP:0x3970 and two zero words |
