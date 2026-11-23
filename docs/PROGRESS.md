@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 38 — six RELOCS from two multi-function blobs (49 verified)
+- `458e:705a` (inventory: one 44-byte function) is really **three units of
+  19 + 19 + 4 bytes** separated by gap bytes: two far-pascal exchanges with the
+  old value staged in DX, plus a getter. All three RELOCS with `/Ox`
+  (`src/calib/cex1.c`). This settled the family question: the exchange is
+  `__pascal` with a frame, not `__fastcall` — the argument comes from `[bp+6]`.
+- `458e:8642` (inventory: one 60-byte function) is **three units of 12 + 24 + 20
+  bytes**: a shadow copy, a three-argument pascal setter, and the copy back
+  (`src/calib/cex2.c`, `/Os`). All three RELOCS.
+- Method note that made the difference: when an address inside a merged blob is
+  unclear, locate the next unit by searching the byte pattern in the blob rather
+  than computing offsets from the inventory size — the gap bytes are not
+  uniform (1 byte here, 2 bytes there), and guessing cost two failed attempts.
+- Also caught a wrong-segment match attempt (`35ca:` instead of `458e:`) because
+  the diff showed completely unrelated original bytes — a wrong address reads as
+  a huge diff, never as a near miss.
+- Ledger: 62 rows — MATCH 10, **RELOCS 39**, PENDING 13.
+
 ## Round 37 — four near-misses documented, no new verified rows
 Honest round: every candidate landed within a few bytes but none matched, so the
 result is four precisely documented PENDING rows instead of forced ledger entries.

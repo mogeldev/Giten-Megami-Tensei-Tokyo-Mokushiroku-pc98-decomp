@@ -60,6 +60,12 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 35ca:209c | SWAP_LONG_13F6 | 38 | PENDING | Sibling of SWAP_LONG_40C0 with the long at 0x13F6/0x13F8, identical cause |
 | 2603:463c | SET_BIT | 38 | PENDING | `table[n / 8] |= bit_table[n & 7];`. Ours is 34 B: MSC loads the argument into AX and moves AX->SI afterwards, the original loads into SI first (`8B 76 06 / 8B DE / 8B C6`) and orders `and bx,7` before `mov si,ax`. Division by 8 was required (the `cwd / and dx,7 / add / sar` sequence), `>> 3` gives 23 B |
 | 1871:7874 | SEG_OF | 24 | PENDING | Returns the segment half of a far pointer. Original loads it with `C4 46 06` (les) + `8C C0` (mov ax,es) after initialising a local to 0; MSC reads `[bp+8]` directly (`8B 46 08`) and never emits the les. Three formulations tried |
+| 458e:705a | SWAP_2C1A | 19 | RELOCS | src=src/calib/cex1.c; flags="/G1 /AM /Gs /Ox"; far pascal exchange, old value staged in DX (`8B 16` / `8B C2`); /Os and /Ot spill it into ENTER 2 |
+| 458e:706e | SWAP_2C24 | 19 | RELOCS | src=src/calib/cex1.c; flags="/G1 /AM /Gs /Ox"; same shape for the word at 0x2C24 |
+| 458e:7082 | _get_2c24 | 4 | RELOCS | src=src/calib/cex1.c; flags="/G1 /AM /Gs /Ox"; `return g_2c24` — `A1 <disp> CB` |
+| 458e:8642 | state_to_shadow | 12 | RELOCS | src=src/calib/cex2.c; flags="/G1 /AM /Gs /Os"; `g_2c54 = g_9954; g_2c56 = g_9956;` |
+| 458e:8650 | SHADOW_SET | 24 | RELOCS | src=src/calib/cex2.c; flags="/G1 /AM /Gs /Os"; far pascal three-argument setter; pascal order puts the first declared argument at `[bp+0xA]` |
+| 458e:866a | shadow_to_state | 20 | RELOCS | src=src/calib/cex2.c; flags="/G1 /AM /Gs /Os"; copy back three words (`g_9958 = g_9963` as the third) |
 | 4fab:000a | get_39f8_clamped | 16 | PENDING | slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs. `EB 03` (jump merge, one ret). Tested: /Os, /Od, /O1, /O2, /Ox, /Os /Oy, ternary both polarities, if/else+local |
 | 1f2d:000e | CLAMP_A | 20 | PENDING | min(max(x,1),g), __fastcall (arg in AX, bare retn), global 0x4688. Original frameless with DX temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`); MSC7 produces memory operands under /Ox (`39 06 d / 7D 03 / A1 d`), a frame under /Os. 6 variants tested |
 | 1f2f:0002 | CLAMP_B | 20 | PENDING | Sibling of CLAMP_A, global 0x468A, same cause |
