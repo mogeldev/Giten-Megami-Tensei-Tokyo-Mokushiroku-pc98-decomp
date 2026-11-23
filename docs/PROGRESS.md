@@ -25,12 +25,14 @@ Consequences (all byte-verified, not assumed):
   `add r,r` doubling, `SI` bases, `8B E5 5D`, `B8 00 00`, `B4` register args
   and ESA addressing).
 
-First harvest of that pool: **14 new rows, 123 B**, all RELOCS.
+First harvest of that pool: **20 new rows, 203 B**, all RELOCS.
 
-- `src/calib/cfarl.c` (13 units): six `g_78cc ± 1` fastcall relays, a
-  constant-relay pair (`return psub(14)`, `return psub(0)`), four frameless
-  `return fnone()` six-byte relays and one near relay – each object byte
-  sequence is `A1/6A/FF 36 … 9A …`, i.e. the untranslated form.
+- `src/calib/cfarl.c` (13 units) and `cfarl2.c` (6 units): six
+  `g_78cc ± 1` fastcall relays, a constant-relay pair (`return psub(14)`,
+  `return psub(0)`), four frameless `return fnone()` six-byte relays, one near
+  relay, a conditional `if (g_192c == 0) none();`, two-argument relays from
+  DGROUP, a `1E 68 <disp>` far-pointer argument and a nested `h(none())` –
+  each object call site is `9A`, i.e. the untranslated form.
 - `src/calib/cfar6.c` (`1aa1:0130`, 11 B): MSC 6.0 with **`/G0`** materialises
   the long constant as `mov ax,0x800 / cwd / push dx / push ax`; `/G1` would
   use the push-immediate form and MSC 7 calls through `9A`. That is the first
@@ -39,8 +41,8 @@ First harvest of that pool: **14 new rows, 123 B**, all RELOCS.
   real-mode CL hangs when the HDPMI TSR is loaded) and refuses two toolchains
   sharing one source stem.
 
-Ledger 259 rows — MATCH 37, RELOCS 198, ASM 1, PENDING 23; verify and checkled
-green; own-code coverage 4035 B (1.376 %).
+Ledger 265 rows — MATCH 37, RELOCS 204, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 4115 B (1.403 %).
 
 ## /G0 explains the `5D` epilogue; MSC 6.0 turns out to be runnable
 `1000:1364` (abs_branch) was PENDING with a perfect body and a wrong teardown:

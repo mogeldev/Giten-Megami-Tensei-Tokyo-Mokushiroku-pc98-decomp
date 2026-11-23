@@ -263,10 +263,23 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 3dcf:0018 | F_3DCF_18 | 10 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; g_78ca - 1 forwarded in AX to a far fastcall; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 10 |
 | 3dd1:000c | F_3DD1_C | 10 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; g_78cc + 1 forwarded in AX to a far fastcall; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 10 |
 | 3dd1:0016 | F_3DD1_16 | 10 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; g_78cc - 1 forwarded in AX to a far fastcall; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 10 |
-| 3ea8:0008 | F_3EA8 | 8 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; eturn psub(14) - constant pushed for a far Pascal callee; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 8 |
-| 3ea9:0000 | F_3EA9 | 8 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; eturn psub(0) - second member of the constant-relay pair; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 8 |
-| 2e68:0006 | F_2E68 | 6 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; eturn fnone() - frameless 6-byte relay; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 6 |
-| 3bd6:0006 | F_3BD6 | 6 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; eturn fnone() - frameless 6-byte relay; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 6 |
-| 3dd5:0002 | F_3DD5 | 6 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; eturn fnone() - frameless 6-byte relay; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 6 |
-| 3e3f:0002 | F_3E3F | 6 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; eturn fnone() - frameless 6-byte relay; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 6 |
-| 3d94:004a | F_3D94 | 10 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; near relay eturn psub(g_78c4); one push [disp16] then the translated call; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 10 |
+| 3ea8:0008 | F_3EA8 | 8 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; 
+eturn psub(14) - constant pushed for a far Pascal callee; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 8 |
+| 3ea9:0000 | F_3EA9 | 8 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; 
+eturn psub(0) - second member of the constant-relay pair; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 8 |
+| 2e68:0006 | F_2E68 | 6 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; 
+eturn fnone() - frameless 6-byte relay; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 6 |
+| 3bd6:0006 | F_3BD6 | 6 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; 
+eturn fnone() - frameless 6-byte relay; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 6 |
+| 3dd5:0002 | F_3DD5 | 6 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; 
+eturn fnone() - frameless 6-byte relay; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 6 |
+| 3e3f:0002 | F_3E3F | 6 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; 
+eturn fnone() - frameless 6-byte relay; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 6 |
+| 3d94:004a | F_3D94 | 10 | RELOCS | src=src/calib/cfarl.c; flags="/G1 /AM /Gs /Os"; near relay 
+eturn psub(g_78c4); one push [disp16] then the translated call; image `90 0E E8` is LINK /FARCALLTRANSLATION of the object's `9A` (5-byte slot masked, see CONVENTIONS.md); inventory size 10 |
+| 3bd6:000c | F_3BD6_C | 13 | RELOCS | src=src/calib/cfarl2.c; flags="/G1 /AM /Gs /Os"; `if (g_192c == 0) none();` - conditional frameless relay; image `90 0E E8` = LINK /F translation of the object's `9A` (5-byte slot masked) |
+| 3d94:0002 | F_3D94_2 | 13 | RELOCS | src=src/calib/cfarl2.c; flags="/G1 /AM /Gs /Os"; `return g_78c4 = sub2(5, 2);` - two constants then the call, result stored via `A3`; image `90 0E E8` = LINK /F translation of the object's `9A` (5-byte slot masked) |
+| 322b:0002 | F_322B | 14 | RELOCS | src=src/calib/cfarl2.c; flags="/G1 /AM /Gs /Os"; `return sub2(g_1cee, g_1cec);` - both arguments pushed from DGROUP; image `90 0E E8` = LINK /F translation of the object's `9A` (5-byte slot masked) |
+| 4e6d:000a | F_4E6D | 14 | RELOCS | src=src/calib/cfarl2.c; flags="/G1 /AM /Gs /Os"; `return sub2(g_9954, g_9956);` - sibling of 322b:0002 at different globals; image `90 0E E8` = LINK /F translation of the object's `9A` (5-byte slot masked) |
+| 3baa:0006 | F_3BAA | 14 | RELOCS | src=src/calib/cfarl2.c; flags="/G1 /AM /Gs /Os"; `return sub3(g_17d2, 0, 0);` - the far pointer goes through `1E 68 <disp>` (push ds; push offset), then two zero pushes; image `90 0E E8` = LINK /F translation of the object's `9A` (5-byte slot masked) |
+| 3309:0008 | F_3309 | 12 | RELOCS | src=src/calib/cfarl2.c; flags="/G1 /AM /Gs /Os"; `return h(none());` - translated call first, then `push ax` into a direct `9A` callee; image `90 0E E8` = LINK /F translation of the object's `9A` (5-byte slot masked) |
