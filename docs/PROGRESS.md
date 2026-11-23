@@ -1,5 +1,20 @@
 # PROGRESS
 
+## Round 33 — first MATCH, plus two RELOCS (31 verified)
+- **`2603:3efc` F_3EFC (13 B) is the first MATCH in the project**: bytes identical
+  with no relocation to mask. Form `return d - b` with four word arguments
+  (`retf 8`); the pascal argument order (left to right push) puts the last
+  declared parameter at `bp+6`, which is what the original reads.
+- `458e:8306` f_8306 (10 B, RELOCS): `int __near f(void) { return 1 << g; }` —
+  terminator `C3` proved it is a near function; the decompiler's `& 0x1f` is its
+  own invention, the code shifts by the raw byte.
+- `35ca:8072` @swap_78cc (10 B, RELOCS): `__fastcall` exchange. **First function
+  proven to need `/Ox`**: `/Os` and `/Ot` put the temporary in `CX`, `/Ox` puts it
+  in `DX` like the original. Third per-file-flags case after round 23.
+- Rejected on byte comparison and recorded: `35ca:8072` under /Os (CX vs DX),
+  `458e:a4c6` (ours frameless, original saves si/di).
+- Ledger: 38 rows — **MATCH 1, RELOCS 30**, PENDING 7.
+
 ## Round 32 — family sweeper tool; small-function families measured as empty
 - **`tools/sweep.py`** added: takes a family definition (regex + C template),
   finds every hit at a real function boundary not yet in the ledger (compared by

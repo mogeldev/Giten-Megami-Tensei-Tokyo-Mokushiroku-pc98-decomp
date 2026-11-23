@@ -3,6 +3,23 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 33 - argument order, near/far, and /Ox register allocation
+- **Parameter offsets prove the calling convention.** With `push bp; mov bp,sp`
+  a far function has `[bp+2]` = return offset, `[bp+4]` = return segment, so
+  arguments start at `[bp+6]`. `__pascal` pushes left to right, therefore
+  `[bp+6]` is the **last declared** parameter and the highest offset
+  (`[bp+0xC]` for four args) is the first. Reading `[bp+6] - [bp+0xA]` means
+  `return d - b` for `(int a, int b, int c, int d)`.
+- **The terminator names the model**: `C3` = `__near`, `CB` = `__far`,
+  `CA imm16` = far with callee-pops. Never take it from the decompiler header.
+- **`/Ox` can change register allocation independently of size.** The exchange
+  `old = g; g = v; return old` becomes `8B 16 / A3 / 8B C2` under `/Ox`
+  (temp in DX, matching the original) but `8B 0E / A3 / 8B C1` (temp in CX)
+  under `/Os` and `/Ot`. When only a register differs, vary the optimization
+  level before assuming a different source form.
+- **MATCH is achievable for register-only functions**: `2603:3efc` has no
+  memory operand at all, so there is nothing to mask; MATCH is reserved for
+  exactly these.
 ## MS C 8.x / x86-16 real mode — **calibrated: NO**
 
 Candidates not yet checked (record as a rule only after calibration):

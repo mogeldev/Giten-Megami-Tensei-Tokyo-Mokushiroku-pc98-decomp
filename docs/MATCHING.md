@@ -39,6 +39,9 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 458e:35ae | init_234e | 7 | RELOCS | src=src/calib/cset3.c; flags="/G1 /AM /Gs /Os"; `g_234e = 1` |
 | 4df7:0002 | init_9a08 | 7 | RELOCS | src=src/calib/cset3.c; flags="/G1 /AM /Gs /Os"; `g_9a08 = 1` |
 | 3db4:0006 | zero_1bac | 7 | RELOCS | src=src/calib/cset3.c; flags="/G1 /AM /Gs /Os"; `g_1bac = 0` (inventory size 40: merged blob) |
+| 2603:3efc | F_3EFC | 13 | MATCH | src=src/calib/cset4.c; flags="/G1 /AM /Gs /Os"; `return d - b` with 4 word args (`retf 8`) — byte-identical, no relocation to mask |
+| 458e:8306 | f_8306 | 10 | RELOCS | src=src/calib/cset4.c; flags="/G1 /AM /Gs /Os"; `int __near f(void) { return 1 << g_b9958; }` (`B8 01 00` / `8A 0E` / `D3 E0` / `C3`) |
+| 35ca:8072 | @swap_78cc | 10 | RELOCS | src=src/calib/cswap1.c; flags="/G1 /AM /Gs /Ox"; `__fastcall` exchange `old = g; g = v; return old` — /Ox picks DX as temp, /Os and /Ot pick CX |
 | 4fab:000a | get_39f8_clamped | 16 | PENDING | slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs. `EB 03` (jump merge, one ret). Tested: /Os, /Od, /O1, /O2, /Ox, /Os /Oy, ternary both polarities, if/else+local |
 | 1f2d:000e | CLAMP_A | 20 | PENDING | min(max(x,1),g), __fastcall (arg in AX, bare retn), global 0x4688. Original frameless with DX temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`); MSC7 produces memory operands under /Ox (`39 06 d / 7D 03 / A1 d`), a frame under /Os. 6 variants tested |
 | 1f2f:0002 | CLAMP_B | 20 | PENDING | Sibling of CLAMP_A, global 0x468A, same cause |
