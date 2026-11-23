@@ -1,5 +1,11 @@
 # PROGRESS
 
+## Configuration comparison recovered beside the global relays
+`4e8e:002e` (COMPARE_CONFIG, 65 B) verifies as RELOCS. Four ordered comparisons
+share the `-1` exit; the optional fifth comparison can return `1`, otherwise
+it returns zero. The 80-byte inventory window also contains padding and the
+already-verified wrapper at `4e8e:0070`; those bytes are not counted twice.
+
 ## Two global relays matched by correcting the callee prototype
 `4e8e:007e` (26 B) and `4e8e:0098` (35 B) verify as RELOCS. The missing
 `sub ah,ah` from round 88 was an argument-width mismatch: the first byte

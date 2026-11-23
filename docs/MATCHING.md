@@ -205,3 +205,4 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 489a:000a | CLASSIFY | 32 | MATCH | src=src/calib/calu3.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; two early returns for `n <= -42` and `n >= 42`, then zero; `/Ox` stages both comparisons in DX |
 | 4e8e:007e | _relay_globals5 | 26 | RELOCS | src=src/calib/cpick3.c; flags="/G1 /AM /Gs /Os"; far cdecl wrapper for a near Pascal call; first byte global passes as `int`, second as `unsigned char` |
 | 4e8e:0098 | RELAY_GLOBALS | 35 | RELOCS | src=src/calib/cpick3.c; flags="/G1 /AM /Gs /Os"; far Pascal sibling appends its own argument; 36-byte inventory includes one padding byte |
+| 4e8e:002e | COMPARE_CONFIG | 65 | RELOCS | src=src/calib/ccmp2.c; flags="/G1 /AM /Gs /Os"; near Pascal compares four words and an optional fifth; 80-byte inventory also contains padding and the next wrapper |
