@@ -66,16 +66,16 @@ Code functions: **2523**, of which verified **81**.
 
 ## Open (state at round 41)
 
-1. **Inventory split done, metric not yet switched**: `tools/split.py` recovers
-   **2 463 real units from 1 956 entries** (507 hidden functions). `coverage.py`
-   still counts against `functions.csv`, so its percentage uses the old
-   denominator — switching it to `units.csv` is the next accuracy step.
-2. Only 6 of the recovered hidden units are call-free and jump-free; the rest
-   need decompiler-guided work, so the split mainly matters for honest counting.
-3. `LINK.EXE` (DOSX16) hangs under dosbox-x in all DPMI variants — prerequisite
+1. **Metric switched to units** (round 42): `coverage.py` counts against
+   `ground_truth/units.csv` — **2 523 real units** from 1 956 entries
+   (567 hidden functions recovered by `tools/split.py`).
+2. `LINK.EXE` (DOSX16) hangs under dosbox-x in all DPMI variants — prerequisite
    for `build_replacement` (phase 6); candidate: native OMF linker (jwlink).
-   Without it, link-time alignment diffs (round 39) cannot be proven either way.
-4. Hand-ASM verdict for the modules that use `add bx,bx`, `C7 06` zero stores or
-   a `DX`-staged 32-bit exchange: MSC 6 and MSC 7 both ruled out at every tested
-   optimization level. Those rows stay PENDING by policy.
+3. **MSC 6 is untested, not ruled out** (round 46): the 6.00ax set from
+   archive.org ships a Windows PE driver, and the old "MSC 6 disproved" result was
+   void because stale objects were compared. A DOS-hosted MSC 6 is the open
+   prerequisite before calling the `add bx,bx` / `C7 06` units hand-written asm.
+4. Remaining PENDING rows need either a new flag insight (`/Ox /Oa /Os` closed the
+   clamp family in round 45) or a different source shape; each carries its tested
+   variants in the ledger.
 <!-- MANUAL-END -->

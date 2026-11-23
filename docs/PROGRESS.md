@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 46 — PENDING cascade gave nothing; an earlier conclusion turned out void
+- Ran every PENDING source source against the new `/Ox /Oa /Os` flag set
+  (`NEG_MINUS1`, `IDX_142A`, both `SWAP_LONG`, `SET_BIT`, `W_COND`,
+  `get_39f8_clamped`, `RESET_9B30`, `CONV`): **no new match**. `CONV` and
+  `IDX_142A` still emit `D1 E3` where the original has `03 DB`, so the
+  "add bx,bx" question is untouched by the aliasing flag. One further source
+  variant for the slot allocator (if/else with a local) was tried with
+  `/Ox /Oa /Os` and `/Os /Oa` — no match; the original merges both branches into
+  one `retn` via `jmp`, which MSC 7 does not produce here.
+- **MSC 6 test invalidated, record corrected**: while retrying MSC 6 with the new
+  flags, every build failed. Cause: the archive.org 6.00ax set ships a **Windows
+  PE driver** (`CL.EXE` has the "This program cannot be run in DOS mode" stub;
+  only `C1`, `C1L`, `C2`, `LIB`, `QCC` are real-mode DOS). Worse, the failures had
+  gone unnoticed because `build.py` left the previous OBJ in place, so the
+  round-26 comparison actually measured **MSC 7 against MSC 7**.
+  `docs/CONVENTIONS.md` and `README.md` now say MSC 6 is **untested / open**,
+  not "disproved". The stale-object guard from round 45 is what exposed this.
+- No ledger change this round: 95 rows — MATCH 10, RELOCS 71, PENDING 14.
+  Coverage stays 897 / 293 211 (0.306 %). A round without an increment is
+  reported as such; the value here is that two wrong claims are no longer in the
+  documentation.
+
 ## Round 45 — the missing flag combination `/Ox /Oa /Os` closes a round-23 PENDING
 - **Root cause of a 22-round-old PENDING found**: the clamp family needs
   `/G1 /AM /Gs /Ox /Oa /Os`. `/Oa` (assume no aliasing) is what makes MSC keep the

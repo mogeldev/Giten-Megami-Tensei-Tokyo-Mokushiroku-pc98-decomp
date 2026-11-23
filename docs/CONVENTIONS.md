@@ -24,27 +24,40 @@ Applies to the byte-match project for **Giten Megami Tensei** (game engine `DDS9
 
 ## Hand-ASM evidence - `add bx,bx` (round 34, strongest signal so far)
 The binary contains 74 occurrences of `03 DB` (`add bx,bx`, index*2) against
-only 18 of `D1 E3` (`shl bx,1`). MSC 6.00ax and MSC 7.0 were both tested with
+only 18 of `D1 E3` (`shl bx,1`). MSC 7.0 was tested with
 `return g_142a[i]` under /Os, /Ox, /Ot, /Od and /O2: **every** combination emits
 `D1 E3`. Together with the earlier `C7 06` zero-store finding (rounds 25/26)
 this means a subset of the modules cannot come from either compiler generation
 with any tested flag set - the working assumption is hand-written (or inline)
 assembly for those units. Ledger rows that depend on `03 DB` stay PENDING and
 are not rewritten as C just to raise the count.
-## Phase-0 finding round 25/26 — compiler generation: MSC 6.0 TESTED and DISPROVED
+## Phase-0 finding round 25/26 — compiler generation: MSC 6.0 **NOT ACTUALLY TESTED**
 Byte statistics of the original binary (load image, 294 603 code bytes):
 
-| Pattern | Original | MSC 7.0 | MSC 6.00ax | Assessment |
-|---|---|---|---|---|
-| `03 DB` (add bx,bx) | **74x** | `D1 E3` | `D1 E3` | both emit SHL |
-| `C7 06 .. 00 00` (zero immediate) | **130x** | /O2 yes, but with frame | /O2 yes, with frame | original: without frame |
-| `33 C0 A3` (zero fold) | 32x | standard (every optimization level) | standard (even /Od!) | original rarely uses it |
-| `55 8B EC` (frame) | 1184x | fits /Os | fits /Os | — |
+| Pattern | Original | MSC 7.0 | Assessment |
+|---|---|---|---|
+| `03 DB` (add bx,bx) | **74x** | only `D1 E3` (shl) at every level tested | original uses ADD |
+| `C7 06 .. 00 00` (zero immediate) | **130x** | /O2 yes, but with a frame | original: without frame |
+| `33 C0 A3` (zero fold) | 32x | standard (every optimization level) | original rarely uses it |
+| `55 8B EC` (frame) | 1184x | fits /Os | — |
 
-**Result round 26:** MSC 6.00ax obtained (archive.org, `SZ` format), integrated
-(`build.py --msc-dir MSC6I --no-dpmi`), and checked for the init family:
-/Os, /Od, /Oa /Od all produce **`33 C0 A3 A3`** — identical to MSC 7.0.
-The hypothesis "MSC 6.x" is therefore disproved, not confirmed.
+**CORRECTION (round 46): the round-26 "MSC 6.0 disproved" result is void.**
+Two independent defects invalidated it:
+
+1. The MSC 6.00ax set fetched from archive.org ships a **Windows PE driver**:
+   `MSC6I\BIN\CL.EXE` starts with an MZ header carrying the
+   "This program cannot be run in DOS mode" stub, so DOSBox refuses to run it.
+   Only `C1`, `C1L`, `C2`, `LIB` and `QCC` in that set are real-mode DOS binaries;
+   `C2L`, `C3L` and `CL` are PE. A DOS-hosted MSC 6 driver is therefore still
+   missing, and the compiler passes would have to be driven manually
+   (`C1` -> `C2` -> assembler) with an assembler this set does not provide.
+2. `build.py` did not delete the previous OBJ before compiling, so the failing
+   MSC 6 runs left the **MSC 7 objects** in `build/` and the comparison silently
+   measured MSC 7 against itself. Fixed in round 45 (stale-object guard).
+
+Consequence: **no claim about MSC 6 codegen is supported by evidence.** The
+"hand-written assembly" reading of the `03 DB` / `C7 06` patterns rests on MSC 7
+alone; MSC 6 remains an open question until a DOS-hosted driver is found.
 
 **Consequence:** The remaining deviations (`C7 06` zero stores without frame,
 `add bx,bx`, DX temps, jump merge) cannot be produced with either compiler

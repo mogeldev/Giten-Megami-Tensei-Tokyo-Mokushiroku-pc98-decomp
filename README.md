@@ -9,8 +9,10 @@ OMF linker relocations), or **PENDING** with a documented cause — nothing is f
 
 - **Phase 0 complete** — original toolchain: **Microsoft C/C++ 7.0** (CL 8.00, 1992),
   compiled under dosbox-x with HDPMI (HX-DOS runtime) as DPMI server.
-  MSC 6.00ax was also obtained and tested; it was **ruled out** for several
-  families (see `docs/CONVENTIONS.md`).
+  MSC 6.00ax was obtained but could **not** be tested: that archive.org set ships
+  a Windows PE compiler driver, and the earlier "MSC 6 ruled out" result was
+  invalidated by the stale-object bug (see `docs/CONVENTIONS.md`). MSC 6 codegen
+  is therefore an **open question**, not a settled one.
 - Base flags **`/G1 /AM /Gs /Os`** (80186, medium model, no stack checks, size
   optimization). Flags are chosen **per source file**: `/Ox` is required for
   functions whose original keeps a value in `DX`/`BX` instead of spilling it.
@@ -36,7 +38,7 @@ Proven by byte diff, not by plausibility:
 of the code bytes are proven. The **inventory itself is wrong**: 189 of its 1,956
 entries hide 2–6 real functions each (**461 hidden units**), so the remaining work
 is larger than the raw entry count suggests. A subset of the modules cannot be
-reproduced from MSC 6 *or* MSC 7 at any tested optimization level (`add bx,bx`,
+reproduced from MSC 7 at any tested optimization level (`add bx,bx`,
 `C7 06` zero stores, `DX`-staged 32-bit exchanges); the working assumption is
 hand-written assembly there, and those rows are kept PENDING rather than forced.
 
