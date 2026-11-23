@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 15: two medium wrappers (88 B) and two source-level rules
+`crelay29.c` (`/Os`):
+
+- `2a45:000a` (43 B) - `fc1l(fc4(a, b, c, d))`: four ints widened with `cwd`
+  into longs for the first call, whose result is forwarded as a long.
+  **Rule:** the first callee must actually *return* `long`; declaring it `int`
+  makes MSC insert a `cwd` before the push pair, which breaks the match.
+- `50c4:0004` (45 B) - `t = h1(fc1(a)); return t - h1(fc1(b));`.
+  **Rule:** the temporary must be declared `register` to stay in SI; with a plain
+  local MSC spills it and reorders the argument pushes.
+
+Probed and left open in the same size band:
+
+- `20f9:000c` needs `b` in DI *and* the temporary in SI; every declaration
+  order tried gives the pair the other way round (`b` in SI, temp in DI).
+- `4448:0002` and its three siblings need a far-pointer *constant* pushed as
+  `68 27 48 68 06 00`; MSC shortens the offset half to `6A 06`.
+- `1110:0002`, `1113:0000`, `1115:000e` are a 32-bit shift/divide helper whose
+  `D1 1E <disp>` word-rotate does not parse cleanly yet.
+
+Ledger 403 rows - MATCH 37, RELOCS 342, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 7 609 B (2.595 %).
+
 ## Round 14: family-first harvesting (5 rows, 243 B)
 Instead of walking the pool in address order, this round grouped every
 unmatched unit by a **normalised byte pattern** (call targets masked) and worked
