@@ -36,3 +36,14 @@ extern int __far __fastcall f80a0(int);
 int __far __pascal relay_80a0(int a) { return f80a0(a); }
 void __near save_883e_7f92(void) { g_7f92 = f883e(); }
 void __near use_7f92(void) { f8850(g_7f92); }
+
+extern void __far __pascal f8410(int);
+extern void __far __pascal f0048(int);
+extern int g_1764;
+
+void __far relay_8410(void) { f8410(7); }
+void __near relay_if_clear(void)
+{
+    if (!g_1764)
+        f0048(1);
+}

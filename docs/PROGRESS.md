@@ -1,5 +1,11 @@
 # PROGRESS
 
+## Constant and conditional far-call relays verified
+`31bc:0004` (8 B) is an independent entry inside a merged inventory window,
+corroborated by direct callers. At `3b21:0004` (15 B), the preceding zero
+check belongs to the wrapper; matching just its call tail would omit it.
+Both verify as RELOCS.
+
 ## AX fastcall relay and second save/reload pair verified
 `3220:00a2` forwards a Pascal stack argument in AX. `36e7:020e` and
 `36e7:0218` mirror the previous save/reload pair at a different DGROUP word;
