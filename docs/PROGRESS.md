@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Two frameless constant relays verified
+`218a:0008` (6 B) and `4e45:0000` (15 B) match as RELOCS. Both call near
+Pascal routines without a frame. The first wrapper ends in `retf`; the
+second ends in `ret`, with one extra padding byte in the inventory window.
+
 ## A four-byte helper recovered from an oversized inventory window
 `46e1:005c` (`_return_one`) matches `mov ax,1; ret` without relocation
 masking. The near call at `469e:0000` targets it directly, distinguishing

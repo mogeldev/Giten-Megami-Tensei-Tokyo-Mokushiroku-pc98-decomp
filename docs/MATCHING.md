@@ -207,3 +207,5 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 4e8e:0098 | RELAY_GLOBALS | 35 | RELOCS | src=src/calib/cpick3.c; flags="/G1 /AM /Gs /Os"; far Pascal sibling appends its own argument; 36-byte inventory includes one padding byte |
 | 4e8e:002e | COMPARE_CONFIG | 65 | RELOCS | src=src/calib/ccmp2.c; flags="/G1 /AM /Gs /Os"; near Pascal compares four words and an optional fifth; 80-byte inventory also contains padding and the next wrapper |
 | 46e1:005c | _return_one | 4 | MATCH | src=src/calib/cret1.c; flags="/G1 /AM /Gs /Os"; near helper returning 1, directly called from `469e:0000`; 84-byte inventory window extends past its `ret` |
+| 218a:0008 | _relay_minus_one | 6 | RELOCS | src=src/calib/cwrap3.c; flags="/G1 /AM /Gs /Os"; frameless far wrapper passes `-1` to a near Pascal callee |
+| 4e45:0000 | _relay_defaults | 15 | RELOCS | src=src/calib/cwrap3.c; flags="/G1 /AM /Gs /Os"; frameless near wrapper passes `0, 0, 63, 63, 255`; the last constant needs a word immediate |
