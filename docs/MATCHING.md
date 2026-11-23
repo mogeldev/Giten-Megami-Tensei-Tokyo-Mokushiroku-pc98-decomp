@@ -211,3 +211,4 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 4e45:0000 | _relay_defaults | 15 | RELOCS | src=src/calib/cwrap3.c; flags="/G1 /AM /Gs /Os"; frameless near wrapper passes `0, 0, 63, 63, 255`; the last constant needs a word immediate |
 | 477b:0032 | SWAP_VALUE | 33 | RELOCS | src=src/calib/cbit2.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; replace the low signed 14-bit field, preserve the high two bits, and return the sign-extended old value |
 | 4b23:000c | STORE_IF | 31 | RELOCS | src=src/calib/cbit2.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; skip either store when its argument is `-1`; a local copy stages the first value in DX while the second is compared in memory |
+| 4369:0084 | APPLY_COUNT | 49 | RELOCS | src=src/calib/cbit3.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; compare the signed 11-bit key in a four-byte table entry, conditionally subtract a helper result, then forward the key and adjusted count |

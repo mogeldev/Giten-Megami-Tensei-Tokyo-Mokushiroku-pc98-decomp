@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Packed table count adjustment verified
+`4369:0084` (APPLY_COUNT, 49 B) verifies as RELOCS. A signed 11-bit field
+reproduces the shift pair used to extract the key. With `/Ox`, the index
+stays in DX for the conditional helper call.
+
 ## Signed bitfield swap and conditional stores verified
 `477b:0032` (33 B) matches the compiler's signed 14-bit bitfield access and
 writeback. `4b23:000c` (31 B) uses a local copy to keep the first argument
