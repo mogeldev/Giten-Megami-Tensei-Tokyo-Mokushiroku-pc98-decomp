@@ -203,3 +203,5 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 3bd6:001a | SWAP_192C | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; same form for DGROUP 0x192C; inventory window is 36 bytes |
 | 4e23:0006 | SCALE64 | 20 | MATCH | src=src/calib/calu2.c; flags="/G1 /AM /Gs /Os"; near Pascal `(b << 6) + a`; compound shift on a register local keeps the shift in SI before moving the result to AX |
 | 489a:000a | CLASSIFY | 32 | MATCH | src=src/calib/calu3.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; two early returns for `n <= -42` and `n >= 42`, then zero; `/Ox` stages both comparisons in DX |
+| 4e8e:007e | _relay_globals5 | 26 | RELOCS | src=src/calib/cpick3.c; flags="/G1 /AM /Gs /Os"; far cdecl wrapper for a near Pascal call; first byte global passes as `int`, second as `unsigned char` |
+| 4e8e:0098 | RELAY_GLOBALS | 35 | RELOCS | src=src/calib/cpick3.c; flags="/G1 /AM /Gs /Os"; far Pascal sibling appends its own argument; 36-byte inventory includes one padding byte |

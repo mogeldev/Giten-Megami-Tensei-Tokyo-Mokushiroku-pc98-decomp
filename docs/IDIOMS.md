@@ -38,9 +38,10 @@ After each solved diff cause, exactly the rule found goes here.
   Two tells that a unit is a tail: it *uses* registers it never set (`26 89 7C 0E`
   stores DI, `80 CC 02` modifies AH) or it relies on AX already holding a value.
   Check what the first instruction consumes, not just how the unit ends.
-- MSC 7 does **not** zero AH before pushing an `unsigned char` global as an int
-  argument (`A0 <disp> / 50`); the original emits `2A E4` first. Unchanged by
-  /Os, /Ox, /Ot. Two-byte mismatch, out of reach.
+- **Corrected:** for these Pascal calls, MSC 7 zero-extends an `unsigned char`
+  global passed to an `int` parameter (`A0 <disp> / 2A E4 / 50`). It omits the
+  extension for a byte parameter (`A0 <disp> / 50`). The mixed prototype verifies
+  both relays at `4e8e:007e` and `4e8e:0098`; this was not a codegen blocker.
 - `return g == 1;` compiles as `cmp [g],1` (MSC) vs `or ax,ax / je / dec ax /
   je` (original) - decrement-based testing, another strength-reduction difference.
 ## Round 87 - audit old diagnoses when you learn a new tell

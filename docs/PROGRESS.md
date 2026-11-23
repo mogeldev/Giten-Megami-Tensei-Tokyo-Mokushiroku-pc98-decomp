@@ -1,5 +1,11 @@
 # PROGRESS
 
+## Two global relays matched by correcting the callee prototype
+`4e8e:007e` (26 B) and `4e8e:0098` (35 B) verify as RELOCS. The missing
+`sub ah,ah` from round 88 was an argument-width mismatch: the first byte
+is passed as an `int` and must be zero-extended; the second is passed as a
+byte and does not require its stack word's high byte to be initialized.
+
 ## Round 100 - signed threshold classification matches
 `489a:000a` (CLASSIFY, 32 B) is an exact C match with no relocation masking.
 Two early returns followed by the zero case reproduce the block order that
