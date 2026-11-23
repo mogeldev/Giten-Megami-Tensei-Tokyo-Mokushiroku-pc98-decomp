@@ -54,6 +54,7 @@ def main():
     obj = f"D:\\BUILD\\{base}.OBJ"
     obj_path = os.path.join(BUILD_DIR, f"{base}.OBJ")
     stamp_path = os.path.join(BUILD_DIR, f"{base}.stamp")
+    log_path = os.path.join(BUILD_DIR, f"{base}.CL.TXT")
     stamp = (f"flags={a.flags}\nmsc={a.msc_dir}\ndpmi={not a.no_dpmi}\n"
              f"src={os.path.getmtime(src_abs):.6f}\nsize={os.path.getsize(src_abs)}\n")
     if not a.force and os.path.isfile(obj_path) and os.path.isfile(stamp_path):
@@ -61,6 +62,13 @@ def main():
             if f.read() == stamp:
                 print(f"CACHED: {obj_path} (flags/source unchanged)")
                 return 0
+    # Remove the previous outputs first: otherwise a failed compile leaves the old
+    # OBJ in place and the "does the OBJ exist?" check below reports success with
+    # a stale object (found in round 45 via a source edit that silently did not
+    # take effect).
+    for p in (obj_path, stamp_path, log_path):
+        if os.path.isfile(p):
+            os.remove(p)
     src_d = "D:\\" + os.path.dirname(a.source).replace("/", "\\").upper()
     src_f = f"{src_d}\\{os.path.basename(a.source).upper()}"
 

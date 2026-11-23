@@ -3,6 +3,22 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 45 — the full flag set, and two silent failure modes
+- **`/Ox /Oa /Os` is a real combination.** `/Oa` = assume no aliasing -> the
+  compiler keeps a global in a register across a comparison (`8B 16 <disp>` /
+  `3B C2` / `8B C2` instead of `3B 06 <disp>` / `A1 <disp>`). `/Os` placed after
+  `/Ox` removes jump-target padding (`7D 04` instead of `7D 05 … 90`). Before
+  declaring a diff "link-time alignment", try `/Os` after `/Ox`.
+- **A failed compile can look like success**: a stale OBJ satisfies an
+  "object exists?" check. `build.py` now deletes OBJ/stamp/log first, so a broken
+  source fails loudly. Check the CL log whenever a source edit seems to have no
+  effect.
+- **`*/` inside a C comment ends it.** Writing `**/G1 /AM ...**` in prose
+  terminates the block comment and the compiler reports a vanished symbol.
+- **Early returns mimic unit boundaries**: terminator followed by a prologue is
+  also what `if (...) return ...;` produces. A split is only valid when no short
+  jump inside the block targets the candidate start.
+
 ## Round 44 — the 4-byte fastcall class, and how to grow the splitter
 - **Fastcall store setter**: `void __near __fastcall f(int v) { g = v; }` is
   `A3 <disp> C3` (4 B); the far variant ends `CB`. The value arrives in AX and

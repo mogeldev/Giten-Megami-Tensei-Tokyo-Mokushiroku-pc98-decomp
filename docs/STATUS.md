@@ -8,8 +8,8 @@
 | Status | Count |
 |---|---|
 | MATCH | 10 |
-| RELOCS | **69** |
-| PENDING | **16** |
+| RELOCS | **71** |
+| PENDING | **14** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -22,8 +22,6 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `31e3:0064` **W_COND** (32 B) — `if (b == 1) f1(a)
 - `20b4:0160` **_read24** (37 B) — Assembles a value from three bytes 0x0F3A/0x0F3B/0x0F3C without any runtime call: `A0`/`2B D2`/`8A E0`/`2A C0` pack g_f3C into AH, `ADD AX,CX` then `1
 - `4fab:000a` **get_39f8_clamped** (16 B) — slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs
-- `1f2d:000e` **CLAMP_A** (20 B) — min(max(x,1),g), __fastcall (arg in AX, bare retn), global 0x4688. Original frameless with DX temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`)
-- `1f2f:0002` **CLAMP_B** (20 B) — Sibling of CLAMP_A, global 0x468A, same cause
 - `352a:0004` **reset_9b30** (22 B) — g1=0
 - `4527:000a` **reset_9b30b** (22 B) — Duplicate body of reset_9b30 (second code copy), same cause
 - `458e:a20e` **SLOT_FILL** (166 B) — Slot fill routine (pascal, 1 far param). Best variant 162/166 B
@@ -34,25 +32,25 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
 | Category | Value |
 |---|---|
-| Inventory entries | **2554** code functions + **14** data |
+| Inventory entries | **2523** code functions + **14** data |
 | Data (proven, `not_code.csv`) | 12211 B |
-| Code bytes | 294169 |
+| Code bytes | 294174 |
 | − Foreign CRT (signatures) | 963 |
-| = **Own code bytes** | **293206** |
-| of which **verified** | **857 (0.292%)** |
-| PENDING bytes | 528 |
+| = **Own code bytes** | **293211** |
+| of which **verified** | **897 (0.306%)** |
+| PENDING bytes | 488 |
 
-Code functions: **2554**, of which verified **79**.
+Code functions: **2523**, of which verified **81**.
 
 ## Regions (64 KiB)
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
-| 0x0000 | 638 | 11 | 65131 | 95 (0.1%) | 897 | 360 | 102 |
-| 0x0001 | 527 | 14 | 65756 | 154 (0.2%) | 0 | 569 | 75 |
-| 0x0002 | 765 | 33 | 65521 | 364 (0.6%) | 0 | 0 | 124 |
-| 0x0003 | 568 | 19 | 64433 | 233 (0.4%) | 0 | 0 | 227 |
-| 0x0004 | 56 | 2 | 33328 | 11 (0.0%) | 66 | 11282 | 0 |
+| 0x0000 | 619 | 13 | 65131 | 135 (0.2%) | 897 | 360 | 62 |
+| 0x0001 | 525 | 14 | 65757 | 154 (0.2%) | 0 | 569 | 75 |
+| 0x0002 | 763 | 33 | 65522 | 364 (0.6%) | 0 | 0 | 124 |
+| 0x0003 | 561 | 19 | 64435 | 233 (0.4%) | 0 | 0 | 227 |
+| 0x0004 | 55 | 2 | 33329 | 11 (0.0%) | 66 | 11282 | 0 |
 
 <!-- MANUAL-BEGIN -->
 ## Toolchain

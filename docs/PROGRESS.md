@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 45 — the missing flag combination `/Ox /Oa /Os` closes a round-23 PENDING
+- **Root cause of a 22-round-old PENDING found**: the clamp family needs
+  `/G1 /AM /Gs /Ox /Oa /Os`. `/Oa` (assume no aliasing) is what makes MSC keep the
+  global in `DX` instead of re-reading it (`8B 16 <disp>` instead of
+  `3B 06 <disp>` / `A1 <disp>`); `/Os` (after `/Ox`) is what removes the
+  jump-target padding. Round 23 tested every optimization level but no aliasing
+  flag, and round 39 blamed the extra `90` on link-time alignment — that was
+  wrong, it is `/Os`.
+- Both clamp copies are now **RELOCS** (`src/calib/cclamp3.c`, 20 B each):
+  `1f2d:000e` for g_4688 and `1f2f:0002` for g_468A —
+  `if (v < 1) return 1; if (v > g) return g; return v;`
+- **Two tooling bugs found while chasing it**:
+  - `build.py` never deleted the previous OBJ, so a failed compile reported
+    "OK" with a stale object. It now removes OBJ/stamp/log first. This is why an
+    earlier source edit appeared to have no effect.
+  - a comment containing `**/G1` ends the block comment early (`*/`), which broke
+    the compile silently. Avoid `*/` sequences in prose.
+- **Splitter false positive fixed**: an early `return` looks exactly like a unit
+  boundary (terminator + prologue). `split_entry` now skips a cut when a short
+  jump inside the current block targets it. 31 bogus splits disappeared
+  (2 554 -> 2 523 units) and `1f2d:000e` is one 20-byte function again, added as a
+  fifth self-test case.
+- Ledger: 95 rows — MATCH 10, **RELOCS 71**, PENDING 14; coverage **897 /
+  293 211 own bytes (0.306 %)**.
+
 ## Round 44 — prologue measurement, widened splitter (598 hidden), 4 new RELOCS
 - Rather than guessing which prologues the splitter still misses, each candidate
   opcode was **measured** (how many boundaries it would add, plus surrounding

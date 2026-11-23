@@ -52,6 +52,7 @@ EXPECTED = {
     0x4C93A: 3,   # 458e:705a - two exchanges + getter
     0x4DF22: 3,   # 458e:8642 - shadow copy + setter + copy back
     0x3E24C: 4,   # host entry starts earlier: 95 B prefix + get / inc+get / dec+get
+    0x1F2DE: 1,   # clamp with early return: a jump targets the inner return, so NOT a boundary
 }
 
 
@@ -68,11 +69,29 @@ def split_entry(img, lin, size):
         term_end = m.end() - gap          # unit ends here, gap excluded
         if term_end <= cur or term_end > size:
             continue
+        start = m.end()                   # next unit starts after the gap
+        # An EARLY RETURN inside one function looks exactly like a boundary: the
+        # next block begins with a known prologue. It is not a boundary if a
+        # short jump from the current block targets it (round 45: the clamp
+        # `if (v < 1) return 1; ...` produced a bogus split).
+        if _jumped_to(b[cur:start], start - cur):
+            continue
         units.append((cur, term_end - cur))
-        cur = m.end()                     # next unit starts after the gap
+        cur = start
     if cur < size:
         units.append((cur, size - cur))
     return units
+
+
+def _jumped_to(block, target):
+    """True if a short jump inside `block` lands exactly on `target`."""
+    for i in range(len(block) - 1):
+        op = block[i]
+        if op == 0xEB or 0x70 <= op <= 0x7F:
+            disp = block[i + 1] - 256 if block[i + 1] > 127 else block[i + 1]
+            if i + 2 + disp == target:
+                return True
+    return False
 
 
 def rows():
