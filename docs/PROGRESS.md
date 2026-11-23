@@ -1,5 +1,19 @@
 # PROGRESS
 
+## Round 49 — one RELOCS; duplicate-function idea measured as exhausted
+- `35ca:804e` `@exch_zero` (16 B, `src/calib/cexch1.c`, `/G1 /AM /Gs /Ox`):
+  `old = g_78ca; g_78ca = v; g_78cc = 0; return old;` — the exchange family with a
+  following initialiser. `/Ox` is required for the DX temporary (a `/Os` build
+  uses CX). The unit also appears as `3dce:000e` (same linear address).
+- Swept that family over all units: **one member**, the one above.
+- **Tested a higher-yield idea and measured it as empty**: byte-identical
+  duplicated functions would let one transcription verify several addresses.
+  Among unmatched units there is exactly **one** duplicate pair
+  (`1131:000c` / `11c3:000a`, 72 B) and it is CRT code, not game code. So the
+  binary contains no copy-paste duplicates in the own-code region; every match
+  really is a separate transcription.
+- Ledger: 101 rows — MATCH 12, **RELOCS 74**, PENDING 15.
+
 ## Round 48 — three functions verified (2 MATCH), second-compiler fingerprint found
 - `src/calib/cunit6.c` (`/G1 /AM /Gs /Os`), three new rows:
   - `35ca:5198` **OR_MASK** (16 B) — `*p |= mask;` through a far pointer, MATCH;
