@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 43 — splitter widened: 561 hidden units, 15 new RELOCS in one batch
+- `tools/split.py` now also splits on **bare `CB`/`C3` terminators** followed by
+  frameless prologues (`FF 06`, `FF 0E`, `FF 36`, `C7 06`, `C6 06`, `89 06`,
+  `B8 ..`). Hidden units: 507 -> **561**; a fourth regression case
+  (`3e24:006c`, host splits into 95 + 4 + 8 + 8) was added to `--selftest`.
+  The self-test immediately caught a wrong expectation of mine (4 units, not 3,
+  because the address sits inside a larger entry).
+- Harvest from the widened rule, all in `src/calib/cunit3.c`
+  (`/G1 /AM /Gs /Os`), **15 new RELOCS**:
+  - **11 word getters** `A1 <disp> CB` (4 B each);
+  - **3 initialisers** `C7 06 <disp> <imm> CB` (7 B each);
+  - **1 near `return -1`** (`B8 FF FF C3`, 4 B).
+- Two pitfalls worth recording: `void __far f(void)` keeps the C symbol
+  `_f_…` (no pascal uppercasing), and the ledger rows for a generated batch are
+  best written by script — hand-copying 16 rows is where typos would creep in.
+- `473f:0036` stays PENDING: it returns the long `0x43A30000` and the original
+  materialises the low word with `B8 00 00`, while MSC 7 always folds it to
+  `33 C0` (xor) at `/Os`, `/Ot`, `/Ox`; the far-pointer formulation gives the
+  same xor.
+- Ledger: 91 rows — MATCH 10, **RELOCS 65**, PENDING 16; coverage **841 /
+  293 206 own bytes (0.287 %)**.
+
 ## Round 42 — metric switched to units, 3 more RELOCS from fused frameless units
 - `tools/coverage.py` now measures against `ground_truth/units.csv` when it
   exists (fallback to `functions.csv` kept, both paths tested). The denominator

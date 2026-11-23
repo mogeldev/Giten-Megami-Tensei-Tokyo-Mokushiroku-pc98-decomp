@@ -30,14 +30,22 @@ IMG_END = 339735
 
 # The unit ends at the terminator; the gap bytes are captured so the NEXT unit
 # starts after them. Unit lengths therefore stay gap-free.
+#
+# Prologue alternatives: a framed start (55 8B EC / enter), a word getter (A1),
+# a byte getter (A0), and the frameless updaters/initialisers that follow a bare
+# CB (FF 06 = inc word, FF 0E = dec word, FF 36 = push, C7 06 / C6 06 = stores,
+# 89 06 = store AX, B8 = load immediate). The bare-CB cases were missing until
+# round 43: 3e24:006c held three such units.
 TERM = re.compile(rb"(?:\xC9)?(?:\xCB|\xC3|\xCA..|\xC2..)(\x00{0,2})"
-                  rb"(?=\x55\x8B\xEC|\xC8..\x00|\xA1..|\xA0..)", re.S)
+                  rb"(?=(\x55\x8B\xEC|\xC8..\x00|\xA1..|\xA0..|\xFF\x06|\xFF\x0E"
+                  rb"|\xFF\x36|\xC7\x06|\xC6\x06|\x89\x06|\xB8..))", re.S)
 
 # regression check: linear address of the FIRST unit -> expected unit count
 EXPECTED = {
     0x31e3C: 5,   # 31e3:000c - four 21-byte wrappers + one conditional
     0x4C93A: 3,   # 458e:705a - two exchanges + getter
     0x4DF22: 3,   # 458e:8642 - shadow copy + setter + copy back
+    0x3E24C: 4,   # host entry starts earlier: 95 B prefix + get / inc+get / dec+get
 }
 
 

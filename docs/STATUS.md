@@ -8,8 +8,8 @@
 | Status | Count |
 |---|---|
 | MATCH | 10 |
-| RELOCS | **50** |
-| PENDING | **15** |
+| RELOCS | **65** |
+| PENDING | **16** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -28,30 +28,31 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `4527:000a` **reset_9b30b** (22 B) — Duplicate body of reset_9b30 (second code copy), same cause
 - `458e:a20e` **SLOT_FILL** (166 B) — Slot fill routine (pascal, 1 far param). Best variant 162/166 B
 - `4fad:0006` **CONV** (16 B) — Lookup table[c] (word table DGROUP 0x396A, near-pascal). /Os gives everything identical except 2 B: `D1 E3` (shl bx,1) instead of `03 DB` (add bx,bx)
+- `473f:0036` **_far_long_const** (7 B) — Returns the long 0x43A30000. Original materialises the low word with `B8 00 00` (mov ax,0)
 
 ## Coverage (honest byte metric)
 
 | Category | Value |
 |---|---|
-| Inventory entries | **2463** code functions + **14** data |
+| Inventory entries | **2517** code functions + **14** data |
 | Data (proven, `not_code.csv`) | 12211 B |
-| Code bytes | 294182 |
+| Code bytes | 294169 |
 | − Foreign CRT (signatures) | 963 |
-| = **Own code bytes** | **293219** |
-| of which **verified** | **772 (0.263%)** |
-| PENDING bytes | 521 |
+| = **Own code bytes** | **293206** |
+| of which **verified** | **841 (0.287%)** |
+| PENDING bytes | 528 |
 
-Code functions: **2463**, of which verified **60**.
+Code functions: **2517**, of which verified **75**.
 
 ## Regions (64 KiB)
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
-| 0x0000 | 592 | 6 | 65131 | 75 (0.1%) | 897 | 360 | 102 |
-| 0x0001 | 512 | 9 | 65759 | 134 (0.2%) | 0 | 569 | 75 |
-| 0x0002 | 752 | 26 | 65525 | 330 (0.5%) | 0 | 0 | 124 |
-| 0x0003 | 554 | 19 | 64437 | 233 (0.4%) | 0 | 0 | 220 |
-| 0x0004 | 53 | 0 | 33330 | 0 (0.0%) | 66 | 11282 | 0 |
+| 0x0000 | 611 | 8 | 65131 | 83 (0.1%) | 897 | 360 | 102 |
+| 0x0001 | 520 | 13 | 65756 | 150 (0.2%) | 0 | 569 | 75 |
+| 0x0002 | 763 | 33 | 65521 | 364 (0.6%) | 0 | 0 | 124 |
+| 0x0003 | 567 | 19 | 64433 | 233 (0.4%) | 0 | 0 | 227 |
+| 0x0004 | 56 | 2 | 33328 | 11 (0.0%) | 66 | 11282 | 0 |
 
 <!-- MANUAL-BEGIN -->
 ## Toolchain

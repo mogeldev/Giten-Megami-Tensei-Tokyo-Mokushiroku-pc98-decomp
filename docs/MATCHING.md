@@ -86,3 +86,19 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 4527:000a | reset_9b30b | 22 | PENDING | Duplicate body of reset_9b30 (second code copy), same cause |
 | 458e:a20e | SLOT_FILL | 166 | PENDING | Slot fill routine (pascal, 1 far param). Best variant 162/166 B; remaining diff: original walks the offset only in SI (no write-back of the parameter), MSC7 C writes the param/stack slot back |
 | 4fad:0006 | CONV | 16 | PENDING | Lookup table[c] (word table DGROUP 0x396A, near-pascal). /Os gives everything identical except 2 B: `D1 E3` (shl bx,1) instead of `03 DB` (add bx,bx); /Ox cross-checked, unchanged |
+| 1ee7:0024 | f_1ee7_0024 | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_4670` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
+| 1ef8:0050 | f_1ef8_0050 | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_4686` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
+| 20b2:000e | f_20b2_000e | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_06de` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
+| 2141:00a2 | f_2141_00a2 | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_0f80` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
+| 257d:0020 | f_257d_0020 | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_13d6` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
+| 2a04:0020 | f_2a04_0020 | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_16c4` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
+| 37f3:0054 | f_37f3_0054 | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_13f4` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
+| 3e70:00a4 | f_3e70_00a4 | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_229e` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
+| 3eec:0066 | f_3eec_0066 | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_29d0` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
+| 3f3c:001e | f_3f3c_001e | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_2a1c` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
+| 5026:013a | f_5026_013a | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_3954` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
+| 3f3c:0016 | _f_3f3c_0016 | 7 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; initialiser `g_2a1c = 0;` (`C7 06`); hidden unit |
+| 3fcc:001a | _f_3fcc_001a | 7 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; initialiser `g_2a2c = 1;` (`C7 06`); hidden unit |
+| 50c7:00aa | _f_50c7_00aa | 7 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; initialiser `g_408e = 1;` (`C7 06`); hidden unit |
+| 37c1:001e | f_37c1_001e | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; `int __near f(void) { return -1; }` (`B8 FF FF C3`); hidden unit |
+| 473f:0036 | _far_long_const | 7 | PENDING | Returns the long 0x43A30000. Original materialises the low word with `B8 00 00` (mov ax,0); MSC 7 emits `33 C0` (xor ax,ax) under /Os, /Ot and /Ox, and the far-pointer formulation `(char __far *)0x43A30000L` gives the same xor. Kept PENDING |
