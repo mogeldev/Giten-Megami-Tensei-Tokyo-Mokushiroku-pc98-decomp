@@ -3,6 +3,18 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 65 - filter by blocking trait before transcribing
+- **Build the candidate list by exclusion, not by inclusion.** Once the blocking
+  traits of the other compiler generation are known, drop every unit containing
+  one of them, and the match rate per attempt jumps: this round verified 8 of 8
+  attempts after the filter, against roughly 1 in 4 before it.
+- The four exclusions: `03 C0`-style `add r,r` doubling; `0E E8` / `9A`
+  far-call forms; `8E 46` split far-pointer loads; `8B E5 5D` epilogue.
+- **swap-and-return**: `int old = g; g = v; return old;` compiles to
+  `8B 16 <g>` (old into DX) + `8B 46 06` + `A3 <g>` + `8B C2`, and needs
+  `/Ox` - under `/Os` the temporary spills to a frame.
+- `((long)b << 16) | (unsigned)a` is a 13-byte function; the giveaway is the
+  reversed halves `8B 46 08 / 8B 56 06` (first argument into AX, second into DX).
 ## Round 64 - the dd reg,reg anomaly explained
 - **bs() is an intrinsic**: with `/Oi` it expands to `99 33 C2 2B C2`
   (`cwd / xor ax,dx / sub ax,dx`), which is exactly what the binary contains.

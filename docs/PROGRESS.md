@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 65 — best round so far: 8 verified functions, 150 bytes
+The round-64 finding paid off immediately. Instead of guessing, I built a
+**reachability filter**: exclude units containing any of the four blocking traits
+(`add r,r` doubling, `push cs`/`9A` far calls, `8E 46` split far-pointer loads,
+`8B E5 5D` epilogue). That leaves **127 framed candidates in 12..64 B** — a much
+better hunting ground than the unfiltered band.
+
+- New verified, `src/calib/creach1.c` (`/G1 /AM /Gs /Os`):
+  - `418c:0266` **NEG1** (13 B, **MATCH**) — `return -1 - v;`, the memory-operand
+    form MSC *does* emit (the contrast case to NEG_MINUS1);
+  - `1dc0:0006` **PACK2** (13 B, **MATCH**) — `((long)b << 16) | (unsigned)a`,
+    identified from the swapped halves `8B 46 08 / 8B 56 06`;
+  - `3e97:0004` **STORE_AT1** (17 B, **MATCH**) — unaligned word store at pointer+1;
+  - `30c7:0076` **STORE2** (19 B, RELOCS) — near pascal two-store setter.
+- New family, `src/calib/cxchg1.c` (`/Ox /Oa /Os`): **swap-and-return**
+  `int old = g; g = v; return old;` — the old value is staged in DX (`8B 16 <g>`),
+  which only `/Ox` does. **Four members verified**: `3220:0006`, `34dc:0004`,
+  `3f3c:0002`, `1e88:004a` (19 B each).
+- Ledger: 142 rows — **MATCH 27**, RELOCS 93, PENDING 22.
+
 ## Round 64 — the `add bx,bx` anomaly is solved (it is not hand-written assembly)
 No new verified bytes this round, but it closes the project's oldest open question.
 

@@ -145,3 +145,11 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 257d:000a | W_257D_000A | 22 | RELOCS | src=src/calib/cwraps.c; flags="/G1 /AM /Gs /Os"; generated wrapper, 4 arguments |
 | 39dc:000a | W_39DC_000A | 27 | RELOCS | src=src/calib/cwraps.c; flags="/G1 /AM /Gs /Os"; generated wrapper, 6 pushed arguments including a zero constant |
 | 4e11:007e | WEIGHT2 | 40 | PENDING | `return 2*(5*(abs(a)+1) + abs(b)) + c;` with `abs` as an intrinsic (/Oi). Everything matches under `/Ot /Oi` except the final doubling: original `03 C0` (add ax,ax), MSC 7 emits `D1 E0` (shl ax,1). **This is the same instruction-selection family as the `add bx,bx` anomaly (idx_142a, round 48)** - the second-generation compiler doubles with add, MSC 7 with shl. Two bytes apart, semantics identical |
+| 418c:0266 | NEG1 | 13 | MATCH | src=src/calib/creach1.c; flags="/G1 /AM /Gs /Os"; `int __near __pascal f(int v) { return -1 - v; }` - the memory-operand form `2B 46 04` that MSC does emit (contrast NEG_MINUS1); byte-identical |
+| 1dc0:0006 | PACK2 | 13 | MATCH | src=src/calib/creach1.c; flags="/G1 /AM /Gs /Os"; `long __far __pascal f(int a, int b) { return ((long)b << 16) \| (unsigned)a; }` — `8B 46 08 / 8B 56 06` gives the swapped halves; byte-identical |
+| 3e97:0004 | STORE_AT1 | 17 | MATCH | src=src/calib/creach1.c; flags="/G1 /AM /Gs /Os"; unaligned word store at far_pointer + 1: `*(int __far *)(p + 1) = v;` — byte-identical |
+| 30c7:0076 | STORE2 | 19 | RELOCS | src=src/calib/creach1.c; flags="/G1 /AM /Gs /Os"; `void __near __pascal f(int a, int b) { g_1cd0 = a; g_1cd2 = b; }` — near pascal, so `retn 4` |
+| 3220:0006 | XCHG_1CEA | 19 | RELOCS | src=src/calib/cxchg1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; `int old = g; g = v; return old;` — the old value is kept in DX (`8B 16 <g>`), needs /Ox |
+| 34dc:0004 | XCHG_1D52 | 19 | RELOCS | src=src/calib/cxchg1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; same swap-and-return family, global 0x1D52 |
+| 3f3c:0002 | XCHG_2A28 | 19 | RELOCS | src=src/calib/cxchg1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; same swap-and-return family, global 0x2A28 |
+| 1e88:004a | XCHG_417C | 19 | RELOCS | src=src/calib/cxchg1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; same swap-and-return family, global 0x417C |
