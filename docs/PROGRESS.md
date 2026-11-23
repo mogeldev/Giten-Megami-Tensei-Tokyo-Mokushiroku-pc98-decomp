@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 9: eight more framed-family rows (211 B) and a compiler crash
+`src/calib/crelay20.c` (`/Os`) continues the framed + translated-call vein with
+the shapes that repeat most often:
+
+- call for effect, then the same argument relayed again (`register` parameter
+  kept in SI) - `38b7:0008`, `3a18:000e`, 24 B each;
+- `return h(sub(a));` with the argument in SI - `4a41:0022` (24 B);
+- `return sub3(sub0(), a, b);` - a no-argument call ahead of the real one:
+  `4e72:0022` (24 B);
+- `sub(a); return sub2(a, 1);` - `3a6f:00c2` (26 B);
+- `h(sub(a)); return sub3(a);` - two siblings, `31cf:0026` and `31d3:0056`
+  (30 B each);
+- a three-call sequence whose last call is **not** `/F`-translated and stays
+  `9A` in the image - `31f6:0048` (29 B).
+
+**MSC 7 crash, documented:** while transcribing `388d:0006`
+(`sub3(sub2(a, a), 0)`) the compiler aborted with *no object and no log*.
+Narrowed down: a two-argument nested call in the **first** slot of a
+three-argument Pascal call crashes, e.g. `sub3(sub2(a, a), 0)` and
+`sub3(sub2(a, b), 0)`, with or without `register`; `sub2(sub1(a), 0)`,
+`sub3(sub0(), a, b)`, `sub3(a, sub2(a, a), 0)` and `sub3(a, a, sub2(a, a))` all
+compile. So the unit stays open for a workaround (or a different generation)
+rather than for lack of a source shape.
+
+Ledger 372 rows - MATCH 37, RELOCS 311, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 6 424 B (2.191 %).
+
 ## Round 8: the framed + translated-call family pays (12 rows, 279 B)
 A census of unmatched units with **no blocking trait**, bucketed by structure,
 put `framed + contains a translated call` at 219 units / 10.9 KB - the largest
