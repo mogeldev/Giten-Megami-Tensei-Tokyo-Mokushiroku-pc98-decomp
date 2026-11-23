@@ -198,3 +198,4 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 380c:0000 | UPD_FP (dup 2/3) | 28 | PENDING | byte-identical to 3807:0004, same split-load cause |
 | 3811:0004 | UPD_FP (dup 3/3) | 28 | PENDING | byte-identical to 3807:0004, same split-load cause |
 | 35ca:2306 | IDX_142A | 16 | ASM | src=src/calib/casm4.c; flags="/G1 /AM /Gs /Os"; `g_142a[i]` where the original scales with `03 DB` (`add bx,bx`). Microsoft C 7 emits `D1 E3` for every formulation tried (traits table row 1), so the two scaling instructions are inline assembly. **ASM row: byte-verified, not C-derived** - excluded from coverage |
+| 3d59:000c | RELAY2 | 16 | RELOCS | src=src/calib/crelay2.c; flags="/G1 /AM /Gs /Os"; `NEXT(a, b)` - and note this is **not a units.csv boundary**: the splitter recorded a fragment at 3d59:000e, the real function starts two bytes earlier, directly after the previous function's `retf` plus one padding byte. Found by `tools/framecheck.py` |

@@ -124,6 +124,11 @@ tools/wraps.py      thin call wrappers              (pushes + E8 + leave/ret)
 tools/swapgen.py    swap-and-return                 (8B 16 <g> ... 8B C2 / C9 ...)
 ```
 
+`tools/framecheck.py` is different: it audits the **inventory** rather than the code,
+listing framed prologues that are not `units.csv` boundaries. Two are real functions
+the splitter clipped (`3d59:000c` was recovered this way); run it after any change to
+`ground_truth/units.csv`.
+
 They refuse to overwrite a file the ledger references — that guard exists because a
 generator with a colliding name once destroyed a verified source.
 

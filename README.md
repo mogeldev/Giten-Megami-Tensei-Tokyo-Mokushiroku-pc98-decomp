@@ -52,6 +52,7 @@ hand-written assembly there, and those rows are kept PENDING rather than forced.
 
 ```
 docs/           CONVENTIONS (parameters+evidence), MATCHING (ledger), IDIOMS, HOWTO,
+                ASM-POLICY (inline-asm limits),
                 PROGRESS, STATUS, GAP;
                 PENDING (open diffs with causes)
 ground_truth/   functions/strings/imports + foreign_crt (foreign-code signatures) + not_code

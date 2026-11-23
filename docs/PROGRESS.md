@@ -1,5 +1,22 @@
 # PROGRESS
 
+## Round 97 - new tool finds a real function the inventory had lost
+A different angle, and it produced a verified function plus a reusable tool.
+
+- **`tools/framecheck.py` (new)** scans the load image for `55 8B EC` and compares the
+  1184 hits against `units.csv`: 1161 are unit starts, **21 are mid-unit** (the merged
+  blobs already documented), and **2 sit off-boundary right after a return** - the
+  signature of a function the splitter missed. It reports the two with their bytes,
+  so the finding is checkable rather than a claim.
+- **`3d59:000c` RELAY2 (16 B, RELOCS, `src/calib/crelay2.c`)** - one of those two:
+  `NEXT(a, b)`, far pascal. `units.csv` had recorded a fragment at `3d59:000e`; the
+  real entry point is two bytes earlier, after the previous function's `retf` plus one
+  padding byte. The call target (`E8 04 00` -> `3d59:001c`) lands exactly on the next
+  function, which confirms the boundary.
+- The other candidate, `2d3c:0000`, is blocked by trait 2 (`90 0E E8`: nop + `push cs`
+  far call), and `29f7:0004` needs an absolute segment load. Both stay out.
+- Ledger: 187 -> 188 rows - MATCH 32, RELOCS 131, ASM 1, PENDING 24.
+
 ## Round 96 - narrow-ASM policy is now enforced by a tool, not by good intentions
 No new rows. Round 95 left a rule written in prose; prose does not survive 100 rounds
 of an agent working alone, so the rule is now a check.
