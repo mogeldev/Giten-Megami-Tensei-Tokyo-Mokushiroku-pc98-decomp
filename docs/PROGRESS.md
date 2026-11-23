@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 57 — toolchain thread closed as blocked; one more RELOCS
+- **Toolchain decision, with evidence.** MSC 5.1 cannot be tested in this setup and
+  the loop is now closed rather than left open:
+  - every compiler binary in that set is EXEPACK-packed (so the passes are no
+    workaround either);
+  - `Z:\LOADFIX` does **not exist** in this DOSBox-x build (verified: it answers
+    `Bad command or filename`), so the packed image cannot be relocated;
+  - DOSBox 0.74 does not rescue it either — a packed-driver compile there produces
+    no output at all.
+  Remaining option would be writing an EXEPACK unpacker; not worth more rounds
+  given the matching yield elsewhere. The `add bx,bx` / `5D`-epilogue / split-load
+  questions stay documented as **open with evidence**, which is the honest state.
+- `1e35:000c` **CALL4** (38 B, RELOCS, `src/calib/ccb2.c`) — third member of the
+  callback family and the most informative: the guard is the same
+  `A1 seg / 0B 06 off` null test, but the callback is invoked with its arguments
+  **permuted** (`g_cb(c, d, b, a)`; push order `[bp+6] [bp+4] [bp+8] [bp+0xA]`)
+  and the result is written back into the **first parameter slot** (`89 46 0A`)
+  before being returned. Reading the push order is what exposed it.
+- Ledger: 117 rows — MATCH 21, **RELOCS 78**, PENDING 18.
+
 ## Round 56 — MSC 5.1 blocked by EXEPACK; one documented near-miss
 - **No new verified row.** The round went into the toolchain question and into one
   candidate; both are reported as they came out.

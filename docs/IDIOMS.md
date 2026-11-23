@@ -3,6 +3,18 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 57 - callbacks with permuted arguments
+- **A callback's argument order is visible in the push sequence.** With pascal and
+  four parameters, `push [bp+6] / [bp+4] / [bp+8] / [bp+0xA]` means the callee
+  receives `(arg3, arg4, arg2, arg1)` - i.e. the source reads
+  `g_cb(c, d, b, a)`. Assuming the natural order was wrong and cost one attempt;
+  reading the offsets top to bottom gives it immediately.
+- **The result of an indirect call can be written back into a parameter slot**:
+  `89 46 0A` (store AX into the first parameter) followed by re-reading it.
+  That is `a = g_cb(...); return a;` where `a` is a parameter.
+- Confirmed the LOADFIX situation for the record: this DOSBox-x build has no
+  `Z:\LOADFIX` (`Bad command or filename`), and DOSBox 0.74 fares no better,
+  so EXEPACK-packed compilers cannot be relocated.
 ## Round 56 - the EXEPACK wall
 - **Every MSC 5.1 compiler binary is EXEPACK-packed** (`CL`, `C1`, `C1L`,
   `C2`, `C3`). Bypassing the driver is therefore no workaround: driving
