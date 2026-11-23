@@ -1,6 +1,6 @@
 # Gap analysis - what Microsoft C 7 can and cannot reproduce
 
-Measured over **2184 unmatched code units** (286838 bytes) from
+Measured over **2183 unmatched code units** (286798 bytes) from
 `ground_truth/units.csv`, excluding everything already in the ledger.
 
 Each unit is counted once per trait, so the rows overlap: a unit may hit
@@ -15,8 +15,8 @@ several traits. The final row is the set blocked by none of them.
 | register-passed args | 12 | 6747 | 2.4 % |
 | absolute ESA access | 4 | 17213 | 6.0 % |
 | mov ax,0 explicit | 3 | 4603 | 1.6 % |
-| **blocked by nothing** | 1210 | 81246 | 28.3 % |
-| &nbsp;&nbsp;of which framed (`55 8B EC`) | 529 | 30983 | 10.8 % |
+| **blocked by nothing** | 1209 | 81206 | 28.3 % |
+| &nbsp;&nbsp;of which framed (`55 8B EC`) | 528 | 30943 | 10.8 % |
 
 ## Reading
 
@@ -44,7 +44,7 @@ several traits. The final row is the set blocked by none of them.
 
 ## What this means for the ledger
 
-- Verified so far: see `STATUS.md`. Unmatched and reachable: **529 framed units, 30983 bytes** (plus 681 unframed).
+- Verified so far: see `STATUS.md`. Unmatched and reachable: **528 framed units, 30943 bytes** (plus 681 unframed).
 - At the recent rate (~500 verified bytes per round) the reachable framed
   remainder is about **61 more rounds** of work, and
   that assumes every attempt succeeds - which the last four rounds show it does

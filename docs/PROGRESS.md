@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 7: two parameter-store and register-argument wrappers (74 B)
+- `src/calib/crelay16.c` (`/Os`): `4c96:003a` - three parameters written to
+  consecutive globals in declaration order (`A3 <g>` each), then `sub1(1)`.
+- `src/calib/crelay17.c` (`/Ox`): `22fe:0000` - a `register` parameter stays in
+  SI, so all five pushes are `push si` (`56`) around four near-Pascal calls with
+  descending constants and one far call. The trailing `F_TAIL4` only exists so
+  the last symbol can be sliced out of the LEDATA.
+
+Also re-tested and left out (documented so they are not retried blindly):
+
+- `4690:0000` needs the call result staged in SI *without* a frame; every
+  source form with a named temporary makes MSC 7 allocate a frame and switch to
+  `ENTER` under `/Gs`, and the `(r = ...)` form does too.
+- `1bc0:0000` and `2123:0002` are blocked by `add bx,bx` / `03 DB` doubling
+  (trait 1) - the table index multiply.
+- `481c:000c` / `4820:0006` need SI as the far-pointer base (trait 8) and take
+  three argument words where the body uses two.
+- `4448:0002` and its siblings need the far-pointer *constant* pushed as
+  `68 27 48 68 06 00`; MSC shortens the offset half to `6A 06`.
+
+Ledger 349 rows - MATCH 37, RELOCS 288, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 5 843 B (1.993 %).
+
 ## Round 6: the folded far call is a one-byte shift - matcher support + 1 row
 The 3 507 NOP-prefixed `0E E8` are not the only /F output. When LINK knows the
 callee is in the same segment it can drop the NOP as well, leaving
