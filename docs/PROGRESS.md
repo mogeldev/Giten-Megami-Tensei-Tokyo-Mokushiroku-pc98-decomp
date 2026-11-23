@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 52 — two more rows (STORE4 RELOCS, XOR_AND twin), allocator lever tried on PENDINGs
+- `37b3:0004` **STORE4** (31 B, RELOCS, `src/calib/cstor1.c`) —
+  `void __far __pascal f(int a,int b,int c,int d) { g_13fa=a; g_13fc=b; g_13fe=c; g_1400=d; }`.
+  Useful confirmation: with pascal calling order the store order in the code is
+  the **source** order (`a` first at `[bp+0xC]`), so a four-store setter can be
+  read straight off the bytes.
+- `3ae5:000a` **XOR_AND** — an unrecorded twin of `3b1b:0002`, found by
+  `tools/twins.py` right after the batch. The tool is now part of the routine.
+- The **"dummy local steers allocation"** lever was tried on the three big
+  PENDINGs and did not move them:
+  - `NEG_MINUS1`: `/Os` gives `ENTER 2` + CX, `/Ox /Oa /Os` gives a memory operand;
+    the original is frameless *and* stages in DX, which is neither.
+  - `get_39f8_clamped`: `/Ox /Os` gives two `ret`s, `/Ox /Oa /Os` gives a BX-based
+    merge, `/Os /Oa` a frame. The original merges through **AX** with two memory
+    reads — no combination reached.
+  - `4b23:000c` STORE_IF (31 B) is a new near-miss of the same kind: the original
+    stages the first value in DX (`8B 56 08 / 83 FA FF / 74 04 / 89 16 ..`), ours
+    compares the memory operand directly.
+- Ledger: 109 rows — **MATCH 19**, RELOCS 75, PENDING 15.
+
 ## Round 51 — three MATCHes: one twin plus two far-pointer ALU forms
 - **`tools/twins.py`** added: for every MATCH/RELOCS row it searches the image for
   the same byte sequence at an unrecorded unit start. Result: **one twin**

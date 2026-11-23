@@ -118,3 +118,5 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 3aec:0000 | TEST_AND | 22 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; unrecorded twin of 35ca:5550, found by tools/twins.py |
 | 37b0:000a | SUB_P2_ADD | 20 | MATCH | src=src/calib/cfar2.c; flags="/G1 /AM /Gs /Os"; `return (*p - p[2]) + a;` (`26 8B 07` / `26 2B 47 04` / `03 46 06`); byte-identical |
 | 3b1b:0002 | XOR_AND | 21 | MATCH | src=src/calib/cfar3.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; `*p ^= mask; return mask & *p;` with the mask copied through a local - only /Ox keeps it in BX; byte-identical |
+| 37b3:0004 | STORE4 | 31 | RELOCS | src=src/calib/cstor1.c; flags="/G1 /AM /Gs /Os"; `void __far __pascal f(int a, int b, int c, int d) { g_13fa = a; g_13fc = b; g_13fe = c; g_1400 = d; }` - four immediate stores; store order in the code is source order |
+| 3ae5:000a | XOR_AND | 21 | MATCH | src=src/calib/cfar3.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; unrecorded twin of 3b1b:0002, found by tools/twins.py |
