@@ -2,6 +2,8 @@
 
 (vorerst handgeführt; ab regelmäßigem Betrieb erzeugt `tools/report.py` diese Datei)
 
+- **Coverage (coverage.py, ehrliche Byte-Metrik):** 306 814 Code-Bytes inventarisiert,
+  **66 verifiziert (0,022 %)**, 12/1970 Funktionen — Regionen-Bericht via coverage.py.
 - implementiert & MATCH: **0** / RELOCS: **12**, PENDING: **1** (get_39f8_clamped —
   Sprung-Merge-Polarität, s. IDIOMS.md)
 - PENDING: **0**

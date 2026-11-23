@@ -1,5 +1,12 @@
 # PROGRESS
 
+## Runde 11 — coverage.py + PENDING-Vertiefung (2026-11-23)
+- get_39f8_clamped: 5 Konstrukt-/Opt-Kombis ausgereizt (Ternaer x2, if/else+r,
+  /O1, /O2) — MSC7 erzeugt die Sprung-Merge-Form nie aus C. PENDING mit
+  Hand-/Inline-ASM-Verdacht dokumentiert; Beweis via Aufrufer-Kontext spaeter.
+- coverage.py gebaut (Vorlage Phase 6): Bytes pro 64-KiB-Region gegen das
+  Original-Inventar — die ehrliche Metrik betraegt 66/306814 Bytes (0,022 %).
+
 ## Runde 10 — 0x39F8-Paar: 1 RELOCS, 1 ehrliches PENDING (2026-11-23)
 - inc_39f8_capped (4fac:000a): RELOCS — `if (g<0x10) g++;` Form exakt.
 - get_39f8_clamped (4fab:000a): PENDING — MSC7-/Os kompiliert Ternaer zur

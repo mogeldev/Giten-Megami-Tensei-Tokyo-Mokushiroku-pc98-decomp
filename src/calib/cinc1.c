@@ -8,13 +8,7 @@ int g_39f8;
 
 int __near get_39f8_clamped(void)
 {
-    int r;
-
-    if (g_39f8 < 0x10)
-        r = g_39f8;
-    else
-        r = -1;
-    return r;
+    return (g_39f8 >= 0x10) ? -1 : g_39f8;
 }
 
 void __near inc_39f8_capped(void)
