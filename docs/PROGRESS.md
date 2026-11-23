@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 5: the `8B E5 5D` epilogue is plain `/G0` (5 rows, 129 B)
+- `src/calib/crelay12.c` (`/Os`): `h(sub(a))` without SI staging (the sibling
+  `32da:000c` does need `/Ox`), `if (g != -1) { sub(g); g = -1; } return g;`
+  with an immediate `C7 06 <g> FF FF` store, and constant pushes followed by a
+  second translated call. 79 B.
+- `src/calib/crelay13.c` (`/G0 /AM /Gs /Os`): `void f(a,b,c,d) { sub5(0,d,c,b,a); }`
+  is **byte-exact** including `33 C0 50` (the `/G0` way to push a zero) and the
+  `8B E5 5D CB` teardown. This settles the last "unexplained" epilogue: `mov
+  sp,bp` appears under `/G0` **only when the function contains a call** (the
+  8086 has no `LEAVE`), while a call-free `/G0` function gets the bare `5D`.
+- `src/calib/crelay14.c` (`/G1 /Ot`): the rotated loop
+  `while (n) { sub(); n--; }` - test first, body starts with one alignment `90`
+  before the translated call; `/Os` omits that `90`.
+
+Tooling: `tools/gap.py` no longer treats `8B E5 5D` as a blocker (it is `/G0`
+output), so the reachable pool is now **1 210 units / 81 246 B**; `IDIOMS.md`
+records the proof and drops it from the exclusion list.
+
+Left as a documented near-miss: `13c6:0000` matches in every instruction except
+the call form - the image holds a **4-byte** `0E E8 rel16` where the object has
+a 5-byte `9A`, so the whole tail shifts by one byte. A matcher rule for
+size-shrinking same-segment far calls is needed before it can be claimed.
+
+Ledger 346 rows - MATCH 37, RELOCS 285, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 5 730 B (1.954 %).
+
 ## Round 4: four /F rows; MSC 5.1 runs through build.py; the ENTER vein measured
 - `src/calib/crelay10.c` (`/Os`): `h(sub2(a, b))` and
   `if (x == -1) x = sub2(y, z); return x;` (54 B).

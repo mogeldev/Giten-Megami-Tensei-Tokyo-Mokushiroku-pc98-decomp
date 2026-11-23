@@ -39,7 +39,6 @@ TRAITS = {
     "absolute ESA access":   lambda b: any(b[i] == 0x26 and (b[i+1] & 0xC7) == 0x06
                                            for i in range(len(b) - 1)),
     "split pointer load":    lambda b: b"\x8E\x46" in b or b"\x8E\x4E" in b,
-    "epilogue 8B E5 5D":     lambda b: b"\x8B\xE5\x5D" in b,
     "interior 90 padding":   lambda b: b"\x90" in b[:-1],
     # mov ah,imm followed closely by a call: register-passed interrupt arguments,
     # which no Microsoft C construct can produce (__fastcall uses BX/CX/DX).

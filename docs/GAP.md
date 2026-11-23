@@ -1,6 +1,6 @@
 # Gap analysis - what Microsoft C 7 can and cannot reproduce
 
-Measured over **2271 unmatched code units** (288612 bytes) from
+Measured over **2184 unmatched code units** (286838 bytes) from
 `ground_truth/units.csv`, excluding everything already in the ledger.
 
 Each unit is counted once per trait, so the rows overlap: a unit may hit
@@ -8,16 +8,15 @@ several traits. The final row is the set blocked by none of them.
 
 | Trait | Units | Bytes | Share of unmatched bytes |
 |---|---|---|---|
-| interior 90 padding | 561 | 163630 | 56.7 % |
-| split pointer load | 364 | 84091 | 29.1 % |
-| add r,r doubling | 201 | 66460 | 23.0 % |
-| SI base register | 199 | 28886 | 10.0 % |
-| epilogue 8B E5 5D | 144 | 24280 | 8.4 % |
-| register-passed args | 12 | 6747 | 2.3 % |
+| interior 90 padding | 560 | 163606 | 57.0 % |
+| split pointer load | 364 | 84091 | 29.3 % |
+| add r,r doubling | 201 | 66460 | 23.2 % |
+| SI base register | 199 | 28886 | 10.1 % |
+| register-passed args | 12 | 6747 | 2.4 % |
 | absolute ESA access | 4 | 17213 | 6.0 % |
 | mov ax,0 explicit | 3 | 4603 | 1.6 % |
-| **blocked by nothing** | 1232 | 77022 | 26.7 % |
-| &nbsp;&nbsp;of which framed (`55 8B EC`) | 543 | 27157 | 9.4 % |
+| **blocked by nothing** | 1210 | 81246 | 28.3 % |
+| &nbsp;&nbsp;of which framed (`55 8B EC`) | 529 | 30983 | 10.8 % |
 
 ## Reading
 
@@ -45,9 +44,9 @@ several traits. The final row is the set blocked by none of them.
 
 ## What this means for the ledger
 
-- Verified so far: see `STATUS.md`. Unmatched and reachable: **543 framed units, 27157 bytes** (plus 689 unframed).
+- Verified so far: see `STATUS.md`. Unmatched and reachable: **529 framed units, 30983 bytes** (plus 681 unframed).
 - At the recent rate (~500 verified bytes per round) the reachable framed
-  remainder is about **54 more rounds** of work, and
+  remainder is about **61 more rounds** of work, and
   that assumes every attempt succeeds - which the last four rounds show it does
   not.
 - The honest conclusion: this reconstruction is **complete as far as this

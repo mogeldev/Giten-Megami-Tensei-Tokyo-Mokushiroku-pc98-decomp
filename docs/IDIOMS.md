@@ -220,8 +220,9 @@ After each solved diff cause, exactly the rule found goes here.
   traits of the other compiler generation are known, drop every unit containing
   one of them, and the match rate per attempt jumps: this round verified 8 of 8
   attempts after the filter, against roughly 1 in 4 before it.
-- The four exclusions: `03 C0`-style `add r,r` doubling; `0E E8` / `9A`
-  far-call forms; `8E 46` split far-pointer loads; `8B E5 5D` epilogue.
+- The three exclusions: `03 C0`-style `add r,r` doubling; `0E E8` / `9A`
+  far-call forms; `8E 46` split far-pointer loads. (`8B E5 5D` was removed in
+  round 5 - it is `/G0` output for a function with a call, see the /G0 section.)
 - **swap-and-return**: `int old = g; g = v; return old;` compiles to
   `8B 16 <g>` (old into DX) + `8B 46 06` + `A3 <g>` + `8B C2`, and needs
   `/Ox` - under `/Os` the temporary spills to a frame.
@@ -574,6 +575,14 @@ source is not a mystery: `LEAVE` is a 186+ instruction, so `/G0` (8086)
 emits the bare `pop bp`. `1000:1364` is the proof — identical source,
 `/G0 /AM /Gs /Os` matches byte-for-byte, `/G1` differs only in the teardown.
 Vary the CPU flag before suspecting a second compiler generation.
-The stronger form `8B E5 5D` (redundant `mov sp,bp`) is still unexplained:
-none of MSC 5.1, 6.0, 7 emits the redundant restore.
+
+### The `8B E5 5D` form is `/G0` plus a call (round 5, verified)
+`mov sp,bp / pop bp` is not a second generation either: it is what MSC 7 emits
+under `/G0` **for a function that contains a call**, because the 8086 has no
+`LEAVE`. `103a:0000` proves it — `void __far f(a,b,c,d) { sub5(0,d,c,b,a); }`
+with `/G0 /AM /Gs /Os` is byte-exact, including `33 C0 50` for pushing the zero
+constant and `8B E5 5D CB` for the teardown. A `/G0` function without a call
+only gets the bare `5D` (`1000:1364`).
+Consequence: `tools/gap.py` no longer lists `8B E5 5D` as a blocker; a unit
+carrying it needs `/G0`, not a different compiler.
 
