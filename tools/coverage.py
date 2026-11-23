@@ -34,10 +34,24 @@ def read_ledger():
 def compute():
     # One source: functions.csv carries section=CODE|DATA (DATA = proven
     # misinventory, see not_code.csv). Only CODE counts as a function.
-    funcs, notcode = {}, {}
+    #
+    # The denominator uses ground_truth/units.csv when present: the decompiler
+    # merged several functions into one entry (507 hidden units, see
+    # tools/split.py), so counting entries understates the work AND counts the
+    # gap bytes between merged units as code. Units are gap-free on purpose.
+    notcode = {}
     for r in csv.DictReader(open(os.path.join(ROOT, "ground_truth", "functions.csv"))):
-        lin, size = int(r["linear"], 16), int(r["size"])
-        (notcode if r.get("section") == "DATA" else funcs)[lin] = size
+        if r.get("section") == "DATA":
+            notcode[int(r["linear"], 16)] = int(r["size"])
+    units_path = os.path.join(ROOT, "ground_truth", "units.csv")
+    funcs = {}
+    if os.path.isfile(units_path):
+        for r in csv.DictReader(open(units_path)):
+            funcs[int(r["linear"], 16)] = int(r["size"])
+    else:
+        for r in csv.DictReader(open(os.path.join(ROOT, "ground_truth", "functions.csv"))):
+            if r.get("section") != "DATA":
+                funcs[int(r["linear"], 16)] = int(r["size"])
     foreign = {}
     fc = os.path.join(ROOT, "ground_truth", "foreign_crt.csv")
     if os.path.isfile(fc):

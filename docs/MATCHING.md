@@ -75,6 +75,10 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 4a91:001e | _get_long_9973 | 8 | RELOCS | src=src/calib/cunit1.c; flags="/G1 /AM /Gs /Os"; same shape for the long at 0x9973; hidden unit |
 | 477b:0028 | _sext14 | 10 | RELOCS | src=src/calib/cunit1.c; flags="/G1 /AM /Gs /Os"; `return (g_9971 << 2) >> 2;` — sign-extend a 14-bit value (`shl ax,2` / `sar ax,2`); hidden unit |
 | 3eec:0058 | _copy_and_reset | 13 | RELOCS | src=src/calib/cunit1.c; flags="/G1 /AM /Gs /Os"; `g_29d0 = g_29ce; g_29c8 = -1;`; hidden unit |
+| 3e24:006c | _get_1bb0 | 4 | RELOCS | src=src/calib/cunit2.c; flags="/G1 /AM /Gs /Os"; `return g_1bb0` (`A1 <disp> CB`) |
+| 3e24:0070 | _inc_get_1bb0 | 8 | RELOCS | src=src/calib/cunit2.c; flags="/G1 /AM /Gs /Os"; `g_1bb0++; return g_1bb0;` (`FF 06` then `A1`) |
+| 3e24:0078 | _dec_get_1bb0 | 8 | RELOCS | src=src/calib/cunit2.c; flags="/G1 /AM /Gs /Os"; `g_1bb0--; return g_1bb0;` (`FF 0E` then `A1`) |
+| 20b4:0160 | _read24 | 37 | PENDING | Assembles a value from three bytes 0x0F3A/0x0F3B/0x0F3C without any runtime call: `A0`/`2B D2`/`8A E0`/`2A C0` pack g_f3C into AH, `ADD AX,CX` then `13 D2` (adc dx,dx) takes the carry out, then `8A F2`/`8A D4` move it into DH. Writing `v = (v << 8) + g;` three times calls the 32-bit shift helper (`9A …`), so the source form is different; hypothesis pending |
 | 4fab:000a | get_39f8_clamped | 16 | PENDING | slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs. `EB 03` (jump merge, one ret). Tested: /Os, /Od, /O1, /O2, /Ox, /Os /Oy, ternary both polarities, if/else+local |
 | 1f2d:000e | CLAMP_A | 20 | PENDING | min(max(x,1),g), __fastcall (arg in AX, bare retn), global 0x4688. Original frameless with DX temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`); MSC7 produces memory operands under /Ox (`39 06 d / 7D 03 / A1 d`), a frame under /Os. 6 variants tested |
 | 1f2f:0002 | CLAMP_B | 20 | PENDING | Sibling of CLAMP_A, global 0x468A, same cause |

@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 42 — metric switched to units, 3 more RELOCS from fused frameless units
+- `tools/coverage.py` now measures against `ground_truth/units.csv` when it
+  exists (fallback to `functions.csv` kept, both paths tested). The denominator
+  changes honestly: **2 463 functions, 294 182 code bytes** instead of 1 956 /
+  294 603 — the difference is the 421 gap bytes that are not code plus the
+  functions that were invisible.
+- Mined hidden units in the 18..40 band. Found that `3e24:006c` is really **three**
+  frameless units fused together (`A1 .. CB` / `FF 06 .. A1 .. CB` /
+  `FF 0E .. A1 .. CB`). All three RELOCS in `src/calib/cunit2.c`.
+  **Known gap in `split.py`**: it only accepts `C9`-prefixed terminators or
+  prologues beginning with `55 8B EC`/`C8`/`A1`/`A0`, so bare-`CB` frameless
+  sequences stay fused. Widening the rule is the next tooling task.
+- `20b4:0160` (37 B) is a hand-rolled 24-bit packer with no runtime calls
+  (`A0`/`2B D2`/`8A E0`/`2A C0` … `13 D2` carry handling). Writing the obvious
+  `v = (v << 8) + g;` chain pulls in the 32-bit shift helper, so the source form
+  is still open — documented as PENDING instead of approximated.
+- Ledger: 75 rows — MATCH 10, **RELOCS 50**, PENDING 15; coverage **752 /
+  293 219 own bytes (0.256 %)**.
+
 ## Round 41 — inventory split into units (2 463), six wrong windows fixed, 4 new RELOCS
 - **`tools/split.py`** added with a `--selftest`: recovers the functions the
   decompiler merged into bigger entries. Result: **2 463 units from 1 956

@@ -8,8 +8,8 @@
 | Status | Count |
 |---|---|
 | MATCH | 10 |
-| RELOCS | **47** |
-| PENDING | **14** |
+| RELOCS | **50** |
+| PENDING | **15** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -20,6 +20,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `2603:463c` **SET_BIT** (38 B) — `table[n / 8]
 - `1871:7874` **SEG_OF** (24 B) — Returns the segment half of a far pointer. Original loads it with `C4 46 06` (les) + `8C C0` (mov ax,es) after initialising a local to 0
 - `31e3:0064` **W_COND** (32 B) — `if (b == 1) f1(a)
+- `20b4:0160` **_read24** (37 B) — Assembles a value from three bytes 0x0F3A/0x0F3B/0x0F3C without any runtime call: `A0`/`2B D2`/`8A E0`/`2A C0` pack g_f3C into AH, `ADD AX,CX` then `1
 - `4fab:000a` **get_39f8_clamped** (16 B) — slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs
 - `1f2d:000e` **CLAMP_A** (20 B) — min(max(x,1),g), __fastcall (arg in AX, bare retn), global 0x4688. Original frameless with DX temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`)
 - `1f2f:0002` **CLAMP_B** (20 B) — Sibling of CLAMP_A, global 0x468A, same cause
@@ -32,25 +33,25 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
 | Category | Value |
 |---|---|
-| Inventory entries | **1956** code functions + **14** data |
+| Inventory entries | **2463** code functions + **14** data |
 | Data (proven, `not_code.csv`) | 12211 B |
-| Code bytes | 294603 |
+| Code bytes | 294182 |
 | − Foreign CRT (signatures) | 963 |
-| = **Own code bytes** | **293640** |
-| of which **verified** | **752 (0.256%)** |
-| PENDING bytes | 484 |
+| = **Own code bytes** | **293219** |
+| of which **verified** | **772 (0.263%)** |
+| PENDING bytes | 521 |
 
-Code functions: **1956**, of which verified **57**.
+Code functions: **2463**, of which verified **60**.
 
 ## Regions (64 KiB)
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
-| 0x0000 | 534 | 6 | 65244 | 75 (0.1%) | 897 | 360 | 102 |
-| 0x0001 | 406 | 9 | 65783 | 134 (0.2%) | 0 | 569 | 38 |
-| 0x0002 | 545 | 23 | 65692 | 310 (0.5%) | 0 | 0 | 124 |
-| 0x0003 | 429 | 19 | 64548 | 233 (0.4%) | 0 | 0 | 220 |
-| 0x0004 | 42 | 0 | 33336 | 0 (0.0%) | 66 | 11282 | 0 |
+| 0x0000 | 592 | 6 | 65131 | 75 (0.1%) | 897 | 360 | 102 |
+| 0x0001 | 512 | 9 | 65759 | 134 (0.2%) | 0 | 569 | 75 |
+| 0x0002 | 752 | 26 | 65525 | 330 (0.5%) | 0 | 0 | 124 |
+| 0x0003 | 554 | 19 | 64437 | 233 (0.4%) | 0 | 0 | 220 |
+| 0x0004 | 53 | 0 | 33330 | 0 (0.0%) | 66 | 11282 | 0 |
 
 <!-- MANUAL-BEGIN -->
 ## Toolchain
