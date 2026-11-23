@@ -18,4 +18,5 @@ Notiz-Konvention: `obj=<Pfad>` verweist auf das OMF-Objekt für verify.py.
 | 398d:0004 | get_ln | 8 | RELOCS | obj=build/cget3.OBJ, __near, 2x disp16-Fixup (DGROUP 0x14C4); Ghidra FUN_35ca_3c34 |
 | 2131:000c | set_flag | 6 | RELOCS | obj=build/cflag1.OBJ, disp16-Fixup (DGROUP 0x0F44), imm8 0x40; src/calib/cflag1.c |
 | 4fac:000a | inc_39f8_capped | 12 | RELOCS | obj=build/cinc1.OBJ, 2x disp16-Fixup (DGROUP 0x39F8); if (g<0x10) g++; |
+| 458e:a20e | SLOT_FILL | 166 | PENDING | Slotfuellroutine (pascal, 1 Far-Param, 8 Felder 0/2/4/9/11/13/15/19, conv+update-Calls). 4 Hypothesen: v3 (162/166 B!) fehlen nur die Stack-Rueckschreibungen des gewanderten Pointers; Original haelt si rein im Register + es aus [bp+8]. Form komplett dokumentiert (ENTER 2, or/jge, e9-Branch, imul 0x27, [bx+disp]-Stores) |
 | 4fab:000a | get_39f8_clamped | 16 | PENDING | Aufrufer FUN_458e_a20e beweist Semantik: Slot-Index-Allokator (Zaehler DGROUP 0x39F8, max 16, Slotgr. 0x27, Sentinel -1 wird geprueft via `if (-1 < iVar1)`). Sprung-Merge-Form (jl/B8FFFF/EB03/A1/C3) aus keinem MSC7-C-Konstrukt erzeugbar (5 Kombis getestet) — Hand-/Inline-ASM bleibt Hauptverdacht |

@@ -1,5 +1,15 @@
 # PROGRESS
 
+## Runde 17 — Slot-Routine: Form entschuesselt, 4 Hypothesen, PENDING (2026-11-23)
+- 458e:a20e (166 B, pascal, Far-Param) vollstaendig zerlegt: Slot-Index-Flow,
+  8 Feldoffs 0/2/4/9/11/13/15/19, conv-CL-Push, retf 4 (=1 Far-Param, Ghidras
+  param_2 war Artefakt). Ungerade Slotgroesse 0x27 -> char-Array, kein struct.
+- Rekonstruktion v3 erreichte 162/166 B — Restdifferenz: Registerwanderung ohne
+  Stack-Rueckschreibung (MSC7-C schreibt Param zurueck). PENDING mit Formanalyse
+  in IDIOMS.md; cslot1.c behaelt v3 als naechsten Ansatzpunkt.
+- Praxisecke: __pascal versaliert Symbole; >127-Sprungdistanz erzeugt die
+  jge+3/jmp-Form automatisch (Branch-Erklaerung fuer 4fab:000a-Verwandtschaft).
+
 ## Runde 16 — PENDING-Semantik bewiesen (2026-11-23, Abend)
 - Aufrufer von 4fab:000a gefunden (FUN_458e_a20e): Slot-Index-Allokator,
   Sentinel -1 wird geprueft, Slots 0x27 Byte, Array-Basis DGROUP-relativ

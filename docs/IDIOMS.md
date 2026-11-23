@@ -23,3 +23,18 @@ Noch ungeprüfte Kandidaten (erst nach Kalibrierung als Regel vermerken):
   erzwingt stattdessen ENTER+Stackslot. Offen: welche Quellform die Merge-Form
   erzeugt (Kandidat: Ausdruck mit Nachnutzung des Werts — prüfen, wenn Kontext
   der Aufrufstelle bekannt ist).
+
+## MSC 7.0 /Os — Slot-Routine 458e:a20e (Runde 17, 4 Hypothesen)
+- Bestes C-Ergebnis 162/166 B (v3: `*src++`-Wanderung): ENTER, or/jge,
+  `e9`-Branch (>127 Distanz erzwingt jge+3/jmp-rel16 von selbst),
+  `imul ax,ax,0x27`, Stores als `[bx+disp16]` mit Feldoffs — alles passt.
+- Offen: Original wandert den Offset NUR in si (nie Rueckschreiben); MSC7-C
+  schreibt bei `*src++` den Parameter zurueck ([bp+6]/[bp+8]-Stores), bei einer
+  lokalen Far-Pointer-Kopie gibt es dem Pointer ein Stack-Heim (ENTER 16,
+  LES-hantieren). Verdacht: Quellform mit getrennten Segment/Offset-Zutritten
+  (FP_SEG/FP_OFF-Stil) oder Inline-ASM.
+- Ungerade Feld-/Slotgroessen (0x27=39): MSC7 rundet Strukturen auf — das
+  Original nutzt folglich char-Array + Index-Arithmetik, keine Struktur.
+- `__pascal` versaliert Symbolnamen (SLOT_FILL) und raeumt per `retf imm16`
+  auf — wahre Aritaet am RET ablesbar (hier: 4 = ein Far-Pointer; Ghidras
+  'param_2' war ein Konventionsartefakt).
