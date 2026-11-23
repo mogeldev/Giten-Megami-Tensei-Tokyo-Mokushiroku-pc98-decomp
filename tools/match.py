@@ -33,19 +33,66 @@ def linear(va):
 
 
 def compare(orig, mine, relocs):
-    """(status, diffs, masked). relocs = byte offsets with a linker operand."""
-    masked_calls = farcall_translated(orig, mine, relocs)
+    """(status, diffs, masked) plus a shrink note. relocs = linker operands.
+
+    `orig` is the image window (its length is the ledger size), `mine` is the
+    object slice and may be one byte longer: LINK /F folds a same-segment far
+    call into `0E E8 rel16` (4 B) where the object still has `9A seg off`
+    (5 B), so the whole tail shifts by one."""
+    for shrink_at in shrink_sites(orig, mine, relocs):
+        status, diffs, masked = _walk(orig, mine, relocs, shrink_at)
+        if status != "DIFF":
+            return status, diffs, masked, shrink_at
+    # the caller slices one byte extra for the folded-call case; without a
+    # shrink site that byte is simply not part of the comparison
+    status, diffs, masked = _walk(orig, mine[:len(orig)], relocs, None)
+    return status, diffs, masked, None
+
+
+FAR_SHORT = b"\x0E\xE8"               # same-segment far call: PUSH CS; CALL NEAR
+
+
+def shrink_sites(orig, mine, relocs):
+    """Image offsets where a 4-byte `0E E8` stands for the object's 5-byte 9A."""
+    if len(mine) != len(orig) + 1:
+        return []
+    out = []
+    for i in range(len(orig) - 1):
+        if mine[i] != 0x9A or not all((i + 1 + k) in relocs for k in range(4)):
+            continue
+        if orig[i:i + 2] == FAR_SHORT:
+            out.append(i)
+    return out
+
+
+def _walk(orig, mine, relocs, shrink_at):
+    """Compare with an optional 5->4 byte shrink at image offset `shrink_at`."""
     diffs, masked = [], 0
-    for i in range(min(len(orig), len(mine))):
-        if i in masked_calls:
-            masked += 1
+    i = j = 0
+    while i < len(orig):
+        if shrink_at is not None and i == shrink_at:
+            i += 4        # 0E E8 rel16
+            j += 5        # 9A seg off
+            masked += 5
             continue
-        if i in relocs:
-            masked += 1
+        if (i + 2 < len(orig) and orig[i:i + 3] == FAR_TRANSLATED
+                and j < len(mine) and mine[j] == 0x9A
+                and all((j + 1 + k) in relocs for k in range(4))):
+            i += 5
+            j += 5
+            masked += 5
             continue
-        if orig[i] != mine[i]:
-            diffs.append((i, orig[i], mine[i]))
-    if len(mine) != len(orig):
+        if j < len(mine):
+            if j in relocs:
+                masked += 1
+            elif orig[i] != mine[j]:
+                diffs.append((i, orig[i], mine[j]))
+            i += 1
+            j += 1
+        else:
+            diffs.append((i, "LEN", f"{len(orig)} vs {len(mine)}"))
+            break
+    if j != len(mine) and not diffs:
         diffs.append((min(len(orig), len(mine)), "LEN", f"{len(orig)} vs {len(mine)}"))
     if not diffs:
         return ("RELOCS" if masked else "MATCH"), diffs, masked
@@ -78,33 +125,44 @@ def farcall_translated(orig, mine, relocs):
 
 def selftest():
     a = bytes(range(64))
-    st, d, m = compare(a, a, set())
-    assert st == "MATCH" and not d and m == 0
+    st, d, m, sh = compare(a, a, set())
+    assert st == "MATCH" and not d and m == 0 and sh is None
     b = bytearray(a)
     b[4] ^= 1
-    st, d, _ = compare(a, bytes(b), set())
+    st, d, _, _ = compare(a, bytes(b), set())
     assert st == "DIFF" and d[0][0] == 4
-    st, d, m = compare(a, bytes(b), {4})
+    st, d, m, _ = compare(a, bytes(b), {4})
     assert st == "RELOCS" and m == 1 and not d
-    st, d, m = compare(a, a, {7, 9})
+    st, d, m, _ = compare(a, a, {7, 9})
     assert st == "RELOCS" and m == 2
-    st, d, m = compare(a, a[:60], set())
+    st, d, m, _ = compare(a, a[:60], set())
     assert st == "DIFF" and d[0][1] == "LEN"
     # LINK /F translation: object 9A + 4 masked bytes vs image 90 0E E8 rel16
     orig = bytes(10) + FAR_TRANSLATED + b"\x34\x12" + bytes(3)
     mine = bytes(10) + b"\x9A" + b"\x00\x00\x00\x00" + bytes(3)
     rels = set(range(11, 15))
-    st, d, _ = compare(orig, mine, rels)
+    st, d, _, _ = compare(orig, mine, rels)
     assert st == "RELOCS" and not d, (st, d)
     # ... only when the image really has the translated form at that site
     bad = bytearray(orig)
     bad[10] = 0x0E
-    st, d, _ = compare(bytes(bad), mine, rels)
+    st, d, _, _ = compare(bytes(bad), mine, rels)
     assert st == "DIFF" and d[0][0] == 10
     # ... and only for calls whose operand is a full 4-byte fixup
-    st, d, _ = compare(orig, mine, set(range(12, 15)))
+    st, d, _, _ = compare(orig, mine, set(range(12, 15)))
     assert st == "DIFF"
-    print("selftest OK: MATCH/RELOCS/DIFF, reloc masking, length diff, /F call translation")
+    # folded same-segment far call: image 0E E8 rel16 (4 B) vs object 9A + 4 (5 B)
+    img = b"\x55\x8B\xEC" + FAR_SHORT + b"\x12\x34" + b"\xCB"      # 8 bytes
+    obj = b"\x55\x8B\xEC" + b"\x9A\x00\x00\x00\x00" + b"\xCB"  # 9 bytes
+    st, d, m, sh = compare(img, obj, {4, 5, 6, 7})
+    assert st == "RELOCS" and not d and sh == 3 and m == 5, (st, d, sh)
+    # negative: the tail must really match after the shift
+    badobj = bytearray(obj)
+    badobj[8] = 0xCC
+    st, d, _, _ = compare(img, bytes(badobj), {4, 5, 6, 7})
+    assert st == "DIFF"
+    print("selftest OK: MATCH/RELOCS/DIFF, reloc masking, length diff, "
+          "/F call translation, 5->4 byte folded far call")
 
 
 def load_funcs():
@@ -152,15 +210,16 @@ def main():
     led = next((l for l in ledatas if l["seg"] == seg), None)
     if led is None:
         sys.exit(f"ERROR: no LEDATA for segment {seg}")
-    code = led["data"][off: off + size]
+    code = led["data"][off: off + size + 1]     # +1 for a folded far call (5->4)
     if len(code) < size:
         sys.exit(f"ERROR: symbol at end of LEDATA — size {size} too large")
     relocs = {(o + k) - off for (o, s) in led["fixups"]
-              if off <= o < off + size for k in range(s)}
+              if off <= o < off + size + 1 for k in range(s)}
 
     orig = binary_bytes(lin, size)
-    status, diffs, masked = compare(orig, code, relocs)
-    print(f"{a.va} {a.symbol}: {status}  (size={size}, reloc-masked={masked})")
+    status, diffs, masked, shrink_at = compare(orig, code, relocs)
+    extra = f", folded far call at +{shrink_at:#x}" if shrink_at is not None else ""
+    print(f"{a.va} {a.symbol}: {status}  (size={size}, reloc-masked={masked}{extra})")
     for (o, ob, mb) in diffs[:12]:
         if isinstance(ob, int):
             print(f"  DIFF @+{o:#x}: orig {ob:02X} vs object {mb:02X}")

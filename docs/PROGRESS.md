@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 6: the folded far call is a one-byte shift - matcher support + 1 row
+The 3 507 NOP-prefixed `0E E8` are not the only /F output. When LINK knows the
+callee is in the same segment it can drop the NOP as well, leaving
+`0E E8 rel16` (**4 bytes**) where the object has `9A seg off` (5 bytes) - the
+whole tail then shifts one byte left, which is why 36 unmatched units could
+never align.
+
+- `tools/match.py` now detects that form (`shrink_sites` / `_walk`): it anchors
+  the comparison on the 5->4 shrink and masks the call slot, exactly like the
+  5-byte translation. It only fires when the object byte is `9A` with a full
+  4-byte fixup and the image really holds `0E E8` there, and it is covered by
+  `--selftest` (positive and shifted-tail-negative).
+- `src/calib/crelay15.c` (`/G0 /AM /Gs /Os`): `13c6:0000` - a flag cell set
+  around a long-returning call, with the `83 EC 04` local, the folded call at
+  +0x1a and the `/G0` `8B E5 5D` teardown. 39 B.
+- `docs/CONVENTIONS.md` drops trait 5 (`8B E5 5D`) from the blocker list - it is
+  `/G0` output for a function with a call - and documents the folded call form
+  next to the NOP-prefixed one; `HOWTO.md` item 6 says so too.
+
+Storage order caveat for future rounds: the `11a2` / `119c` long-through-pointer
+family also uses the folded call, but the original loads the pointer into BX
+*before* pushing the arguments and stores the high word first (`89 57 02 89 07`),
+which no source form tested so far reproduces.
+
+Ledger 347 rows - MATCH 37, RELOCS 286, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 5 769 B (1.967 %).
+
 ## Round 5: the `8B E5 5D` epilogue is plain `/G0` (5 rows, 129 B)
 - `src/calib/crelay12.c` (`/Os`): `h(sub(a))` without SI staging (the sibling
   `32da:000c` does need `/Ox`), `if (g != -1) { sub(g); g = -1; } return g;`

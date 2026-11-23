@@ -91,7 +91,9 @@ Work down this list; each item is a real case from this project:
    `/FARCALLTRANSLATION` (`/F` + `/PACKC`) rewriting the call, not a compiler
    idiom. `match.py` accepts exactly this rewrite (5-byte slot masked, see
    CONVENTIONS.md), so the row can still verify. A bare `0E E8` without the
-   leading `90` is a compiler-emitted same-segment call (MSC 6.0 emits it).
+   leading `90` is the *folded* form of the same rewrite: the linker dropped the
+   NOP, so the call is 4 bytes instead of 5 and everything after it shifts one
+   byte left. `match.py` handles that shift automatically.
 7. **`C4 5E xx` (`les`) where the original has `8B 5E xx` + `8E 46 xx`** → split
    pointer load. Not fixable.
 8. **`8E C2` / `8B D8` in the wrong order** → instruction-order trait; two

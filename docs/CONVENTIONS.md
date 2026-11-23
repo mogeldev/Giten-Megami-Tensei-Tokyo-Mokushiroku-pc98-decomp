@@ -34,10 +34,10 @@ Every one was also tested against the flag matrix (`/Os`, `/Ot`, `/Od`, `/Ox`,
 | # | Trait | Evidence | Units / bytes |
 |---|---|---|---|
 | 1 | doubling by `add r,r` instead of `shl r,1` | `4e11:007e` matches except the final `03 C0` (`add ax,ax`); MSC emits `D1 E0`. Explains the 74×`03 DB` vs 18×`D1 E3` census that round 34 misread as hand-written assembly | 204 / 66 762 |
-| 2 | *not a compiler trait*: `90 0E E8 rel16` | **CORRECTED round 91:** this is Microsoft LINK `/FARCALLTRANSLATION` (`/F`, with `/PACKC`) rewriting the compiler's `9A seg off` into `NOP; PUSH CS; CALL NEAR`. 3 507 of the 3 564 `0E E8` in the image carry that NOP; reproduced locally with `LINK 5.10 /F /PACKC`. `tools/match.py` masks the 5-byte slot, so those units are reachable | 0 blocking (was 1232 / 180 177) |
+| 2 | *not a compiler trait*: `90 0E E8 rel16` | **CORRECTED round 91:** this is Microsoft LINK `/FARCALLTRANSLATION` (`/F`, with `/PACKC`) rewriting the compiler's `9A seg off` into `NOP; PUSH CS; CALL NEAR`. 3 507 of the 3 564 `0E E8` in the image carry that NOP; reproduced locally with `LINK 5.10 /F /PACKC`. `tools/match.py` masks the 5-byte slot, so those units are reachable; the folded 4-byte form (`0E E8` without the NOP) is handled as a one-byte shift since round 6 | 0 blocking (was 1232 / 180 177) |
 | 3 | far-pointer parameters loaded as two words (`8B 5E 06` + `8E 46 08`) instead of `les bx,[bp+6]` | `1df5:0008`, `2aa3:0048` — bodies otherwise identical | 367 / 84 175 |
 | 4 | stray `90` padding outside a translated far call | Most of the old 1 400-unit count was the `/F` NOP of trait 2. The rest are real: `47ef:0008` (`EB 03 90` vs `EB 02`), `2aa3:0002` (two `90` bytes, all displacements +2); `/Os` never pads, MSC 7 pads only function ends under `/Ot` | 561 / 163 630 |
-| 5 | **`8B E5 5D`** (`mov sp,bp; pop bp`) instead of `C9` | `11d8:000c`: the body is byte-exact, only the teardown differs. **Corrected:** the bare `5D` variant is not a compiler trait but the **`/G0` (8086) target** — `LEAVE` is a 186+ instruction, so `/G0` emits `pop bp`. `1000:1364` closed as MATCH this way. What is still unexplained is the *redundant* `8B E5` (SP already equals BP): MSC 5.1, 6.0 and 7 all omit it | 144 / 24 280 (+74 / 6 814, of which the `5D` part is reachable with `/G0`) |
+| 5 | **`8B E5 5D`** (`mov sp,bp; pop bp`) instead of `C9` | **RESOLVED round 5:** `/G0` output - `mov sp,bp` is what MSC 7 emits under `/G0` for a function that *contains a call* (the 8086 has no `LEAVE`); a call-free `/G0` function gets the bare `5D`. `103a:0000` verifies byte-exactly with `/G0 /AM /Gs /Os`, including `33 C0 50` for a zero push. No longer a blocker | 0 blocking (was 144 / 24 280) |
 | 6 | register-passed arguments (`mov ah,imm` then `call`) | `1cb7:0018`, `1cb9:0008`, `1cbf:0020` etc. No Microsoft C 7 construct emits `mov ah,imm` before a call — its `__fastcall` uses BX/CX/DX | 12 / 6 747 |
 | 7 | absolute ESA addressing (`mov es,imm16` then `es:[disp16]`) | `2d64:0008`; MSC always addresses a far object through a base register, even with `MK_FP(const_seg, const_off)` | 6 / 17 323 |
 | 8 | **`SI` as far-pointer base** (`push si` / `mov si,ax` / `es:[si+N]`) | `3a24:0006` (`clear32`), `38ad:000e` (`swap14`), `1df5:0008`, `2aa3:0048`, `37ef:000c`. MSC 7 puts the offset in **BX**. **Nuance (round 91):** `register` *does* steer a **loop counter** into SI - `4f89:0008` verifies with `register int i` - but it moves a pointer temporary to DI instead, so it does not rescue the far-pointer cases | 196 / 26 435 |
@@ -62,6 +62,13 @@ when the callee ends up in the caller's physical segment
 call each other across modules, linked with `LINK 5.10 /F /PACKC`, produce
 `90 0E E8 F3 FF` where the identical `/NOF` link keeps `9A 00 00 00 00`
 (`build/CLKABF.EXE` vs `CLKABN.EXE`, round 91).
+
+**Second form - folded to 4 bytes (round 6).** When the linker knows the callee
+is in the same segment it can also drop the NOP, leaving `0E E8 rel16` (4 bytes)
+where the object still has `9A seg off` (5 bytes), so the whole tail shifts one
+byte left. 36 unmatched units contain such a call. `tools/match.py` detects the
+shift (`shrink_sites` / `_walk`) and anchors the rest of the window on it; the
+first row verified that way is `13c6:0000` (39 B).
 
 The compiler side is ordinary: a far callee that is `extern` compiles to `9A`
 plus a 4-byte fixup, exactly what our calibration objects contain. So units whose
