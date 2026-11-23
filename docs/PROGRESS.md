@@ -1,5 +1,22 @@
 # PROGRESS
 
+## Round 75 — one RELOCS; the interrupt-wrapper family is out of reach
+- `21f4:0000` **MUL_THEN_CALL** (23 B, RELOCS, `src/calib/cmul1.c`) —
+  `return HELP(a, b, d * c);`. The operands must be **unsigned**: `F7 66` is `MUL`,
+  and declaring them `int` makes MSC emit `F7 6E` (`IMUL`) — that single opcode was
+  the whole difference. `F7 E1`/`F7 66` vs `F7 E9`/`F7 6E` is a cheap way to read
+  signedness off the bytes.
+- **The largest remaining cluster in the call-containing set is not reachable.**
+  `1cb7`, `1cb9`, `1cba`, `1cbf`, `1cc2`, `1cc3` and their siblings set a register
+  (`mov ah, 0x45` / `b4 0x0B`) and then `call` a helper — a DOS interrupt wrapper
+  with **register-passed arguments**. There is no C construct in Microsoft C 7 that
+  produces `mov ah,imm` before a call (its `__fastcall` uses BX/CX/DX, not AH), so
+  this family needs inline assembly or a different compiler. Six units in 16..24 B,
+  plus relatives above that size.
+- Also confirmed unreachable: the `3883:0008` family (call → far pointer → field
+  read) and the `1110:0002` trio (`push cs; call`).
+- Ledger: 167 rows — MATCH 32, **RELOCS 113**, PENDING 22.
+
 ## Round 74 — four RELOCS; the call-wrapper vein extended
 - Re-scanned **all sizes** for framed units whose only unusual feature is `E8`
   calls and no other blocking trait: **66 units**. From them, four more verified

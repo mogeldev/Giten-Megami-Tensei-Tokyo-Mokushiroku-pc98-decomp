@@ -177,3 +177,4 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 4e31:0006 | CALL_B | 20 | RELOCS | src=src/calib/cds1.c; flags="/G1 /AM /Gs /Os"; same call shape, second DGROUP object |
 | 218c:0002 | TWO_CALLS | 18 | RELOCS | src=src/calib/cds1.c; flags="/G1 /AM /Gs /Os"; `HELP_A(-1); return HELP_B(a);` — result of the first call discarded |
 | 39dc:0026 | SIX_ARGS | 27 | RELOCS | src=src/calib/cds1.c; flags="/G1 /AM /Gs /Os"; six pushes including a constant in the middle: `HELP6(p0,p1,p2,p3,1,p4)` |
+| 21f4:0000 | MUL_THEN_CALL | 23 | RELOCS | src=src/calib/cmul1.c; flags="/G1 /AM /Gs /Os"; `return HELP(a, b, d * c);` with unsigned operands - `F7 66` is the unsigned MUL, `int` gives `F7 6E` (IMUL) |

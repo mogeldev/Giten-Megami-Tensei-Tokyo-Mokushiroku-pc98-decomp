@@ -15,6 +15,15 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 75 - MUL vs IMUL names the signedness
+- `F7 66 <disp>` is unsigned `MUL`, `F7 6E <disp>` is `IMUL`; likewise
+  `F7 E1` vs `F7 E9` for `mul cx`. When a multiply shape matches except for
+  that byte, change the operand types to `unsigned` - do not change the
+  expression.
+- **Register-passed arguments are out of reach**: `mov ah,0x45` followed by a
+  call cannot be produced by Microsoft C 7 (`__fastcall` uses BX/CX/DX). DOS
+  interrupt wrappers written that way need inline assembly or the original
+  compiler; skip them.
 ## Round 74 - pushing a DGROUP far pointer
 - A far pointer to a global is pushed as **two separate pushes**
   (`1E 68 <offset>` = push ds; push offset), not as a pointer value. So
