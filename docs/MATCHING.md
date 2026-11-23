@@ -153,3 +153,13 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 34dc:0004 | XCHG_1D52 | 19 | RELOCS | src=src/calib/cxchg1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; same swap-and-return family, global 0x1D52 |
 | 3f3c:0002 | XCHG_2A28 | 19 | RELOCS | src=src/calib/cxchg1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; same swap-and-return family, global 0x2A28 |
 | 1e88:004a | XCHG_417C | 19 | RELOCS | src=src/calib/cxchg1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; same swap-and-return family, global 0x417C |
+| 375d:0008 | X_375D_0008 | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; swap-and-return, generated |
+| 37b3:00d0 | X_37B3_00D0 | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; swap-and-return, near variant (argument at bp+4) |
+| 3d51:0006 | X_3D51_0006 | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; swap-and-return, generated |
+| 3e5b:0002 | X_3E5B_0002 | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; swap-and-return, generated |
+| 42ab:0006 | X_42AB_0006 | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; swap-and-return, generated |
+| 48d6:011a | X_48D6_011A | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; swap-and-return, generated |
+| 4dcc:000e | X_4DCC_000E | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; swap-and-return, generated |
+| 4df5:000e | X_4DF5_000E | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; swap-and-return, generated |
+| 47ea:000a | CLAMP63 | 20 | MATCH | src=src/calib/carith2.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; `if (v > 0x63) v = 0x63; return v;` - value staged in DX; byte-identical |
+| 4384:000c | MASKBYTE | 20 | RELOCS | src=src/calib/carith2.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; `g_8670[i*4 + 1] & 0x7F` - stride-4 byte array |

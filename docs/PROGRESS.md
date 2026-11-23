@@ -1,5 +1,22 @@
 # PROGRESS
 
+## Round 66 — 10 more verified: the swap-and-return family was bigger than it looked
+- **Templating caught seven hidden members.** The four `swap-and-return` units from
+  round 65 looked like the whole family, but a template over *wildcard
+  displacements* found **8 more**, seven of which were 20-byte units whose real
+  function is 19 bytes plus a `00` padding byte. New tool `tools/swapgen.py`
+  generates the whole family from the template and verified **8/8**
+  (`375d:0008`, `37b3:00d0`, `3d51:0006`, `3e5b:0002`, `42ab:0006`, `48d6:011a`,
+  `4dcc:000e`, `4df5:000e`) in `src/calib/cswap4.c`.
+  One of them is the **near** variant — same source, argument at `bp+4`.
+- Two more from an arithmetic batch (`src/calib/carith2.c`, `/Ox /Oa /Os`):
+  - `47ea:000a` **CLAMP63** (20 B, **MATCH**) — `if (v > 0x63) v = 0x63; return v;`
+  - `4384:000c` **MASKBYTE** (20 B, RELOCS) — `g_8670[i*4 + 1] & 0x7F`
+- Four batch-mates stayed PENDING for the usual reason (DX staging of a store:
+  original `89 16 <g>` vs our `A3 <g>`; and one ordering difference in a
+  zero-extension). Not rewritten to look better.
+- Ledger: 152 rows — **MATCH 28**, RELOCS 102, PENDING 22.
+
 ## Round 65 — best round so far: 8 verified functions, 150 bytes
 The round-64 finding paid off immediately. Instead of guessing, I built a
 **reachability filter**: exclude units containing any of the four blocking traits

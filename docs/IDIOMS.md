@@ -3,6 +3,18 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 66 - template families with wildcard displacements
+- **A family is bigger than its first sightings.** Run the shape as a template with
+  `(?P<d>..)` where the displacements are, and look for members whose unit size
+  is the pattern length **plus padding** (`00` or `90`). Seven of the eight new
+  swap-and-return members were invisible because their unit carried a trailing
+  `00`; the function is 19 bytes, the unit 20.
+- `tools/swapgen.py` generates a whole family from one template: extract the
+  globals, emit one function per member, build once, match all. Same shape as
+  `setters.py` and `wraps.py` - the pattern for any new family.
+- Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
+  clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
+  When a clamp misses, try the /Ox variants before changing the source.
 ## Round 65 - filter by blocking trait before transcribing
 - **Build the candidate list by exclusion, not by inclusion.** Once the blocking
   traits of the other compiler generation are known, drop every unit containing
