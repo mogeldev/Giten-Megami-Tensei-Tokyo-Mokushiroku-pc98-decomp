@@ -22,8 +22,13 @@ Two more compiler crashes were found and are worth avoiding next time
 2. `fc1(fc1(fc3(a, a, b)))` - triple nesting with a two-argument call inside,
    the same class as the round-9 crash (`sub3(sub2(a, a), 0)`).
 
-Ledger 381 rows - MATCH 37, RELOCS 320, ASM 1, PENDING 23; verify and checkled
-green; own-code coverage 6 704 B (2.286 %).
+Two more came from the same pass in `crelay24.c` (`/Ox`, 33 B each):
+`31f3:0000` (a two-argument call, a relay of its result, then a two-argument
+call with a zero - the parameter stays in SI) and `4a41:0000`
+(`r = fc1(a); fc2(a, b); return r;` - DI keeps `a`, SI keeps the first result).
+
+Ledger 383 rows - MATCH 37, RELOCS 322, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 6 770 B (2.309 %).
 
 ## Round 11: the second generation is pinned to "MSC 5.1 layout + MSC 6 zero"
 This round was an investigation, not a harvest: no new ledger rows, but the

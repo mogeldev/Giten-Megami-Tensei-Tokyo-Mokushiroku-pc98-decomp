@@ -399,3 +399,5 @@ eturn psub(g_78c4); one push [disp16] then the translated call; image `90 0E E8`
 | 2d9b:0058 | F_2D9B_58 | 35 | RELOCS | src=src/calib/crelay22.c; flags="/G1 /AM /Gs /Os"; `g_1be8 += g_1bec` as add/adc between two calls |
 | 2d9b:007c | F_2D9B_7C | 35 | RELOCS | src=src/calib/crelay22.c; flags="/G1 /AM /Gs /Os"; sub/sbb sibling |
 | 2d9b:00a0 | F_2D9B_A0 | 35 | RELOCS | src=src/calib/crelay22.c; flags="/G1 /AM /Gs /Os"; and/and sibling |
+| 31f3:0000 | F_31F3_00 | 33 | RELOCS | src=src/calib/crelay24.c; flags="/G1 /AM /Gs /Ox"; a two-argument call, a relay of its result, then a two-argument call with a zero - SI keeps the parameter |
+| 4a41:0000 | F_4A41_00 | 33 | RELOCS | src=src/calib/crelay24.c; flags="/G1 /AM /Gs /Ox"; `r = fc1(a); fc2(a, b); return r;` - DI keeps `a`, SI keeps the first result |
