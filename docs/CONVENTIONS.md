@@ -47,6 +47,8 @@ Two independent defects invalidated it:
 1. The MSC 6.00ax set fetched from archive.org ships a **Windows PE driver**:
    `MSC6I\BIN\CL.EXE` starts with an MZ header carrying the
    "This program cannot be run in DOS mode" stub, so DOSBox refuses to run it.
+   Round 47 confirmed this is not a missing-DPMI problem: loading HDPMI32 first
+   (the driver is described as "DOS-extended") produces the identical message.
    Only `C1`, `C1L`, `C2`, `LIB` and `QCC` in that set are real-mode DOS binaries;
    `C2L`, `C3L` and `CL` are PE. A DOS-hosted MSC 6 driver is therefore still
    missing, and the compiler passes would have to be driven manually

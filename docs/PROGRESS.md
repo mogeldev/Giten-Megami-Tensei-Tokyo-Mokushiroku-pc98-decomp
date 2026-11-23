@@ -1,5 +1,22 @@
 # PROGRESS
 
+## Round 47 — MSC 6 dead end confirmed, one more RELOCS from a hidden unit
+- Closed the last open question about the MSC 6 set: it is **not** a DPMI issue.
+  Loading HDPMI32 before the driver (it is labelled "DOS-extended") produces the
+  same "This program cannot be run in DOS mode" message, so that archive.org set
+  really ships a Windows PE driver. Recorded in `docs/CONVENTIONS.md`; finding a
+  DOS-hosted MSC 6 stays the open prerequisite for the `add bx,bx` question.
+- One new **RELOCS**: `20b4:014c` `calc_f3e` (19 B, `src/calib/cunit5.c`) —
+  `return (unsigned long)100 * g_f3e + g_f3d;` reproduces
+  `B8 64 00 / F7 26 <disp> / 8A 0E <disp> / 2A ED / 03 C1 / 83 D2 00 / CB`
+  exactly: `mul word [disp]` for the 16x16 -> DX:AX product, then the byte is
+  zero-extended and added with `adc dx,0`. Scanned for siblings of this shape:
+  it is the only one in the binary.
+- `1466:0052` (`push bp / xor ax,ax / mov sp,bp / pop bp / retf`) stays unmatched:
+  a plain `return 0;` compiles frameless (`33 C0 CB`), so that unit uses a frame
+  for a reason the source does not show.
+- Ledger: 96 rows — MATCH 10, **RELOCS 72**, PENDING 14.
+
 ## Round 46 — PENDING cascade gave nothing; an earlier conclusion turned out void
 - Ran every PENDING source source against the new `/Ox /Oa /Os` flag set
   (`NEG_MINUS1`, `IDX_142A`, both `SWAP_LONG`, `SET_BIT`, `W_COND`,
