@@ -1,5 +1,34 @@
 # PROGRESS
 
+## Small-wrapper harvest: 23 rows from the /F pool (456 B)
+A survey of the 420 unmatched units up to 56 bytes that contain a translated
+call produced 23 more RELOCS rows in two flag groups.
+
+- `src/calib/crelay8.c` (16 rows, `/Os`): nested relays (`return h(sub())`), a
+  char-returning call sign-extended and stored (`98 A3 <g>`), two calls followed
+  by `g = 1`, a near-Pascal call with -1 before a far relay, `b - sub(a)`
+  (`2B 46 / F7 D8`), `sub2(b, c) - a`, `sub1(c + b + a)`, and six siblings that
+  pass a DGROUP far pointer as `1E 68 <disp>`.
+- `src/calib/crelay9.c` (7 rows, `/Ox`): call results OR-ed with the first one
+  staged in SI (`8B F0` / `0B C6`), `(unsigned char)sub(a)` (`2A E4`), a near
+  Pascal function with a `register` parameter kept in SI across the call,
+  `sub2(a, 0x8000); return -1;`, two relays from one SI value, the 32-bit
+  unsigned product (`F7 66` = MUL, where `F7 6E` would be the signed IMUL), and
+  a far-fastcall relay that keeps its AX argument in SI.
+
+Two practical findings recorded while iterating:
+
+- **MSC 7.0 is strict C89.** A declaration after a statement makes `CL` abort
+  *without creating its log file*, so `build.py` reports only "no OBJ produced"
+  and the real cause is invisible. Declarations must stay at block start.
+- Near-misses left out on purpose: `1270:000e` (original keeps a `55 8B EC`
+  frame and tests the flag with `A0`/`0A C0`; our frameless `80 3E` form does
+  not match) and `439f:0006` (the original pushes SI twice around a near call,
+  our `register` variant still reloads from the stack).
+
+Ledger 337 rows - MATCH 37, RELOCS 276, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 5 497 B (1.875 %).
+
 ## Relay harvest from the /F pool; compact FIXUPP offsets repaired
 The /F discovery paid off immediately: **49 more rows (926 B), all RELOCS**,
 from the 1 232-unit reachable pool. Every one is a wrapper around a single far
