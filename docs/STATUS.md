@@ -18,18 +18,20 @@ PENDING mit dokumentierter Ursache (Details in `docs/MATCHING.md`, Idiome in `do
 
 ## Coverage (ehrliche Byte-Metrik)
 
-| Kategorie | Bytes |
+| Kategorie | Wert |
 |---|---|
-| inventarisiert (1 970 Funktionen) | 306 814 |
+| Inventar-Einträge | 1 970 = **1 956 Code-Funktionen + 14 Daten** |
+| Daten (belegt, `not_code.csv`) | 12 211 B — Sondertreiber-Befehlsblöcke, Tabellen, Nullfeld, String |
+| Code-Bytes | 294 603 |
 | − Fremd-CRT (35 Signatur-Treffer) | 963 |
-| − Daten/Fehlinventarisierung (`not_code.csv`) | 12 211 |
-| = **Eigencode** | **293 640** |
+| = **Eigencode-Bytes** | **293 640** |
 | davon **verifiziert** | **100 (0,034 %)** |
 | PENDING-Bytes | 198 |
 
-Die Fehlinventarisierung ist belegt: CD-3F-Soundtreiber-Befehlsblöcke (NMUSE/MIDE,
-6-Byte-Stride), lineare Wort-Tabellen, ein 10,9-KB-Nullfeld, ein ASCII-String.
-Bereinigung dieser Einträge im Inventar steht noch aus.
+`section=CODE|DATA` in `functions.csv` ist die einzige Quelle — `tools/gt.py` setzt
+die Markierung aus `not_code.csv`, `tools/coverage.py` zählt nur CODE-Zeilen als
+Funktionen. Damit sind Funktionszahl und Nenner nicht mehr durch
+Fehlinventarisierung aufgebläht.
 
 ## Toolchain
 
@@ -41,9 +43,8 @@ Bereinigung dieser Einträge im Inventar steht noch aus.
 
 ## Offen (Reihenfolge für die nächsten Runden)
 
-1. Inventar bereinigen: `not_code.csv` aus `functions.csv` ausschließen
-   (macht Nenner und Funktionszahl ehrlich)
-2. `LINK.EXE` (DOSX16) hängt unter dosbox-x in allen DPMI-Varianten — Voraussetzung
+1. `LINK.EXE` (DOSX16) hängt unter dosbox-x in allen DPMI-Varianten — Voraussetzung
    für `build_replacement` (Phase 6); Kandidat: nativer OMF-Linker (jwlink)
-3. Slot-Subsystem: `__asm`-Rekonstruktion erwägen (dort ist C nachweislich erschöpft)
-4. Weiter im Familien-Workflow: ALU-/DOS-Helfer mit `55 8b ec`-Rahmen
+2. Slot-Subsystem: `__asm`-Rekonstruktion erwägen (dort ist C nachweislich erschöpft)
+3. Weiter im Familien-Workflow: ALU-/DOS-Helfer mit `55 8b ec`-Rahmen
+4. `report.py` schreiben, das diese Datei generiert (Zähler aus Ledger, nie von Hand)

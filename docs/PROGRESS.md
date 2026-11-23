@@ -1,5 +1,14 @@
 # PROGRESS
 
+## Runde 21 — Inventar bereinigt: 1956 Code-Funktionen statt 1970 (2026-11-23)
+- `functions.csv` traegt jetzt `section=CODE|DATA`; `gt.py` setzt die Markierung aus
+  `not_code.csv`, `coverage.py` zaehlt nur CODE-Zeilen als Funktionen.
+- Zeilen bleiben erhalten (Groesse haengt am Abstand zur naechsten Funktion) —
+  geloescht wird nichts, nur klassifiziert. Eine Quelle statt zwei Zaehlwegen.
+- Zahlen unveraendert korrekt: 294 603 Code-Bytes − 963 CRT = 293 640 Eigenbytes,
+  100 verifiziert (0,034 %); Funktionszahl jetzt ehrlich 1 956 + 14 Daten.
+- verify gruen (17 Zeilen), kein Ledger-Eintrag faelschlich als DATA markiert.
+
 ## Runde 20 — zwei RELOCS + zwei neue Idiom-Regeln (2026-11-23)
 - OR_JOIN (20b2:0000): `void: g_or |= x` — der Diff `09` vs `0B` war die
   Zuweisungsrichtung (or r/m,r = Store vs. or r,r/m = Return), nicht der Ausdruck.

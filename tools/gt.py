@@ -49,12 +49,22 @@ def main():
     assert lins == sorted(lins) and len(set(lins)) == len(lins), \
         "Adressen nicht streng geordnet/eindeutig"
 
+    # Nicht-Code-Eintraege (Sondertreiber-Befehlsbloecke, Tabellen, Nullfelder,
+    # Strings) werden als section=DATA markiert statt geloescht: ihre Groesse
+    # haengt am Abstand zur naechsten Funktion, die Zeile traegt also Information.
+    notcode = set()
+    nc_path = os.path.join(gt, "not_code.csv")
+    if os.path.isfile(nc_path):
+        with open(nc_path) as f:
+            for r in csv.DictReader(f):
+                notcode.add(int(r["linear"], 16))
+
     with open(os.path.join(gt, "functions.csv"), "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["va", "linear", "name", "size", "section"])
         for r in rows:
             w.writerow([va_str(r["linear"]), hex(r["linear"]), r["name"],
-                        r["size"], "CODE"])
+                        r["size"], "DATA" if r["linear"] in notcode else "CODE"])
 
     data = open(BIN, "rb").read()
     n_str = 0
@@ -74,8 +84,10 @@ def main():
         w.writerow(["NOTE", "", "MZ hat keine Importtabelle; DOS-Zugriffe laufen ueber INT (21h etc.)"])
         w.writerow(["RTL", "", "MS-C-8-CRT (Banner 1992 in der Binary) als Fremdcode markieren, sobald Region per Kalibrierung identifiziert"])
 
-    print(f"functions.csv: {len(rows)} Funktionen, "
-          f"{sum(r['size'] for r in rows)} Bytes Code-Spanne")
+    n_code = sum(1 for r in rows if r["linear"] not in notcode)
+    n_data = len(rows) - n_code
+    print(f"functions.csv: {len(rows)} Eintraege = {n_code} Code + {n_data} Daten, "
+          f"{sum(r['size'] for r in rows)} Bytes Spanne")
     print(f"strings.csv:   {n_str} ASCII-Strings")
     print("imports.csv:   MZ-Notiz (keine Importtabelle)")
 
