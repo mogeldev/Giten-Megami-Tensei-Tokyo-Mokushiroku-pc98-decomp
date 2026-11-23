@@ -45,7 +45,7 @@ def main():
             continue
         r = subprocess.run(
             [PY, os.path.join(ROOT, "tools", "match.py"), va, name,
-             "--obj", os.path.join(ROOT, mo.group(1))],
+             "--obj", os.path.join(ROOT, mo.group(1)), "--size", size],
             capture_output=True, text=True)
         out = (r.stdout or "") + (r.stderr or "")
         if r.returncode != 0:

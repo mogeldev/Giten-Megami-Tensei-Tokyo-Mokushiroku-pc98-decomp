@@ -39,6 +39,18 @@ Noch ungeprüfte Kandidaten (erst nach Kalibrierung als Regel vermerken):
   auf — wahre Aritaet am RET ablesbar (hier: 4 = ein Far-Pointer; Ghidras
   'param_2' war ein Konventionsartefakt).
 
+## Runde 20 — zwei Regeln, beide byte-bewiesen
+- **Zuweisungsrichtung entscheidet den Opcode:** `g |= x;` erzeugt `09 06 <disp>`
+  (or **r/m, r** — Ergebnis in die Speicherstelle), `return x | g;` erzeugt
+  `0B 06 <disp>` (or **r, r/m** — Ergebnis in ax). Diff `09` vs `0B` heisst also
+  "Rueckgabewert vs. Compound-Zuweisung", nicht "falscher Ausdruck".
+- **`volatile` verhindert Loop-Hoisting:** `while (g == s);` mit normalem `int`
+  laesst MSC7 den Load aus dem Schleifenkopf ziehen (load/store-Kollaps, 18 B,
+  degenerierter cmp); mit `volatile int` steht der Reload im Kopf (20 B) und
+  trifft das Original byte-exakt inkl. Sprungdistanz. Bei Interrupt-/Timer-Flags
+  also immer erst `volatile` probieren — es ist meist die historische Wahrheit,
+  nicht nur ein Trick.
+
 ## Slot-Subsystem: vermutlich Hand-ASM (Runde 17/18, Muster-These)
 Vier Funktionen (4fab:000a Allokator, 4fac:000a Inkrement, 4fad:0006 conv,
 458e:a20e Fueller) teilen Codegen-Idiome, die MSC7-/Os aus C nicht erzeugt:

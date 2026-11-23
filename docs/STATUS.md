@@ -1,19 +1,49 @@
 # STATUS
 
-(vorerst handgeführt; ab regelmäßigem Betrieb erzeugt `tools/report.py` diese Datei)
+Zahlen aus dem Ledger (`docs/MATCHING.md`) und `tools/coverage.py` — Stand 2026-11-23,
+Runde 20. Nicht aus dem Gedächtnis: vor jeder Aussage `tools/verify.py` laufen lassen.
 
-- **Coverage (coverage.py, ehrliche Byte-Metrik):** 306 814 inventarisiert,
-  davon 963 Fremd-CRT + **12 211 Daten (Fehlinventarisierung, not_code.csv)** →
-  **293 640 Eigencode-Bytes; 66 verifiziert (0,022 %)**, 12/1970 Funktionen.
-- implementiert & MATCH: **0** / RELOCS: **12**, PENDING: **1** (get_39f8_clamped —
-  Sprung-Merge-Polarität, s. IDIOMS.md)
-- PENDING: **0**
-- bekanntes Inventar: **1970** Funktionen (`ground_truth/functions.csv`);
-  38 davon hatte Ghidra-Dekompilierungsfehler → zuerst klären (meist Daten-als-Code).
-- Fremdcode-Region (MS-C-CRT): **Region noch nicht abgesteckt** — crt0-Sequenz am Entry
-  ist als MSC-16-Bit-Familie identifiziert (siehe CONVENTIONS.md Phase-0-Evidenz).
-- Phase-0-Evidenz steht: CPU 80186+ (`/G1`), large/huge (Tendenz `/AH`), MSC-crt0.
-- **Toolchain lauffähig:** MSC 7.0 kompiliert via dosbox-x + HDPMI32 (CONVENTIONS.md).
-  Offen: CFLAGS-Kalibrierung gegen echte Binary-Funktionen + OMF-Adapter für match.py.
-- Coverage: **0 %**. Erstes Ziel: CRT abstecken + erste kleine Familie
-  (String-/DOS-Helfer) vollständig matchen statt zehn halber Funktionen.
+## Ledger
+
+| Status | Anzahl |
+|---|---|
+| MATCH | 0 |
+| RELOCS | **14** |
+| PENDING | **3** |
+
+PENDING mit dokumentierter Ursache (Details in `docs/MATCHING.md`, Idiome in `docs/IDIOMS.md`):
+1. `4fab:000a` — Slot-Index-Allokator, Sprung-Merge-Form (Hand-ASM-Verdacht)
+2. `458e:a20e` — Slotfüllroutine, 162/166 B erreicht (Register-Wanderung ohne Stack-Rückschreibung)
+3. `4fad:0006` — conv-Lookup, 14/16 B erreicht (`add bx,bx` vs. kanonisches `shl`)
+
+## Coverage (ehrliche Byte-Metrik)
+
+| Kategorie | Bytes |
+|---|---|
+| inventarisiert (1 970 Funktionen) | 306 814 |
+| − Fremd-CRT (35 Signatur-Treffer) | 963 |
+| − Daten/Fehlinventarisierung (`not_code.csv`) | 12 211 |
+| = **Eigencode** | **293 640** |
+| davon **verifiziert** | **100 (0,034 %)** |
+| PENDING-Bytes | 198 |
+
+Die Fehlinventarisierung ist belegt: CD-3F-Soundtreiber-Befehlsblöcke (NMUSE/MIDE,
+6-Byte-Stride), lineare Wort-Tabellen, ein 10,9-KB-Nullfeld, ein ASCII-String.
+Bereinigung dieser Einträge im Inventar steht noch aus.
+
+## Toolchain
+
+- **MSC 7.0 (CL 8.00, 1992)** läuft: dosbox-x + HDPMI32-TSR, `-nopromptfolder`,
+  APPDATA-Redirect, `cycles=max` — Rezept in `docs/CONVENTIONS.md`.
+- CFLAGS **bestätigt: `/G1 /AM /Gs /Os`** (durch byte-identische Kalibrierfunktionen).
+- `build.py` kompiliert reproduzierbar; `omfdump.py` liest MSC-OMF inkl. der
+  kompakten 0x9C-Fixups; `match.py` maskiert Linker-Operanden aus dem Objekt.
+
+## Offen (Reihenfolge für die nächsten Runden)
+
+1. Inventar bereinigen: `not_code.csv` aus `functions.csv` ausschließen
+   (macht Nenner und Funktionszahl ehrlich)
+2. `LINK.EXE` (DOSX16) hängt unter dosbox-x in allen DPMI-Varianten — Voraussetzung
+   für `build_replacement` (Phase 6); Kandidat: nativer OMF-Linker (jwlink)
+3. Slot-Subsystem: `__asm`-Rekonstruktion erwägen (dort ist C nachweislich erschöpft)
+4. Weiter im Familien-Workflow: ALU-/DOS-Helfer mit `55 8b ec`-Rahmen

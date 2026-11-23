@@ -1,5 +1,16 @@
 # PROGRESS
 
+## Runde 20 — zwei RELOCS + zwei neue Idiom-Regeln (2026-11-23)
+- OR_JOIN (20b2:0000): `void: g_or |= x` — der Diff `09` vs `0B` war die
+  Zuweisungsrichtung (or r/m,r = Store vs. or r,r/m = Return), nicht der Ausdruck.
+- _wait_change (20ab:000c): Spin-Wait auf `volatile int` — ohne volatile hoistet
+  MSC7 den Loop-Load (18 B, degenerierter cmp), mit volatile steht der Reload im
+  Schleifenkopf und trifft das Original inkl. `74 F8` exakt (20 B).
+- verify.py reicht jetzt die **Ledger-Groesse** an match.py durch (--size):
+  Ledger-Groesse ist laut Vorlage die echte Laenge; Inventarfenster, die in die
+  Folge-Funktion laufen (hier 18 statt 14 B), verfaelschen sonst den Vergleich.
+- Stand: 14 RELOCS / 3 PENDING, 100 von 293 640 Eigencode-Bytes (0,034 %).
+
 ## Runde 19 — 12 211 Bytes Fehlinventarisierung als Daten klassifiziert (2026-11-23)
 - Die 38 Ghidra-Dekompilierungsfehler sortiert: 14 Eintraege nachweislich kein
   Code — CD-3F-Soundtreiber-Befehlsbloecke (NMUSE/MIDE, 6-Byte-Stride), lineare
