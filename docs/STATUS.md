@@ -9,7 +9,7 @@
 |---|---|
 | MATCH | 24 |
 | RELOCS | **84** |
-| PENDING | **18** |
+| PENDING | **21** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -31,6 +31,9 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `4737:0002` **SLOT_PTR** (32 B) — `i = (v < 0
 - `2aa3:0048` **ZERO_Z** (38 B) — Zeroes six words of a far struct in the order +6, +0, +8, +2, +0xA, +4. Original loads the pointer as `8B 5E 06` + `8E 46 08` and keeps AX=0 throughou
 - `29ed:0004` **PUT_BE** (35 B) — Writes a big-endian word then a zero byte, returns p+2. The original stores the high byte straight from AH (`26 88 27`) after `8B 46 08 / 03 46 06`, a
+- `11d8:000c` **SET4** (60 B) — `struct S4 __far *__far f(int a,int b,int c,int d)` storing three words plus `d & 0x7FFF` into a 4-int struct and returning a far pointer to it. **58 
+- `1e38:0002` **RECORD_CFG** (56 B) — Saves `g_40ba` in DX, stores two arguments, records a code (`(c == -1) ? 7 : c` when `c != 0`), sets a flag and returns the saved word. With /Ox /Oa /
+- `465d:0000` **UPD** (60 B) — `if (s) { if (x != -1) s->t->x = x
 
 ## Coverage (honest byte metric)
 
@@ -42,7 +45,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
 | of which **verified** | **1469 (0.501%)** |
-| PENDING bytes | 606 |
+| PENDING bytes | 782 |
 
 Code functions: **2523**, of which verified **108**.
 
@@ -50,10 +53,10 @@ Code functions: **2523**, of which verified **108**.
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
-| 0x0000 | 619 | 17 | 65131 | 224 (0.3%) | 897 | 360 | 75 |
+| 0x0000 | 619 | 17 | 65131 | 224 (0.3%) | 897 | 360 | 191 |
 | 0x0001 | 525 | 16 | 65757 | 186 (0.3%) | 0 | 569 | 148 |
 | 0x0002 | 763 | 50 | 65522 | 673 (1.0%) | 0 | 0 | 124 |
-| 0x0003 | 561 | 23 | 64435 | 375 (0.6%) | 0 | 0 | 259 |
+| 0x0003 | 561 | 23 | 64435 | 375 (0.6%) | 0 | 0 | 319 |
 | 0x0004 | 55 | 2 | 33329 | 11 (0.0%) | 66 | 11282 | 0 |
 
 <!-- MANUAL-BEGIN -->

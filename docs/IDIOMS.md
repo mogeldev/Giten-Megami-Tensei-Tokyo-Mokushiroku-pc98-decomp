@@ -3,6 +3,19 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 62 - what a body-identical / epilogue-different function proves
+- `11d8:000c` is the control experiment the fingerprint needed: 58 of 60 bytes
+  match, including every store and the far-pointer return, and only the teardown
+  differs (`8B E5 5D CB` vs MSC 7's `C9 CB`). No flag variant (/Os, /Ot, /Od,
+  /Ox) produces `8B E5 5D`. So the epilogue difference is independent of the
+  source form - it is a code generator property, not a C mistake.
+- **Scheduling is not steerable**: `1e38:0002` differs only in whether the global
+  or the parameter is loaded first. `register`, declaration order and expression
+  order did not change it, so stop trying.
+- When a mid-size function misses, check whether the body is byte-exact before
+  investing in source variants: if only the epilogue or the register choice
+  differs, the source is already right and the difference belongs in the
+  fingerprint notes.
 ## Round 60 - conventions inside the sweeper
 - When a generated family verifies 0 hits, suspect the **generator** before the
   binary. Three shared bugs made every `C9 CA` unit look like a source mismatch:

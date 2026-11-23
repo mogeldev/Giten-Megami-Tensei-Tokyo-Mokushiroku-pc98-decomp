@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 62 — no coverage gain; the epilogue fingerprint isolated to one function
+Reported plainly: this round added **no verified bytes**. It went into the 56..120
+band (59 call-free framed units) and produced three near-misses, one of which is
+the strongest single piece of toolchain evidence the project has.
+
+- **`11d8:000c` SET4 (60 B): 58 of 60 bytes identical.** The body is byte-exact —
+  three parameter stores plus `d & 0x7FFF` into a four-int struct, returning a far
+  pointer to it. The only difference is the epilogue: original `8B E5 5D CB`
+  (`mov sp,bp / pop bp / retf`), MSC 7 emits `C9 CB` (`leave / retf`) under /Os,
+  /Ot, /Od and /Ox. For the first time the fingerprint is isolated to a function
+  whose entire body matches, so the epilogue difference is not a side effect of
+  some other mismatch.
+- `1e38:0002` RECORD_CFG (56 B): every instruction matches except the **order of
+  the first two** (original loads the global before the parameter). Scheduling
+  difference only; `register` on the temporary did not change it.
+- `465d:0000` UPD (60 B): struct update through a far pointer member at +4; the
+  original keeps the struct offset in SI and the inner pointer in DI, MSC 7 uses
+  BX with `les` and no save/restore — the register-choice family again.
+- Ledger: 129 rows — MATCH 24, RELOCS 84, **PENDING 21**.
+
 ## Round 61 — sweep families exhausted; two stragglers, both MATCH
 - Re-ran **all 14 families** under the round-60 convention fixes: every one now
   reports 0 hits at ledger-free unit boundaries, i.e. the mechanical families are
