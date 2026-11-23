@@ -53,6 +53,11 @@ Deko-Historie: die Disketten-Dateien sind KWAJ-komprimiert; `DECOMP.EXE`
 - OMF-Objekte von MSC7 tragen Fixups als **kompakte 0x9C-Records** (nach
   COMENT class 0xA2), nicht als klassisches FIXUPP 0xF4 — omfdump.py kann beide.
 - PUBDEF-Eintraege von MSC7 haben ein Typindex-Byte (0x00) hinter dem Offset.
+- **GitHub-Push (Sandbox):** git-HTTPS faellt an schannel (SEC_E_NO_CREDENTIALS),
+  Credential-Helper und sh-Prompt-Skripte sterben an der msys-Signalpipe.
+  Einmal-Push mit Token-URL: `$tok = gh auth token; git -c credential.helper=
+  push https://mogeldev:$tok@github.com/....git master` (Remote-URL danach
+  neutral zuruecksetzen, Token nie persistieren).
 
 ## Fremdcode (Phase 1, getrennt führen)
 MS-C-CRT (Nachweis: Runtime-Banner in der Binary) als Bibliothek markieren und **nicht** decompilieren, sobald die CRT-Region per Kalibrier-Kompilierung abgesteckt ist.
