@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 82 — repository consistency: attic split, new checkled tool
+Maintenance round; no new verified bytes, but the tree is now self-consistent and
+the bookkeeping is checked by a tool instead of by eye.
+
+- **All generators re-run against the current ledger**: `setters.py` 0 units,
+  `wraps.py` 0 generatable (33 skipped on the `push cs` form), `swapgen.py` 0 units —
+  the mechanical families are genuinely exhausted, and `swapgen.py` correctly
+  *refused* to overwrite `cswap4.c` (the round-59 guard working as intended).
+- **19 unattested sources moved to `src/attic/`.** `src/calib/` had accumulated
+  experiment files that no ledger row references; a reader could mistake them for
+  verified work. They are kept (git history alone is a poor place to look for "what
+  did we try") under a README that states they carry no claim of correctness and the
+  rule for moving one back out. `src/calib/` now holds exactly the 60 files the
+  ledger references.
+- **New tool `tools/checkled.py`** checks the bookkeeping that `verify.py` cannot:
+  unknown statuses, duplicate addresses, zero sizes, referenced-but-missing sources,
+  and unattested files left in `src/calib/`. `verify.py` proves the bytes; this proves
+  the ledger.
+- README numbers refreshed (149 functions, 2323 / 293 211 B = 0.792 %, ceiling
+  restated as ~27 KB blocked-by-nothing of which ~9.7 KB framed).
+- Ledger unchanged: 171 rows — MATCH 32, RELOCS 117, PENDING 22.
+
 ## Round 81 — no new rows; a diagnostic insight and a 7-unit family still blocked
 No ledger increment. Two results worth keeping.
 

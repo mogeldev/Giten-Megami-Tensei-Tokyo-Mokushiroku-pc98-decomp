@@ -16,16 +16,17 @@ OMF linker relocations), or **PENDING** with a documented cause — nothing is f
 - Base flags **`/G1 /AM /Gs /Os`** (80186, medium model, no stack checks, size
   optimization). Flags are chosen **per source file**: `/Ox` is required for
   functions whose original keeps a value in `DX`/`BX` instead of spilling it.
-- **137 functions byte-verified**: **MATCH 32**, **RELOCS 105**, plus
+- **149 functions byte-verified**: **MATCH 32**, **RELOCS 117**, plus
   **22 PENDING** rows, each with the tested variants and the surviving diff.
   Ledger: `docs/MATCHING.md`. `tools/verify.py` rebuilds every source from scratch
   and re-checks every row (exit 0 = green).
-- Coverage: **2067 / 293 211 own code bytes (0.705 %)** — the honest byte metric
+- Coverage: **2323 / 293 211 own code bytes (0.792 %)** — the honest byte metric
   from `tools/coverage.py`; ~12 KB of the image are data, 963 bytes are foreign CRT.
 - **How far this can go, measured**: `docs/GAP.md` counts, per codegen trait, how
   much of the binary Microsoft C 7 cannot reproduce; `docs/CONVENTIONS.md` lists the
-  seven traits with the function that isolates each one. Only ~9.7 KB of framed code
-  is reachable by this toolchain; the rest needs the original compiler generation.
+  seven traits with the function that isolates each one. Only ~27 KB of code is
+  blocked by nothing at all, of which ~9.7 KB is framed; the rest needs the original
+  compiler generation.
 
 ## What is proven, and what is not
 
@@ -49,7 +50,7 @@ hand-written assembly there, and those rows are kept PENDING rather than forced.
 ## Structure
 
 ```
-docs/           CONVENTIONS (parameters+evidence), MATCHING (ledger), IDIOMS, PROGRESS, STATUS, GAP,
+docs/           CONVENTIONS (parameters+evidence), MATCHING (ledger), IDIOMS, PROGRESS, STATUS, GAP;
                 PENDING (open diffs with causes)
 ground_truth/   functions/strings/imports + foreign_crt (foreign-code signatures) + not_code
 src/calib/      reconstructed sources (8.3 names — required by MSC-CL-1992)
