@@ -39,6 +39,26 @@ Noch ungeprüfte Kandidaten (erst nach Kalibrierung als Regel vermerken):
   auf — wahre Aritaet am RET ablesbar (hier: 4 = ein Far-Pointer; Ghidras
   'param_2' war ein Konventionsartefakt).
 
+## Runde 23 — Optimierungsstufe aendert die Codegen-KLASSE (wichtig!)
+- **`/Oy` und `/Ox` entfernen den Rahmen.** Alle bisher verifizierten Funktionen
+  entstanden mit `/Os` (Rahmen bleibt, `push bp/mov bp,sp`); fuer rahmenlose
+  Originale ist `/Os` strukturell falsch. Erst `/Oy` probieren (nimmt nur den
+  Frame Pointer weg), dann `/Ox` (maximale Optimierung — aendert zusaetzlich
+  Branch-/Merge-Entscheidungen und Register-Allokation, fuegt aber `nop`-Padding ein).
+- **Konsequenz fuer den Workflow:** Flags sind pro Quelldatei zu waehlen, nicht
+  global — genau wie die Vorlage es vorsieht (Phase 0, "Flags pro Modul").
+- **Sprung-Merge vs. Early-Return ist ein Flag-/Codegen-Merkmal, kein C-Merkmal:**
+  derselbe Ternaer wird unter `/Os` zu Early-Return (`ret` je Zweig) und unter
+  `/Ox` zu Merge (`jmp` zu einem `ret`). Wenn ein Original die Merge-Form zeigt,
+  zuerst die Optimierungsstufe variieren, bevor Hand-ASM vermutet wird.
+
+## Adress-Aliase (Segment-Ueberlappung)
+Dieselbe Code-Stelle kann unter mehreren `seg:off`-Schreibweisen im Inventar
+stehen: `3dd3:0000` (linear `0x3dd30`) ist identisch mit `35ca:8090` — Ghidra
+fuehrt beide. Fuer Ledger und Coverage immer die **Linearadresse** als Identitaet
+nehmen, sonst wird derselbe Code doppelt gezaehlt. Beim Suchen nach neuen
+Kandidaten ebenfalls linear deduplizieren.
+
 ## Runde 20 — zwei Regeln, beide byte-bewiesen
 - **Zuweisungsrichtung entscheidet den Opcode:** `g |= x;` erzeugt `09 06 <disp>`
   (or **r/m, r** — Ergebnis in die Speicherstelle), `return x | g;` erzeugt

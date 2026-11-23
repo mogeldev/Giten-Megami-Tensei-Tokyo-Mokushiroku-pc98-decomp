@@ -1,5 +1,19 @@
 # PROGRESS
 
+## Runde 23 — Optimierungsstufe als Codegen-Klasse entdeckt (2026-11-23)
+- Familien-Scan mit maskierten disp16: 3 Gruppen. Die groesste (3dd3:0000..) ist
+  ein **Segment-Alias** der bereits gematchten Getter (linear identisch mit
+  35ca:8090) — Lehre: Linearadresse ist die Identitaet, sonst Doppelzaehlung.
+- Clamp-Geschwister (1f2d:000e / 1f2f:0002, 2x20 B) entschluesselt: min(max(x,1),g)
+  mit __fastcall und DX-Temp. 6 Varianten getestet, MSC7 erzeugt weder
+  rahmenlos+DX (Original) — PENDING.
+- **Hauptfund:** `/Oy` und `/Ox` entfernen den Rahmen; alle bisherigen Matches
+  nutzten `/Os`. `/Ox` brachte get_39f8_clamped auf 14/16 B (Rest: `C3 90` vs
+  `EB 03`, also Early-Return+Pad statt Sprung-Merge). Flags sind pro Quelldatei
+  zu waehlen — als Regel in IDIOMS.md festgehalten.
+- CONV unter /Ox gegengeprueft: `D1 E3` bleibt (Hand-ASM-Verdacht dort bestaetigt).
+- Integritaetsloch notiert: verify.py baut nicht neu, prueft die vorhandenen OBJs.
+
 ## Runde 22 — report.py: STATUS.md wird generiert (2026-11-23)
 - `tools/coverage.py` in `compute()` (Zahlen) + `main()` (Konsolenausgabe) getrennt,
   damit `tools/report.py` dieselben Zahlen ohne Doppel-Logik nutzen kann.
