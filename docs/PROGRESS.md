@@ -1,5 +1,20 @@
 # PROGRESS
 
+## Round 58 — one MATCH from the band, two near-misses at a single byte
+- `1e14:0008` **KIND_OF** (32 B, **MATCH**, `src/calib/csm1.c`, `/Ox /Oa /Os`):
+  `int __far __pascal f(unsigned v) { if (v == 0) return 0; return (v > 0xFF) ? 2 : 1; }`
+  The value is staged in DX (`8B 56 06 / 0B D2`) and the compare is unsigned
+  (`76` = `jbe`) — the signed/unsigned choice is visible in the branch opcode.
+- Two candidates stopped one byte short, both worth recording because the
+  remaining difference is not a source mistake:
+  - `50b1:0008` CMP3 (33 B): original is `cmp bx,dx / jge +4` returning 1;
+    MSC 7 emits `jg`/`jle` for every formulation tried (`a >= b`, `!(a < b)`,
+    `a < b ? 0 : 1`, early returns with both polarities). One opcode apart.
+  - `2ad2:0006` LOAD_LONG (33 B): original is `... EB 04 90 / 33 C0 99`; ours is
+    `EB 03 / 33 C0 99` — the original carries one more padding byte before the
+    zero-return block, the same jump-target alignment seen in round 39.
+- Ledger: 118 rows — **MATCH 22**, RELOCS 78, PENDING 18.
+
 ## Round 57 — toolchain thread closed as blocked; one more RELOCS
 - **Toolchain decision, with evidence.** MSC 5.1 cannot be tested in this setup and
   the loop is now closed rather than left open:
