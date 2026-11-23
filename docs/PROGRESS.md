@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 69 — one MATCH; the branch-block order is not steerable
+Small round, reported as such: **1 new verified function** (`4a91:0002` KEEP_PTR,
+27 B, **MATCH**) plus four candidates with fully understood misses.
+
+- `4a91:0002` **KEEP_PTR** — `char __far *f(char __far *p) { if (!p) return 0; return p; }`.
+  The null test is `or ax,bx` over **both words** of the far pointer, and the
+  /Ox flag is required for the shape.
+- Four near-misses, each one to three bytes apart, none a source error:
+  - `489a:000a` SIGN_BAND — got `jl` right but MSC lays the blocks in the opposite
+    order (`xor ax,ax` first vs `mov ax,1` first). Semantics identical.
+  - `47ef:0008` CLAMP_1_999 — differs only in jump-target **padding** (`EB 03 90`
+    vs `EB 02`); the original was built with padding enabled, /Os disables it.
+  - `2a28:0000`/`2a29:000c` PICK_S/PICK_U — the signed/unsigned pair differs only
+    in operand **evaluation order** (`mov dx,[bp+0A]` before `mov bx,[bp+08]`).
+  - `2a28`'s twin is useful evidence though: the two units are identical apart
+    from `7F`/`77` and `7D`/`73`, so one source with `int` and one with `unsigned`
+    is confirmed correct even though neither matches.
+- Ledger: 158 rows — **MATCH 31**, RELOCS 105, PENDING 22.
+
 ## Round 68 — MK_FP does not rescue the fixed-segment units; two more verified
 - **Tested the hypothesis from round 67 and it failed, cleanly.** With
   `MK_FP(0x4827, …)` the compiler still emits `BB 27 48 / 8E C3` (segment via BX)

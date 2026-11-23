@@ -168,3 +168,4 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 37a6:0016 | REC6 | 17 | MATCH | src=src/calib/carr1.c; flags="/G1 /AM /Gs /Os"; `return MK_FP(0x4363, i * 0x1E + 6);` — MK_FP with a constant segment gives `imul/add` for the offset plus `mov dx,0x4363`; byte-identical |
 | 4977:0006 | CLEAR_AT | 20 | MATCH | src=src/calib/cmisc1.c; flags="/G1 /AM /Gs /Os"; `p[i + 5] = 0;` for a far char pointer with a near int index — `26 C6 40 05 00` (es:[bx+si+5]); byte-identical |
 | 2e01:001c | MIX_LONG | 23 | RELOCS | src=src/calib/cmisc1.c; flags="/G1 /AM /Gs /Os"; two statements `g &= 0x3FC0; g |= (v >> 16) & 0xC03F;` produce the memory-operand `81 26 <g> C0 3F` that the single-expression form does not |
+| 4a91:0002 | KEEP_PTR | 27 | MATCH | src=src/calib/cbranch1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; `char __far *f(char __far *p) { if (!p) return 0; return p; }` - the null test is `or ax,bx` over both words of the far pointer; byte-identical |

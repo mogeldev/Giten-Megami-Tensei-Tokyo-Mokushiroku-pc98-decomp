@@ -15,6 +15,16 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 69 - what the misses are now made of
+- The remaining near-misses in the reachable set cluster into three codegen
+  choices that cannot be steered from C: **branch-block order** (which arm falls
+  through), **jump-target padding** (`EB 03 90` vs `EB 02`, i.e. /Os removes
+  what the original has), and **operand evaluation order**.
+- Recognising those three saves rounds: if the diff is only a displacement, a
+  swapped block, or a swapped load, the source is already right.
+- A **signed/unsigned pair** of otherwise identical units (`7F`/`77`,
+  `7D`/`73`) is strong evidence that the one source with two parameter types
+  is correct even when neither instance matches byte-for-byte.
 ## Round 68 - absolute far addressing is unavailable; two statements beat one
 - **MSC 7 cannot emit `es:[disp16]`** for a far object: even with
   `MK_FP(const_seg, const_off)` it loads the segment into a register and
