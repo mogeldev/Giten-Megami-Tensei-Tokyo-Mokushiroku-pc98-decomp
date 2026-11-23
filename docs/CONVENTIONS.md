@@ -40,6 +40,7 @@ Every one was also tested against the flag matrix (`/Os`, `/Ot`, `/Od`, `/Ox`,
 | 5 | epilogue `8B E5 5D` (`mov sp,bp; pop bp`) instead of `C9` | `11d8:000c` is 58/60 bytes identical; only the teardown differs. A bare `5D` epilogue is a milder variant of the same thing | 144 / 24 280 (+74 / 6 814) |
 | 6 | register-passed arguments (`mov ah,imm` then `call`) | `1cb7:0018`, `1cb9:0008`, `1cbf:0020` etc. No Microsoft C 7 construct emits `mov ah,imm` before a call — its `__fastcall` uses BX/CX/DX | 12 / 6 747 |
 | 7 | absolute ESA addressing (`mov es,imm16` then `es:[disp16]`) | `2d64:0008`; MSC always addresses a far object through a base register, even with `MK_FP(const_seg, const_off)` | 6 / 17 323 |
+| 8 | **`SI` as far-pointer base** (`push si` / `mov si,ax` / `es:[si+N]`) | `3a24:0006` (`clear32`), `38ad:000e` (`swap14`), `1df5:0008`, `2aa3:0048`, `37ef:000c`. SI is callee-saved, so the original pushes it; MSC 7 puts the offset in **BX** and saves nothing. `register int` moved it to DI, not SI | 196 / 26 435 |
 
 Softer variants that also block a byte-exact match but are harder to count:
 **branch-block order** (which arm falls through), **operand evaluation order**, and

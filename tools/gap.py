@@ -37,6 +37,10 @@ TRAITS = {
     # mov ah,imm followed closely by a call: register-passed interrupt arguments,
     # which no Microsoft C 7 construct can produce (__fastcall uses BX/CX/DX).
     "register-passed args":  lambda b: any(b[i] == 0xB4 and b[i + 2] == 0xE8 for i in range(len(b) - 2)),
+    # the original compilers prefer SI (callee-saved, so push/pop) for a far-pointer
+    # base where MSC 7 uses BX without saving it: `push si; push [bp+x]` then
+    # `mov si,ax` / `es:[si+N]`.
+    "SI base register":      lambda b: b"\x56\xFF\x76" in b or b"\x8B\xF0\x8E\xC2" in b,
 }
 
 counts = Counter()

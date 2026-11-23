@@ -1,6 +1,6 @@
 # Gap analysis - what Microsoft C 7 can and cannot reproduce
 
-Measured over **2354 unmatched code units** (290651 bytes) from
+Measured over **2343 unmatched code units** (290363 bytes) from
 `ground_truth/units.csv`, excluding everything already in the ledger.
 
 Each unit is counted once per trait, so the rows overlap: a unit may hit
@@ -8,17 +8,18 @@ several traits. The final row is the set blocked by none of them.
 
 | Trait | Units | Bytes | Share of unmatched bytes |
 |---|---|---|---|
-| interior 90 padding | 1400 | 225317 | 77.5 % |
-| push cs; call far | 1232 | 180177 | 62.0 % |
+| interior 90 padding | 1400 | 225317 | 77.6 % |
+| push cs; call far | 1232 | 180177 | 62.1 % |
 | direct far call (9A) | 881 | 183276 | 63.1 % |
 | split pointer load | 367 | 84175 | 29.0 % |
 | add r,r doubling | 204 | 66762 | 23.0 % |
+| SI base register | 196 | 26435 | 9.1 % |
 | epilogue 8B E5 5D | 144 | 24280 | 8.4 % |
 | epilogue 5D (no enter) | 74 | 6814 | 2.3 % |
 | register-passed args | 12 | 6747 | 2.3 % |
 | absolute ESA access | 6 | 17323 | 6.0 % |
-| **blocked by nothing** | 495 | 27062 | 9.3 % |
-| &nbsp;&nbsp;of which framed (`55 8B EC`) | 167 | 9322 | 3.2 % |
+| **blocked by nothing** | 468 | 25867 | 8.9 % |
+| &nbsp;&nbsp;of which framed (`55 8B EC`) | 153 | 8910 | 3.1 % |
 
 ## Reading
 
@@ -40,9 +41,9 @@ several traits. The final row is the set blocked by none of them.
 
 ## What this means for the ledger
 
-- Verified so far: see `STATUS.md`. Unmatched and reachable: **167 framed units, 9322 bytes** (plus 328 unframed).
+- Verified so far: see `STATUS.md`. Unmatched and reachable: **153 framed units, 8910 bytes** (plus 315 unframed).
 - At the recent rate (~500 verified bytes per round) the reachable framed
-  remainder is about **18 more rounds** of work, and
+  remainder is about **17 more rounds** of work, and
   that assumes every attempt succeeds - which the last four rounds show it does
   not.
 - The honest conclusion: this reconstruction is **complete as far as this

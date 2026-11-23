@@ -1,5 +1,21 @@
 # PROGRESS
 
+## Round 86 — no new rows; the `SI` trait measured and added to the table
+- Sampled the **unframed** reachable units (22 with a call and a clean terminator).
+  Two looked like real functions — `3a24:0006` `clear32` (zero a far struct field
+  after a call) and `38ad:000e` `swap14` (swap a field of the struct returned by a
+  call) — and both fail on the same thing: the original keeps the pointer in **SI**
+  with `push si` / `mov si,ax` / `es:[si+N]` / `pop si`, while MSC 7 puts the offset
+  in **BX** and saves nothing.
+- Tried to force it: a `register int` local made MSC use **DI** instead, still not
+  SI. So the trait is real and not steerable — recorded as **trait 8** in
+  `docs/CONVENTIONS.md` with seven units as evidence.
+- **`tools/gap.py` now measures it** (`push si; push [bp+x]` or `mov si,ax; es=dx`),
+  which corrected the ceiling: **196 units / 26 435 B** were being counted as
+  reachable. `blocked by nothing` drops from 495 units / 27 062 B to
+  **468 units / 25 867 B** — the honest number is lower than last round's.
+- Ledger unchanged: 182 rows — MATCH 32, RELOCS 128, PENDING 22.
+
 ## Round 85 — one 41-byte RELOCS from a relay call
 - Enumerated sizes 32 (8 framed) and 42 (7 framed), calls first:
   - `23d7:0000` **BIG_CALL** (41 B, RELOCS, `src/calib/cs32.c`) —
