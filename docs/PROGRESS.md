@@ -1,5 +1,14 @@
 # PROGRESS
 
+## Runde 13 — CRT-Region abgesteckt (2026-11-23)
+- markcrt.py repariert: MS-Librarian richtet Module aus (Padding nach MODEND)
+  — Scan zum naechsten THEADR; jetzt 379/379 Module aus MLIBCR.LIB.
+- **35 eindeutige CRT-Treffer** (reloc-maskierte Bibliothekssignaturen) in
+  DDS98.EXE, ab 10bd:0002 aufwaerts: __int86/_abs/_srand/__NMSG_WRITE/__dos_setvect …
+  -> ground_truth/foreign_crt.csv. CRT liegt am Bildanfang (Linker-Reihenfolge).
+- Offen fuer naechste Session: coverage.py um Fremdcode-Spalte ergaenzen,
+  CRT-Byteanteil in der ehrlichen Metrik separat ausweisen.
+
 ## Runde 11 — coverage.py + PENDING-Vertiefung (2026-11-23)
 - get_39f8_clamped: 5 Konstrukt-/Opt-Kombis ausgereizt (Ternaer x2, if/else+r,
   /O1, /O2) — MSC7 erzeugt die Sprung-Merge-Form nie aus C. PENDING mit

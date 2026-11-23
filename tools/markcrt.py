@@ -68,9 +68,15 @@ def parse_lib(path):
                 i += 1 + n + 2
                 if i < len(rec) and rec[i] == 0:
                     i += 1
-        elif rtype == 0x8A:                   # MODEND
+        elif rtype == 0x8A:                   # MODEND -> Modulende
             modules.append(cur)
             cur = {"pubs": {}, "ledatas": []}
+            pos += 3 + rlen
+            # MS-Librarian richtet Module aus (Padding bis zur Grenze):
+            # zum naechsten THEADR (0x80) vortasten.
+            while pos + 3 <= len(data) and data[pos] != 0x80:
+                pos += 1
+            continue
         pos += 3 + rlen
     if cur["pubs"] or cur["ledatas"]:
         modules.append(cur)
