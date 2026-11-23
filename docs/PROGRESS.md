@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 95 - inline assembly works; one ASM row, and a policy for it
+The significant finding of the round is a capability, not a match.
+
+- **`__asm` compiles in Microsoft C 7** and references C variables:
+  `__asm mov bx, i` emits `8B 5E 04`, and `__asm mov ax, g_142a[bx]` emits
+  `8B 87 <off>`. Verified with a probe function (`src/attic/casm3.c`, `casm4.c`).
+- **First `ASM` row: `35ca:2306` IDX_142A (16 B)** - `g_142a[i]`, where the original
+  scales the index with `03 DB` (`add bx,bx`) and MSC emits `D1 E3` for every C
+  formulation tried. Three `__asm` lines reproduce the scaling; the prologue,
+  epilogue and `retn 2` are compiler output. Byte-verified like any other row.
+- **New status `ASM` and a written policy (`docs/ASM-POLICY.md`).** Inline assembly
+  may stand in *only* for an instruction the compiler provably cannot emit; every
+  other byte must be compiler output. Whole functions in assembly are forbidden -
+  that would reproduce a disassembly, not a decompilation. `ASM` rows are
+  byte-checked by `verify.py` but **excluded from `coverage.py`**, so the C coverage
+  number keeps meaning what it meant.
+- Tried and failed to use `__asm nop` to reproduce the jump-padding trait
+  (`42e8:006c`): the nop lands in the right place (`EB 04 90 33 C0 99` matches) but
+  the `__asm` clobbers MSC's register allocation, which then uses a memory compare
+  (`83 7E 04 00`) instead of the original's `8B 5E 04 / 0B DB`. Inline asm is not a
+  free lever for trait 4.
+- Tooling: `checkled.py` and `verify.py` now report `ASM` as a fourth count; the
+  ledger reads MATCH 32, RELOCS 130, ASM 1, PENDING 24.
+
 ## Round 94 — no rows; documentation inconsistency found and fixed
 No new bytes. Two attempts and a real fix to the deliverable.
 

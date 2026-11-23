@@ -48,7 +48,6 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 2603:53a0 | WRAP3 | 18 | MATCH | src=src/calib/cset5.c; flags="/G1 /AM /Gs /Os"; `return ((b - a) + 2) & 3` with byte parameters (`2C FE` = sub al,-2); byte-identical |
 | 458e:8e08 | TEST80 | 13 | MATCH | src=src/calib/cset5.c; flags="/G1 /AM /Gs /Os"; `return v & 0x80` with byte parameter (inventory 14: trailing gap byte) |
 | 2603:ccda | NEG_MINUS1 | 15 | PENDING | `return -1 - v;` with the value staged in DX (`8B 56 06 / 2B C2`). **Note:** the same source *does* match elsewhere - `418c:0266` (NEG1) verifies with the memory-operand form `2B 46 04` - so this unit was built differently or is not the same expression. Address is not a `units.csv` boundary; bytes measured directly |
-| 35ca:2306 | IDX_142A | 16 | PENDING | near pascal `return g_142a[i]`; original multiplies the index with `03 DB` (add bx,bx), MSC 6 and MSC 7 emit `D1 E3` (shl) at every tested level — see the hand-ASM note in CONVENTIONS.md |
 | 37ce:000c | WRAP_37CE | 13 | RELOCS | src=src/calib/cwrap1.c; flags="/G1 /AM /Gs /Os"; forwarder `push [bp+4]; call inner; retn 2` (rel16 masked) |
 | 35ca:1e54 | SUB_P3_P1 | 21 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; near pascal `(p[3] - p[1]) + a`, declaration order `(int __far *p, int a)`; byte-identical |
 | 35ca:1e7e | SUB_P1_P3 | 21 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; far pascal `(p[1] - p[3]) + a`; byte-identical |
@@ -198,3 +197,4 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 3807:0004 | UPD_FP (dup 1/3) | 28 | PENDING | `*p = HELP(*p)` through a far pointer built from a seg/off pair. Original loads it split: `8B 76 04` + `8E 46 06` + `26 FF 34`; MSC emits `les`/`8E C1` (trait 3). Three-way duplicate group with 380c:0000 and 3811:0004 - one transcription would cover all three if the load were reachable |
 | 380c:0000 | UPD_FP (dup 2/3) | 28 | PENDING | byte-identical to 3807:0004, same split-load cause |
 | 3811:0004 | UPD_FP (dup 3/3) | 28 | PENDING | byte-identical to 3807:0004, same split-load cause |
+| 35ca:2306 | IDX_142A | 16 | ASM | src=src/calib/casm4.c; flags="/G1 /AM /Gs /Os"; `g_142a[i]` where the original scales with `03 DB` (`add bx,bx`). Microsoft C 7 emits `D1 E3` for every formulation tried (traits table row 1), so the two scaling instructions are inline assembly. **ASM row: byte-verified, not C-derived** - excluded from coverage |

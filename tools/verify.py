@@ -103,7 +103,7 @@ def main():
                 continue
         objs[(src, flags)] = obj
 
-    n_match = n_relocs = n_pending = 0
+    n_match = n_relocs = n_asm = n_pending = 0
     for r in rows:
         if r["status"] == "PENDING":
             n_pending += 1
@@ -129,11 +129,13 @@ def main():
         else:
             if r["status"] == "MATCH":
                 n_match += 1
+            elif r["status"] == "ASM":
+                n_asm += 1
             else:
                 n_relocs += 1
             print(f"  {r['va']} {r['name']}: {r['status']} ok")
 
-    print(f"Ledger: {len(rows)} rows — MATCH {n_match}, RELOCS {n_relocs}, "
+    print(f"Ledger: {len(rows)} rows — MATCH {n_match}, RELOCS {n_relocs}, ASM {n_asm}, "
           f"PENDING {n_pending}")
     if fails:
         print("ERRORS:")

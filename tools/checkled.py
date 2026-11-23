@@ -16,7 +16,11 @@ from collections import Counter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LEDGER = os.path.join(ROOT, "docs", "MATCHING.md")
-STATUSES = {"MATCH", "RELOCS", "PENDING"}
+# MATCH / RELOCS = the C source compiles to these bytes. ASM = the bytes are
+# reproduced with an inline __asm block (used where the compiler provably cannot
+# emit the original instruction); such rows are byte-verified but do NOT count as
+# C-derived coverage, so coverage.py ignores them.
+STATUSES = {"MATCH", "RELOCS", "ASM", "PENDING"}
 
 rows = []
 for line in open(LEDGER, encoding="utf-8"):
@@ -53,7 +57,7 @@ if orphans:
 counts = Counter(r[3] for r in rows)
 print(f"ledger rows: {len(rows)}  "
       f"MATCH {counts.get('MATCH', 0)}, RELOCS {counts.get('RELOCS', 0)}, "
-      f"PENDING {counts.get('PENDING', 0)}")
+      f"ASM {counts.get('ASM', 0)}, PENDING {counts.get('PENDING', 0)}")
 print(f"referenced sources: {len(referenced)}  calib files: {len(calib)}")
 
 if problems:

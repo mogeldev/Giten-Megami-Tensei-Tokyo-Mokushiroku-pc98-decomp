@@ -9,12 +9,11 @@
 |---|---|
 | MATCH | 32 |
 | RELOCS | **130** |
-| PENDING | **25** |
+| PENDING | **24** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
 - `2603:ccda` **NEG_MINUS1** (15 B) — `return -1 - v
-- `35ca:2306` **IDX_142A** (16 B) — near pascal `return g_142a[i]`
 - `1871:5c26` **SWAP_LONG_40C0** (38 B) — `long f(long v) { long old = g
 - `35ca:209c` **SWAP_LONG_13F6** (38 B) — Sibling of SWAP_LONG_40C0 with the long at 0x13F6/0x13F8, identical cause
 - `2603:463c` **SET_BIT** (38 B) — `table[n / 8]
@@ -49,7 +48,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
 | of which **verified** | **2646 (0.902%)** |
-| PENDING bytes | 905 |
+| PENDING bytes | 889 |
 
 Code functions: **2523**, of which verified **162**.
 
@@ -59,7 +58,7 @@ Code functions: **2523**, of which verified **162**.
 |---|---|---|---|---|---|---|---|
 | 0x0000 | 619 | 21 | 65131 | 329 (0.5%) | 897 | 360 | 191 |
 | 0x0001 | 525 | 25 | 65757 | 412 (0.6%) | 0 | 569 | 148 |
-| 0x0002 | 763 | 71 | 65522 | 1108 (1.7%) | 0 | 0 | 207 |
+| 0x0002 | 763 | 71 | 65522 | 1108 (1.7%) | 0 | 0 | 191 |
 | 0x0003 | 561 | 43 | 64435 | 786 (1.2%) | 0 | 0 | 359 |
 | 0x0004 | 55 | 2 | 33329 | 11 (0.0%) | 66 | 11282 | 0 |
 
