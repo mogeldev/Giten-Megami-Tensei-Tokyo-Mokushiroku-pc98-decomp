@@ -1,5 +1,47 @@
 # PROGRESS
 
+## The `90 0E E8` idiom is MS LINK /FARCALLTRANSLATION – 77 KB become reachable
+A byte census settled the biggest open question in the trait table: the image
+contains 3 564 `0E E8` (`push cs; call near`) and **3 507 of them are directly
+preceded by `90`** – a NOP that no compiler emits. It is the linker: Microsoft
+LINK's `/FARCALLTRANSLATION` (`/F`, normally together with `/PACKC`) rewrites a
+direct far call `9A seg off` into `NOP; PUSH CS; CALL NEAR` whenever the callee
+lands in the caller's physical segment. Reproduced locally with the MSC 6.0
+toolchain: two objects linked with `LINK 5.10 /F /PACKC` give
+`90 0E E8 F3 FF` where the same link with `/NOF` keeps `9A 00 00 00 00`.
+
+Consequences (all byte-verified, not assumed):
+
+- `tools/match.py` now recognises the rewrite: a `9A` whose 4-byte operand is a
+  fixup matches an image `90 0E E8 rel16`, and the whole 5-byte slot is masked
+  (the rel16 is link-layout dependent, like any relocated operand). The
+  selftest covers the positive case, a wrong opcode, and a partial fixup.
+  `90 0E E8`-only units are therefore no longer blocked.
+- `tools/gap.py` stopped treating four idioms as blockers, because each is now
+  reproducible: the translated far call, plain `9A` (ordinary output), the bare
+  `5D` epilogue (`/G0`, round 1) and `C7 06 <g> 00 00` zero stores (MSC 6).
+  The reachable pool grows from **441 units / 24.1 KB to 1 232 units / 77.0 KB**
+  (the remaining blockers are stray `90` padding, split pointer loads,
+  `add r,r` doubling, `SI` bases, `8B E5 5D`, `B8 00 00`, `B4` register args
+  and ESA addressing).
+
+First harvest of that pool: **14 new rows, 123 B**, all RELOCS.
+
+- `src/calib/cfarl.c` (13 units): six `g_78cc ± 1` fastcall relays, a
+  constant-relay pair (`return psub(14)`, `return psub(0)`), four frameless
+  `return fnone()` six-byte relays and one near relay – each object byte
+  sequence is `A1/6A/FF 36 … 9A …`, i.e. the untranslated form.
+- `src/calib/cfar6.c` (`1aa1:0130`, 11 B): MSC 6.0 with **`/G0`** materialises
+  the long constant as `mov ax,0x800 / cwd / push dx / push ax`; `/G1` would
+  use the push-immediate form and MSC 7 calls through `9A`. That is the first
+  ledger row built with a toolchain other than MSC 7, so `tools/verify.py` now
+  understands optional `msc=<dir>` and `nodpmi` tokens in a row note (MSC 6.0's
+  real-mode CL hangs when the HDPMI TSR is loaded) and refuses two toolchains
+  sharing one source stem.
+
+Ledger 259 rows — MATCH 37, RELOCS 198, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 4035 B (1.376 %).
+
 ## /G0 explains the `5D` epilogue; MSC 6.0 turns out to be runnable
 `1000:1364` (abs_branch) was PENDING with a perfect body and a wrong teardown:
 the original ends `5D CB` (`pop bp; retf`), MSC 7 emits `C9 CB` (`leave`). The

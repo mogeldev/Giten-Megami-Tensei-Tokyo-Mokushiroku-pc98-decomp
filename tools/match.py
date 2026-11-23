@@ -34,8 +34,12 @@ def linear(va):
 
 def compare(orig, mine, relocs):
     """(status, diffs, masked). relocs = byte offsets with a linker operand."""
+    masked_calls = farcall_translated(orig, mine, relocs)
     diffs, masked = [], 0
     for i in range(min(len(orig), len(mine))):
+        if i in masked_calls:
+            masked += 1
+            continue
         if i in relocs:
             masked += 1
             continue
@@ -46,6 +50,30 @@ def compare(orig, mine, relocs):
     if not diffs:
         return ("RELOCS" if masked else "MATCH"), diffs, masked
     return "DIFF", diffs, masked
+
+
+FAR_TRANSLATED = b"\x90\x0E\xE8"      # LINK /FARCALLTRANSLATION: NOP; PUSH CS; CALL
+
+
+def farcall_translated(orig, mine, relocs):
+    """Offsets covered by LINK /F's far-call rewriting.
+
+    With /FARCALLTRANSLATION (and /PACKC the callee ends up in the caller's
+    physical segment), the linker rewrites a direct far call `9A seg off`
+    (5 bytes) into `90 0E E8 rel16` (5 bytes, NOP + PUSH CS + CALL NEAR, see
+    MSKB S9BJ7). The object keeps the 9A form with a 4-byte fixup; the image
+    has the translated form whose rel16 is link-layout dependent.
+
+    A site counts only if the object byte is 9A with its whole 4-byte operand
+    masked AND the image has exactly `90 0E E8` there — a wrong call target
+    still differs, only the opcode form is accepted as translated."""
+    out = set()
+    for i in range(min(len(orig), len(mine)) - 4):
+        # the OMF fixup covers the 4-byte operand only, not the 0x9A opcode
+        if mine[i] == 0x9A and all((i + 1 + k) in relocs for k in range(4)):
+            if orig[i:i + 3] == FAR_TRANSLATED:
+                out.update(range(i, i + 5))
+    return out
 
 
 def selftest():
@@ -62,7 +90,21 @@ def selftest():
     assert st == "RELOCS" and m == 2
     st, d, m = compare(a, a[:60], set())
     assert st == "DIFF" and d[0][1] == "LEN"
-    print("selftest OK: MATCH/RELOCS/DIFF, reloc masking, length diff")
+    # LINK /F translation: object 9A + 4 masked bytes vs image 90 0E E8 rel16
+    orig = bytes(10) + FAR_TRANSLATED + b"\x34\x12" + bytes(3)
+    mine = bytes(10) + b"\x9A" + b"\x00\x00\x00\x00" + bytes(3)
+    rels = set(range(11, 15))
+    st, d, _ = compare(orig, mine, rels)
+    assert st == "RELOCS" and not d, (st, d)
+    # ... only when the image really has the translated form at that site
+    bad = bytearray(orig)
+    bad[10] = 0x0E
+    st, d, _ = compare(bytes(bad), mine, rels)
+    assert st == "DIFF" and d[0][0] == 10
+    # ... and only for calls whose operand is a full 4-byte fixup
+    st, d, _ = compare(orig, mine, set(range(12, 15)))
+    assert st == "DIFF"
+    print("selftest OK: MATCH/RELOCS/DIFF, reloc masking, length diff, /F call translation")
 
 
 def load_funcs():

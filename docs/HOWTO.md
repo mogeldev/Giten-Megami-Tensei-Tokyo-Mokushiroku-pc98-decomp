@@ -87,8 +87,11 @@ Work down this list; each item is a real case from this project:
    fixable.
 5. **`D1 E0` where the original has `03 C0`** → doubling: the original uses
    `add r,r`, MSC uses `shl r,1`. Not fixable.
-6. **`9A` where the original has `0E E8`** → the original calls same-segment far
-   functions with `push cs; call`; MSC always emits `9A`. Not fixable.
+6. **`9A` where the original has `90 0E E8`** → that is Microsoft LINK
+   `/FARCALLTRANSLATION` (`/F` + `/PACKC`) rewriting the call, not a compiler
+   idiom. `match.py` accepts exactly this rewrite (5-byte slot masked, see
+   CONVENTIONS.md), so the row can still verify. A bare `0E E8` without the
+   leading `90` is a compiler-emitted same-segment call (MSC 6.0 emits it).
 7. **`C4 5E xx` (`les`) where the original has `8B 5E xx` + `8E 46 xx`** → split
    pointer load. Not fixable.
 8. **`8E C2` / `8B D8` in the wrong order** → instruction-order trait; two

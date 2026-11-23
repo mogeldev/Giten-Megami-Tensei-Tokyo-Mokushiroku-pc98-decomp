@@ -22,7 +22,7 @@ Applies to the byte-match project for **Giten Megami Tensei** (game engine `DDS9
 - File offset = `linear − 0x10000 + 0x3800`, valid up to offset 339 735 (after that: overlay).
 - MZ is relocatable at load time (3 562 relocs): always compare **image-relative against the Ghidra mapping**; which bytes are linker operands, **read from the object relocation table**, never guess.
 
-## Codegen traits of the original compiler (consolidated, round 76)
+## Codegen traits of the original compiler (consolidated; /F and /G0 corrections in rounds 90-91)
 
 These are the **properties of the original code generator that Microsoft C 7 cannot
 reproduce**. Each was established by isolating it in a function whose body otherwise
@@ -34,25 +34,48 @@ Every one was also tested against the flag matrix (`/Os`, `/Ot`, `/Od`, `/Ox`,
 | # | Trait | Evidence | Units / bytes |
 |---|---|---|---|
 | 1 | doubling by `add r,r` instead of `shl r,1` | `4e11:007e` matches except the final `03 C0` (`add ax,ax`); MSC emits `D1 E0`. Explains the 74×`03 DB` vs 18×`D1 E3` census that round 34 misread as hand-written assembly | 204 / 66 762 |
-| 2 | far calls to same-segment functions as `push cs; call rel16` | MSC emits `9A` for a far callee (verified with a same-file far function) and a bare `E8` for a near one; `0E E8` is unreachable | 1232 / 180 177 |
+| 2 | *not a compiler trait*: `90 0E E8 rel16` | **CORRECTED round 91:** this is Microsoft LINK `/FARCALLTRANSLATION` (`/F`, with `/PACKC`) rewriting the compiler's `9A seg off` into `NOP; PUSH CS; CALL NEAR`. 3 507 of the 3 564 `0E E8` in the image carry that NOP; reproduced locally with `LINK 5.10 /F /PACKC`. `tools/match.py` masks the 5-byte slot, so those units are reachable | 0 blocking (was 1232 / 180 177) |
 | 3 | far-pointer parameters loaded as two words (`8B 5E 06` + `8E 46 08`) instead of `les bx,[bp+6]` | `1df5:0008`, `2aa3:0048` — bodies otherwise identical | 367 / 84 175 |
-| 4 | jump targets padded with `90` even in size-optimised builds | `47ef:0008` (`EB 03 90` vs `EB 02`) and `2aa3:0002` (two `90` bytes, all displacements +2); `/Os` never pads and `/Ot` restructures the returns instead | 1400 / 225 317 |
+| 4 | stray `90` padding outside a translated far call | Most of the old 1 400-unit count was the `/F` NOP of trait 2. The rest are real: `47ef:0008` (`EB 03 90` vs `EB 02`), `2aa3:0002` (two `90` bytes, all displacements +2); `/Os` never pads, MSC 7 pads only function ends under `/Ot` | 561 / 163 630 |
 | 5 | **`8B E5 5D`** (`mov sp,bp; pop bp`) instead of `C9` | `11d8:000c`: the body is byte-exact, only the teardown differs. **Corrected:** the bare `5D` variant is not a compiler trait but the **`/G0` (8086) target** — `LEAVE` is a 186+ instruction, so `/G0` emits `pop bp`. `1000:1364` closed as MATCH this way. What is still unexplained is the *redundant* `8B E5` (SP already equals BP): MSC 5.1, 6.0 and 7 all omit it | 144 / 24 280 (+74 / 6 814, of which the `5D` part is reachable with `/G0`) |
 | 6 | register-passed arguments (`mov ah,imm` then `call`) | `1cb7:0018`, `1cb9:0008`, `1cbf:0020` etc. No Microsoft C 7 construct emits `mov ah,imm` before a call — its `__fastcall` uses BX/CX/DX | 12 / 6 747 |
 | 7 | absolute ESA addressing (`mov es,imm16` then `es:[disp16]`) | `2d64:0008`; MSC always addresses a far object through a base register, even with `MK_FP(const_seg, const_off)` | 6 / 17 323 |
 | 8 | **`SI` as far-pointer base** (`push si` / `mov si,ax` / `es:[si+N]`) | `3a24:0006` (`clear32`), `38ad:000e` (`swap14`), `1df5:0008`, `2aa3:0048`, `37ef:000c`. MSC 7 puts the offset in **BX**. **Nuance (round 91):** `register` *does* steer a **loop counter** into SI - `4f89:0008` verifies with `register int i` - but it moves a pointer temporary to DI instead, so it does not rescue the far-pointer cases | 196 / 26 435 |
-| 9 | **explicit zero materialisation** (`B8 00 00`, `C7 06 <g> 00 00`) | `473f:0036` (`return 0x43A30000L;`): MSC emits `33 C0 / BA A3 43`, the binary has `B8 00 00 / BA A3 43`. Same style produces the `C7 06` zero stores of rounds 25/26. MSC always uses the shorter xor idiom | 106 / 32 862 |
+| 9 | **`mov ax,0` explicit** (`B8 00 00`) | `473f:0036` (`return 0x43A30000L;`): MSC emits `33 C0 / BA A3 43`, the binary has `B8 00 00 / BA A3 43`. **Split correction:** the `C7 06 <g> 00 00` zero *stores* are MSC 6.0 output (round 90) and no longer block; only the `mov ax,0` materialisation remains | 3 / 4 603 |
 
 Softer variants that also block a byte-exact match but are harder to count:
 **branch-block order** (which arm falls through), **operand evaluation order**, and
 **register choice** (`SI` with `push`/`pop` where MSC uses `BX` with neither).
 
-**What this means:** the reconstruction is complete as far as this toolchain allows.
-The practical ceiling is the `blocked by nothing` row of `docs/GAP.md`
-(498 units / 27 144 B by byte-pattern count, i.e. an optimistic bound). Going
-further needs the original compiler generation; Microsoft C 5.1 is EXEPACK-packed
-in the only DOS-hosted copy available and the 6.00ax set is Windows-hosted, so
-neither could be run here.
+**What this means:** the practical ceiling is the `blocked by nothing` row of
+`docs/GAP.md` (1 232 units / 77 022 B after the round-91 corrections). The
+earlier "complete as far as this toolchain allows" conclusion was wrong twice:
+`/G0` explained the `5D` epilogue and LINK `/F` explained the `90 0E E8` calls,
+so two of the nine rows were not compiler traits at all.
+
+## LINK /FARCALLTRANSLATION - why the image has `90 0E E8` (round 91)
+The image contains 3 564 `0E E8` and 3 507 of them are preceded by `90`. That is
+not a compiler idiom: Microsoft LINK's `/FARCALLTRANSLATION` option (`/F`,
+normally with `/PACKC`) rewrites a direct far call into `NOP; PUSH CS; CALL NEAR`
+when the callee ends up in the caller's physical segment
+(MSKB S9BJ7 / "The /FARCALL Option"). Proof on this toolchain: two objects that
+call each other across modules, linked with `LINK 5.10 /F /PACKC`, produce
+`90 0E E8 F3 FF` where the identical `/NOF` link keeps `9A 00 00 00 00`
+(`build/CLKABF.EXE` vs `CLKABN.EXE`, round 91).
+
+The compiler side is ordinary: a far callee that is `extern` compiles to `9A`
+plus a 4-byte fixup, exactly what our calibration objects contain. So units whose
+only "trait" was the translated call are reachable, and `tools/match.py`
+recognises the rewrite:
+
+* the object byte must be `9A` and all four operand bytes must be a fixup;
+* the image bytes at that offset must be exactly `90 0E E8`;
+* then all five bytes count as masked (the `rel16` is link-layout dependent).
+
+The selftest asserts the positive case, a wrong opcode, and a partial fixup. The
+8-bit displacement is what the linker computed for the actual game layout, so it
+is masked like every other relocated operand -- the encoding, not the distance,
+is what the source determines.
 
 ## Hand-ASM evidence - `add bx,bx` (round 34, **corrected in round 64**)
 The binary contains 74 occurrences of `03 DB` (`add bx,bx`, index*2) against

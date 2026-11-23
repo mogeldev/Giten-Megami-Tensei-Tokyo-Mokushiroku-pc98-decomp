@@ -8,7 +8,7 @@
 | Status | Count |
 |---|---|
 | MATCH | 37 |
-| RELOCS | **184** |
+| RELOCS | **198** |
 | ASM (excluded from C coverage) | 1 |
 | PENDING | **23** |
 
@@ -47,18 +47,18 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | Code bytes | 294174 |
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
-| of which **verified** | **3914 (1.335%)** |
+| of which **verified** | **4035 (1.376%)** |
 | PENDING bytes | 857 |
 
-Code functions: **2523**, of which verified **221**.
+Code functions: **2523**, of which verified **235**.
 
 ## Regions (64 KiB)
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
-| 0x0000 | 619 | 25 | 65131 | 401 (0.6%) | 897 | 360 | 159 |
-| 0x0001 | 525 | 34 | 65757 | 626 (1.0%) | 0 | 569 | 148 |
-| 0x0002 | 763 | 86 | 65522 | 1324 (2.0%) | 0 | 0 | 191 |
+| 0x0000 | 619 | 26 | 65131 | 412 (0.6%) | 897 | 360 | 159 |
+| 0x0001 | 525 | 35 | 65757 | 632 (1.0%) | 0 | 569 | 148 |
+| 0x0002 | 763 | 98 | 65522 | 1428 (2.2%) | 0 | 0 | 191 |
 | 0x0003 | 561 | 73 | 64435 | 1538 (2.4%) | 0 | 0 | 359 |
 | 0x0004 | 55 | 3 | 33329 | 25 (0.1%) | 66 | 11282 | 0 |
 
@@ -80,19 +80,22 @@ Code functions: **2523**, of which verified **221**.
   `match.py` (reloc masking), `verify.py` (ledger recheck), `coverage.py`
   (byte metric), `report.py` (produces this file), `markcrt.py` (CRT signatures).
 
-## Open (state at round 90)
+## Open (state at round 91)
 
 1. **Metric switched to units** (round 42): `coverage.py` counts against
    `ground_truth/units.csv` — **2 523 real units** from 1 956 entries
    (567 hidden functions recovered by `tools/split.py`).
-2. `LINK.EXE` (DOSX16) hangs under dosbox-x in all DPMI variants — prerequisite
-   for `build_replacement` (phase 6); candidate: native OMF linker (jwlink).
-3. **MSC 6.0 is runnable now** (round 90): a real-mode `CL` was on disk8 all
-   along; codegen is measured and differs only in `0E E8` / `2B C0` / keyword
-   syntax. The `add bx,bx` / `C7 06` / redundant `8B E5 5D` units are therefore
-   **still not explained** by MSC 6 — the hand/inline-ASM hypothesis stays, and
-   a DOS-hosted MSC 5.0 / Turbo C test is the remaining compiler-generation
-   question.
+2. `LINK.EXE` (DOSX16, MSC 7) hangs under dosbox-x — for `build_replacement`
+   (phase 6) a native OMF linker is needed (candidate: jwlink). The **MSC 6.0
+   LINK 5.10 is real-mode and does run** under DOSBox 0.74; it was used in round
+   91 to reproduce `/FARCALLTRANSLATION`.
+3. **Two "compiler traits" turned out to be settings/linker options** (rounds
+   90-91): `/G0` produces the bare `5D` epilogue, and `90 0E E8 rel16` is LINK
+   `/FARCALLTRANSLATION` output (3 507 of 3 564 calls). `match.py` handles the
+   rewrite, so the reachable pool is now **1 232 units / 77 022 B** (see
+   `docs/GAP.md`). Still open: `add r,r` doubling, split pointer loads,
+   `SI` bases, `8B E5 5D`, `B8 00 00` and stray `90` padding — possibly an
+   older MS code generator or hand-written assembly modules.
 4. Remaining PENDING rows need either a new flag insight (`/Ox /Oa /Os` closed the
    clamp family in round 45; `/G0` closed `1000:1364` in round 90) or a different
    source shape; each carries its tested variants in the ledger.

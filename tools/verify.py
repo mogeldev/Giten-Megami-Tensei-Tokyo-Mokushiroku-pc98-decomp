@@ -19,7 +19,21 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PY = sys.executable
 BUILD = os.path.join(ROOT, "build")
 NOTE_RE = re.compile(r'src=(\S+);\s*flags="([^"]*)"')
+# Optional toolchain selectors in the note (default: MSC 7.0 under DOSBox-X+HDPMI):
+#   msc=MSC6C   compile with that toolchain directory (build.py --msc-dir)
+#   nodpmi      do not load the HDPMI TSR (MSC 6.0's real-mode CL hangs with it)
+MSC_RE = re.compile(r"\bmsc=(\w+)")
+DPMI_RE = re.compile(r"\bnodpmi\b")
 IMG = open(os.path.join(ROOT, "..", "giten", "DDS98", "DDS98.EXE"), "rb").read()[896 * 16:339735]
+
+
+def build_cmd(src, flags, msc, nodpmi):
+    cmd = [PY, os.path.join(ROOT, "build.py"), src, "--flags", flags]
+    if msc:
+        cmd += ["--msc-dir", msc]
+    if nodpmi:
+        cmd.append("--no-dpmi")
+    return cmd
 
 
 def parse_ledger():
@@ -93,7 +107,7 @@ def main():
         if int(r["size"]) == 0:
             fails.append(f"SIZE-0 {r['va']} (comparing 0 bytes always matches)")
 
-    # Group by (src, flags); build once per combination
+    # Group by (src, flags[, msc name, nodpmi]); build once per combination
     groups = {}
     for r in rows:
         if r["status"] == "PENDING":
@@ -102,23 +116,36 @@ def main():
         if not m:
             fails.append(f"{r['va']}: MATCH/RELOCS without src=/flags= in the note")
             continue
-        groups.setdefault(m.groups(), []).append(r)
+        msc = (MSC_RE.search(r["note"]) or [None, ""])[1].upper()
+        nodpmi = bool(DPMI_RE.search(r["note"]))
+        groups.setdefault(m.groups() + (msc, nodpmi), []).append(r)
+
+    # One OBJ per source stem: two toolchains on the same stem would overwrite
+    # each other's object between build and match, so refuse it.
+    stems = {}
+    for (src, _f, msc, _n) in groups:
+        stem = os.path.splitext(os.path.basename(src))[0]
+        stems.setdefault(stem, set()).add((src, msc))
+    for stem, users in stems.items():
+        if len(users) > 1:
+            fails.append(f"source stem '{stem}' is compiled with several toolchains: "
+                         f"{sorted(users)} — give each its own 8.3 filename")
 
     objs = {}
-    for (src, flags), items in groups.items():
+    for (src, flags, msc, nodpmi), items in groups.items():
         stem = os.path.splitext(os.path.basename(src))[0]
         obj = os.path.join(BUILD, f"{stem}.OBJ")
         if not fast:
-            r = subprocess.run([PY, os.path.join(ROOT, "build.py"), src,
-                                "--flags", flags],
+            r = subprocess.run(build_cmd(src, flags, msc, nodpmi),
                                capture_output=True, text=True)
             tag = "CACHED" if (r.stdout or "").startswith("CACHED") else "built"
-            print(f"{tag:<6} {src} [{flags}]", flush=True)
+            extra = f" msc={msc}" if msc else ""
+            print(f"{tag:<6} {src} [{flags}]{extra}", flush=True)
             if r.returncode != 0:
-                fails.append(f"BUILD FAILED {src} [{flags}]\n"
+                fails.append(f"BUILD FAILED {src} [{flags}]{extra}\n"
                              f"{(r.stdout or '')[-400:]}{(r.stderr or '')[-400:]}")
                 continue
-        objs[(src, flags)] = obj
+        objs[(src, flags, msc, nodpmi)] = obj
 
     n_match = n_relocs = n_asm = n_pending = 0
     for r in rows:
@@ -126,7 +153,9 @@ def main():
             n_pending += 1
             continue
         m = NOTE_RE.search(r["note"])
-        obj = objs.get(m.groups()) if m else None
+        key = (m.groups() + ((MSC_RE.search(r["note"]) or [None, ""])[1].upper(),
+                             bool(DPMI_RE.search(r["note"])))) if m else None
+        obj = objs.get(key) if key else None
         if not obj:
             continue
         seg, off = r["va"].split(":")
