@@ -1,5 +1,22 @@
 # PROGRESS
 
+## Round 78 — missed-split vein measured and empty; one RELOCS
+- **Quantified round 77's lead and it is a dead end.** Scanning every unmatched
+  unit for an internal return followed by a plausible prologue (`55 8B EC` or `6A`)
+  finds **90 candidate starts**, but after requiring a complete inner function with
+  no blocking trait, exactly **one** survives — the `4e8e:0070` already recorded.
+  The other 89 hit the documented traits (mostly `push cs; call`, `9A`, or register
+  arguments). So `units.csv` is **not** materially incomplete for reachable code,
+  and the coverage denominator is trustworthy.
+- `20b4:0004` **_spin_wait** (8 B, RELOCS, `src/calib/cspin1.c`) —
+  `while (g_6e4 != 0) ;` compiles to `83 3E <g> 00 / 75 F9 / CB`. The loop
+  **polarity names the condition**: `75` (`jne` back) means "wait while non-zero",
+  `74` (`je` back) would be the opposite.
+- Also confirmed: the unframed "clean" units in 8..48 B are almost entirely
+  splitter fragments (tails starting mid-instruction with `8B`, `9B`, `89`), not
+  functions — 179 of them, nearly all unusable as standalone rows.
+- Ledger: 169 rows — MATCH 32, **RELOCS 115**, PENDING 22.
+
 ## Round 77 — a function that is not in the inventory
 - `4e8e:0070` **_five_neg** (14 B, RELOCS, `src/calib/cfive1.c`) —
   `HELP5(-1, -1, -1, -1, -1)` to a near pascal callee.

@@ -15,6 +15,15 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 78 - loop polarity, and fragments are not functions
+- **The conditional-jump opcode names the loop condition**: `cmp [g],0` followed
+  by `75 F9` (`jne` back) is `while (g != 0) ;`; `74 F9` (`je` back) is
+  `while (g == 0) ;`. An empty spin loop needs nothing else - 8 bytes total.
+- Unframed units starting with `8B`/`9B`/`89` and no prologue are almost
+  always **fragments**: the splitter cut inside a function, so the unit begins
+  mid-instruction. Do not spend attempts on them.
+- The inventory was checked for missed internal functions (return + prologue) and
+  is materially complete for reachable code: 90 candidates, 1 clean.
 ## Round 77 - the ledger can be finer than the inventory
 - **`units.csv` is not the truth about function boundaries.** `4e8e:0070` is a
   14-byte function that the splitter merged into the preceding 65-byte unit: it
