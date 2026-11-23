@@ -26,9 +26,24 @@ Gilt für das Byte-Match-Projekt zu **Giten Megami Tensei** (Spiel-Engine `DDS98
 Eine Zeile pro Adresse, Duplikate verboten, Größe ≠ 0:
 `| va (seg:off) | name | size | status | note |` mit Status ∈ `MATCH | RELOCS | PENDING`.
 
-## Build
-`build.py` kapselt DOSBox + MSC-8, sobald Toolchain beschafft und kalibriert ist.
-Bis dahin: definierter Abbruch `TOOLCHAIN_NOT_CALIBRATED` — nichts wird gefaked.
+## Build — verifiziertes Rezept (2026-11-23)
+`build.py` kapselt: **dosbox-x** (v2026.08.31, VS/SDL1-64-Bit) mit `-nopromptfolder`
++ **HDPMI32** (HX-DOS-Runtime 2.17) als DPMI-Server-TSR **vor** jedem CL-Aufruf
++ `cycles=max` + SDL-Dummy-Treiber + APPDATA-Redirect nach `dosboxx_home\`.
+
+Warum nicht DOSBox 0.74: MSC7s CL ist ein DOSX32-Protected-Mode-Programm;
+0.74 liefert `run-time error R6901` (kein DPMI). dosbox-x' eingebautes DPMI
+crasht mit MSC7 (GitHub-Issue #3844) — **HDPMI ist die verifizierte Lösung**.
+Nachweis: `python build.py src/calib/triv1.c --flags "/G1 /AL"` →
+480-Byte-OMF-Objekt (THEADR-Record mit Quelldatei).
+
+Deko-Historie: die Disketten-Dateien sind KWAJ-komprimiert; `DECOMP.EXE`
+(Profiler-Diskette) in DOSBox 0.74 dekomprimiert (224/224, ~0,14 s/Datei).
+
+## Offen (Phase 0)
+1. CFLAGS-Kalibrierung gegen **echte** DDS98-Funktionen (`/G1` + `/AH` vs `/AL`) — Compiler läuft, Byte-Vergleiche offen
+2. OMF-Adapter für `match.py` (Symbol- + RELOC-Extraktion aus dem Objekt) — `wdis`/`tdump` oder eigenes `tools/omfdump.py`
+3. Overlay-Inhalt (≈141 KB) über die Laderoutinen klären
 
 ## Fremdcode (Phase 1, getrennt führen)
 MS-C-CRT (Nachweis: Runtime-Banner in der Binary) als Bibliothek markieren und **nicht** decompilieren, sobald die CRT-Region per Kalibrier-Kompilierung abgesteckt ist.
@@ -59,8 +74,3 @@ Selbst-Pfad-Verweis in der Binary. Vermutung: zur Laufzeit gelesene Daten;
 Klärung über die Laderoutinen, `extract_*`-Werkzeug bei Bedarf.
 
 **Build-Stempel in der Binary:** `DDS98 date=%s, time=%s` (linear `0x59038`).
-
-## Offen (Phase 0)
-1. MSC exakte Version + CFLAGS (`/G1` + `/AH` vs `/AL`) per Kalibrier-Kompilierung
-2. Toolchain-Beschaffung (MSC 8 / MSVC 1.5x + DOSBox) — Nutzer-Freigabe nötig
-3. Overlay-Inhalt über Laderoutinen klären

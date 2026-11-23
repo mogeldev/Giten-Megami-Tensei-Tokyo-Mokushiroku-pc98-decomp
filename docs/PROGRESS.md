@@ -1,5 +1,15 @@
 # PROGRESS
 
+## Runde 5/6 — Toolchain-Durchbruch (2026-11-23, 01:35)
+- **MSC 7.0 (CL 8.00) kompiliert**: `triv1.c /G1 /AL` → 480-Byte-OMF-Objekt.
+- Verifiziertes Rezept: dosbox-x + HDPMI32-TSR (HX-DOS 2.17) + `-nopromptfolder`
+  + APPDATA-Redirect + `cycles=max`. DOSBox 0.74: R6901/kein DPMI; dosbox-x-eigenes
+  DPMI crasht mit MSC7 (GitHub-Issue #3844).
+- `build.py` auf das Rezept umgestellt, End-to-End über sich selbst verifiziert.
+- Toolchain-Deko komplett: 224/224 Dateien aus den KWAJ-Disketten (DECOMP unter
+  DOSBox 0.74; Erkenntnisse: BAT ohne `CALL` frisst die restliche Autoexec;
+  Hintergrund-Jobs lassen DOSBox-0.74-Kinder hängen — nur Vordergrundläufe).
+
 ## Runde 1 — 2026-11-23
 - Parameterblock belegt und in `CONVENTIONS.md` festgehalten (MZ, x86-16 Real Mode,
   Load-Image/Overlay-Geometrie, MSC-8-Kandidat via CRT-Banner, Entry `0x1871:0BE5`).
