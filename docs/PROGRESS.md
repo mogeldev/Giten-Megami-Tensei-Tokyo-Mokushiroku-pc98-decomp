@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 53 — CALL_CB (RELOCS) and TWOBITS (MATCH) from the 30..64 band
+- `39eb:000a` **CALL_CB** (29 B, RELOCS, `src/calib/cind1.c`, `/G1 /AM /Gs /Os`):
+  `void __near __pascal f(int a, int b, int c) { if (g_cb) g_cb(a, b, c); }` —
+  the null test on a **far function pointer is `mov ax,[seg]; or ax,[off]`**, and
+  the call is `FF 1E <disp>` (far indirect through a DGROUP pointer).
+- `49dd:0000` **TWOBITS** (30 B, **MATCH**, `src/calib/cbits1.c`, `/Ox /Oa /Os`):
+  `r = (*p == 0); r |= (p[2] == 0) ? 2 : 0;`
+  The original's `sbb cx,cx / and cx,2` is MSC's idiom for a ternary producing
+  `N` or `0` — writing `<< 1` instead produces `neg cx / shl cx,1` and misses by
+  three bytes. This is a genuinely new codegen idiom, not a flag tweak.
+- Two more near-misses diagnosed rather than forced:
+  - `2d64:0008` (fixed segment 0x4827): the original addresses
+    `es:[<disp16>]` directly, MSC splits the constant into `mov bx,0x4827 /
+    mov es,bx / mov bx,0x862`, so absolute ESA addressing is out of reach from C;
+  - `4665:0004` and the `43b0:0200` duplicate pair need struct-plus-callback
+    forms that the decompiler does not recover cleanly yet.
+- `tools/twins.py` after the batch: 0 new twins.
+- Ledger: 111 rows — **MATCH 20**, RELOCS 76, PENDING 15.
+
 ## Round 52 — two more rows (STORE4 RELOCS, XOR_AND twin), allocator lever tried on PENDINGs
 - `37b3:0004` **STORE4** (31 B, RELOCS, `src/calib/cstor1.c`) —
   `void __far __pascal f(int a,int b,int c,int d) { g_13fa=a; g_13fc=b; g_13fe=c; g_1400=d; }`.

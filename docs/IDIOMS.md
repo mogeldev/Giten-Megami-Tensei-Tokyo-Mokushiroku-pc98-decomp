@@ -3,6 +3,19 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 53 - indirect call and ternary-mask idioms
+- **Far function pointer null test**: `if (fp) fp(...)` compiles to
+  `A1 <seg> / 0B 06 <off> / 74 xx` (or ax,seg with ax,off) followed by
+  `FF 1E <off>` - a far indirect call through the DGROUP pointer. Declare it as
+  `extern void (__far __pascal *g_cb)(int, int, int);`.
+- **`cond ? N : 0` with a small constant N** is a mask idiom:
+  `sbb cx,cx / and cx,N`. Writing `N * (cond)` or `(cond) << n` gives
+  `neg`/`shl` instead and misses. Recognise `sbb` + `and imm` as the
+  ternary, not as hand-written masking.
+- **Absolute ESA addressing is out of reach**: for `*(int __far *)0x48270862L`
+  MSC builds the segment in a register and addresses `es:[bx]`, while targets in
+  this binary use `mov ax,seg / mov es,ax / mov es:[disp16]`. Such units are
+  candidates for the second compiler generation rather than for more C variants.
 ## Round 51 - steering the allocator, and finding twins
 - **A trivial local can steer register allocation.** `*p ^= mask; return mask & *p;`
   with `mask` used directly gives `8B 46 06` (param to AX); copying it through

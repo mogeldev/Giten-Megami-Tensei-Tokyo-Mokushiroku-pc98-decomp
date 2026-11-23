@@ -120,3 +120,5 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 3b1b:0002 | XOR_AND | 21 | MATCH | src=src/calib/cfar3.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; `*p ^= mask; return mask & *p;` with the mask copied through a local - only /Ox keeps it in BX; byte-identical |
 | 37b3:0004 | STORE4 | 31 | RELOCS | src=src/calib/cstor1.c; flags="/G1 /AM /Gs /Os"; `void __far __pascal f(int a, int b, int c, int d) { g_13fa = a; g_13fc = b; g_13fe = c; g_1400 = d; }` - four immediate stores; store order in the code is source order |
 | 3ae5:000a | XOR_AND | 21 | MATCH | src=src/calib/cfar3.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; unrecorded twin of 3b1b:0002, found by tools/twins.py |
+| 39eb:000a | CALL_CB | 29 | RELOCS | src=src/calib/cind1.c; flags="/G1 /AM /Gs /Os"; `void __near __pascal f(int a, int b, int c) { if (g_cb) g_cb(a, b, c); }` — null test on the far pointer via `A1`+`0B 06`, then `call far [disp]` |
+| 49dd:0000 | TWOBITS | 30 | MATCH | src=src/calib/cbits1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; `r = (*p == 0); r |= (p[2] == 0) ? 2 : 0;` — the ternary is MSC's `sbb cx,cx / and cx,2` mask idiom; byte-identical |
