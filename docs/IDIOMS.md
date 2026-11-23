@@ -3,6 +3,21 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 56 - the EXEPACK wall
+- **Every MSC 5.1 compiler binary is EXEPACK-packed** (`CL`, `C1`, `C1L`,
+  `C2`, `C3`). Bypassing the driver is therefore no workaround: driving
+  `C1 -> C2 -> C3` hits the same `Packed file is corrupt` error.
+- The failure is silent in our harness: the redirected log file is never created,
+  so it looks like the DOS shell skipped the command. Only capturing dosbox-x's
+  own stderr reveals `LOG: INT 21h WRITE warning: Detected 'Packed file is
+  corrupt'`. Diagnose packed-binary failures that way, not from the CL log.
+- `Z:\LOADFIX` is not available in this DOSBox-x build, so the packed image
+  cannot be relocated by the usual trick. Writing an EXEPACK unpacker is the
+  remaining path.
+- **Byte selection is another second-generation marker**: the original often
+  stores AH directly (`26 88 27`) where MSC 7 copies AH to AL first
+  (`8A C4 / 26 88 07`). Seen in `29ed:0004`; same family as the split pointer
+  loads (`1df5:0008`, `2aa3:0048`).
 ## Round 54 - struct callbacks
 - **Callback member at a struct offset**: `if (s->fn) s->fn(s, a, b);` with
   `fn` at `+0x10` compiles exactly as the binary shows once the struct is

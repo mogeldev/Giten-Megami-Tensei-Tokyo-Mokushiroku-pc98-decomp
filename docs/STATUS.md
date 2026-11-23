@@ -9,7 +9,7 @@
 |---|---|
 | MATCH | 21 |
 | RELOCS | **77** |
-| PENDING | **17** |
+| PENDING | **18** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -30,6 +30,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `1000:1364` **abs_branch** (13 B) — `int __far f(int v) { return (v < 0) ? -v : v
 - `4737:0002` **SLOT_PTR** (32 B) — `i = (v < 0
 - `2aa3:0048` **ZERO_Z** (38 B) — Zeroes six words of a far struct in the order +6, +0, +8, +2, +0xA, +4. Original loads the pointer as `8B 5E 06` + `8E 46 08` and keeps AX=0 throughou
+- `29ed:0004` **PUT_BE** (35 B) — Writes a big-endian word then a zero byte, returns p+2. The original stores the high byte straight from AH (`26 88 27`) after `8B 46 08 / 03 46 06`, a
 
 ## Coverage (honest byte metric)
 
@@ -41,7 +42,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
 | of which **verified** | **1274 (0.434%)** |
-| PENDING bytes | 571 |
+| PENDING bytes | 606 |
 
 Code functions: **2523**, of which verified **98**.
 
@@ -50,7 +51,7 @@ Code functions: **2523**, of which verified **98**.
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
 | 0x0000 | 619 | 13 | 65131 | 135 (0.2%) | 897 | 360 | 75 |
-| 0x0001 | 525 | 15 | 65757 | 173 (0.3%) | 0 | 569 | 113 |
+| 0x0001 | 525 | 15 | 65757 | 173 (0.3%) | 0 | 569 | 148 |
 | 0x0002 | 763 | 46 | 65522 | 623 (1.0%) | 0 | 0 | 124 |
 | 0x0003 | 561 | 22 | 64435 | 332 (0.5%) | 0 | 0 | 259 |
 | 0x0004 | 55 | 2 | 33329 | 11 (0.0%) | 66 | 11282 | 0 |

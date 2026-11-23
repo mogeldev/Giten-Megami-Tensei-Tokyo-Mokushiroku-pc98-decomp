@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 56 — MSC 5.1 blocked by EXEPACK; one documented near-miss
+- **No new verified row.** The round went into the toolchain question and into one
+  candidate; both are reported as they came out.
+- MSC 5.1: every compiler binary in that set (`C1`, `C1L`, `C2`, `C3`, `CL`) is
+  **EXEPACK-packed**, so bypassing the driver and calling the passes directly is
+  not possible either — they all hit `Packed file is corrupt` under DOSBox-x.
+  Only `QC.EXE` (QuickC) and a few utilities are plain, and QuickC is a different
+  code generator. `Z:\LOADFIX` is not available in this DOSBox-x build (probing
+  the Z: drive hangs), so the packed driver cannot be relocated. Consequence: a
+  **PE/EXEPACK unpacker** is the prerequisite for testing MSC 5.1 codegen; that
+  is bounded work but was not started this round.
+- `29ed:0004` **PUT_BE** (35 B) added as PENDING with its diagnosis: it writes a
+  big-endian word then a zero byte and returns `p+2`. The original stores the high
+  byte straight from **AH** (`26 88 27`) and advances with `83 C3 02`; MSC 7
+  copies AH to AL (`8A C4 / 26 88 07`) and uses `8D 47 02`. Body semantics match,
+  byte-selection does not — the third unit in the split-load/byte-selection
+  family, alongside `1df5:0008` and `2aa3:0048`.
+- Ledger: 116 rows — MATCH 21, RELOCS 77, PENDING 18.
+
 ## Round 55 — MSC 5.1 obtained (DOS-native), one RELOCS, one new near-miss
 - **MSC 5.1 acquired** from the decompme compiler archive
   (`compiler-microsoft-microsoft-c-5.1-dos`, SHA1 checked). Unlike the 6.00ax set,
