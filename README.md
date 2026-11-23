@@ -16,8 +16,8 @@ OMF linker relocations), or **PENDING** with a documented cause — nothing is f
 - Base flags **`/G1 /AM /Gs /Os`** (80186, medium model, no stack checks, size
   optimization). Flags are chosen **per source file**: `/Ox` is required for
   functions whose original keeps a value in `DX`/`BX` instead of spilling it.
-- **161 functions byte-verified**: **MATCH 32**, **RELOCS 129**, plus
-  **22 PENDING** rows, each with the tested variants and the surviving diff.
+- **162 functions byte-verified**: **MATCH 32**, **RELOCS 130**, plus
+  **25 PENDING** rows, each with the tested variants and the surviving diff.
   Start with **`docs/HOWTO.md`** — reproduce a row, extend the ledger, or diagnose a
   mismatch. Ledger: `docs/MATCHING.md`. `tools/verify.py` rebuilds every source from
   scratch and re-checks every row (exit 0 = green); `tools/checkled.py` proves the

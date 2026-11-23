@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 93 — the three-unit duplicate group is now in the ledger, not in a lost round
+Maintenance round. No new bytes, but round 92's analysis would otherwise have
+evaporated, so it is recorded where a reader will find it.
+
+- **Three `PENDING` rows added** for the duplicate group `3807:0004`, `380c:0000`,
+  `3811:0004` (28 B each, byte-identical): `*p = HELP(*p)` through a far pointer
+  built from a `seg`/`off` pair. The note names the exact cause (trait 3, split
+  pointer load: original `8B 76 04` + `8E 46 06`, MSC `les`/`8E C1`) and the fact
+  that one transcription would cover all three if the load were reachable. Ledger
+  PENDING count 22 → 25 as a result.
+- **All generators re-run** against the current ledger: `setters` 0, `wraps` 0
+  generatable (33 skipped on `push cs`), `swapgen` 0 and correctly refusing to
+  overwrite `cswap4.c`.
+- **All derived docs regenerated** (`GAP.md`, `STATUS.md`, coverage) and the README
+  figures synced to the tools' own output rather than hand-edited: 162 functions,
+  MATCH 32 / RELOCS 130 / PENDING 25, 2646 bytes (0.902 %), ceiling 455 units /
+  24 528 B.
+- Ledger: 187 rows — MATCH 32, RELOCS 130, PENDING 25.
+
 ## Round 92 — no new rows; three duplicate units understood
 No increment. The round pursued round 91's `register`→SI hypothesis on counter-driven
 units and found one family that looked ideal but is blocked for a different reason.

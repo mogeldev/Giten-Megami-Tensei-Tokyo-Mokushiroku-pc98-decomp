@@ -9,7 +9,7 @@
 |---|---|
 | MATCH | 32 |
 | RELOCS | **130** |
-| PENDING | **22** |
+| PENDING | **25** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -35,6 +35,9 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `1e38:0002` **RECORD_CFG** (56 B) — Saves `g_40ba` in DX, stores two arguments, records a code (`(c == -1) ? 7 : c` when `c != 0`), sets a flag and returns the saved word. With /Ox /Oa /
 - `465d:0000` **UPD** (60 B) — `if (s) { if (x != -1) s->t->x = x
 - `4e11:007e` **WEIGHT2** (40 B) — `return 2*(5*(abs(a)+1) + abs(b)) + c
+- `3807:0004` **UPD_FP (dup 1/3)** (28 B) — `*p = HELP(*p)` through a far pointer built from a seg/off pair. Original loads it split: `8B 76 04` + `8E 46 06` + `26 FF 34`
+- `380c:0000` **UPD_FP (dup 2/3)** (28 B) — byte-identical to 3807:0004, same split-load cause
+- `3811:0004` **UPD_FP (dup 3/3)** (28 B) — byte-identical to 3807:0004, same split-load cause
 
 ## Coverage (honest byte metric)
 
@@ -46,7 +49,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
 | of which **verified** | **2646 (0.902%)** |
-| PENDING bytes | 821 |
+| PENDING bytes | 905 |
 
 Code functions: **2523**, of which verified **162**.
 
@@ -56,7 +59,7 @@ Code functions: **2523**, of which verified **162**.
 |---|---|---|---|---|---|---|---|
 | 0x0000 | 619 | 21 | 65131 | 329 (0.5%) | 897 | 360 | 191 |
 | 0x0001 | 525 | 25 | 65757 | 412 (0.6%) | 0 | 569 | 148 |
-| 0x0002 | 763 | 71 | 65522 | 1108 (1.7%) | 0 | 0 | 123 |
+| 0x0002 | 763 | 71 | 65522 | 1108 (1.7%) | 0 | 0 | 207 |
 | 0x0003 | 561 | 43 | 64435 | 786 (1.2%) | 0 | 0 | 359 |
 | 0x0004 | 55 | 2 | 33329 | 11 (0.0%) | 66 | 11282 | 0 |
 
