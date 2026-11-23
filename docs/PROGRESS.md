@@ -1,5 +1,12 @@
 # PROGRESS
 
+## Runde 9 — 32-Bit-Getter-Paar + Flag-Op: 11 RELOCS gesamt (2026-11-23)
+- cget3.c: get_l (far) + get_ln (__near) — DX:AX-Rueckgabe, je 2x disp16-Fixup,
+  Original 1871:d0e4 / 35ca:3c34 (Ghidra hatte get_l als 16-Bit fehltypisiert).
+- cflag1.c: set_flag = or byte [0x0F44],0x40 — Einzelmitglied, Bereich <=8 Bytes
+  damit vollstaendig klassifiziert (GET 8, Paar 2, Flag 1).
+- verify: gruen, Ledger 11 Zeilen, 0 PENDING.
+
 ## Runde 8 — GET-Familie komplett: 8/8 RELOCS (2026-11-23)
 - Familien-Scan (Funktionen <=8 Bytes nach Codeform): GET-Familie hat 8 Mitglieder.
 - Teil 2 (cget2.c): vier Einzelscalar-Getter auf DGROUP 0x1A4/0x2FCE/0x2C50/0x2D0C —

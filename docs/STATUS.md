@@ -2,8 +2,8 @@
 
 (vorerst handgeführt; ab regelmäßigem Betrieb erzeugt `tools/report.py` diese Datei)
 
-- implementiert & MATCH: **0** / RELOCS: **8** (Ledger 2026-11-23: GET-Familie
-  komplett — 4 Array-Getter + 4 Einzelscalar-Getter; `/G1 /AM /Gs /Os`)
+- implementiert & MATCH: **0** / RELOCS: **11** (Ledger 2026-11-23: GET-Familie 8/8,
+  32-Bit-Getter-Paar far+near, Flag-Op-Singleton; `/G1 /AM /Gs /Os`)
 - PENDING: **0**
 - bekanntes Inventar: **1970** Funktionen (`ground_truth/functions.csv`);
   38 davon hatte Ghidra-Dekompilierungsfehler → zuerst klären (meist Daten-als-Code).
