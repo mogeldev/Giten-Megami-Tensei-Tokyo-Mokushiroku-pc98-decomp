@@ -1,5 +1,38 @@
 # PROGRESS
 
+## Round 11: the second generation is pinned to "MSC 5.1 layout + MSC 6 zero"
+This round was an investigation, not a harvest: no new ledger rows, but the
+largest open question - which compiler produced the jump-merge/half-register
+modules - is now much narrower.
+
+Two candidates were measured against real units:
+
+- **Turbo C 2.01** (`toolchain/tc201`, TCC -c -ml -O, runs under DOSBox 0.74):
+  it reproduces push-bp frames, the bare `5D` epilogue, the merged-return
+  layout (`... B8 01 00 EB 02 33 C0 CB`), `33 C0` zeroing, `33 C0 50` for a
+  zero argument and SI-staged temporaries - i.e. every "-style" trait except
+  two: its comparisons use `3B 06` (`cmp ax,[g]`) where the originals use
+  `39 06` (`cmp [g],ax`), and its array scaling uses `D1 E3` (`shl bx,1`) where
+  the originals use `03 DB` (`add bx,bx`). So Turbo C is **not** the source.
+- **MSC 5.1** (/G1 /AM /Gs /Os, now runnable through `build.py`): its layout is
+  **byte-identical** to the originals for the whole family of merge units -
+  `A1 <g> / 39 06 <g> / 7E 05 / B8 01 00 / EB 02 / ?? / CB` - including the
+  `39 06` operand order and the `EB 02` merge, with exactly one difference: it
+  zeroes with `2B C0` (`sub ax,ax`) where the originals have `33 C0`
+  (`xor ax,ax`). Every source form tried (`return a > b;`, `if/return 1/return
+  0`, ternary, `!= 0`, `!!`, unsigned/char returns) and every flag tried
+  (`/Oa`, `/Ol`, `/G0`, `/Ot`) keeps `2B C0`.
+
+So the missing generation is *MSC 5.1-class layout with the MSC 6.0 zero
+idiom* - i.e. a compiler between 5.1 and 6.0, most plausibly **MSC 5.0** (or a
+QuickC 2.x built on it). It differs from MSC 5.1 in two observable ways: `33 C0`
+instead of `2B C0`, and push-bp frames without the `33 C0 9A` stack-check
+preamble that MSC 5.1 always emits. Obtaining that compiler is now the single
+highest-value step for the project; until then those units cannot verify.
+
+Ledger unchanged at 376 rows - MATCH 37, RELOCS 315, ASM 1, PENDING 23; verify
+and checkled green; own-code coverage 6 535 B (2.229 %).
+
 ## Round 10: a shape-driven generator for two-call relays (3 rows, 89 B)
 `tools/shapes.py` parses a deliberately tiny grammar - frame, optional `si`/`di`
 saves, pushes of Pascal argument slots, constants, register copies of arguments
