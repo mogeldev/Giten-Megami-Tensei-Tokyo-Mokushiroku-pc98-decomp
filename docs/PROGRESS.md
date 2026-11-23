@@ -1,5 +1,11 @@
 # PROGRESS
 
+## Four packed-table scan wrappers verified together
+The `4386:0024`/`4386:0044` and `43ac:0004`/`43ac:0024` pairs share one
+source and flag set (31 B each, all RELOCS). They pass 64 or 16 entries,
+a four-byte stride, and a DGROUP far pointer to one of two far Pascal
+callees. `capacity - result` reproduces the original `sub; neg` sequence.
+
 ## Packed-table pointer getter verified
 `42bc:000c` (6 B, RELOCS) returns the far address of the table used by
 `_clear_entries`. Its offset is an OMF fixup; the `mov dx,ds` and far return

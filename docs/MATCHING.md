@@ -220,3 +220,7 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 21ff:0004 | PREP_RELAY | 31 | RELOCS | src=src/calib/cbatch1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; keep the first argument in SI and reuse it in two near Pascal calls |
 | 4dac:0000 | SETUP_RELAY | 33 | RELOCS | src=src/calib/cbatch1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; pass the first call's AX result and the saved index in DX to a near fastcall callee |
 | 42bc:000c | _get_entries | 6 | RELOCS | src=src/calib/ctable2.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; return a far pointer to the table at DGROUP:0x876E; starts after a return and padding, outside the inventory's unit starts |
+| 4386:0024 | SCAN64_A | 31 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; subtract the far Pascal scan result from 64 for the four-byte table at DGROUP:0x866E |
+| 4386:0044 | SCAN64_B | 31 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; same 64-entry wrapper with the alternate scanner |
+| 43ac:0004 | SCAN16_A | 31 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; 16-entry counterpart using DGROUP:0x886E |
+| 43ac:0024 | SCAN16_B | 31 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; 16-entry counterpart with the alternate scanner |
