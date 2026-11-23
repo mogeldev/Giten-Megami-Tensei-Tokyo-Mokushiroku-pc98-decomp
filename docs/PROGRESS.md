@@ -1,5 +1,14 @@
 # PROGRESS
 
+## Runde 19 — 12 211 Bytes Fehlinventarisierung als Daten klassifiziert (2026-11-23)
+- Die 38 Ghidra-Dekompilierungsfehler sortiert: 14 Eintraege nachweislich kein
+  Code — CD-3F-Soundtreiber-Befehlsbloecke (NMUSE/MIDE, 6-Byte-Stride), lineare
+  Wort-Tabellen, 10,9-KB-Nullfeld, ASCII-String 'num err floor'.
+- ground_truth/not_code.csv + coverage.py-Datenkategorie: Metrik jetzt dreifach
+  ehrlich — 293 640 Eigencode-Bytes (statt 306 814), 66 verifiziert.
+- ~24 weitere FAILs sehen nach echten Funktionen aus (ENTER-Rahmen, Parameter-
+  loads) — Kandidaten fuer spaetere Runden.
+
 ## Runde 18 — conv entschlusselt: 14/16 Byte, Muster-These Hand-ASM (2026-11-23)
 - 458e:a1ea == inc_39f8_capped (schon RELOCS ✓) — 'slot_update' gratis.
 - 4fad:0006 (CONV, 16 B, near-pascal Lookup): 5 Quellformen + 3 Opt-Stufen —

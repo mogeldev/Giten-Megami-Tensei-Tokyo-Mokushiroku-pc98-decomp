@@ -1,0 +1,15 @@
+va,linear,size,evidence
+17b1:0360,0x17e70,12,"CD-3F-Befehlsbloecke (NMUSE/MIDE-Soundtreiber), 6-Byte-Stride"
+17b1:036c,0x17e7c,102,"CD-3F-Befehlsbloecke (NMUSE/MIDE-Soundtreiber), 6-Byte-Stride"
+17b1:0798,0x182a8,180,"CD-3F-Befehlsbloecke (NMUSE/MIDE-Soundtreiber), 6-Byte-Stride"
+17b1:084c,0x1835c,6,"CD-3F-Befehlsbloecke (NMUSE/MIDE-Soundtreiber), 6-Byte-Stride"
+17b1:0852,0x18362,6,"CD-3F-Befehlsbloecke (NMUSE/MIDE-Soundtreiber), 6-Byte-Stride"
+17b1:0858,0x18368,6,"CD-3F-Befehlsbloecke (NMUSE/MIDE-Soundtreiber), 6-Byte-Stride"
+17b1:085e,0x1836e,6,"CD-3F-Befehlsbloecke (NMUSE/MIDE-Soundtreiber), 6-Byte-Stride"
+17b1:0864,0x18374,6,"CD-3F-Befehlsbloecke (NMUSE/MIDE-Soundtreiber), 6-Byte-Stride"
+17b1:086a,0x1837a,36,"CD-3F-Befehlsbloecke (NMUSE/MIDE-Soundtreiber), 6-Byte-Stride"
+2603:3888,0x298b8,368,"lineare Wort-Tabelle (0x1160,0x1180,... Schritt 0x20)"
+2603:39f8,0x29a28,201,"lineare Wort-Tabelle (0x648,0x660,... Schritt 0x18)"
+55c9:221a,0x57eaa,10932,reines Nullfeld
+58fc:199e,0x5a95e,62,Wort-/Zeiger-Tabelle (strukturierte Daten)
+58fc:19dc,0x5a99c,288,ASCII-String ' num err floor'

@@ -2,9 +2,9 @@
 
 (vorerst handgeführt; ab regelmäßigem Betrieb erzeugt `tools/report.py` diese Datei)
 
-- **Coverage (coverage.py, ehrliche Byte-Metrik):** 306 814 Code-Bytes inventarisiert,
-  davon **963 Fremd-CRT** (konservativ, foreign_crt.csv) → **305 851 Eigenbytes**;
-  **66 verifiziert (0,022 %)**, 12/1970 Funktionen.
+- **Coverage (coverage.py, ehrliche Byte-Metrik):** 306 814 inventarisiert,
+  davon 963 Fremd-CRT + **12 211 Daten (Fehlinventarisierung, not_code.csv)** →
+  **293 640 Eigencode-Bytes; 66 verifiziert (0,022 %)**, 12/1970 Funktionen.
 - implementiert & MATCH: **0** / RELOCS: **12**, PENDING: **1** (get_39f8_clamped —
   Sprung-Merge-Polarität, s. IDIOMS.md)
 - PENDING: **0**

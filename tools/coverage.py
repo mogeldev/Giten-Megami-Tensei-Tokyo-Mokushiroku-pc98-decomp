@@ -21,6 +21,11 @@ def main():
     if os.path.isfile(fc):
         for r in csv.DictReader(open(fc)):
             foreign[int(r["linear"], 16)] = int(r["size"])
+    notcode = {}
+    nc = os.path.join(ROOT, "ground_truth", "not_code.csv")
+    if os.path.isfile(nc):
+        for r in csv.DictReader(open(nc)):
+            notcode[int(r["linear"], 16)] = int(r["size"])
 
     ledger = os.path.join(ROOT, "docs", "MATCHING.md")
     matched, pending = {}, {}
@@ -41,7 +46,7 @@ def main():
     for lin, size in funcs.items():
         reg = (lin - IMG_BASE) >> 16
         d = regions.setdefault(reg, {"total": 0, "matched": 0, "pend": 0,
-                                     "fremd": 0, "n": 0, "nm": 0})
+                                     "fremd": 0, "notcode": 0, "n": 0, "nm": 0})
         d["total"] += size
         d["n"] += 1
     for lin, size in matched.items():
@@ -55,27 +60,32 @@ def main():
         reg = (lin - IMG_BASE) >> 16
         if reg in regions:
             regions[reg]["fremd"] += size
+    for lin, size in notcode.items():
+        reg = (lin - IMG_BASE) >> 16
+        if reg in regions:
+            regions[reg]["notcode"] += size
 
     print(f"{'Region':>8} {'Funktionen':>10} {'davon ok':>8} "
-          f"{'Code-Bytes':>11} {'verifiziert':>11} {'Fremd-CRT':>9} {'PENDING':>7}")
-    tot_b = ok_b = pend_b = fremd_b = tot_f = ok_f = 0
+          f"{'Code-Bytes':>11} {'verifiziert':>11} {'Fremd-CRT':>9} {'Daten':>6} {'PENDING':>7}")
+    tot_b = ok_b = pend_b = fremd_b = nc_b = tot_f = ok_f = 0
     for reg in sorted(regions):
         d = regions[reg]
         tot_b += d["total"]
         ok_b += d["matched"]
         pend_b += d["pend"]
         fremd_b += d["fremd"]
+        nc_b += d["notcode"]
         tot_f += d["n"]
         ok_f += d["nm"]
-        eig = d["total"] - d["fremd"]
+        eig = d["total"] - d["fremd"] - d["notcode"]
         pct = f"{100 * d['matched'] / eig:.1f}%" if eig > 0 else "-"
         print(f"  {reg:>#6x} {d['n']:>10} {d['nm']:>8} "
-              f"{d['total']:>11} {d['matched']:>11} {d['fremd']:>9} {d['pend']:>7}  ({pct} Eigenbytes)")
-    eig_b = tot_b - fremd_b
+              f"{d['total']:>11} {d['matched']:>11} {d['fremd']:>9} {d['notcode']:>6} {d['pend']:>7}  ({pct} Eigenbytes)")
+    eig_b = tot_b - fremd_b - nc_b
     pct = f"{100 * ok_b / eig_b:.3f}%" if eig_b else "-"
-    print(f"Gesamt: {tot_f} Funktionen, {ok_f} verifiziert — {tot_b} Code-Bytes "
-          f"(davon {fremd_b} Fremd-CRT), {ok_b} verifiziert ({pct} der Eigenbytes), "
-          f"{pend_b} PENDING")
+    print(f"Gesamt: {tot_f} Funktionen, {ok_f} verifiziert — {tot_b} inventarisiert, "
+          f"davon {fremd_b} Fremd-CRT + {nc_b} Daten — {eig_b} Eigencode-Bytes, "
+          f"{ok_b} verifiziert ({pct}), {pend_b} PENDING")
 
 
 if __name__ == "__main__":
