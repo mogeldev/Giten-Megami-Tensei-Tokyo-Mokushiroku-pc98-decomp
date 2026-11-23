@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 10: a shape-driven generator for two-call relays (3 rows, 89 B)
+`tools/shapes.py` parses a deliberately tiny grammar - frame, optional `si`/`di`
+saves, pushes of Pascal argument slots, constants, register copies of arguments
+and globals, exactly two `/F`-translated calls, `leave` plus `retf imm` - and
+emits the C, builds once, matches every candidate and appends the verified rows.
+It is honest about its ceiling: only **two** pure two-call relays were left in
+the pool (one matched, `3e19:0044`, 31 B), because the remaining ~190
+framed+call units have real bodies (loads, stores, arithmetic) instead of plain
+argument relays.
+
+Manual follow-up in `crelay21.c` (29 B each):
+
+- `2d49:0016` - `return d3(c3(1, 100, 0), a, 0);`, a constant-argument call
+  nested as the first argument;
+- `31cf:0008` - `return l3((long)l2(c0(), a));`, the int result widened with
+  `cwd` and pushed as a long.
+
+Near-miss recorded on purpose: `31dd:0008` calls `c0()` **before** pushing `a`,
+while MSC evaluates Pascal arguments left to right, so no source order
+reproduces it.
+
+Ledger 375 rows - MATCH 37, RELOCS 314, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 6 513 B (2.222 %).
+
 ## Round 9: eight more framed-family rows (211 B) and a compiler crash
 `src/calib/crelay20.c` (`/Os`) continues the framed + translated-call vein with
 the shapes that repeat most often:

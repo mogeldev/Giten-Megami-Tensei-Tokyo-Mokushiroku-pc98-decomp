@@ -133,6 +133,7 @@ tools/setters.py    far-pascal store setters        (55 8B EC (8B 46 xx A3 d)+ .
 tools/wraps.py      thin call wrappers              (pushes + E8 + leave/ret)
 tools/swapgen.py    swap-and-return                 (8B 16 <g> ... 8B C2 / C9 ...)
 tools/relays.py     LINK-/F relay family            (55 8B EC pushes 90 0E E8 ... C9 CA)
+tools/shapes.py     two-call relay templates        (frame, pushes/args, 2 translated calls)
 ```
 
 `tools/framecheck.py` is different: it audits the **inventory** rather than the code,
