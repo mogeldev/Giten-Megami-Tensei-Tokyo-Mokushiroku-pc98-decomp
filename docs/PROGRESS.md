@@ -1,5 +1,12 @@
 # PROGRESS
 
+## Runde 16 — PENDING-Semantik bewiesen (2026-11-23, Abend)
+- Aufrufer von 4fab:000a gefunden (FUN_458e_a20e): Slot-Index-Allokator,
+  Sentinel -1 wird geprueft, Slots 0x27 Byte, Array-Basis DGROUP-relativ
+  (-0x6d58). Sprung-Merge bleibt Hand-ASM-Verdacht — PENDING-Notiz vertieft.
+- FUN_458e_a20e selbst (52 B Slotfuell-Routine) ist ein Kandidat fuer die
+  naechste Familien-Runde: Parameter, Feldschreibzugriffe, RTC-lose Form.
+
 ## Runde 15 — Coverage trennt Fremdcode (2026-11-23, abends)
 - coverage.py zeigt 'Fremd-CRT'-Spalte: 963 B (35 eindeutige Bibliothekssignaturen)
   werden von der Eigenbyte-Metrik abgezogen — Prozent jetzt gegen Eigenbytes
