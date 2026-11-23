@@ -64,16 +64,18 @@ Code functions: **1956**, of which verified **53**.
   `match.py` (reloc masking), `verify.py` (ledger recheck), `coverage.py`
   (byte metric), `report.py` (produces this file), `markcrt.py` (CRT signatures).
 
-## Open (order for the next rounds)
+## Open (state at round 40)
 
-1. `LINK.EXE` (DOSX16) hangs under dosbox-x in all DPMI variants — prerequisite
-   for `build_replacement` (phase 6); candidate: native OMF linker (jwlink)
-2. Remaining volume is in **larger framed functions**; small one-statement
-   families are measured empty (round 32). Work them with the decompiler plus a
-   caller that pins down arity/semantics, one function per round
-3. SLOT_FILL (166 B): original uses `ENTER 2` with `di`+`si`; ours uses
-   `ENTER 8`. Next idea would be separate segment/offset parameters, but MSC 7
-   lacks `MK_FP`, so it needs a different formulation
-4. For the next PENDING candidate, check the caller first — otherwise the
-   hand-ASM question stays open (MSC 6 tested and disproved, round 26)
+1. **The inventory undercounts functions**: 189 of 1,956 entries hide 2..6 real
+   units (461 hidden). Split them before any further coverage claim; the detector
+   recipe is in `docs/PROGRESS.md` (round 39).
+2. `LINK.EXE` (DOSX16) hangs under dosbox-x in all DPMI variants — prerequisite
+   for `build_replacement` (phase 6); candidate: native OMF linker (jwlink).
+   Without it, link-time alignment diffs (round 39) cannot be proven either way.
+3. Remaining volume is in larger framed functions; small one-statement families
+   are measured empty (round 32) and the two-parameter `retf 4` shapes too
+   (round 29). Work continues one function at a time, caller-guided.
+4. Hand-ASM verdict for the modules that use `add bx,bx`, `C7 06` zero stores or
+   a `DX`-staged 32-bit exchange: MSC 6 and MSC 7 both ruled out at every tested
+   optimization level. Those rows stay PENDING by policy.
 <!-- MANUAL-END -->

@@ -1,5 +1,20 @@
 # PROGRESS
 
+## Round 40 — close-out: clean rebuild green, 53 functions verified
+- Wiped `build/` completely and re-ran `tools/verify.py`: **21 objects rebuilt from
+  source, 67 ledger rows re-checked, exit 0, 47.7 s**. Nothing in this report
+  depends on a stale object file.
+- Final state: **MATCH 10, RELOCS 43, PENDING 14**; **711 / 293 640 own code bytes
+  verified (0.242 %)**; 12 211 B of the image are data, 963 B foreign CRT.
+- README rewritten: stale figures (12 functions / 0.022 %) replaced, and a
+  "what is proven, and what is not" section added so the state cannot be
+  misread as a finished decompilation.
+- Open list re-ordered by importance; the inventory undercount (461 hidden units)
+  is now item 1 because every coverage number depends on it.
+- Tooling as of close-out: `build.py` (cached compiler driver), `verify.py`
+  (rebuild + ledger recheck), `omfdump.py`, `match.py`, `coverage.py`,
+  `report.py`, `mine.py`, `sweep.py`, `markcrt.py`, `gt.py`, `disasm.py`.
+
 ## Round 39 — merged blobs quantified: 461 hidden functions (53 verified)
 - Built a detector for merged inventory entries (terminator + gap + new
   prologue) and measured the structural damage: **189 inventory entries hide at
