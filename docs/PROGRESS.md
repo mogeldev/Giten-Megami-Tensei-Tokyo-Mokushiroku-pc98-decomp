@@ -1,5 +1,22 @@
 # PROGRESS
 
+## Round 79 — one 44-byte RELOCS
+- `1f6f:000c` **PICK_PTR** (44 B, RELOCS, `src/calib/cpick1.c`, `/Ox /Oa /Os`) —
+  a three-way far-pointer selector:
+  `if (kind == 0) return g_a; if (kind == 2) return g_b; return g_c;`
+  Two details pinned it down: each pointer is loaded as **`A1 <offset>` + `8B 16
+  <segment>`** (the halves separately, not `les`), and the globals must be declared
+  in *memory* order (0x46EC `a`, 0x46F0 `c`, 0x46F4 `b`) even though the source
+  order is a, b, c.
+- Two things kept failing for the documented reasons:
+  - a two-global comparison (`3d91:0020`, `5026:013e`) — the branch polarity is
+    always inverted relative to MSC's layout, and flipping the C condition just
+    moves the mismatch to the other opcode (`7D`→`7C`→`7E`); it is the branch-block
+    order trait;
+  - `1fdd:0000` (two zero stores) — the original uses `C7 06 <g> 00 00`, MSC emits
+    `33 C0 / A3 <g>`, the zero-store trait from rounds 25/26.
+- Ledger: 170 rows — MATCH 32, **RELOCS 116**, PENDING 22.
+
 ## Round 78 — missed-split vein measured and empty; one RELOCS
 - **Quantified round 77's lead and it is a dead end.** Scanning every unmatched
   unit for an internal return followed by a plausible prologue (`55 8B EC` or `6A`)

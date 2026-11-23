@@ -15,6 +15,16 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 79 - far pointers to globals load in halves
+- Returning a global far pointer loads `A1 <offset>` then `8B 16 <segment+2>` -
+  **not** `les`. So a DGROUP `char __far *` global read for a return value keeps
+  the halves separate; do not try to force `les`.
+- Global declaration order must follow **memory order**, not source order: if the
+  addresses are 0x46EC, 0x46F0, 0x46F4 but the code tests them as a, c, b, declare
+  them as a, c, b so the offsets match.
+- A comparison whose branch polarity will not line up is the branch-block-order
+  trait: flipping the condition moves the mismatch to the mirrored opcode
+  (`7D` -> `7C` -> `7E`) instead of fixing it. Stop there.
 ## Round 78 - loop polarity, and fragments are not functions
 - **The conditional-jump opcode names the loop condition**: `cmp [g],0` followed
   by `75 F9` (`jne` back) is `while (g != 0) ;`; `74 F9` (`je` back) is
