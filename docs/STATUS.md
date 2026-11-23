@@ -64,17 +64,17 @@ Code functions: **1956**, of which verified **57**.
   `match.py` (reloc masking), `verify.py` (ledger recheck), `coverage.py`
   (byte metric), `report.py` (produces this file), `markcrt.py` (CRT signatures).
 
-## Open (state at round 40)
+## Open (state at round 41)
 
-1. **The inventory undercounts functions**: 189 of 1,956 entries hide 2..6 real
-   units (461 hidden). Split them before any further coverage claim; the detector
-   recipe is in `docs/PROGRESS.md` (round 39).
-2. `LINK.EXE` (DOSX16) hangs under dosbox-x in all DPMI variants — prerequisite
+1. **Inventory split done, metric not yet switched**: `tools/split.py` recovers
+   **2 463 real units from 1 956 entries** (507 hidden functions). `coverage.py`
+   still counts against `functions.csv`, so its percentage uses the old
+   denominator — switching it to `units.csv` is the next accuracy step.
+2. Only 6 of the recovered hidden units are call-free and jump-free; the rest
+   need decompiler-guided work, so the split mainly matters for honest counting.
+3. `LINK.EXE` (DOSX16) hangs under dosbox-x in all DPMI variants — prerequisite
    for `build_replacement` (phase 6); candidate: native OMF linker (jwlink).
    Without it, link-time alignment diffs (round 39) cannot be proven either way.
-3. Remaining volume is in larger framed functions; small one-statement families
-   are measured empty (round 32) and the two-parameter `retf 4` shapes too
-   (round 29). Work continues one function at a time, caller-guided.
 4. Hand-ASM verdict for the modules that use `add bx,bx`, `C7 06` zero stores or
    a `DX`-staged 32-bit exchange: MSC 6 and MSC 7 both ruled out at every tested
    optimization level. Those rows stay PENDING by policy.
