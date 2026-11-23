@@ -23,12 +23,24 @@ Two candidates were measured against real units:
   0`, ternary, `!= 0`, `!!`, unsigned/char returns) and every flag tried
   (`/Oa`, `/Ol`, `/G0`, `/Ot`) keeps `2B C0`.
 
-So the missing generation is *MSC 5.1-class layout with the MSC 6.0 zero
+So the missing generation is *MSC 5.1-class layout with a different zero
 idiom* - i.e. a compiler between 5.1 and 6.0, most plausibly **MSC 5.0** (or a
 QuickC 2.x built on it). It differs from MSC 5.1 in two observable ways: `33 C0`
 instead of `2B C0`, and push-bp frames without the `33 C0 9A` stack-check
-preamble that MSC 5.1 always emits. Obtaining that compiler is now the single
-highest-value step for the project; until then those units cannot verify.
+preamble that MSC 5.1 always emits.
+
+One more data point sharpens it further: `1ab9:0004`
+(`g_536e = sub0(); g_9652 = 0; g_9650 = 0;`) compiles in the original to
+`E8 .. A3 <g> 2B C0 A3 <g> A3 <g> CB` - i.e. a **`sub ax,ax` + `mov [g],ax`**
+zero *store*. MSC 5.1 emits `C7 06 <g> 00 00` for the same source and MSC 6/7
+emits `33 C0` + `A3`, so neither of the two compilers we can run has that
+zero-store form at all: the original predates the `C7 06` immediate-store
+optimisation. That points at MSC 4.x/5.0, which is consistent with the two
+generations the rest of the analysis implies.
+
+Obtaining that compiler (MSC 5.0, or QuickC 1.x/2.0 built on it) is now the
+single highest-value step for the project; until then those units cannot
+verify.
 
 Ledger unchanged at 376 rows - MATCH 37, RELOCS 315, ASM 1, PENDING 23; verify
 and checkled green; own-code coverage 6 535 B (2.229 %).
