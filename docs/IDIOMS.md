@@ -3,6 +3,18 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 63 - two far-call encodings, one of them unavailable
+- The binary contains **213 units** with `90 0E E8 <rel16>` (`push cs` then a
+  near call) and **86** with `9A` (direct far call, often to an absolute
+  `0000:xxxx` target). MSC 7 emits `9A` even for a far callee defined in the
+  same file, and a near callee gives a bare `E8`. So the `push cs; call` form
+  cannot be produced from C here - a wrapper family of 213 units is blocked on it.
+- **Classify the call form before generating**: `E8` (near callee) and
+  `0E E8` (unavailable) look alike at a glance; a regex that accepts both
+  produces confident-looking but wrong sources.
+- Pascal parameter mapping for generated wrappers: offset `n` maps to
+  `p[nparams-1-(n-6)//2]`, because the first declared parameter sits at the
+  highest frame offset.
 ## Round 62 - what a body-identical / epilogue-different function proves
 - `11d8:000c` is the control experiment the fingerprint needed: 58 of 60 bytes
   match, including every store and the far-pointer return, and only the teardown

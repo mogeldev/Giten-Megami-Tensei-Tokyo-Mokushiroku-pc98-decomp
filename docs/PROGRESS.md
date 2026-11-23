@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 63 — wrapper family automated; a 213-unit family identified as blocked
+- Measured where the remaining mass is before choosing a target: small units
+  (≤32 B) are only ~4.7 % of unmined bytes, the bulk is 65 B and up (85 %). Since
+  function count still matters, the 17..32 band (467 units) was clustered by
+  opening bytes — and **85 units share one shape**: thin wrappers
+  `55 8B EC (push ...)+ (0E) E8 rel C9 CA/C2 imm`.
+- New tool **`tools/wraps.py`** parses the push list (parameters and constants),
+  generates the wrapper source and matches every member:
+  **4/4 verified** — `23ee:0008` (46 B, 12 arguments), `256e:000a`, `257d:000a`,
+  `39dc:000a` (27 B, six pushes including a zero constant).
+- Two generator bugs fixed on the way: the parameter mapping was **reversed**
+  (pascal puts the *first* declared parameter at the *highest* frame offset), and
+  the call form had to be classified rather than assumed.
+- **The important negative result:** the binary uses two far-call encodings.
+  `E8` (near call) is generatable; `90 0E E8` (`push cs; call near`) is **not** —
+  MSC 7 always emits `9A` for a far call, verified with a same-file far callee.
+  **213 small units in the binary use the `push cs; call` form**, and 33 of the
+  wrapper candidates had to be skipped because of it. Recorded rather than
+  forced, and `wraps.py` now counts them so the gap is visible.
+- Ledger: 133 rows — MATCH 24, **RELOCS 88**, PENDING 21.
+
 ## Round 62 — no coverage gain; the epilogue fingerprint isolated to one function
 Reported plainly: this round added **no verified bytes**. It went into the 56..120
 band (59 call-free framed units) and produced three near-misses, one of which is
