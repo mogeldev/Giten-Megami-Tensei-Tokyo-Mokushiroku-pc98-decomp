@@ -8,10 +8,15 @@ re-check the whole ledger, reproduce one row, and diagnose a mismatch.
 
 ```
 ../toolchain/msc7i/           Microsoft C/C++ 7.0 (CL 8.00) — BIN, LIB, INCLUDE
-../toolchain/dosboxx/         DOSBox-X
+../toolchain/msc6c/           Microsoft C 6.0 (DOS CL 6.0) — optional, --msc-dir MSC6C
+../toolchain/dosboxx/         DOSBox-X (handles both; DOSBox 0.74 also works for real-mode CL)
 ../toolchain/HDPMI32.EXE      DPMI host for the 32-bit CL driver
 ../giten/DDS98/DDS98.EXE     the original binary (NOT in this repo)
 ```
+
+The MSC 6.0 set is only needed for `0E E8` (`push cs; call`) units; it is built
+from `msc6\disk8` (CL), `disk1/2` (C1/C2) and `disk7` (C3), see CONVENTIONS.md.
+It runs **without** DPMI: `build.py ... --msc-dir MSC6C --no-dpmi`.
 
 `build.py` launches DOSBox-X with `-nopromptfolder`, loads `HDPMI32`, sets
 `PATH`/`INCLUDE`/`LIB` to the MSC directory, and compiles one source file. It

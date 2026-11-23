@@ -7,10 +7,10 @@
 
 | Status | Count |
 |---|---|
-| MATCH | 36 |
-| RELOCS | **183** |
+| MATCH | 37 |
+| RELOCS | **184** |
 | ASM (excluded from C coverage) | 1 |
-| PENDING | **24** |
+| PENDING | **23** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -27,11 +27,10 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `458e:a20e` **SLOT_FILL** (166 B) — Slot fill routine (pascal, 1 far param). Best variant 162/166 B
 - `4fad:0006` **CONV** (16 B) — `table[c]` word lookup at DGROUP 0x396A. **Reclassified (round 87):** the original indexes with `03 DB` (`add bx,bx`), i.e. trait 1 (doubling by add).
 - `473f:0036` **_far_long_const** (7 B) — Returns the long 0x43A30000. Original materialises the low word with `B8 00 00` (mov ax,0)
-- `1000:1364` **abs_branch** (13 B) — `int __far f(int v) { return (v < 0) ? -v : v
 - `4737:0002` **SLOT_PTR** (32 B) — `i = (v < 0
 - `2aa3:0048` **ZERO_Z** (38 B) — Zeroes six words of a far struct in the order +6, +0, +8, +2, +0xA, +4. Original loads the pointer as `8B 5E 06` + `8E 46 08` and keeps AX=0 throughou
 - `29ed:0004` **PUT_BE** (35 B) — Writes a big-endian word then a zero byte, returns p+2. The original stores the high byte straight from AH (`26 88 27`) after `8B 46 08 / 03 46 06`, a
-- `11d8:000c` **SET4** (60 B) — `struct S4 __far *__far f(int a,int b,int c,int d)` storing three words plus `d & 0x7FFF` into a 4-int struct and returning a far pointer to it. **58 
+- `11d8:000c` **SET4** (41 B) — `struct S4 *__far f(int a,int b,int c,int d)` storing three words plus `d & 0x7FFF` into a 4-int near struct and returning `(struct S4 __far *)&g_s4`.
 - `1e38:0002` **RECORD_CFG** (56 B) — Saves `g_40ba` in DX, stores two arguments, records a code (`(c == -1) ? 7 : c` when `c != 0`), sets a flag and returns the saved word. With /Ox /Oa /
 - `465d:0000` **UPD** (60 B) — `if (s) { if (x != -1) s->t->x = x
 - `4e11:007e` **WEIGHT2** (40 B) — `return 2*(5*(abs(a)+1) + abs(b)) + c
@@ -48,19 +47,19 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | Code bytes | 294174 |
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
-| of which **verified** | **3894 (1.328%)** |
-| PENDING bytes | 889 |
+| of which **verified** | **3914 (1.335%)** |
+| PENDING bytes | 857 |
 
-Code functions: **2523**, of which verified **219**.
+Code functions: **2523**, of which verified **221**.
 
 ## Regions (64 KiB)
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
-| 0x0000 | 619 | 24 | 65131 | 388 (0.6%) | 897 | 360 | 191 |
+| 0x0000 | 619 | 25 | 65131 | 401 (0.6%) | 897 | 360 | 159 |
 | 0x0001 | 525 | 34 | 65757 | 626 (1.0%) | 0 | 569 | 148 |
 | 0x0002 | 763 | 86 | 65522 | 1324 (2.0%) | 0 | 0 | 191 |
-| 0x0003 | 561 | 72 | 64435 | 1531 (2.4%) | 0 | 0 | 359 |
+| 0x0003 | 561 | 73 | 64435 | 1538 (2.4%) | 0 | 0 | 359 |
 | 0x0004 | 55 | 3 | 33329 | 25 (0.1%) | 66 | 11282 | 0 |
 
 <!-- MANUAL-BEGIN -->
@@ -68,25 +67,33 @@ Code functions: **2523**, of which verified **219**.
 
 - **MSC 7.0 (CL 8.00, 1992)**: dosbox-x + HDPMI32 TSR, `-nopromptfolder`,
   APPDATA redirect, `cycles=max` — recipe in `docs/CONVENTIONS.md`.
-- CFLAGS **confirmed: `/G1 /AM /Gs /Os`** (byte-identical calibration functions).
+- **MSC 6.0 (CL 6.0, DOS)**: `toolchain/msc6c` (real-mode CL from disk8, C1/C2
+  from disk1/2, C3 from disk7), dosbox-x **without** DPMI:
+  `build.py --msc-dir MSC6C --no-dpmi`. Emits `0E E8` for same-segment far calls
+  where MSC 7 emits `9A`; keywords are `far`/`pascal` (no `__pascal`).
+- CFLAGS **confirmed: `/G1 /AM /Gs /Os`** (byte-identical calibration functions),
+  plus **`/G0 /AM /Gs /Os`** for 8086 codegen: `/G0` is what produces the `5D`
+  epilogue (`pop bp` instead of `LEAVE`), not a second compiler generation.
   NOTE: `/Oy` and `/Ox` remove the frame — for frameless originals
   flags are to be chosen **per source file** (see `docs/IDIOMS.md`, round 23).
 - Tools: `build.py` (compiles), `omfdump.py` (MSC OMF incl. 0x9C fixups),
   `match.py` (reloc masking), `verify.py` (ledger recheck), `coverage.py`
   (byte metric), `report.py` (produces this file), `markcrt.py` (CRT signatures).
 
-## Open (state at round 41)
+## Open (state at round 90)
 
 1. **Metric switched to units** (round 42): `coverage.py` counts against
    `ground_truth/units.csv` — **2 523 real units** from 1 956 entries
    (567 hidden functions recovered by `tools/split.py`).
 2. `LINK.EXE` (DOSX16) hangs under dosbox-x in all DPMI variants — prerequisite
    for `build_replacement` (phase 6); candidate: native OMF linker (jwlink).
-3. **MSC 6 is untested, not ruled out** (round 46): the 6.00ax set from
-   archive.org ships a Windows PE driver, and the old "MSC 6 disproved" result was
-   void because stale objects were compared. A DOS-hosted MSC 6 is the open
-   prerequisite before calling the `add bx,bx` / `C7 06` units hand-written asm.
+3. **MSC 6.0 is runnable now** (round 90): a real-mode `CL` was on disk8 all
+   along; codegen is measured and differs only in `0E E8` / `2B C0` / keyword
+   syntax. The `add bx,bx` / `C7 06` / redundant `8B E5 5D` units are therefore
+   **still not explained** by MSC 6 — the hand/inline-ASM hypothesis stays, and
+   a DOS-hosted MSC 5.0 / Turbo C test is the remaining compiler-generation
+   question.
 4. Remaining PENDING rows need either a new flag insight (`/Ox /Oa /Os` closed the
-   clamp family in round 45) or a different source shape; each carries its tested
-   variants in the ledger.
+   clamp family in round 45; `/G0` closed `1000:1364` in round 90) or a different
+   source shape; each carries its tested variants in the ledger.
 <!-- MANUAL-END -->

@@ -37,7 +37,7 @@ Every one was also tested against the flag matrix (`/Os`, `/Ot`, `/Od`, `/Ox`,
 | 2 | far calls to same-segment functions as `push cs; call rel16` | MSC emits `9A` for a far callee (verified with a same-file far function) and a bare `E8` for a near one; `0E E8` is unreachable | 1232 / 180 177 |
 | 3 | far-pointer parameters loaded as two words (`8B 5E 06` + `8E 46 08`) instead of `les bx,[bp+6]` | `1df5:0008`, `2aa3:0048` — bodies otherwise identical | 367 / 84 175 |
 | 4 | jump targets padded with `90` even in size-optimised builds | `47ef:0008` (`EB 03 90` vs `EB 02`) and `2aa3:0002` (two `90` bytes, all displacements +2); `/Os` never pads and `/Ot` restructures the returns instead | 1400 / 225 317 |
-| 5 | epilogue `8B E5 5D` (`mov sp,bp; pop bp`) instead of `C9` | `11d8:000c` is 58/60 bytes identical; only the teardown differs. A bare `5D` epilogue is a milder variant of the same thing | 144 / 24 280 (+74 / 6 814) |
+| 5 | **`8B E5 5D`** (`mov sp,bp; pop bp`) instead of `C9` | `11d8:000c`: the body is byte-exact, only the teardown differs. **Corrected:** the bare `5D` variant is not a compiler trait but the **`/G0` (8086) target** — `LEAVE` is a 186+ instruction, so `/G0` emits `pop bp`. `1000:1364` closed as MATCH this way. What is still unexplained is the *redundant* `8B E5` (SP already equals BP): MSC 5.1, 6.0 and 7 all omit it | 144 / 24 280 (+74 / 6 814, of which the `5D` part is reachable with `/G0`) |
 | 6 | register-passed arguments (`mov ah,imm` then `call`) | `1cb7:0018`, `1cb9:0008`, `1cbf:0020` etc. No Microsoft C 7 construct emits `mov ah,imm` before a call — its `__fastcall` uses BX/CX/DX | 12 / 6 747 |
 | 7 | absolute ESA addressing (`mov es,imm16` then `es:[disp16]`) | `2d64:0008`; MSC always addresses a far object through a base register, even with `MK_FP(const_seg, const_off)` | 6 / 17 323 |
 | 8 | **`SI` as far-pointer base** (`push si` / `mov si,ax` / `es:[si+N]`) | `3a24:0006` (`clear32`), `38ad:000e` (`swap14`), `1df5:0008`, `2aa3:0048`, `37ef:000c`. MSC 7 puts the offset in **BX**. **Nuance (round 91):** `register` *does* steer a **loop counter** into SI - `4f89:0008` verifies with `register int i` - but it moves a pointer temporary to DI instead, so it does not rescue the far-pointer cases | 196 / 26 435 |
@@ -84,21 +84,25 @@ MSC 7 — but by exactly two bytes and for a now-understood reason.
   pointer parameter as `8B 5E 06` (offset) + `8E 46 08` (segment) instead of
   `C4 5E 06` (les). Seen in `1df5:0008` and `2aa3:0048`; MSC 7 emits `les`
   for parameter loads in every variant tried so far.
-## Phase-0 evidence round 48 — two epilogue styles = two compiler generations
+## Phase-0 evidence round 48 — epilogue styles (corrected)
 Counted in the load image (byte patterns, so read as a strong pointer, not proof):
 
 | Epilogue | Count | Who emits it |
 |---|---|---|
-| `C9` + ret (leave) | **1 754** | MSC 7 at every level tested |
-| `5D` + ret (pop bp, SP unchanged) | **230** | **never** by MSC 7 |
-| `8B E5 5D` + ret (mov sp,bp; pop bp) | **156** | never observed from MSC 7 either |
+| `C9` + ret (leave) | **1 754** | MSC 7 with `/G1`+ |
+| `5D` + ret (pop bp, SP unchanged) | **230** | MSC 5.1/6.0/7 with **`/G0`** (8086: no `LEAVE`) |
+| `8B E5 5D` + ret (mov sp,bp; pop bp) | **156** | not observed from any tested compiler |
 
-MSC 7 emits `leave` for a frame it opened with `push bp; mov bp,sp`, including at
-`/Ox /Oa /Os` and `/Oy /Os`. The 386 non-`leave` epilogues are therefore a
-fingerprint of a **second compiler generation** (or of hand-written assembly) and
-they explain why some units differ by exactly one byte in the epilogue while the
-body matches perfectly (`1000:1364` abs is the clearest case: `99 / 33 C2 / 2B C2`
-identical, only `5D` vs `C9` differs).
+**Round 90 correction:** the first version of this table concluded "a second
+compiler generation" from the `5D` rows. `1000:1364` disproves that: the same
+source and the same compiler are byte-exact under `/G0`, so `5D` is a CPU-flag
+fingerprint. Only the `8B E5 5D` rows still need an explanation — the `8B E5` is
+redundant there (SP is already BP at the teardown), so it is an unconditional
+SP restore, not a compiler needing one.
+
+Consequence for matching: for units with a `5D` epilogue, use
+`/G0 /AM /Gs /Os`; for `8B E5 5D` units the body can still be recorded as
+evidence while the 2-byte teardown stays open (§ GAP).
 
 Consequence for matching: for units with a `5D` epilogue, a body-exact C match is
 still worth recording — the remaining diff is evidence about the toolchain, not a
@@ -140,6 +144,30 @@ generation or any tested flag combination. This supports the
 **hand/inline ASM hypothesis** for these modules (slot subsystem, clamp family,
 init family, CONV). Before a `__asm` rebuild, the caller context remains
 the only cross-check.
+
+## Round 90 — MSC 6.0 **is** runnable (the round-46 blocker was the wrong disk)
+`msc6\disk8\CL.EX$` decompresses with `DECOMP.EXE` to a real-mode `CL.EXE`
+(81 184 B, no PE stub). Together with `C1.EXE`/`C2.EXE` (disk1/disk2) and
+`C3.EXE` (disk7) it compiles under DOSBox-X without a DPMI host:
+
+```
+toolchain/msc6c/BIN/{CL,C1,C2,C3}.EXE   (CL from disk8, C3 from disk7)
+python build.py src/calib/x.c --flags "/G1 /AM /Gs /Os" --msc-dir MSC6C --no-dpmi
+```
+
+DOSBox 0.74 works as well and is the fallback for real-mode binaries. Measured
+codegen (same probe as MSC 7): `55 8B EC` frames, `C9` LEAVE under `/G1`,
+`5D` under `/G0`, and three differences:
+
+| Construct | MSC 6.0 | MSC 7.0 |
+|---|---|---|
+| far call to a same-segment callee | `0E E8` (`push cs; call`) | `9A` |
+| zeroing a 16-bit register | `2B C0` (`sub ax,ax`) | `33 C0` (`xor ax,ax`) |
+| keyword set | `far`/`pascal` only (`__pascal` = C2054 syntax error) | `__far`/`__pascal` |
+
+Practical yield so far: none of the PENDING rows is fixed by it, and the units
+whose only blocking trait is `0E E8` are startup-area fragments. It stays
+available because `0E E8` is otherwise unreachable from C.
 
 ## Ledger (`docs/MATCHING.md`)
 One line per address, duplicates forbidden, size ≠ 0:

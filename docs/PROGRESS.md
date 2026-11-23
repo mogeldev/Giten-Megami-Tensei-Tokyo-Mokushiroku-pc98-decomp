@@ -1,5 +1,40 @@
 # PROGRESS
 
+## /G0 explains the `5D` epilogue; MSC 6.0 turns out to be runnable
+`1000:1364` (abs_branch) was PENDING with a perfect body and a wrong teardown:
+the original ends `5D CB` (`pop bp; retf`), MSC 7 emits `C9 CB` (`leave`). The
+ledger recorded that as a compiler-generation fingerprint; it is the **CPU
+target**. `/G0` (8086) cannot use `LEAVE`, so `--flags "/G0 /AM /Gs /Os"` makes
+the same cdecl source a byte-exact MATCH. `/G0` also restores SP with
+`8B E5 5D` where the frame is left, so the 386 units with that teardown are a
+flag question, not a second compiler.
+
+Second finding: **MSC 6.0 is runnable**, contrary to the round-46 note. That note
+assumed the only `CL.EXE` was the Windows PE one from `msc6\disk2`; `msc6\disk8`
+ships `CL.EX$`, which decompresses to a real-mode `CL.EXE` (81 184 B). With
+`C1/C2` (disk1/2) and `C3` (disk7) it compiles under DOSBox-X without DPMI
+(`--msc-dir MSC6C --no-dpmi`). Codegen measured on the calibration probe:
+`55 8B EC` frames like MSC 7, `/G0` gives `5D`, but it differs in three ways —
+`0E E8` (`push cs; call`) for a same-segment far call where MSC 7 emits `9A`,
+`2B C0` where MSC 7 emits `33 C0`, and it only parses the single-underscore
+`far`/`pascal` keywords (`__pascal` is a hard syntax error). No PENDING row is
+fixed by it, and of the eight units whose only blocking trait is `0E E8`, the
+single candidate is a 5-byte `push cs; call; retf` fragment inside the startup
+area, so no row was added.
+
+`/G0` was then applied to the 29 units whose only trait was the `5D` epilogue:
+most are CRT/runtime helpers (`rep movsb`, DOS INT 21, 32-bit mul/div) or
+mid-instruction fragments left by the splitter; testing the transcribable ones
+against MSC 5.1, MSC 6 and MSC 7 closed `4c96:0006` (`return g_2c14 = 1;`, 7 B,
+RELOCS). `11d8:000c` (SET4) also carried a wrong size: the function is 41 bytes,
+not 60 — the inventory window swallowed the next function's prologue, which is
+why the old note claimed "58/60 identical". With `/G0` its body is byte-exact;
+only the redundant `8B E5` before `5D CB` is missing from every available
+compiler, so it stays PENDING at the corrected length.
+
+Ledger 245 rows — MATCH 37, RELOCS 184, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 3914 B (1.335 %).
+
 ## Constant and conditional far-call relays verified
 `31bc:0004` (8 B) is an independent entry inside a merged inventory window,
 corroborated by direct callers. At `3b21:0004` (15 B), the preceding zero

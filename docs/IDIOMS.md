@@ -567,3 +567,13 @@ assembler/inline ASM — for RELOCS verification only a rewrite as __asm
 (documented template-compliant) or PENDING remains there.
 Positive side effect: /Os compresses leaf frames (ENTER 0,0 -> push bp/mov
 bp,sp, LEAVE remains) — that frame matches the original exactly.
+
+## /G0 — the 5D epilogue is the CPU target, not a compiler (round 90)
+When an original ends in `5D` (`pop bp`) instead of `C9` (`leave`), the
+source is not a mystery: `LEAVE` is a 186+ instruction, so `/G0` (8086)
+emits the bare `pop bp`. `1000:1364` is the proof — identical source,
+`/G0 /AM /Gs /Os` matches byte-for-byte, `/G1` differs only in the teardown.
+Vary the CPU flag before suspecting a second compiler generation.
+The stronger form `8B E5 5D` (redundant `mov sp,bp`) is still unexplained:
+none of MSC 5.1, 6.0, 7 emits the redundant restore.
+

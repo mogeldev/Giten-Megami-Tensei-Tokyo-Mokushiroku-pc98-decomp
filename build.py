@@ -45,7 +45,7 @@ def main():
         sys.exit(f"ERROR: '{stem}' is longer than 8 characters — MSC-CL (1992) "
                  "does not open long file names; please name the source 8.3-compliant")
     for need in (DBX, os.path.join(TC, "HDPMI32.EXE"),
-                 os.path.join(TC, "msc7i", "BIN", "CL.EXE")):
+                 os.path.join(TC, a.msc_dir.lower(), "BIN", "CL.EXE")):
         if not os.path.isfile(need):
             sys.exit(f"ERROR: toolchain missing: {need}")
     os.makedirs(BUILD_DIR, exist_ok=True)
