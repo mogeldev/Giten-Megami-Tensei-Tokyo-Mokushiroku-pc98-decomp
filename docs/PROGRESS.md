@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 83 — best round in a while: seven RELOCS, two families enumerated
+- Instead of guessing a shape, I measured: among the 488 reachable units, **size 24
+  is the largest framed cluster (16 units)**, so I enumerated all 16 and found two
+  families worth transcribing.
+- **Chain family (4 units, all RELOCS)** — `call → read a field through the returned
+  far pointer → call again`, `src/calib/cchain1.c`:
+  `SINK(*(int __far *)((char __far *)WHERE(a) + N))` for N = 0x16, 0x04, 0x1A, 0x1C
+  (`37fb:0006`, `382c:0002`, `3842:0008`, `3844:0000`).
+  **This is the same semantic shape as the blocked `3883` family, and it matches** —
+  because here the binary uses MSC's `8E C2 / 8B D8` order. So the order difference
+  is contextual, not a blanket property of the compiler.
+- **Three more from the same size class** (`src/calib/cmix2.c`):
+  - `21fb:000e` **FIVE_ZEROS** (23 B) — `HELP5(a, 0, 0, 0, 0); return 0;`
+  - `4e2d:0002` **DGROUP_CALL**, `4e2f:000e` **DGROUP_CALL2** (24 B each) —
+    `HELP(&g, a, b, c)` with a `char` argument.
+- **New diagnostic:** if every pushed offset is off by exactly **2**, the frame type
+  is wrong — `C9 C2` is near pascal (arguments at `bp+4`) and `C9 CA` is far pascal
+  (`bp+6`). Both candidates failed that way first (`orig 04 vs object 06`,
+  `orig 08 vs object 0A`) and matched after switching to near.
+- Ledger: 178 rows — MATCH 32, **RELOCS 124**, PENDING 22.
+
 ## Round 82 — repository consistency: attic split, new checkled tool
 Maintenance round; no new verified bytes, but the tree is now self-consistent and
 the bookkeeping is checked by a tool instead of by eye.

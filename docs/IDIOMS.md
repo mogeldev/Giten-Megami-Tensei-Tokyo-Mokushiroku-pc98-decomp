@@ -15,6 +15,19 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 83 - enumerate a size class instead of guessing a shape
+- **Sort the reachable set by unit size and take the biggest framed cluster.** That
+  is what produced seven rows this round after four rounds of one-or-zero: 16 units
+  of size 24, of which seven were transcribable.
+- **`C9 C2` vs `C9 CA` decides where the arguments are.** `retn` puts the first
+  argument at `bp+4`, `retf` at `bp+6`. Getting it wrong shifts *every* pushed
+  offset by exactly 2 - that specific symptom means "wrong frame type", not "wrong
+  argument order".
+- **A chain of two calls through a returned far pointer is reachable**:
+  `SINK(*(int __far *)((char __far *)WHERE(a) + N))` produces
+  `push a; call; es=dx; bx=ax; push es:[bx+N]; call`. Note this matches MSC's
+  `8E C2 / 8B D8` order, unlike the `3883` family, so the order difference is
+  contextual rather than universal.
 ## Round 81 - the callee's convention is visible in the stack cleanup
 - **`pop bx` / `add sp,N` right after a call means the CALLER cleans**, so the
   callee was declared cdecl in our source. If the original has no cleanup at all,

@@ -182,3 +182,10 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 20b4:0004 | _spin_wait | 8 | RELOCS | src=src/calib/cspin1.c; flags="/G1 /AM /Gs /Os"; `while (g_6e4 != 0) ;` - an empty spin loop is just `83 3E <g> 00 / 75 F9 / CB`; the loop polarity names the condition |
 | 1f6f:000c | PICK_PTR | 44 | RELOCS | src=src/calib/cpick1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; three-way far-pointer selector `if (kind == 0) return g_a; if (kind == 2) return g_b; return g_c;` - each pointer is loaded as `A1 <off>` + `8B 16 <seg>` (offset and segment separately), and the globals must be declared in memory order 0x46EC a, 0x46F0 c, 0x46F4 b |
 | 1e3b:00f0 | PICK_FLAG | 29 | RELOCS | src=src/calib/cpick2.c; flags="/G1 /AM /Gs /Os"; `if (flag == 0) return g_pa; return g_pb;` - two-way far-pointer selector. Here the parameter is compared in memory (`83 7E 06 00`), so /Os is correct; PICK_PTR needed /Ox. Which form applies is visible in the bytes |
+| 37fb:0006 | CHAIN16 | 24 | RELOCS | src=src/calib/cchain1.c; flags="/G1 /AM /Gs /Os"; `SINK(*(int __far *)((char __far *)WHERE(a) + 0x16))` - near pascal (retn 2, so the argument is at bp+4) |
+| 382c:0002 | CHAIN04 | 24 | RELOCS | src=src/calib/cchain1.c; flags="/G1 /AM /Gs /Os"; same chain, far pascal, field 0x04 |
+| 3842:0008 | CHAIN1A | 24 | RELOCS | src=src/calib/cchain1.c; flags="/G1 /AM /Gs /Os"; same chain, field 0x1A |
+| 3844:0000 | CHAIN1C | 24 | RELOCS | src=src/calib/cchain1.c; flags="/G1 /AM /Gs /Os"; same chain, field 0x1C |
+| 21fb:000e | FIVE_ZEROS | 23 | RELOCS | src=src/calib/cmix2.c; flags="/G1 /AM /Gs /Os"; `HELP5(a, 0, 0, 0, 0); return 0;` - near pascal, four `6A 00` zero pushes |
+| 4e2d:0002 | DGROUP_CALL | 24 | RELOCS | src=src/calib/cmix2.c; flags="/G1 /AM /Gs /Os"; `HELP(&g_2c82, a, b, c)` with a char argument - near pascal, DGROUP pointer pushed as `1E 68 <off>` |
+| 4e2f:000e | DGROUP_CALL2 | 24 | RELOCS | src=src/calib/cmix2.c; flags="/G1 /AM /Gs /Os"; same shape, second DGROUP object |
