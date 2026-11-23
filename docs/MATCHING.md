@@ -201,3 +201,4 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 3d59:000c | RELAY2 | 16 | RELOCS | src=src/calib/crelay2.c; flags="/G1 /AM /Gs /Os"; `NEXT(a, b)` - and note this is **not a units.csv boundary**: the splitter recorded a fragment at 3d59:000e, the real function starts two bytes earlier, directly after the previous function's `retf` plus one padding byte. Found by `tools/framecheck.py` |
 | 1fb1:0006 | SWAP_00C8 | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; returns the old DGROUP word at 0x00C8 and stores the argument; inventory window is 62 bytes |
 | 3bd6:001a | SWAP_192C | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; same form for DGROUP 0x192C; inventory window is 36 bytes |
+| 4e23:0006 | SCALE64 | 20 | MATCH | src=src/calib/calu2.c; flags="/G1 /AM /Gs /Os"; near Pascal `(b << 6) + a`; compound shift on a register local keeps the shift in SI before moving the result to AX |

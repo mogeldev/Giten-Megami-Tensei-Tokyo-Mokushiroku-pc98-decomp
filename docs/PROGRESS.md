@@ -1,5 +1,11 @@
 # PROGRESS
 
+## Round 99 - explicit register shift yields an exact match
+`4e23:0006` (SCALE64, 20 B) now verifies as MATCH with no relocation masking.
+With `/Os`, `offset <<= 6` on the register local shifts SI in place before
+moving it to AX. `offset * 64 + a` also generates a shift, but moves the
+unshifted value to AX first and shifts there instead.
+
 ## Round 98 - two swap functions recovered from merged windows
 A near-twin scan found `1fb1:0006` and `3bd6:001a`: both share the verified
 swap-and-return body, with different DGROUP operands. The inventory reports 62
