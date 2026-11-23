@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Two register-staged relays verified in one batch
+`21ff:0004` (31 B) and `4dac:0000` (33 B) both verify as RELOCS from a
+single source and flag set. The second relay leaves the setup result in AX
+and moves the saved index from SI to DX for a two-argument fastcall.
+
 ## Sentinel-based table dispatch verified
 `42ac:002c` (31 B, RELOCS) keeps the argument in SI across the first call.
 Testing `!= -1` before the fallback reproduces `inc ax; je` and the original
