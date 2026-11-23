@@ -1,5 +1,21 @@
 # PROGRESS
 
+## Round 36 — far-pointer algorithms: one more MATCH, two RELOCS (43 verified)
+- `2603:452e` SWAP_IF_LT (34 B) is a **MATCH** in `src/calib/cswap3.c` with
+  `/G1 /AM /Gs /Ox`: `if (*b < *a) { t = *a; *a = *b; *b = t; }` through two far
+  pointers, including the `push ss / pop ds` that follows the `lds`. Under /Os
+  and /Ot the temporary is spilled (ENTER 2) and the frame differs — fourth
+  per-file `/Ox` case.
+- `458e:5e66` COPY_PAIR (35 B, RELOCS): `*a = g_2b0a[13]; *b = g_2b0a[14];`. The
+  global far pointer appears loaded twice, which is simply the compiler reacting
+  to BX being reused for the destination pointer — a useful reminder that a
+  "redundant" reload in the original is often just register pressure.
+- `35ca:8012` @swap_reset (21 B, RELOCS, `/Ox`): exchange plus three zero stores,
+  temp in DX. Same family as the round-33 exchange, so the flags were predictable.
+- Two length corrections again: inventory 22 -> real 21 (swap_reset) and
+  36 -> real 35 (copy_pair).
+- Ledger: 52 rows — **MATCH 10, RELOCS 33**, PENDING 9.
+
 ## Round 35 — three MATCHes with far-pointer arithmetic (9 MATCH rows total)
 - Swept the far-pointer accessor family (word/byte accessors, far stores): only
   the three found in round 34 exist. Wrapper/thunk families are almost absent —

@@ -53,6 +53,9 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 35ca:1e54 | SUB_P3_P1 | 21 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; near pascal `(p[3] - p[1]) + a`, declaration order `(int __far *p, int a)`; byte-identical |
 | 35ca:1e7e | SUB_P1_P3 | 22 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; far pascal `(p[1] - p[3]) + a`; byte-identical |
 | 35ca:5550 | TEST_AND | 22 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; `(*p & mask) != 0` — `cmp ax,1 / sbb ax,ax / inc ax` bool form; byte-identical |
+| 35ca:8012 | @swap_reset | 21 | RELOCS | src=src/calib/cswap2.c; flags="/G1 /AM /Gs /Ox"; exchange plus three zero stores, temp in DX (per-file /Ox, inventory 22: gap byte) |
+| 2603:452e | SWAP_IF_LT | 34 | MATCH | src=src/calib/cswap3.c; flags="/G1 /AM /Gs /Ox"; `if (*b < *a) { t = *a; *a = *b; *b = t; }` through two far pointers, incl. the `push ss / pop ds` after `lds`; /Os and /Ot spill the temporary and produce ENTER 2 |
+| 458e:5e66 | COPY_PAIR | 35 | RELOCS | src=src/calib/cptr3.c; flags="/G1 /AM /Gs /Os"; `*a = g_2b0a[13]; *b = g_2b0a[14];` with the global far pointer loaded twice (BX reuse) |
 | 4fab:000a | get_39f8_clamped | 16 | PENDING | slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs. `EB 03` (jump merge, one ret). Tested: /Os, /Od, /O1, /O2, /Ox, /Os /Oy, ternary both polarities, if/else+local |
 | 1f2d:000e | CLAMP_A | 20 | PENDING | min(max(x,1),g), __fastcall (arg in AX, bare retn), global 0x4688. Original frameless with DX temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`); MSC7 produces memory operands under /Ox (`39 06 d / 7D 03 / A1 d`), a frame under /Os. 6 variants tested |
 | 1f2f:0002 | CLAMP_B | 20 | PENDING | Sibling of CLAMP_A, global 0x468A, same cause |

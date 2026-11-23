@@ -3,6 +3,18 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 36 — far-pointer algorithms
+- **`lds`/`les` analyses**: a function that loads a far pointer with `lds`
+  clobbers DS, so the compiler emits `push ss / pop ds` before returning. Seeing
+  that pair is normal for C, not a sign of hand-written code.
+- **`/Ox` decides whether a temp is spilled**: the conditional far-pointer swap
+  is register-only under `/Ox` (34 B, MATCH) but spills the temporary and uses
+  `ENTER 2` under `/Os` and `/Ot`. Fourth `/Ox` case in the project — when the
+  original is frameless and register-only, try `/Ox` first.
+- **Repeated global loads are not automatically a different source form**: the
+  far pointer in COPY_PAIR is loaded twice because BX is reused for the
+  destination. Register pressure explains it; no separate source variant needed.
+
 ## Round 33 - argument order, near/far, and /Ox register allocation
 - **Parameter offsets prove the calling convention.** With `push bp; mov bp,sp`
   a far function has `[bp+2]` = return offset, `[bp+4]` = return segment, so
