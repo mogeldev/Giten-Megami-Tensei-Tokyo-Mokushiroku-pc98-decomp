@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 55 — MSC 5.1 obtained (DOS-native), one RELOCS, one new near-miss
+- **MSC 5.1 acquired** from the decompme compiler archive
+  (`compiler-microsoft-microsoft-c-5.1-dos`, SHA1 checked). Unlike the 6.00ax set,
+  its `CL.EXE` is a **real-mode DOS binary** (no PE stub) and it *did* compile a
+  probe successfully.
+  **But it is not usable yet**: `CL.EXE` is **EXEPACK-packed**, and DOSBox-x
+  reports `Packed file is corrupt` on most runs (only the first, smallest probe
+  got through). `Z:\LOADFIX` did not change that; the log file is not even created
+  when it trips, which is why the failures look like "the shell never ran".
+  Next step would be an EXEPACK unpacker (or driving `C1`/`C2`/`C3` directly),
+  so the `add bx,bx` / `5D`-epilogue questions remain **open**.
+- `4e8e:0008` **STORE5** (37 B, RELOCS, `src/calib/cstor2.c`) — five arguments
+  stored to 0x2D02..0x2D0A, source order equals store order (second confirmation
+  of the rule from `STORE4`).
+- `2aa3:0048` **ZERO_Z** (38 B) added as PENDING: it zeroes six struct words in the
+  order +6, +0, +8, +2, +0xA, +4. The original loads the far pointer as **two
+  words** (`8B 5E 06` + `8E 46 08`) and keeps AX=0; MSC 7 emits `les bx` and
+  alternates AX/CX. That is the **second** unit showing split pointer loading
+  (`1df5:0008` skip-whitespace was the first), so the pattern is now real
+  evidence rather than one observation.
+- Ledger: 115 rows — **MATCH 21**, RELOCS 77, PENDING 17.
+
 ## Round 54 — callback-through-struct MATCH on the first attempt
 - `4665:0004` **CB_STRUCT** (32 B, **MATCH**, `src/calib/ccb1.c`, `/G1 /AM /Gs /Os`):
   ```c

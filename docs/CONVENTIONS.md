@@ -31,6 +31,23 @@ this means a subset of the modules cannot come from either compiler generation
 with any tested flag set - the working assumption is hand-written (or inline)
 assembly for those units. Ledger rows that depend on `03 DB` stay PENDING and
 are not rewritten as C just to raise the count.
+## Round 55 - obtaining a DOS-hosted MSC 5.1 (and why it still is not usable)
+- Source that works: the **decompme compiler archive** on archive.org
+  (`compiler-microsoft-microsoft-c-5.1-dos`) ships `msc-5.1.tar.gz` with
+  `BIN/C1.EXE`, `C2.EXE`, `C3.EXE`, `CL.EXE` and libs - and unlike the
+  Microsoft C 6.00ax set, `CL.EXE` is **not** a Windows PE binary.
+- Trap: `CL.EXE` is **EXEPACK-packed**. Under DOSBox-x it fails with
+  `Packed file is corrupt` on most invocations, and the failure mode is
+  deceptive: the redirected log file is not created at all, so it looks like the
+  shell never ran the command. `Z:\LOADFIX` does not help.
+  Diagnosis is only possible by running dosbox-x with captured stderr and reading
+  the `LOG: INT 21h WRITE warning` line.
+- Consequence: MSC 5.1 remains **untested for codegen**. Either unpack CL.EXE or
+  drive `C1 -> C2 -> C3` directly.
+- **Split pointer loading** is a candidate fingerprint: some units load a far
+  pointer parameter as `8B 5E 06` (offset) + `8E 46 08` (segment) instead of
+  `C4 5E 06` (les). Seen in `1df5:0008` and `2aa3:0048`; MSC 7 emits `les`
+  for parameter loads in every variant tried so far.
 ## Phase-0 evidence round 48 — two epilogue styles = two compiler generations
 Counted in the load image (byte patterns, so read as a strong pointer, not proof):
 
