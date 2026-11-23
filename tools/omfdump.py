@@ -66,6 +66,32 @@ def _parse_fixups_compact(rec):
     return out
 
 
+def unwrap_fixup_offsets(fixups, ledata_len):
+    """Recover the real offsets of a >256-byte LEDATA.
+
+    MSC writes the compact offset as a single byte and lists the entries in
+    DESCENDING offset order. Offsets >= 256 therefore appear modulo 256 (a call
+    at 0x10E shows up as 0x0E). Reconstruct by walking the list backwards with
+    the modular difference; if the result is not descending or runs past the
+    LEDATA, the list was absolute already and is returned unchanged."""
+    if len(fixups) < 2:
+        return fixups
+    offs = [o for o, _s in fixups]
+    # MSC always lists them strictly descending; an absolute list (all offsets
+    # below 256) is therefore already descending and needs no repair.
+    if all(offs[i] > offs[i + 1] for i in range(len(offs) - 1)):
+        return fixups
+    true_off = [0] * len(offs)
+    true_off[-1] = offs[-1]
+    for i in range(len(offs) - 2, -1, -1):
+        true_off[i] = true_off[i + 1] + ((offs[i] - offs[i + 1]) % 256)
+    ok = (all(t < ledata_len for t in true_off)
+          and all(true_off[i] > true_off[i + 1] for i in range(len(true_off) - 1)))
+    if not ok:
+        return fixups
+    return [(t, s) for t, (_o, s) in zip(true_off, fixups)]
+
+
 def load(path):
     data = open(path, "rb").read()
     pos = 0
@@ -85,7 +111,8 @@ def load(path):
                 raise ValueError("FIXUPP without LEDATA")
             ledatas[-1]["fixups"] = _parse_fixupp_classic(rec)
         elif rtype == 0x9C and ledatas:                     # compact FIXUPP (MS A2)
-            ledatas[-1]["fixups"] = _parse_fixups_compact(rec)
+            ledatas[-1]["fixups"] = unwrap_fixup_offsets(
+                _parse_fixups_compact(rec), len(ledatas[-1]["data"]))
         elif rtype == 0x90:                                  # PUBDEF
             i = 0
             grp = rec[i]
@@ -109,6 +136,20 @@ def load(path):
 
 
 def main():
+    if "--selftest" in sys.argv:
+        # descending offsets modulo 256, as MSC writes them for a 286-byte LEDATA
+        raw = [(14, 4), (255, 4), (241, 4), (232, 4), (217, 4), (10, 4)]
+        got = [o for o, _s in unwrap_fixup_offsets(raw, 286)]
+        assert got == [256 + 14, 255, 241, 232, 217, 10], got
+        assert unwrap_fixup_offsets([(7, 4)], 20) == [(7, 4)]
+        # an already absolute (descending) list is untouched
+        desc = [(28, 4), (10, 4)]
+        assert unwrap_fixup_offsets(desc, 40) == desc
+        # nonsense that cannot be repaired is left alone
+        bad = [(0, 4), (200, 4)]
+        assert unwrap_fixup_offsets(bad, 100) == bad
+        print("omfdump selftest: ok")
+        return
     ledatas, pubdefs = load(sys.argv[1])
     print(f"# {len(ledatas)} LEDATA, {len(pubdefs)} PUBDEFs")
     for name, (seg, off) in pubdefs.items():

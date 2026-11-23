@@ -1,5 +1,35 @@
 # PROGRESS
 
+## Relay harvest from the /F pool; compact FIXUPP offsets repaired
+The /F discovery paid off immediately: **18 more rows (285 B), all RELOCS**,
+from the 1 232-unit reachable pool, every one a wrapper around a single far
+call.
+
+- `src/calib/crelay3.c` (15 rows): six two-argument relay siblings (18 B), three
+  `(a, 1)` relays (17 B), three single-argument relays (15 B), a
+  multiply-after-the-call wrapper, a constant forwarded in AX to a far fastcall
+  (`B8 1A 00 90 0E E8`), and a call-for-effect-then-`return -3`.
+- `src/calib/crelay5.c` (3 rows, `/Ox`): `return sub() != 0;` compiles to
+  `cmp ax,1 / sbb ax,ax / inc ax` in a near function (two call targets), and a
+  far fastcall state reset whose old value must be staged in DX
+  (`8B 16 <g>`), which needs `/Ox` - `/Os` uses CX instead.
+
+Two tool defects surfaced and were fixed on the way:
+
+1. **MSC compact FIXUPP offsets are modulo 256.** The offset field is one byte
+   and MSC sorts the entries descending, so in a LEDATA larger than 256 bytes a
+   call past the boundary is listed as `offset - 256` and silently loses its
+   fixup. The 286-byte relay batch exposed it: `3390:025a` calls at 0x10E but
+   the record said 0x0E, so the matcher could not mask it.
+   `omfdump.unwrap_fixup_offsets` rebuilds the true offsets from the modular
+   differences (guarded: only when the result is strictly descending and inside
+   the LEDATA) and has its own `--selftest`.
+2. `match.py` now also resolves `@`-decorated `__fastcall` symbols.
+
+Ledger 283 rows - MATCH 37, RELOCS 222, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 4 400 B (1.501 %).
+
+## The `90 0E E8` idiom is MS LINK /FARCALLTRANSLATION - 77 KB become reachable
 ## The `90 0E E8` idiom is MS LINK /FARCALLTRANSLATION – 77 KB become reachable
 A byte census settled the biggest open question in the trait table: the image
 contains 3 564 `0E E8` (`push cs; call near`) and **3 507 of them are directly

@@ -283,3 +283,21 @@ eturn psub(g_78c4); one push [disp16] then the translated call; image `90 0E E8`
 | 4e6d:000a | F_4E6D | 14 | RELOCS | src=src/calib/cfarl2.c; flags="/G1 /AM /Gs /Os"; `return sub2(g_9954, g_9956);` - sibling of 322b:0002 at different globals; image `90 0E E8` = LINK /F translation of the object's `9A` (5-byte slot masked) |
 | 3baa:0006 | F_3BAA | 14 | RELOCS | src=src/calib/cfarl2.c; flags="/G1 /AM /Gs /Os"; `return sub3(g_17d2, 0, 0);` - the far pointer goes through `1E 68 <disp>` (push ds; push offset), then two zero pushes; image `90 0E E8` = LINK /F translation of the object's `9A` (5-byte slot masked) |
 | 3309:0008 | F_3309 | 12 | RELOCS | src=src/calib/cfarl2.c; flags="/G1 /AM /Gs /Os"; `return h(none());` - translated call first, then `push ax` into a direct `9A` callee; image `90 0E E8` = LINK /F translation of the object's `9A` (5-byte slot masked) |
+| 1e16:0008 | F_1E16 | 18 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; two far-Pascal arguments relayed, result returned; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 201b:0008 | F_201B | 18 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; sibling of 1e16:0008; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 21ba:000c | F_21BA | 18 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; sibling of 1e16:0008; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2df1:0008 | F_2DF1 | 18 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; sibling of 1e16:0008; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 3c04:000a | F_3C04 | 18 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; sibling of 1e16:0008; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 4692:0002 | F_4692 | 18 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; sibling of 1e16:0008; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 1dfc:00e8 | F_1DFC | 17 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; `(a, 1)` relay; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 1e56:0050 | F_1E56 | 17 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; sibling of 1dfc:00e8; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 4daf:0058 | F_4DAF | 17 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; sibling of 1dfc:00e8; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2214:000a | F_2214 | 15 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; single-argument relay; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 349a:017a | F_349A | 15 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; sibling of 2214:000a; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 37a6:0006 | F_37A6 | 15 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; sibling of 2214:000a; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 3895:0008 | F_3895 | 18 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; call result times the second argument (`F7 6E 06` after the call); image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 418c:01dc | F_418C | 9 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; constant forwarded in AX to a far fastcall; inventory size 10 includes one trailing `00`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 3390:025a | F_3390 | 12 | RELOCS | src=src/calib/crelay3.c; flags="/G1 /AM /Gs /Os"; call for side effect, then `return -3`; the call site is the first fixup above offset 255; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 3a89:0004 | F_3A89 | 12 | RELOCS | src=src/calib/crelay5.c; flags="/G1 /AM /Gs /Ox"; `return sub() != 0;` in a near function - `cmp ax,1 / sbb ax,ax / inc ax`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 3a8a:0000 | F_3A8A | 12 | RELOCS | src=src/calib/crelay5.c; flags="/G1 /AM /Gs /Ox"; sibling of 3a89:0004 with a different call target; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 3dcc:0008 | F_3DCC | 18 | RELOCS | src=src/calib/crelay5.c; flags="/G1 /AM /Gs /Ox"; far fastcall reset: old value in DX, store the argument, zero two words, return the old value; image `90 0E E8` = LINK /F translation of the object's `9A` |

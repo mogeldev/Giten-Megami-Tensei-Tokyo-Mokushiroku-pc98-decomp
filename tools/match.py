@@ -142,8 +142,10 @@ def main():
                  "run tools/gt.py first; a 0-byte match is forbidden")
 
     ledatas, pubdefs = omfdump.load(a.obj)
-    sym = a.symbol if a.symbol in pubdefs else "_" + a.symbol
-    if sym not in pubdefs:
+    # C symbols get a leading underscore, __fastcall ones a leading '@'
+    sym = next((s for s in (a.symbol, "_" + a.symbol, "@" + a.symbol)
+                if s in pubdefs), None)
+    if sym is None:
         sys.exit(f"ERROR: symbol '{a.symbol}' not in object "
                  f"(present: {', '.join(sorted(pubdefs))})")
     seg, off = pubdefs[sym]
