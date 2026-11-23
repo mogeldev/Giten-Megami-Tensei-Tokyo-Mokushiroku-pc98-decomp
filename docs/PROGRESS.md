@@ -1,5 +1,19 @@
 # PROGRESS
 
+## Round 30 — mining call-free bodies: 2 new RELOCS, 1 false lead caught by verify
+- Wrote a mining script over the decompiled output (call-free bodies, size 5..24)
+  and transcribed two leaf forms (src/calib/cset2.c, `/G1 /AM /Gs /Os`):
+  - `1871:37ce` set_9b3c (7 B) — `void __near f(void) { g_9b3c = 1; }` (`C7 06` store)
+  - `35ca:8df8` get_b98ea (6 B) — `int __far f(void) { return (unsigned char)g; }`
+    (`A0` load + `2A E4` zero-extend)
+- **verify caught a false lead**: I recorded `1871:8c0c` as a duplicate of
+  `set_flag`; the duplicate-address check proved it is the same linear address
+  (`0x2131C`) under a different seg:off — a segment alias, not a second function.
+  Row removed; this is the round-23 alias lesson applied automatically.
+- MSC 6.0 retested on the slot-allocator PENDING (/Ox, /Os, /O2): always emits a
+  frame (`C8 ..`), so MSC 7.0 `/Ox` remains the best variant (14/16 B).
+- Ledger: 31 rows — **24 RELOCS**, 7 PENDING.
+
 ## Round 29 — build cache implemented (verify 18.6 s -> 0.8 s)
 - `build.py` writes a stamp (`flags`, toolchain dir, DPMI flag, source mtime and
   size) next to each object and skips the compile when all of it matches; `--force`

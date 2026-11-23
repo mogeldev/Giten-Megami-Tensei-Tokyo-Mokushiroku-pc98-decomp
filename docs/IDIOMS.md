@@ -39,6 +39,15 @@ Candidates not yet checked (record as a rule only after calibration):
   — the true arity can be read from the RET (here: 4 = one far pointer; Ghidra's
   'param_2' was a calling-convention artifact).
 
+## Round 30 — small leaf forms confirmed
+- **`void __near f(void) { g = 1; }`** → `C7 06 <disp> 01 00 C3` (7 B): MSC uses
+  the immediate store for a non-zero constant even under `/Os`.
+- **Byte getter** `int __far f(void) { return (unsigned char)g; }` →
+  `A0 <disp>` (mov al,ds:[disp]) + `2A E4` (sub ah,ah = zero extend) + `CB`.
+- **Same code, several seg:off names**: `1871:8c0c` and `2131:000c` are both
+  linear `0x2131C`. Always compare linear addresses before recording a "duplicate
+  function"; `verify.py` rejects the duplicate row automatically.
+
 ## Round 28 — return-form variants and length pitfalls
 - **`g |= v; return g;`** compiles to `09 06 <disp>` (store) followed by
   `A1 <disp>` (reload) — 17 bytes with the `leave / retf 2` tail. The reload is
