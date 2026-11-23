@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 37 — four near-misses documented, no new verified rows
+Honest round: every candidate landed within a few bytes but none matched, so the
+result is four precisely documented PENDING rows instead of forced ledger entries.
+- **32-bit exchange** (`1871:5c26`, `35ca:209c`, 38 B each): the original keeps
+  the old low word in BX (`8B D8` … `8B C3`); MSC 7 (/Os, /Ox, /Ot) and MSC 6
+  (/Os, /Ox) all spill both halves to `[bp-4]`/`[bp-2]`. Three source variants
+  (initialise at declaration, separate assignment, explicit low/high split) all
+  give the spill form.
+- **Bit set** (`2603:463c`, 38 B): ours is 34 B. The `cwd / and dx,7 / add / sar`
+  prefix proved the source uses `n / 8`, not `n >> 3` (the latter gives 23 B).
+  Remaining difference is allocation order — original loads the argument into SI
+  first and orders `and bx,7` before `mov si,ax`.
+- **Segment extraction** (`1871:7874`, 24 B): original gets the segment through
+  `les` + `mov ax,es`; MSC reads `[bp+8]` directly and never emits the `les`.
+- Conclusion recorded: these four are the first cases where the *shape* is C-like
+  but the register allocation is not reproducible at any compiler level tested,
+  which strengthens the hand-ASM suspicion for the affected modules.
+- Ledger: 56 rows — MATCH 10, RELOCS 33, PENDING 13.
+
 ## Round 36 — far-pointer algorithms: one more MATCH, two RELOCS (43 verified)
 - `2603:452e` SWAP_IF_LT (34 B) is a **MATCH** in `src/calib/cswap3.c` with
   `/G1 /AM /Gs /Ox`: `if (*b < *a) { t = *a; *a = *b; *b = t; }` through two far
