@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 92 — no new rows; three duplicate units understood
+No increment. The round pursued round 91's `register`→SI hypothesis on counter-driven
+units and found one family that looked ideal but is blocked for a different reason.
+
+- `3807:0004`, `380c:0000`, `3811:0004` are a **three-way duplicate group** (28 B
+  each) doing `*p = HELP(*p)` through a far pointer built from a `seg`/`off` pair.
+  They are blocked by **trait 3 (split pointer load)**, not by SI: the original loads
+  the far parameter as `8B 76 04` + `8E 46 06` where MSC emits `les`. Tried three
+  formulations (inlined `MK_FP`, local pointer, direct double evaluation); all give
+  `8E C1` plus BX/DI, never the split load.
+- The SI-counter hypothesis itself holds (round 91's `_six_calls`), but the remaining
+  SI units hold *parameters* or *far-pointer bases* in SI rather than counters, so
+  `register` does not apply to them. The trait-8 count of 196 units therefore stays
+  an upper bound and that is stated in `CONVENTIONS.md`.
+- Ledger unchanged: 184 rows — MATCH 32, RELOCS 130, PENDING 22. Verified rows total
+  **2646 bytes across 162 rows (mean 16.3 B)** — a distribution worth remembering:
+  this is a project of small functions.
+
 ## Round 91 — one RELOCS, and `register` turns out to be a real lever
 - `4f89:0008` **_six_calls** (15 B, RELOCS, `src/calib/cloop2.c`) —
   `register int i; for (i = 0; i < 6; i++) HELP(i);`
