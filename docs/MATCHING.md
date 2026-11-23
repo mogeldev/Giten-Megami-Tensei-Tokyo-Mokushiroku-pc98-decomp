@@ -35,6 +35,10 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 1fc8:0012 | ANDNOT_RET_F6 | 18 | RELOCS | src=src/calib/coset2.c; flags="/G1 /AM /Gs /Os"; `g_00f6 &= ~v; return g_00f6` (`F7 D0` then `21 06` then `A1`) |
 | 1871:37ce | set_9b3c | 7 | RELOCS | src=src/calib/cset2.c; flags="/G1 /AM /Gs /Os"; `void __near f(void) { g_9b3c = 1; }` (`C7 06` immediate store) |
 | 35ca:8df8 | get_b98ea | 6 | RELOCS | src=src/calib/cset2.c; flags="/G1 /AM /Gs /Os"; `int __far f(void) { return (unsigned char)g; }` (`A0` load + `2A E4` zero-extend) |
+| 458e:a206 | reset_slot_count | 7 | RELOCS | src=src/calib/cset3.c; flags="/G1 /AM /Gs /Os"; `g_39f8 = 0` — resets the slot counter proven in rounds 17/18 |
+| 458e:35ae | init_234e | 7 | RELOCS | src=src/calib/cset3.c; flags="/G1 /AM /Gs /Os"; `g_234e = 1` |
+| 4df7:0002 | init_9a08 | 7 | RELOCS | src=src/calib/cset3.c; flags="/G1 /AM /Gs /Os"; `g_9a08 = 1` |
+| 3db4:0006 | zero_1bac | 7 | RELOCS | src=src/calib/cset3.c; flags="/G1 /AM /Gs /Os"; `g_1bac = 0` (inventory size 40: merged blob) |
 | 4fab:000a | get_39f8_clamped | 16 | PENDING | slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs. `EB 03` (jump merge, one ret). Tested: /Os, /Od, /O1, /O2, /Ox, /Os /Oy, ternary both polarities, if/else+local |
 | 1f2d:000e | CLAMP_A | 20 | PENDING | min(max(x,1),g), __fastcall (arg in AX, bare retn), global 0x4688. Original frameless with DX temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`); MSC7 produces memory operands under /Ox (`39 06 d / 7D 03 / A1 d`), a frame under /Os. 6 variants tested |
 | 1f2f:0002 | CLAMP_B | 20 | PENDING | Sibling of CLAMP_A, global 0x468A, same cause |

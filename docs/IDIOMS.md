@@ -39,6 +39,17 @@ Candidates not yet checked (record as a rule only after calibration):
   — the true arity can be read from the RET (here: 4 = one far pointer; Ghidra's
   'param_2' was a calling-convention artifact).
 
+## Round 31 — the global-initializer family
+- `void __far f(void) { g = <imm>; }` compiles to `C7 06 <disp> <imm16> CB`
+  (7 bytes) for both `0` and `1` — the immediate store form appears whenever the
+  function stores a constant and nothing else, independent of `/Os`.
+- Inventory sizes around this family are one byte too long (trailing gap) or
+  badly inflated for merged blobs (40 bytes for a 7-byte function) — take lengths
+  from the `CB`/`C3` terminator.
+- Sweep recipe that works: regex the family over the image, keep only hits whose
+  offset is a known function start AND whose **linear** address is not already in
+  the ledger, then compile all members in one file and match each symbol.
+
 ## Round 30 — small leaf forms confirmed
 - **`void __near f(void) { g = 1; }`** → `C7 06 <disp> 01 00 C3` (7 B): MSC uses
   the immediate store for a non-zero constant even under `/Os`.

@@ -1,5 +1,16 @@
 # PROGRESS
 
+## Round 31 — global-immediate family swept: 4 new RELOCS (28 total)
+- `tools/mine.py` added (template phase 5, step 1: find candidates) — lists
+  call-free, jump-free small functions with their decompiled body. Fixed it to
+  dedupe by **linear** address, otherwise segment aliases of matched functions
+  show up as candidates (seen: `1871:d0e4` = `257f:0004`).
+- Swept the `C7 06 <disp> <imm16>` initializer family: 4 more RELOCS in
+  `src/calib/cset3.c` — `458e:a206` (resets the slot counter proven in rounds
+  17/18), `458e:35ae`, `4df7:0002`, `3db4:0006`. Two further scan hits turned out
+  to be segment aliases of these (`0x48E8E`, `0x4FAE6`).
+- Ledger: 35 rows — **28 RELOCS**, 7 PENDING.
+
 ## Round 30 — mining call-free bodies: 2 new RELOCS, 1 false lead caught by verify
 - Wrote a mining script over the decompiled output (call-free bodies, size 5..24)
   and transcribed two leaf forms (src/calib/cset2.c, `/G1 /AM /Gs /Os`):
