@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Signed bitfield swap and conditional stores verified
+`477b:0032` (33 B) matches the compiler's signed 14-bit bitfield access and
+writeback. `4b23:000c` (31 B) uses a local copy to keep the first argument
+in DX, resolving the earlier STORE_IF near-miss. Both are RELOCS.
+
 ## Two frameless constant relays verified
 `218a:0008` (6 B) and `4e45:0000` (15 B) match as RELOCS. Both call near
 Pascal routines without a frame. The first wrapper ends in `retf`; the
