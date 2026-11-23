@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Four more scanner wrappers verified
+The `2e31:0006`–`2e37:0008` batch adds 132 B as RELOCS. The 512-entry pair
+passes a DGROUP byte table; the 256-entry pair passes `4827:08E6`, whose
+segment and offset immediates match without masking.
+
 ## Four packed-table scan wrappers verified together
 The `4386:0024`/`4386:0044` and `43ac:0004`/`43ac:0024` pairs share one
 source and flag set (31 B each, all RELOCS). They pass 64 or 16 entries,

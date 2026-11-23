@@ -21,3 +21,25 @@ int __far __pascal scan16_b(int a, int b)
 {
     return 16 - scan_b(a, b, 16, 4, g_886e);
 }
+
+extern char g_79e2[];
+
+int __far __pascal scan512_a(int a, int b)
+{
+    return 512 - scan_a(a, b, 512, 1, g_79e2);
+}
+
+int __far __pascal scan512_b(int a, int b)
+{
+    return 512 - scan_b(a, b, 512, 1, g_79e2);
+}
+
+int __far __pascal scan256_a(int a, int b)
+{
+    return 256 - scan_a(a, b, 256, 4, (char __far *)0x482708e6UL);
+}
+
+int __far __pascal scan256_b(int a, int b)
+{
+    return 256 - scan_b(a, b, 256, 4, (char __far *)0x482708e6UL);
+}

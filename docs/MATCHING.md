@@ -224,3 +224,7 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 4386:0044 | SCAN64_B | 31 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; same 64-entry wrapper with the alternate scanner |
 | 43ac:0004 | SCAN16_A | 31 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; 16-entry counterpart using DGROUP:0x886E |
 | 43ac:0024 | SCAN16_B | 31 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; 16-entry counterpart with the alternate scanner |
+| 2e31:0006 | SCAN512_A | 32 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; 512 one-byte entries at DGROUP:0x79E2 |
+| 2e33:0006 | SCAN512_B | 32 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; same byte table with the alternate scanner |
+| 2e35:0006 | SCAN256_A | 34 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; 256 four-byte entries at fixed far address 4827:08E6; both pointer words match without masking |
+| 2e37:0008 | SCAN256_B | 34 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; same fixed-address table with the alternate scanner |
