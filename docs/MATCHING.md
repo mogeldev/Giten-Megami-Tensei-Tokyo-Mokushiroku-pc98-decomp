@@ -135,3 +135,5 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 1466:005b | f_146b_000b | 6 | RELOCS | src=src/calib/swbytest.c; flags="/G1 /AM /Gs /Os"; byte_store family (`C6 06 <disp8> <imm8> CB`) |
 | 29f3:006e | F_29F9_000E | 13 | RELOCS | src=src/calib/swparams.c; flags="/G1 /AM /Gs /Os"; param_store family: `void __far __pascal f(int a) { g = a; }` |
 | 3fcc:0022 | F_3FCE_0002 | 13 | RELOCS | src=src/calib/swparams.c; flags="/G1 /AM /Gs /Os"; param_store family, second unit |
+| 3ded:001c | FIELD1 | 14 | MATCH | src=src/calib/cleft1.c; flags="/G1 /AM /Gs /Os"; `int __far __pascal f(int __far *p) { return p[1]; }` — accessor family with 3ded:000e; byte-identical |
+| 37f9:000c | IDENT | 10 | MATCH | src=src/calib/cleft1.c; flags="/G1 /AM /Gs /Os"; `int __near __pascal f(int a) { return a; }` — near frame puts the argument at bp+4; byte-identical |

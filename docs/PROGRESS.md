@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 61 — sweep families exhausted; two stragglers, both MATCH
+- Re-ran **all 14 families** under the round-60 convention fixes: every one now
+  reports 0 hits at ledger-free unit boundaries, i.e. the mechanical families are
+  genuinely exhausted, not mis-generated. That is a useful negative result — the
+  remaining units are not formulaic single-statement bodies.
+- A shape census for candidate new families found only two members:
+  - `3ded:001c` **FIELD1** (14 B, MATCH) — `int __far __pascal f(int __far *p) { return p[1]; }`,
+    the same accessor family as `3ded:000e`;
+  - `37f9:000c` **IDENT** (10 B, MATCH) — `int __near __pascal f(int a) { return a; }`;
+    the near frame places the argument at `bp+4`, which is what distinguishes it
+    from the far variant.
+- `verify.py` caught a size error of mine again: I recorded FIELD1 as 13 bytes,
+  cutting the `retf 2` immediate (`… 02 C9 CA 04`), and the window check reported
+  *"does not end at a return instruction"*. Real length 14; corrected and re-verified.
+  This is the third time the ledger checks have caught a short window, which is
+  exactly the failure mode that passes silently in a naive matcher.
+- Ledger: 126 rows — **MATCH 24**, RELOCS 84, PENDING 18.
+
 ## Round 60 — three RELOCS; the sweeper itself was the bug
 - Re-ran every `sweep.py` family against the split inventory: only `byte_store`
   still had a member (`1466:005b`, 6 B). Added two new families — `param_store`
