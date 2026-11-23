@@ -115,3 +115,6 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 3ded:000e | DEREF_WORD | 13 | MATCH | src=src/calib/cderf1.c; flags="/G1 /AM /Gs /Os"; `int __far __pascal f(int __far *p) { return *p; }` (`C4 5E 06` les + `26 8B 07`); byte-identical |
 | 3b16:0030 | OR_MASK | 16 | MATCH | src=src/calib/cunit6.c; flags="/G1 /AM /Gs /Os"; byte-identical duplicate of 35ca:5198 found by the fixed duplicate scan |
 | 3b1a:0000 | ANDNOT_MASK | 18 | MATCH | src=src/calib/cunit6.c; flags="/G1 /AM /Gs /Os"; byte-identical duplicate of 35ca:51a8 |
+| 3aec:0000 | TEST_AND | 22 | MATCH | src=src/calib/cptr2.c; flags="/G1 /AM /Gs /Os"; unrecorded twin of 35ca:5550, found by tools/twins.py |
+| 37b0:000a | SUB_P2_ADD | 20 | MATCH | src=src/calib/cfar2.c; flags="/G1 /AM /Gs /Os"; `return (*p - p[2]) + a;` (`26 8B 07` / `26 2B 47 04` / `03 46 06`); byte-identical |
+| 3b1b:0002 | XOR_AND | 21 | MATCH | src=src/calib/cfar3.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; `*p ^= mask; return mask & *p;` with the mask copied through a local - only /Ox keeps it in BX; byte-identical |

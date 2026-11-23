@@ -3,6 +3,17 @@
 Rule 4a of the template applies universally and is not repeated here.
 After each solved diff cause, exactly the rule found goes here.
 
+## Round 51 - steering the allocator, and finding twins
+- **A trivial local can steer register allocation.** `*p ^= mask; return mask & *p;`
+  with `mask` used directly gives `8B 46 06` (param to AX); copying it through
+  a local (`int m = mask;`) plus `/Ox /Oa /Os` yields `8B 5E 06 / 8B C3` -
+  the value staged in BX, exactly like the original. When the diff is only "which
+  register holds the temp", try routing the value through a local before changing
+  the algorithm.
+- **`tools/twins.py`** finds unrecorded byte-identical twins of already verified
+  functions - a free ledger row each. Run it after every batch.
+- **`26 8B 07` / `26 2B 47 04`** (`es:[bx]` / `es:[bx+4]`) is plain C far
+  pointer arithmetic: `(*p - p[2]) + a` with `int __far *p`.
 ## Round 50 - duplicates exist; scan them correctly
 - **Byte-identical duplicates are real** and each one yields a free ledger row
   (one transcription, several addresses). They must be found with a correct

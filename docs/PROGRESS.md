@@ -1,5 +1,22 @@
 # PROGRESS
 
+## Round 51 — three MATCHes: one twin plus two far-pointer ALU forms
+- **`tools/twins.py`** added: for every MATCH/RELOCS row it searches the image for
+  the same byte sequence at an unrecorded unit start. Result: **one twin**
+  (`3aec:0000` = `35ca:5550` TEST_AND), now its own ledger row.
+- New MATCHes:
+  - `37b0:000a` SUB_P2_ADD (20 B, `src/calib/cfar2.c`) — `return (*p - p[2]) + a;`
+    reproduces `26 8B 07` / `26 2B 47 04` / `03 46 06` exactly;
+  - `3b1b:0002` XOR_AND (21 B, `src/calib/cfar3.c`) — `*p ^= mask; return mask & *p;`.
+    This one needed a **copy of the mask through a local** (`int m = mask;`) plus
+    `/Ox /Oa /Os`: only then does the allocator stage it in `BX`
+    (`8B 5E 06 / 8B C3`) as the original does. Adding a trivial local to steer
+    register allocation is a new, reusable trick.
+- `1e1e:0046` (put-a-word) and `1df5:0008` (skip-whitespace) remain unmatched:
+  both keep the far pointer in `BX:ES` and never write the parameter back, which
+  MSC 7 does not do at any tested level. Recorded with that diagnosis.
+- Ledger: 107 rows — **MATCH 18**, RELOCS 74, PENDING 15.
+
 ## Round 50 — duplicate scan bug fixed, three MATCHes (two of them duplicates)
 - **Correction to round 49.** The claim "no copy-paste duplicates in own code" was
   wrong: the scanner tested `b[-2]` for the `retf imm16` opcode, but it sits at
