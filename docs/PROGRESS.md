@@ -21,8 +21,20 @@ just two-call combinations, so they were transcribed as one batch:
 That batch took one compile and one match pass - the family is regular enough
 that the rest of the 219 units should be mined the same way next round.
 
-Ledger 361 rows - MATCH 37, RELOCS 300, ASM 1, PENDING 23; verify and checkled
-green; own-code coverage 6 122 B (2.088 %).
+Two follow-ups in the same round: `2160:0006` (`/Ox` swap-and-return around two
+calls, old value in SI), `2b91:0072` (early-out guard `if (sub1(0)) return 0;`)
+and `388b:0008` (a `register` parameter in SI feeding two relays) - 91 B more.
+
+**Compiler-generation evidence (important for the next rounds):** every
+compiler available here emits either `ENTER` (with `/Gs`) or a `__chkstk` call
+(`B8 xx 00 9A`, without `/Gs`) as soon as a frame is needed. The originals with
+`55 8B EC` + a call + no `__chkstk` therefore cannot come from MSC 5.1/6.0/7 at
+all - the same generation that produces `add r,r` doubling, `8B E5 5D` and
+`B8 00 00` is implied. That generation is not in the toolchain directory; until
+it is, those units (including the 251 `ENTER` units) stay out of reach.
+
+Ledger 364 rows - MATCH 37, RELOCS 303, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 6 213 B (2.119 %).
 
 ## Round 7: two parameter-store and register-argument wrappers (74 B)
 - `src/calib/crelay16.c` (`/Os`): `4c96:003a` - three parameters written to

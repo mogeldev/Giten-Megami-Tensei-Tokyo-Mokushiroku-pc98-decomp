@@ -32,5 +32,19 @@ int __far __pascal F_2E55(int a, int b) { sub0(); return sub2(a, b); }
 /* far call result feeds a near-Pascal callee (the near call has no /F form) */
 int __far __pascal F_3A58(int a, int b, int c) { return nret2(sub2(a, b), c); }
 
+/* early-out guard: `if (sub1(0)) return 0; return sub1(a);` */
+int __far __pascal F_2B91(int a)
+{
+    if (sub1(0)) return 0;
+    return sub1(a);
+}
+
+/* register parameter feeds two relays; the trailing constant is the argument order */
+void __far __pascal F_388B(register int a, int b, int c)
+{
+    sub2(a, b);
+    sub2(a, c);
+}
+
 /* keeps the last symbol sliceable */
 int __far F_TAIL5(int x) { return x; }
