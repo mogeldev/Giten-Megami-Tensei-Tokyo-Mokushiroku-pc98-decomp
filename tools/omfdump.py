@@ -45,17 +45,23 @@ def _parse_fixupp_classic(rec):
 
 
 def _parse_fixups_compact(rec):
-    """MSC-7-Erweiterung: 3-Byte-Eintraege (flags, offset, fixdata)."""
-    if len(rec) % 3:
-        raise ValueError(f"kompakter FIXUPP-Record ungerade Laenge {len(rec)}")
+    """MSC-7-Erweiterung: Eintraege (flags, offset, fixdata[, zielindex]).
+    Beobachtete Formen: fd&0x80 -> 3-Byte-Eintrag (fd=0x9D);
+    sonst 4-Byte-Eintrag mit Zielindex (fd=0x56). Nicht Beobachtetes bricht ab."""
     out = []
-    for i in range(0, len(rec), 3):
-        flags, off, _fd = rec[i], rec[i + 1], rec[i + 2]
+    i = 0
+    while i < len(rec):
+        if i + 3 > len(rec):
+            raise ValueError("kompakter FIXUPP: Eintrag-Stumpf")
+        flags, off, fd = rec[i], rec[i + 1], rec[i + 2]
         if not (flags & 0x80):
             raise ValueError(f"kompakter FIXUPP ohne Fixup-Bit: {flags:#x}")
         loc = (flags >> 2) & 0xF
         if loc not in LOC_SIZE:
             raise ValueError(f"unbekannter LOC-Typ {loc} (kompakt)")
+        i += 3
+        if not (fd & 0x80):          # Zielindex-Byte folgt
+            i += 1
         out.append((off, LOC_SIZE[loc]))
     return out
 

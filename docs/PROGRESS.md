@@ -1,5 +1,11 @@
 # PROGRESS
 
+## Runde 8 — GET-Familie komplett: 8/8 RELOCS (2026-11-23)
+- Familien-Scan (Funktionen <=8 Bytes nach Codeform): GET-Familie hat 8 Mitglieder.
+- Teil 2 (cget2.c): vier Einzelscalar-Getter auf DGROUP 0x1A4/0x2FCE/0x2C50/0x2D0C —
+  alle vier RELOCS; verify: gruen, Ledger 8 Zeilen, 0 PENDING.
+- omfdump: kompakte 0x9C-Fixups mit variabler Eintraglaenge (3/4 Byte, Zielindex).
+
 ## Runde 7 — Phase 0 ABGESCHLOSSEN: 4 byte-verifizierte Funktionen (2026-11-23)
 - **Erste RELOCS-Matches**: Getter-Familie 35ca:8090..9c (get0..get3),
   `mov ax,[disp16]; retf` — disp16 als einziger maskierter Linker-Fixup.
