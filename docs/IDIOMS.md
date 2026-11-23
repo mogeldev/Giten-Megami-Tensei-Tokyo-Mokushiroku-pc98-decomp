@@ -38,3 +38,16 @@ Noch ungeprüfte Kandidaten (erst nach Kalibrierung als Regel vermerken):
 - `__pascal` versaliert Symbolnamen (SLOT_FILL) und raeumt per `retf imm16`
   auf — wahre Aritaet am RET ablesbar (hier: 4 = ein Far-Pointer; Ghidras
   'param_2' war ein Konventionsartefakt).
+
+## Slot-Subsystem: vermutlich Hand-ASM (Runde 17/18, Muster-These)
+Vier Funktionen (4fab:000a Allokator, 4fac:000a Inkrement, 4fad:0006 conv,
+458e:a20e Fueller) teilen Codegen-Idiome, die MSC7-/Os aus C nicht erzeugt:
+- Sprung-Merge-Ternarform statt Early-Return (4fab)
+- Register-Wanderung ohne Param-Rueckschreibung (458e:a20e)
+- `add bx,bx` statt kanonischem `shl bx,1` (4fad:0006) — /Od//O1//O2 nutzen
+  die SPEICHERform `add bx,[bp+4]`, nie die Registerform
+Schlussfolgerung bis zum Gegenbeweis: dieses Subsystem wurde von den
+Entwicklern per Assembler/Inline-ASM gebaut — fuer RELOCS-Verifikation bleibt
+dort nur Umschreibung als __asm (Vorlagen-konform dokumentiert) oder PENDING.
+Positive Nebenfaelle: /Os komprimiert Leaf-Frames (ENTER 0,0 -> push bp/mov
+bp,sp, LEAVE bleibt) — das frame matcht das Original exakt.

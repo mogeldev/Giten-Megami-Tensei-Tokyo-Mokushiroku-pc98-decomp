@@ -1,5 +1,13 @@
 # PROGRESS
 
+## Runde 18 — conv entschlusselt: 14/16 Byte, Muster-These Hand-ASM (2026-11-23)
+- 458e:a1ea == inc_39f8_capped (schon RELOCS ✓) — 'slot_update' gratis.
+- 4fad:0006 (CONV, 16 B, near-pascal Lookup): 5 Quellformen + 3 Opt-Stufen —
+  /Os matcht ALLES bis auf 2 Bytes (shl vs add bx,bx). Frame-Kompaktion
+  (push bp/mov bp,sp statt ENTER) im Original bestaetigt und reproduziert.
+- Muster-These gereift: das Slot-Subsystem (4 Funktionen) traegt konsistent
+  Hand-ASM-Idiome — dokumentiert in IDIOMS.md als Arbeitsgrundlage.
+
 ## Runde 17 — Slot-Routine: Form entschuesselt, 4 Hypothesen, PENDING (2026-11-23)
 - 458e:a20e (166 B, pascal, Far-Param) vollstaendig zerlegt: Slot-Index-Flow,
   8 Feldoffs 0/2/4/9/11/13/15/19, conv-CL-Push, retf 4 (=1 Far-Param, Ghidras
