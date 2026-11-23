@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Sentinel-based table dispatch verified
+`42ac:002c` (31 B, RELOCS) keeps the argument in SI across the first call.
+Testing `!= -1` before the fallback reproduces `inc ax; je` and the original
+branch order.
+
 ## Register-local staging recovers two table relays
 `439c:0006` and `439d:000e` (23 B each) verify as RELOCS. Both had been
 near-misses because the original saves SI and pushes the lookup argument

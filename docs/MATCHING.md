@@ -216,3 +216,4 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 42b9:0064 | _clear_entries | 21 | RELOCS | src=src/calib/ctable2.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; mark all 64 packed entries empty and zero their counts; starts after the preceding routine and its padding inside a merged inventory window |
 | 439c:0006 | TABLE_RELAY_A | 23 | RELOCS | src=src/calib/ctrelay.c; flags="/G1 /AM /Gs /Os"; hold the first argument in SI for the inner lookup and forward its result with the second argument |
 | 439d:000e | TABLE_RELAY_B | 23 | RELOCS | src=src/calib/ctrelay.c; flags="/G1 /AM /Gs /Os"; same register staging and nested-call shape with different targets |
+| 42ac:002c | DISPATCH | 31 | RELOCS | src=src/calib/ctry1.c; flags="/G1 /AM /Gs /Os"; keep the argument in SI across the initial call, then dispatch based on its `-1` sentinel |
