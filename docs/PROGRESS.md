@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 91 — one RELOCS, and `register` turns out to be a real lever
+- `4f89:0008` **_six_calls** (15 B, RELOCS, `src/calib/cloop2.c`) —
+  `register int i; for (i = 0; i < 6; i++) HELP(i);`
+  matches byte-for-byte: `56 / 33 F6 / 56 / E8 / 46 / 83 FE 06 / 7C F6 / 5E / CB`.
+  **The `register` keyword is what puts the loop counter in SI**; without it MSC
+  spills the counter to a frame and the shape is wrong.
+- **This corrects trait 8's blanket claim.** `register` *does* steer a loop counter
+  into SI, but a far-pointer temporary goes to DI instead (`cswap9` in the attic).
+  So the SI trait is narrower than I wrote: it applies to far-pointer bases, not to
+  counters. `CONVENTIONS.md` corrected.
+- Two more attempts, both characterised:
+  - `2a65:000c` (`memset` of a 512-byte table): `/Oi` makes `memset` intrinsic and
+    gets very close — `57 / 33 C0 / rep stosb / 5F / CB` — but the original uses
+    `rep stosw` with `cx=0x100` and sets CX before DI. `_wmemset` is out-of-line in
+    this compiler, so the word fill is unreachable.
+  - `37ef:000c` (flag clear): `register` puts the index in SI while the original has
+    it in BX — and the original does **not** save SI at all (no `push si`), which no
+    MSC convention does for a non-leaf helper.
+- Ledger: 184 rows — MATCH 32, **RELOCS 130**, PENDING 22.
+
 ## Round 90 — HOWTO written and verified; README numbers regenerated
 Consolidation round; no new bytes, but the project is now usable by someone else.
 

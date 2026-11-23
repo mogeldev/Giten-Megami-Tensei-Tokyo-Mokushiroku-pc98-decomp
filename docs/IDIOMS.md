@@ -15,6 +15,16 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 91 - register is a real lever, but only for counters
+- **`register int i` steers a loop counter into SI.** `4f89:0008` verifies
+  byte-exactly with it and not without: `33 F6 / 46 / 83 FE 06 / 7C F6`. For a
+  far-pointer temporary the same keyword moves it to DI instead, so it does not
+  rescue the pointer cases. Use it for counters, not for pointers.
+- **`/Oi` makes `memset` intrinsic** (`rep stosb` with `cx` = byte count), but
+  the binary uses `rep stosw` with `cx` = word count and sets CX before DI.
+  `_wmemset` is an out-of-line library call in MSC 7, so a word fill is unreachable.
+- A function that clobbers **SI without saving it** cannot come from MSC at all
+  (`37ef:000c`): SI is callee-saved in every MSC convention.
 ## Round 89 - adding to the high byte
 - `80 C4 02` is `add ah,2`: a constant of the form `+ 0xNN00` on a 16-bit value.
   Read the affected byte of the immediate to recover which half of the word the
