@@ -301,3 +301,34 @@ eturn psub(g_78c4); one push [disp16] then the translated call; image `90 0E E8`
 | 3a89:0004 | F_3A89 | 12 | RELOCS | src=src/calib/crelay5.c; flags="/G1 /AM /Gs /Ox"; `return sub() != 0;` in a near function - `cmp ax,1 / sbb ax,ax / inc ax`; image `90 0E E8` = LINK /F translation of the object's `9A` |
 | 3a8a:0000 | F_3A8A | 12 | RELOCS | src=src/calib/crelay5.c; flags="/G1 /AM /Gs /Ox"; sibling of 3a89:0004 with a different call target; image `90 0E E8` = LINK /F translation of the object's `9A` |
 | 3dcc:0008 | F_3DCC | 18 | RELOCS | src=src/calib/crelay5.c; flags="/G1 /AM /Gs /Ox"; far fastcall reset: old value in DX, store the argument, zero two words, return the old value; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 1e0f:0008 | F_1E0F_0008 | 17 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, 1)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 1f45:0112 | F_1F45_0112 | 22 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 1, 1)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 21b9:000c | F_21B9_000C | 15 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 21bb:000e | F_21BB_000E | 21 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, p2)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2213:000a | F_2213_000A | 15 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2214:001a | F_2214_001A | 15 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2404:0000 | F_2404_0000 | 24 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, p2, p3)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2a03:0002 | F_2A03_0002 | 24 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, p2, p3)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2a04:000a | F_2A04_000A | 21 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, p2)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2a07:0004 | F_2A07_0004 | 28 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, -1, -32767, 0, 32767)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2a09:0000 | F_2A09_0000 | 26 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 0, 0, 0, -1)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2df2:000a | F_2DF2_000A | 21 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, p2)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2dfe:0008 | F_2DFE_0008 | 20 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 1)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2dff:000c | F_2DFF_000C | 20 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 0)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2e01:0000 | F_2E01_0000 | 20 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, -1)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 3ae7:0028 | F_3AE7_0028 | 20 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 1)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 3aea:000c | F_3AEA_000C | 20 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 1)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 3afb:000c | F_3AFB_000C | 23 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, p2, 1)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 480a:0008 | F_480A_0008 | 15 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 499f:000c | F_499F_000C | 22 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 15, 32)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 49a1:0002 | F_49A1_0002 | 22 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 21, 6)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 49a2:0008 | F_49A2_0008 | 22 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 25, 13)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 49a3:000e | F_49A3_000E | 22 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 29, 30)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 49a5:0004 | F_49A5_0004 | 22 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 14, 18)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 49a6:000a | F_49A6_000A | 22 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 15, 32)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 49a8:0000 | F_49A8_0000 | 22 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 21, 6)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 49a9:0006 | F_49A9_0006 | 22 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 25, 13)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 49aa:000c | F_49AA_000C | 22 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 29, 30)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 49ac:0002 | F_49AC_0002 | 22 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, p1, 14, 18)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 4a44:000a | F_4A44_000A | 17 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, -1)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 4daf:006a | F_4DAF_006A | 17 | RELOCS | src=src/calib/crely7.c; flags="/G1 /AM /Gs /Os"; relay `Sub(p0, -1)`; image `90 0E E8` = LINK /F translation of the object's `9A` |

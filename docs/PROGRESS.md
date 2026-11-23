@@ -1,9 +1,9 @@
 # PROGRESS
 
 ## Relay harvest from the /F pool; compact FIXUPP offsets repaired
-The /F discovery paid off immediately: **18 more rows (285 B), all RELOCS**,
-from the 1 232-unit reachable pool, every one a wrapper around a single far
-call.
+The /F discovery paid off immediately: **49 more rows (926 B), all RELOCS**,
+from the 1 232-unit reachable pool. Every one is a wrapper around a single far
+call, and they fell into two passes.
 
 - `src/calib/crelay3.c` (15 rows): six two-argument relay siblings (18 B), three
   `(a, 1)` relays (17 B), three single-argument relays (15 B), a
@@ -13,6 +13,13 @@ call.
   `cmp ax,1 / sbb ax,ax / inc ax` in a near function (two call targets), and a
   far fastcall state reset whose old value must be staged in DX
   (`8B 16 <g>`), which needs `/Ox` - `/Os` uses CX instead.
+- **`tools/relays.py`** (new): recognises the whole family mechanically -
+  `55 8B EC <word pushes> 90 0E E8 rel16 C9 C2/CA imm16` - decodes each push as
+  a parameter (Pascal slot) or a constant, emits the C, builds once and matches
+  every member. Second pass: **31 of 32 candidates matched (641 B)** in one run;
+  the one failure is `41e7:000a`, where the original pushes a far pointer
+  constant as `68 06 00` while MSC shortens the offset to `push imm8`
+  (`6A 06`) - documented, not counted.
 
 Two tool defects surfaced and were fixed on the way:
 
@@ -26,8 +33,8 @@ Two tool defects surfaced and were fixed on the way:
    the LEDATA) and has its own `--selftest`.
 2. `match.py` now also resolves `@`-decorated `__fastcall` symbols.
 
-Ledger 283 rows - MATCH 37, RELOCS 222, ASM 1, PENDING 23; verify and checkled
-green; own-code coverage 4 400 B (1.501 %).
+Ledger 314 rows - MATCH 37, RELOCS 253, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 5 041 B (1.719 %).
 
 ## The `90 0E E8` idiom is MS LINK /FARCALLTRANSLATION - 77 KB become reachable
 ## The `90 0E E8` idiom is MS LINK /FARCALLTRANSLATION – 77 KB become reachable
