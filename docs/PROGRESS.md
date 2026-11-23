@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 32 — family sweeper tool; small-function families measured as empty
+- **`tools/sweep.py`** added: takes a family definition (regex + C template),
+  finds every hit at a real function boundary not yet in the ledger (compared by
+  linear address), writes the C, compiles once and matches all members;
+  `--emit` prints ready ledger rows. Seven families are defined:
+  `byte_store`, `word_inc`, `word_dec`, `byte_inc`, `word_copy`, `byte_copy`,
+  `word_add_imm`.
+- **Measured result: those families are effectively absent.** Raw occurrences in
+  the whole image: `C6 06` 5, `FF 06` 1, `A1..A3` 2, `FF 0E`/`FE 06`/`A0..A2`/
+  `83 06` 0 — and **none** starts at a function boundary. The compiler preferred
+  other forms, so this vein is exhausted (recorded so it is not retried).
+- Framed leaf clustering (prologue `55 8B EC`, epilogue `C9 CB/C3`, bodies
+  disp-masked, 8..30 bytes): only **8** candidates remain, 8 distinct bodies,
+  and all of them are CRT or interrupt-wrapper code at the image start.
+- SLOT_FILL retested with `/Ox` and `/Os /Oy` after the round-23 discovery:
+  `/Os` yields 162 B vs the original 166 B, but the difference is structural —
+  original `ENTER 2` + saves `di`+`si`, ours `ENTER 8` + saves `si`. Stays PENDING.
+- Ledger unchanged this round: 35 rows — 28 RELOCS, 7 PENDING.
+
 ## Round 31 — global-immediate family swept: 4 new RELOCS (28 total)
 - `tools/mine.py` added (template phase 5, step 1: find candidates) — lists
   call-free, jump-free small functions with their decompiled body. Fixed it to

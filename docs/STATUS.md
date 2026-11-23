@@ -61,11 +61,12 @@ Code functions: **1956**, of which verified **28**.
 
 1. `LINK.EXE` (DOSX16) hangs under dosbox-x in all DPMI variants — prerequisite
    for `build_replacement` (phase 6); candidate: native OMF linker (jwlink)
-2. Continue the family workflow: functions with a `55 8b ec` frame whose
-   decompiled body is a single simple statement (setter / arithmetic forms)
-3. For the next PENDING candidate, first check whether a caller pins down the
-   semantics — otherwise the hand-ASM question stays open (round 26 disproved the
-   MSC-6 hypothesis; MSC 7.0 remains the toolchain, `--msc-dir MSC6I` is ready)
-4. Two-parameter `retf 4` shapes and skeleton clustering produced no family in
-   round 29 — revisit only when a concrete caller proves such a shape exists
+2. Remaining volume is in **larger framed functions**; small one-statement
+   families are measured empty (round 32). Work them with the decompiler plus a
+   caller that pins down arity/semantics, one function per round
+3. SLOT_FILL (166 B): original uses `ENTER 2` with `di`+`si`; ours uses
+   `ENTER 8`. Next idea would be separate segment/offset parameters, but MSC 7
+   lacks `MK_FP`, so it needs a different formulation
+4. For the next PENDING candidate, check the caller first — otherwise the
+   hand-ASM question stays open (MSC 6 tested and disproved, round 26)
 <!-- MANUAL-END -->
