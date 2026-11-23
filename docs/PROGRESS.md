@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 8: the framed + translated-call family pays (12 rows, 279 B)
+A census of unmatched units with **no blocking trait**, bucketed by structure,
+put `framed + contains a translated call` at 219 units / 10.9 KB - the largest
+reachable group behind the `ENTER` modules. Twenty-two of them turned out to be
+just two-call combinations, so they were transcribed as one batch:
+`src/calib/crelay18.c`.
+
+- six siblings forwarding a **long** from one call into the next
+  (`52 50` = `push dx; push ax`): `372a:003a`, `372f:0000`, `4727:00ec`,
+  `4a95:000e`, `4aa2:000c`, `4ab1:0006` (22 B each);
+- the three-argument variant, 28 B: `473f:003e`;
+- two siblings of `return h(sub2(a, b))` with the result forwarded through
+  `push ax`: `3a57:0002`, `49f2:000e` (24 B);
+- a leading no-argument call before the real one: `2d52:0006` (23 B) and
+  `2e55:0024` (23 B);
+- `3a58:000a` (25 B): the far result feeds a **near**-Pascal callee, so the
+  second call correctly stays `E8` while the first is `/F`-translated.
+
+That batch took one compile and one match pass - the family is regular enough
+that the rest of the 219 units should be mined the same way next round.
+
+Ledger 361 rows - MATCH 37, RELOCS 300, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 6 122 B (2.088 %).
+
 ## Round 7: two parameter-store and register-argument wrappers (74 B)
 - `src/calib/crelay16.c` (`/Os`): `4c96:003a` - three parameters written to
   consecutive globals in declaration order (`A3 <g>` each), then `sub1(1)`.

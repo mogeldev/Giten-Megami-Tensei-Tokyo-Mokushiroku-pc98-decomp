@@ -367,3 +367,15 @@ eturn psub(g_78c4); one push [disp16] then the translated call; image `90 0E E8`
 | 13c6:0000 | F_13C6 | 39 | RELOCS | src=src/calib/crelay15.c; flags="/G0 /AM /Gs /Os"; flag cell set around a long-returning call (`83 EC 04` local, `83 E5 5D` epilogue); the call is a **folded** same-segment far call: image `0E E8 rel16` (4 B) where the object has `9A` (5 B) |
 | 4c96:003a | F_4C96_3A | 32 | RELOCS | src=src/calib/crelay16.c; flags="/G1 /AM /Gs /Os"; three parameter stores (`A3 <g>` in declaration order) then `sub1(1)`; image `90 0E E8` = LINK /F translation of the object's `9A` |
 | 22fe:0000 | F_22FE | 42 | RELOCS | src=src/calib/crelay17.c; flags="/G1 /AM /Ox"; `register` parameter kept in SI feeds four near-Pascal calls with descending constants and one far call; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 372a:003a | F_372A | 22 | RELOCS | src=src/calib/crelay18.c; flags="/G1 /AM /Gs /Os"; a long from one call forwarded to the next (`52 50`); image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 372f:0000 | F_372F | 22 | RELOCS | src=src/calib/crelay18.c; flags="/G1 /AM /Gs /Os"; sibling of 372a:003a; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 4727:00ec | F_4727 | 22 | RELOCS | src=src/calib/crelay18.c; flags="/G1 /AM /Gs /Os"; sibling of 372a:003a; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 4a95:000e | F_4A95 | 22 | RELOCS | src=src/calib/crelay18.c; flags="/G1 /AM /Gs /Os"; sibling of 372a:003a; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 4aa2:000c | F_4AA2 | 22 | RELOCS | src=src/calib/crelay18.c; flags="/G1 /AM /Gs /Os"; sibling of 372a:003a; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 4ab1:0006 | F_4AB1 | 22 | RELOCS | src=src/calib/crelay18.c; flags="/G1 /AM /Gs /Os"; sibling of 372a:003a; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 473f:003e | F_473F | 28 | RELOCS | src=src/calib/crelay18.c; flags="/G1 /AM /Gs /Os"; three-argument long relay; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 3a57:0002 | F_3A57 | 24 | RELOCS | src=src/calib/crelay18.c; flags="/G1 /AM /Gs /Os"; `return h(sub2(a, b))` - result forwarded through `push ax`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 49f2:000e | F_49F2 | 24 | RELOCS | src=src/calib/crelay18.c; flags="/G1 /AM /Gs /Os"; sibling of 3a57:0002; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2d52:0006 | F_2D52 | 23 | RELOCS | src=src/calib/crelay18.c; flags="/G1 /AM /Gs /Os"; `return sub3(sub0(), a, 0)` - leading no-argument call; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2e55:0024 | F_2E55 | 23 | RELOCS | src=src/calib/crelay18.c; flags="/G1 /AM /Gs /Os"; `sub0(); return sub2(a, b);`; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 3a58:000a | F_3A58 | 25 | RELOCS | src=src/calib/crelay18.c; flags="/G1 /AM /Gs /Os"; far result feeds a near-Pascal callee, so the second call stays `E8`; image `90 0E E8` = LINK /F translation of the object's `9A` |
