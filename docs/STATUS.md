@@ -13,11 +13,11 @@
 
 PENDING-Faelle (Details in `docs/MATCHING.md`, Idiome in `docs/IDIOMS.md`):
 
-- `458e:a20e` **SLOT_FILL** (166 B) — Slotfuellroutine (pascal, 1 Far-Param, 8 Felder 0/2/4/9/11/13/15/19, conv+update-Calls). 4 Hypothesen: v3 (162/166 B!) fehlen nur die Stack-Rueckschre
-- `4fad:0006` **CONV** (16 B) — Lookup table[c] (Wort-Tabelle DGROUP 0x396A, near-pascal). 5 Quellformen + /Od-/O1-/O2 getestet: /Os liefert ALLES identisch (55 8b ec-Rahmen, [bp+4],
-- `4fab:000a` **get_39f8_clamped** (16 B) — Slot-Index-Allokator (Aufrufer FUN_458e_a20e: Sentinel -1, Slots 0x27 B). BESTE Variante jetzt **/Ox**: 14/16 B — `83 3E d 10 / 7C 05 / B8 FFFF` ident
-- `1f2d:000e` **CLAMP_A** (20 B) — min(max(x,1),g), __fastcall (Arg in AX, nacktes retn), GLOBAL 0x4688. Original ohne Rahmen und mit DX-Temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`). MSC7 e
-- `1f2f:0002` **CLAMP_B** (20 B) — identische Form, Global 0x468A — Geschwister von CLAMP_A, gleiche Ursache
+- `4fab:000a` **get_39f8_clamped** (16 B) — Slot-Index-Allokator (Aufrufer FUN_458e_a20e: Sentinel -1, Slots 0x27 B). Beste Variante /Ox: 14/16 B — Restdiff `C3 90` (Early-Return + Padding) vs. 
+- `1f2d:000e` **CLAMP_A** (20 B) — min(max(x,1),g), __fastcall (Arg in AX, nacktes retn), Global 0x4688. Original rahmenlos mit DX-Temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`)
+- `1f2f:0002` **CLAMP_B** (20 B) — Geschwister von CLAMP_A, Global 0x468A, gleiche Ursache
+- `458e:a20e` **SLOT_FILL** (166 B) — Slotfuellroutine (pascal, 1 Far-Param). Beste Variante 162/166 B
+- `4fad:0006` **CONV** (16 B) — Lookup table[c] (Wort-Tabelle DGROUP 0x396A, near-pascal). /Os liefert alles identisch bis auf 2 B: `D1 E3` (shl bx,1) statt `03 DB` (add bx,bx)
 
 ## Coverage (ehrliche Byte-Metrik)
 
@@ -57,12 +57,10 @@ Code-Funktionen: **1956**, davon verifiziert **14**.
 
 ## Offen (Reihenfolge fuer die naechsten Runden)
 
-1. **Integritaetsloch schliessen:** `verify.py` prueft gegen die gerade in
-   `build/` liegenden OBJ-Dateien, baut sie nicht neu. Nach jeder Quellaenderung
-   kann ein Ledger-Eintrag unbemerkt gegen ein anderes Kompilat laufen. Fix:
-   `verify.py` soll `build.py` mit den im Ledger vermerkten Flags aufrufen.
-2. `LINK.EXE` (DOSX16) haengt unter dosbox-x in allen DPMI-Varianten — Voraussetzung
+1. `LINK.EXE` (DOSX16) haengt unter dosbox-x in allen DPMI-Varianten — Voraussetzung
    fuer `build_replacement` (Phase 6); Kandidat: nativer OMF-Linker (jwlink)
-3. Slot-Subsystem: `__asm`-Rekonstruktion erwaegen (dort ist C nachweislich erschoepft)
-4. Weiter im Familien-Workflow: ALU-/DOS-Helfer mit `55 8b ec`-Rahmen
+2. Slot-Subsystem: `__asm`-Rekonstruktion erwaegen (dort ist C nachweislich erschoepft)
+3. Weiter im Familien-Workflow — rahmenlose Originale zuerst mit `/Oy` probieren
+4. Build-Cache (Flags+mtime) fuer `verify.py`, damit der Rebuild nicht jedes Mal
+   ~25 s kostet (Vorlage Phase 3 nennt den Cache ausdruecklich)
 <!-- MANUAL-END -->

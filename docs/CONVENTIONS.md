@@ -25,6 +25,10 @@ Gilt für das Byte-Match-Projekt zu **Giten Megami Tensei** (Spiel-Engine `DDS98
 ## Ledger (`docs/MATCHING.md`)
 Eine Zeile pro Adresse, Duplikate verboten, Größe ≠ 0:
 `| va (seg:off) | name | size | status | note |` mit Status ∈ `MATCH | RELOCS | PENDING`.
+Notiz-Format für verifizierte Zeilen (von `tools/verify.py` gelesen):
+`src=<quelldatei>; flags="<cflags>"; <freitext>` — verify baut die Kombination
+einmal neu und vergleicht dann jede zugehörige Zeile (kein Vertrauen auf
+vorhandene OBJs). PENDING-Zeilen tragen kein `src=` und werden nicht gebaut.
 
 ## Build — verifiziertes Rezept (2026-11-23)
 `build.py` kapselt: **dosbox-x** (v2026.08.31, VS/SDL1-64-Bit) mit `-nopromptfolder`

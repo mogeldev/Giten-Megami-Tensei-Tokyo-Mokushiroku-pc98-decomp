@@ -1,5 +1,15 @@
 # PROGRESS
 
+## Runde 24 — Integritaetsloch geschlossen: verify baut selbst (2026-11-23)
+- Ledger-Format kanonisiert: jede MATCH/RELOCS-Zeile traegt
+  `src=<quelldatei>; flags="<cflags>"` — verify.py liest das und **kompiliert jede
+  (src, flags)-Kombination neu**, statt sich auf vorhandene `build/*.OBJ` zu verlassen.
+- Beweis: `build/*.OBJ` geloescht -> verify baute alle 6 Quelldateien und meldete
+  14/14 RELOCS ok, PENDING 5, gruen. Vorher haette derselbe Lauf gegen veraltete
+  oder fremde Kompilate geprueft (Runde-23-Befund).
+- `--fast` ueberspringt den Neubau bewusst (nur Zwischencheck, nie Close-out).
+- Duplikat- und Groesse-0-Pruefung bleibt im Verify (Vorlage Phase 6).
+
 ## Runde 23 — Optimierungsstufe als Codegen-Klasse entdeckt (2026-11-23)
 - Familien-Scan mit maskierten disp16: 3 Gruppen. Die groesste (3dd3:0000..) ist
   ein **Segment-Alias** der bereits gematchten Getter (linear identisch mit
