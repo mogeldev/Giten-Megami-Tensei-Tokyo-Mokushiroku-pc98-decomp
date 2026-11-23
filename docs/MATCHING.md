@@ -228,3 +228,12 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 2e33:0006 | SCAN512_B | 32 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; same byte table with the alternate scanner |
 | 2e35:0006 | SCAN256_A | 34 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; 256 four-byte entries at fixed far address 4827:08E6; both pointer words match without masking |
 | 2e37:0008 | SCAN256_B | 34 | RELOCS | src=src/calib/ctrel2.c; flags="/G1 /AM /Gs /Os"; same fixed-address table with the alternate scanner |
+| 1e1a:0002 | RELAY_22FC | 18 | RELOCS | src=src/calib/cfrelay.c; flags="/G1 /AM /Gs /Os"; far Pascal relay of two words |
+| 2b63:000c | RELAY_92BC | 15 | RELOCS | src=src/calib/cfrelay.c; flags="/G1 /AM /Gs /Os"; near Pascal relay of one word |
+| 2b8d:0006 | RELAY_92E4 | 15 | RELOCS | src=src/calib/cfrelay.c; flags="/G1 /AM /Gs /Os"; near Pascal relay of one word |
+| 2b8e:0006 | RELAY_9326 | 15 | RELOCS | src=src/calib/cfrelay.c; flags="/G1 /AM /Gs /Os"; near Pascal relay of one word |
+| 31eb:0004 | RELAY_26DE | 15 | RELOCS | src=src/calib/cfrelay.c; flags="/G1 /AM /Gs /Os"; far Pascal relay of one word |
+| 31f6:0066 | RELAY_27B8 | 15 | RELOCS | src=src/calib/cfrelay.c; flags="/G1 /AM /Gs /Os"; far Pascal relay of one word |
+| 31f6:008c | RELAY_27FE | 15 | RELOCS | src=src/calib/cfrelay.c; flags="/G1 /AM /Gs /Os"; far Pascal relay of one word |
+| 3aa9:0002 | RELAY_AE58 | 18 | RELOCS | src=src/calib/cfrelay.c; flags="/G1 /AM /Gs /Os"; far Pascal relay of two words |
+| 4957:000e | RELAY_474A | 21 | RELOCS | src=src/calib/cfrelay.c; flags="/G1 /AM /Gs /Os"; far Pascal relay of three words |

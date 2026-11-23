@@ -1,5 +1,11 @@
 # PROGRESS
 
+## Nine direct far-call relays verified in one build
+Nine inventory-backed wrappers forward one to three words to far Pascal
+callees. The caller's own return can be near or far; the original `C2`/`CA`
+selects the declaration. The batch adds 147 B as RELOCS. Direct `9A` is
+reproducible here; this is distinct from the `push cs; call` form.
+
 ## Four more scanner wrappers verified
 The `2e31:0006`–`2e37:0008` batch adds 132 B as RELOCS. The 512-entry pair
 passes a DGROUP byte table; the 256-entry pair passes `4827:08E6`, whose
