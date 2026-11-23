@@ -14,3 +14,8 @@ void __far clear_entries(void)
         p->count = 0;
     } while (++p < g_876e + 64);
 }
+
+struct Entry __far *__far get_entries(void)
+{
+    return g_876e;
+}

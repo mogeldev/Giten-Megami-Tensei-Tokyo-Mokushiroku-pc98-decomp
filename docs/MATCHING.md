@@ -219,3 +219,4 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 42ac:002c | DISPATCH | 31 | RELOCS | src=src/calib/ctry1.c; flags="/G1 /AM /Gs /Os"; keep the argument in SI across the initial call, then dispatch based on its `-1` sentinel |
 | 21ff:0004 | PREP_RELAY | 31 | RELOCS | src=src/calib/cbatch1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; keep the first argument in SI and reuse it in two near Pascal calls |
 | 4dac:0000 | SETUP_RELAY | 33 | RELOCS | src=src/calib/cbatch1.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; pass the first call's AX result and the saved index in DX to a near fastcall callee |
+| 42bc:000c | _get_entries | 6 | RELOCS | src=src/calib/ctable2.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; return a far pointer to the table at DGROUP:0x876E; starts after a return and padding, outside the inventory's unit starts |

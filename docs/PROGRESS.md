@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Packed-table pointer getter verified
+`42bc:000c` (6 B, RELOCS) returns the far address of the table used by
+`_clear_entries`. Its offset is an OMF fixup; the `mov dx,ds` and far return
+match without masking. The getter starts inside a merged inventory window.
+
 ## Two register-staged relays verified in one batch
 `21ff:0004` (31 B) and `4dac:0000` (33 B) both verify as RELOCS from a
 single source and flag set. The second relay leaves the setup result in AX
