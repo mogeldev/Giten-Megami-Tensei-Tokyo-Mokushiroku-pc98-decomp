@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 4: four /F rows; MSC 5.1 runs through build.py; the ENTER vein measured
+- `src/calib/crelay10.c` (`/Os`): `h(sub2(a, b))` and
+  `if (x == -1) x = sub2(y, z); return x;` (54 B).
+- `src/calib/crelay11.c` (`/Ox`): a call result kept in SI and returned, and a
+  `register` parameter that feeds both a relay and a two-argument call (50 B).
+
+Toolchain: **MSC 5.1 now runs through `build.py`** as well
+(`--msc-dir MSC51 --no-dpmi`, same recipe as MSC 6.0) - it is the only tested
+compiler that emits `ENTER imm16,0` frames under `/G1 /Gs`.
+
+That matters because the next structure family is large: **795 unmatched units
+(117 436 B) begin with `ENTER`**. The first transcription (`1e9f:0004`, a
+14-byte stack buffer passed twice to a far function) is byte-exact except that
+MSC 5.1 emits the stack-address `LEA` twice (`8D 46 F2 16 50` / `8D 46 F2 16 50`)
+where the original computes it once and pushes `SS:AX` twice - no `/O` variant
+tested (`/Oa`, `/Os`, `/Ot`, `/Ol`, `/Ox /Oa`) performs that CSE. So the ENTER
+family probably needs the same older generation that also explains `add r,r` and
+`B8 00 00`; the frame itself is no longer the obstacle.
+
+Ledger 341 rows - MATCH 37, RELOCS 280, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 5 601 B (1.910 %).
+
 ## Small-wrapper harvest: 23 rows from the /F pool (456 B)
 A survey of the 420 unmatched units up to 56 bytes that contain a translated
 call produced 23 more RELOCS rows in two flag groups.
