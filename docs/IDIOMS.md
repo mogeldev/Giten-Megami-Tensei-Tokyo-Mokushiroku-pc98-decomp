@@ -39,6 +39,19 @@ Candidates not yet checked (record as a rule only after calibration):
   — the true arity can be read from the RET (here: 4 = one far pointer; Ghidra's
   'param_2' was a calling-convention artifact).
 
+## Round 28 — return-form variants and length pitfalls
+- **`g |= v; return g;`** compiles to `09 06 <disp>` (store) followed by
+  `A1 <disp>` (reload) — 17 bytes with the `leave / retf 2` tail. The reload is
+  real, not an artefact: the return value is read back from the global.
+- **`g &= ~v; return g;`** gives `F7 D0` (not ax) + `21 06 <disp>` + `A1 <disp>`
+  — 18 bytes. Again the long form of the return value.
+- **Length must end at the `retf imm16` terminator.** A window that is one or
+  two bytes short hides the tail byte(s) and still reports RELOCS — a silent
+  false positive. Derive the length from the disassembled
+  `leave / retf xx xx` sequence, then write it to the ledger.
+- Inventory sizes are unreliable for merged blobs (seen: 340 and 214 bytes for
+  a 13- and a 17-byte function). Treat them as an upper bound only.
+
 ## Round 27 — canonical one-parameter forms (byte-proven)
 - **Far-pascal setter** (`void __far __pascal f(int v) { g = v; }`) compiles to
   exactly 13 bytes: `55 8B EC 8B 46 06 A3 <disp> C9 CA 02 00`. A trailing `90`

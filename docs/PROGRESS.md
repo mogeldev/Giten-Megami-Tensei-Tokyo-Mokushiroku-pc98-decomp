@@ -1,5 +1,20 @@
 # PROGRESS
 
+## Round 28 — three more canonical forms matched (22 RELOCS total)
+- Shape scan over real function boundaries found three further canonical
+  far-pascal one-parameter units (src/calib/coset2.c, `/G1 /AM /Gs /Os`):
+  - `2f22:0006` SET_1C48 (13 B) — `g_1c48 = v`
+  - `1fc8:0000` OR_RET_F6 (17 B) — `g_00f6 |= v; return g_00f6`
+  - `1fc8:0012` ANDNOT_RET_F6 (18 B) — `g_00f6 &= ~v; return g_00f6`
+- Two measurement lessons, both recorded in `docs/IDIOMS.md`:
+  1. Inventory sizes here are wildly inflated (340 and 214 bytes) because Ghidra
+     merged several units into one function; the real length comes from the
+     `leave / retf imm16` terminator.
+  2. A window two bytes too narrow silently "passes": the last byte of the
+     `retf` immediate was outside the compared range. Always include the full
+     `C9 CA xx xx` sequence.
+- Ledger: 29 rows — **22 RELOCS**, 7 PENDING.
+
 ## Round 27 — setter family matched: 5 new RELOCS, repo translated to English (2026-11-23)
 - Targeted pattern search for the canonical far-pascal one-param form
   (`push bp / mov bp,sp / mov ax,[bp+6] / <op> / leave / retf 2`) found real C.
