@@ -22,6 +22,36 @@ Applies to the byte-match project for **Giten Megami Tensei** (game engine `DDS9
 - File offset = `linear − 0x10000 + 0x3800`, valid up to offset 339 735 (after that: overlay).
 - MZ is relocatable at load time (3 562 relocs): always compare **image-relative against the Ghidra mapping**; which bytes are linker operands, **read from the object relocation table**, never guess.
 
+## Codegen traits of the original compiler (consolidated, round 76)
+
+These are the **properties of the original code generator that Microsoft C 7 cannot
+reproduce**. Each was established by isolating it in a function whose body otherwise
+matches byte-for-byte, so each is a compiler property rather than a source mistake.
+Every one was also tested against the flag matrix (`/Os`, `/Ot`, `/Od`, `/Ox`,
+`/Oa`, `/Oi`, combinations) without success. Unit/byte counts come from
+`tools/gap.py` and `docs/GAP.md`.
+
+| # | Trait | Evidence | Units / bytes |
+|---|---|---|---|
+| 1 | doubling by `add r,r` instead of `shl r,1` | `4e11:007e` matches except the final `03 C0` (`add ax,ax`); MSC emits `D1 E0`. Explains the 74×`03 DB` vs 18×`D1 E3` census that round 34 misread as hand-written assembly | 204 / 66 762 |
+| 2 | far calls to same-segment functions as `push cs; call rel16` | MSC emits `9A` for a far callee (verified with a same-file far function) and a bare `E8` for a near one; `0E E8` is unreachable | 1232 / 180 177 |
+| 3 | far-pointer parameters loaded as two words (`8B 5E 06` + `8E 46 08`) instead of `les bx,[bp+6]` | `1df5:0008`, `2aa3:0048` — bodies otherwise identical | 367 / 84 175 |
+| 4 | jump targets padded with `90` even in size-optimised builds | `47ef:0008` (`EB 03 90` vs `EB 02`) and `2aa3:0002` (two `90` bytes, all displacements +2); `/Os` never pads and `/Ot` restructures the returns instead | 1400 / 225 317 |
+| 5 | epilogue `8B E5 5D` (`mov sp,bp; pop bp`) instead of `C9` | `11d8:000c` is 58/60 bytes identical; only the teardown differs. A bare `5D` epilogue is a milder variant of the same thing | 144 / 24 280 (+74 / 6 814) |
+| 6 | register-passed arguments (`mov ah,imm` then `call`) | `1cb7:0018`, `1cb9:0008`, `1cbf:0020` etc. No Microsoft C 7 construct emits `mov ah,imm` before a call — its `__fastcall` uses BX/CX/DX | 12 / 6 747 |
+| 7 | absolute ESA addressing (`mov es,imm16` then `es:[disp16]`) | `2d64:0008`; MSC always addresses a far object through a base register, even with `MK_FP(const_seg, const_off)` | 6 / 17 323 |
+
+Softer variants that also block a byte-exact match but are harder to count:
+**branch-block order** (which arm falls through), **operand evaluation order**, and
+**register choice** (`SI` with `push`/`pop` where MSC uses `BX` with neither).
+
+**What this means:** the reconstruction is complete as far as this toolchain allows.
+The practical ceiling is the `blocked by nothing` row of `docs/GAP.md`
+(498 units / 27 144 B by byte-pattern count, i.e. an optimistic bound). Going
+further needs the original compiler generation; Microsoft C 5.1 is EXEPACK-packed
+in the only DOS-hosted copy available and the 6.00ax set is Windows-hosted, so
+neither could be run here.
+
 ## Hand-ASM evidence - `add bx,bx` (round 34, **corrected in round 64**)
 The binary contains 74 occurrences of `03 DB` (`add bx,bx`, index*2) against
 only 18 of `D1 E3` (`shl bx,1`). MSC 7.0 was tested with

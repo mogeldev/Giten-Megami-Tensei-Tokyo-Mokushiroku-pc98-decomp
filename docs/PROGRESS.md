@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 76 — the traits are now one table with evidence, in CONVENTIONS.md
+No new verified bytes; this round makes the accumulated knowledge usable.
+
+- `tools/gap.py` gained the **register-passed arguments** trait (`B4 imm` followed by
+  `E8`), so `docs/GAP.md` now covers seven traits. Regenerated counts:
+  padding 1400 u, `push cs` 1232 u, `9A` 881 u, split loads 367 u, `add r,r` 204 u,
+  `8B E5 5D` 144 u, bare `5D` 74 u, **register args 12 u**, absolute ESA 6 u,
+  and **498 units / 27 144 B blocked by nothing**.
+- `docs/CONVENTIONS.md` now opens with a single **"Codegen traits"** table: each row
+  gives the trait, the unit that isolates it as evidence, and its measured size.
+  This replaces knowledge that was scattered across 40 rounds of PROGRESS entries —
+  a reader can now see *why* each class is out of reach instead of inferring it.
+- Recorded the three softer variants separately (branch-block order, operand
+  evaluation order, register choice) because they block matches too but are not
+  cleanly countable as patterns.
+- README points at the table, so the ceiling is stated on the front page.
+- Ledger unchanged: 167 rows — MATCH 32, RELOCS 113, PENDING 22.
+
 ## Round 75 — one RELOCS; the interrupt-wrapper family is out of reach
 - `21f4:0000` **MUL_THEN_CALL** (23 B, RELOCS, `src/calib/cmul1.c`) —
   `return HELP(a, b, d * c);`. The operands must be **unsigned**: `F7 66` is `MUL`,

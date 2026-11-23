@@ -34,6 +34,9 @@ TRAITS = {
     "epilogue 5D (no enter)": lambda b: (b.endswith(b"\x5D\xCB") or b.endswith(b"\x5D\xC3")
                                          or b.endswith(b"\x5D")),
     "interior 90 padding":   lambda b: b"\x90" in b[:-1],
+    # mov ah,imm followed closely by a call: register-passed interrupt arguments,
+    # which no Microsoft C 7 construct can produce (__fastcall uses BX/CX/DX).
+    "register-passed args":  lambda b: any(b[i] == 0xB4 and b[i + 2] == 0xE8 for i in range(len(b) - 2)),
 }
 
 counts = Counter()
