@@ -1,5 +1,21 @@
 # PROGRESS
 
+## Round 90 — HOWTO written and verified; README numbers regenerated
+Consolidation round; no new bytes, but the project is now usable by someone else.
+
+- **`docs/HOWTO.md`** — the missing piece. Six sections: prerequisites, checking the
+  whole ledger, reproducing one row end-to-end, reading a signature out of the bytes
+  (near/far, argument offsets, callee convention, which flags), an **eleven-item DIFF
+  checklist** distilled from 90 rounds of real mismatches, how to add a row, the
+  existing generators, and what is out of reach with the reason.
+- **Every claim in it was executed, not assumed**: `match.py --selftest` (ok),
+  `split.py --selftest` (ok), and the documented `PICK_PTR` reproduction run end to
+  end (`build.py` → `omfdump.py` → `match.py` → `RELOCS`, size 44).
+- **README figures regenerated from the tools** instead of memory — they had drifted
+  again (149 → 161 functions, 2323 → 2631 bytes, 0.792 → 0.897 %). The README now
+  points at `HOWTO.md` as the entry point and at `checkled.py` alongside `verify.py`.
+- Ledger unchanged: 183 rows — MATCH 32, RELOCS 129, PENDING 22.
+
 ## Round 89 — the strictest filter, one survivor verified
 - Built the hardest filter used so far: all nine trait patterns excluded **and** the
   unit must start with a real prologue (`55 8B EC`, `53`, `56`, `57`, `1E`, `06`).
