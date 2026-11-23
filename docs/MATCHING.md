@@ -202,3 +202,4 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 1fb1:0006 | SWAP_00C8 | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; returns the old DGROUP word at 0x00C8 and stores the argument; inventory window is 62 bytes |
 | 3bd6:001a | SWAP_192C | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; same form for DGROUP 0x192C; inventory window is 36 bytes |
 | 4e23:0006 | SCALE64 | 20 | MATCH | src=src/calib/calu2.c; flags="/G1 /AM /Gs /Os"; near Pascal `(b << 6) + a`; compound shift on a register local keeps the shift in SI before moving the result to AX |
+| 489a:000a | CLASSIFY | 32 | MATCH | src=src/calib/calu3.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; two early returns for `n <= -42` and `n >= 42`, then zero; `/Ox` stages both comparisons in DX |

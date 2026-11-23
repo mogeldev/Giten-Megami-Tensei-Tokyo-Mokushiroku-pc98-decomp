@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Round 100 - signed threshold classification matches
+`489a:000a` (CLASSIFY, 32 B) is an exact C match with no relocation masking.
+Two early returns followed by the zero case reproduce the block order that
+round 69 missed; `/Ox` keeps the input in DX for both threshold comparisons.
+
 ## Round 99 - explicit register shift yields an exact match
 `4e23:0006` (SCALE64, 20 B) now verifies as MATCH with no relocation masking.
 With `/Os`, `offset <<= 6` on the register local shifts SI in place before
