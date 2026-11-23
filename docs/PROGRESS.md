@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 67 — padding-tolerant generators; three more verified; MK_FP identified
+- Made `setters.py` and `wraps.py` **padding-tolerant** (prefix match, remaining
+  bytes must be `00`/`90`), and made them record the *matched* length rather than
+  the unit size. Re-running them found no new members — those families really are
+  exhausted — but the tools are now correct for future re-runs.
+- New verified (`src/calib/carr1.c`):
+  - `4342:001c` **ADDR4** (18 B, RELOCS) — `return (char __far *)&g_866e[i * 2];`
+    (array base in AX, DS in DX);
+  - `4342:0004` **SEXT11** (23 B, RELOCS) — `(g_866e[i*2] << 5) >> 5`, i.e.
+    `C1 E0 05 / C1 F8 05` sign-extends the low 11 bits;
+  - `37a6:0016` **REC6** (17 B, **MATCH**) — `return MK_FP(0x4363, i * 0x1E + 6);`.
+    The long-arithmetic form produced a spurious `cwd`; **`MK_FP` with a constant
+    segment is the right way to express a fixed-segment far pointer**, giving
+    `imul/add` plus `mov dx,0x4363`.
+- `verify.py` caught my window error once more: REC6 was recorded at 18 bytes when
+  the function is 17 (one padding byte). Third time this guard has paid for itself.
+- Ledger: 155 rows — **MATCH 29**, RELOCS 104, PENDING 22.
+
 ## Round 66 — 10 more verified: the swap-and-return family was bigger than it looked
 - **Templating caught seven hidden members.** The four `swap-and-return` units from
   round 65 looked like the whole family, but a template over *wildcard

@@ -15,6 +15,14 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 67 - MK_FP for fixed-segment far pointers
+- **`MK_FP(0x4363, off)` is how to write a far pointer whose segment is a
+  constant.** Writing `(char __far *)(0x43630000L + off)` makes MSC compute the
+  sum as a long and emit a spurious `cwd`; `MK_FP` yields `imul/add` for the
+  offset and a plain `mov dx,0x4363`, which is what the binary contains.
+- Generators must use a **prefix match** with trailing `00`/`90` allowed, and
+  must record the matched length (not the unit size) in the ledger - units
+  routinely carry one padding byte that is not part of the function.
 ## Round 65 - filter by blocking trait before transcribing
 - **Build the candidate list by exclusion, not by inclusion.** Once the blocking
   traits of the other compiler generation are known, drop every unit containing

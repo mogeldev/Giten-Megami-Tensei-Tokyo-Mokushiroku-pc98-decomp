@@ -163,3 +163,6 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 4df5:000e | X_4DF5_000E | 19 | RELOCS | src=src/calib/cswap4.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; swap-and-return, generated |
 | 47ea:000a | CLAMP63 | 20 | MATCH | src=src/calib/carith2.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; `if (v > 0x63) v = 0x63; return v;` - value staged in DX; byte-identical |
 | 4384:000c | MASKBYTE | 20 | RELOCS | src=src/calib/carith2.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; `g_8670[i*4 + 1] & 0x7F` - stride-4 byte array |
+| 4342:001c | ADDR4 | 18 | RELOCS | src=src/calib/carr1.c; flags="/G1 /AM /Gs /Os"; `return (char __far *)&g_866e[i * 2];` — array base into AX, DS into DX |
+| 4342:0004 | SEXT11 | 23 | RELOCS | src=src/calib/carr1.c; flags="/G1 /AM /Gs /Os"; `return (g_866e[i * 2] << 5) >> 5;` — `C1 E0 05 / C1 F8 05` sign-extends the low 11 bits |
+| 37a6:0016 | REC6 | 17 | MATCH | src=src/calib/carr1.c; flags="/G1 /AM /Gs /Os"; `return MK_FP(0x4363, i * 0x1E + 6);` — MK_FP with a constant segment gives `imul/add` for the offset plus `mov dx,0x4363`; byte-identical |
