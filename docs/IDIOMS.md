@@ -15,6 +15,14 @@ After each solved diff cause, exactly the rule found goes here.
 - Contrast worth remembering: the same source gives `8B 56 06 / 83 FA 63` for a
   clamp (DX staging, /Ox) but `83 7E 06 63` (memory operand) in other contexts.
   When a clamp misses, try the /Ox variants before changing the source.
+## Round 89 - adding to the high byte
+- `80 C4 02` is `add ah,2`: a constant of the form `+ 0xNN00` on a 16-bit value.
+  Read the affected byte of the immediate to recover which half of the word the
+  source adds to - `80 C4 k` = `+ (k << 8)`, `04 k` = `+ k`.
+- The strictest filter (nine trait patterns plus "must start with a real prologue")
+  leaves only 145 of 488 reachable units, and those are dominated by families
+  already known to be blocked. The reachable set is close to exhausted for
+  single-function transcription.
 ## Round 88 - fragments can end at a ret
 - A terminator does not prove a unit is a function. **Fragments end at `ret` too.**
   Two tells that a unit is a tail: it *uses* registers it never set (`26 89 7C 0E`

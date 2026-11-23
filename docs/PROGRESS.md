@@ -1,5 +1,20 @@
 # PROGRESS
 
+## Round 89 — the strictest filter, one survivor verified
+- Built the hardest filter used so far: all nine trait patterns excluded **and** the
+  unit must start with a real prologue (`55 8B EC`, `53`, `56`, `57`, `1E`, `06`).
+  Survivors: **145** units out of 488 reachable — and most of those are the same
+  families already characterised.
+- `3d1a:0008` **ADD_200** (23 B, RELOCS, `src/calib/ccomb1.c`) —
+  `HELP3(a + 0x200, b, c)`. The tell: the constant is applied with `80 C4 02`
+  (`add ah,2`), which is what `+ 0x200` compiles to on a word.
+- Two more tried and understood:
+  - `439c:0006` / `439d:000e` (`HELP2(HELP1(a), b)`) differ only by `push si` — the
+    **SI base-register trait** again.
+  - `3556:000e` (`FIELD_AND`) differs by the `8E C2 / 8B D8` order, the same trap as
+    the `3883` family.
+- Ledger: 183 rows — MATCH 32, **RELOCS 129**, PENDING 22.
+
 ## Round 88 — no new rows; three more near-misses characterised
 Third round without an increment. Everything tried is recorded so the next attempt
 starts from truth rather than hope.

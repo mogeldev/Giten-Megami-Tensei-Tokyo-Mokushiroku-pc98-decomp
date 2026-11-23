@@ -193,3 +193,4 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 4e6f:0006 | NESTED_PTR | 26 | RELOCS | src=src/calib/cnest1.c; flags="/G1 /AM /Gs /Os"; `SINK3(WHERE0(0), 0x1F, v & 0x7F)` - a far pointer returned by the inner call is pushed as two words (`52 50` = push dx; push ax) |
 | 4e71:0000 | NESTED_PTR2 | 26 | RELOCS | src=src/calib/cnest1.c; flags="/G1 /AM /Gs /Os"; same shape with a different inner helper and constant |
 | 23d7:0000 | BIG_CALL | 41 | RELOCS | src=src/calib/cs32.c; flags="/G1 /AM /Gs /Ox /Oa /Os"; `HELP12(a,b,c,d,e, 0,0,0,0, 0x4F, 0x18F, f)` - six parameters relayed plus six constants; `retf 12` fixes the argument count, and the constant run in the middle is why 12 pushes exceed 6 arguments |
+| 3d1a:0008 | ADD_200 | 23 | RELOCS | src=src/calib/ccomb1.c; flags="/G1 /AM /Gs /Os"; `HELP3(a + 0x200, b, c)` - the constant is applied with `80 C4 02` (add ah,2), the tell for a +0x200 on a word |
