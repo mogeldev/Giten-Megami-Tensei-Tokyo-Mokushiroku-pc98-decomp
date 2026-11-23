@@ -1,5 +1,11 @@
 # PROGRESS
 
+## A four-byte helper recovered from an oversized inventory window
+`46e1:005c` (`_return_one`) matches `mov ax,1; ret` without relocation
+masking. The near call at `469e:0000` targets it directly, distinguishing
+this entry from the preceding routine's return path. Only its four bytes
+are counted, not the 84-byte inventory window.
+
 ## Configuration comparison recovered beside the global relays
 `4e8e:002e` (COMPARE_CONFIG, 65 B) verifies as RELOCS. Four ordered comparisons
 share the `-1` exit; the optional fifth comparison can return `1`, otherwise
