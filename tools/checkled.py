@@ -22,6 +22,11 @@ LEDGER = os.path.join(ROOT, "docs", "MATCHING.md")
 # C-derived coverage, so coverage.py ignores them.
 STATUSES = {"MATCH", "RELOCS", "ASM", "PENDING"}
 
+# docs/ASM-POLICY.md: inline assembly may cover only the instructions the compiler
+# provably cannot emit. One or two lines is a patch; more means the row is a
+# transliteration of the disassembly, which this repository does not accept.
+ASM_LINE_LIMIT = 3
+
 rows = []
 for line in open(LEDGER, encoding="utf-8"):
     m = re.match(r"^\|\s*([0-9a-f]{4}):([0-9a-f]{4})\s*\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*(\w+)", line)
@@ -47,6 +52,28 @@ referenced = set(re.findall(r"src=(src/[^;]+)", ledger_text))
 missing = sorted(r for r in referenced if not os.path.isfile(os.path.join(ROOT, r)))
 if missing:
     problems.append(f"referenced sources missing: {missing}")
+
+# enforce the narrow-ASM policy
+for r in rows:
+    if r[3] != "ASM":
+        continue
+    m = re.search(r"src=(src/[^;]+)", ledger_text)
+    row_line = [l for l in ledger_text.splitlines()
+                if l.startswith(f"| {r[0]} ") and "| ASM |" in l]
+    for line in row_line:
+        src_m = re.search(r"src=(src/[^;]+)", line)
+        if not src_m:
+            problems.append(f"ASM row {r[0]} has no src=")
+            continue
+        path = os.path.join(ROOT, src_m.group(1))
+        if not os.path.isfile(path):
+            continue
+        n_asm = sum(1 for ln in open(path, encoding="ascii", errors="replace")
+                    if "__asm" in ln)
+        if n_asm > ASM_LINE_LIMIT:
+            problems.append(f"ASM row {r[0]}: {n_asm} __asm lines in "
+                            f"{src_m.group(1)} exceeds the narrow-policy limit "
+                            f"of {ASM_LINE_LIMIT} (see docs/ASM-POLICY.md)")
 
 calib = {f"src/calib/{f}" for f in os.listdir(os.path.join(ROOT, "src", "calib"))
          if f.endswith(".c")}

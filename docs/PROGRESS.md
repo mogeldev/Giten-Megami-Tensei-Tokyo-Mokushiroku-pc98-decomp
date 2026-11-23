@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 96 - narrow-ASM policy is now enforced by a tool, not by good intentions
+No new rows. Round 95 left a rule written in prose; prose does not survive 100 rounds
+of an agent working alone, so the rule is now a check.
+
+- **`checkled.py` enforces `ASM_LINE_LIMIT = 3`.** Any source referenced by an `ASM`
+  row may contain at most three `__asm` lines. More than that means the row is a
+  transliterated disassembly rather than a decompilation, and `checkled.py` fails with
+  the file and the count. Verified by negative test: with the limit set to 2 the tool
+  reports `ASM row 35ca:2306: 3 __asm lines ... exceeds the narrow-policy limit` and
+  exits 1; restored to 3 it is green again.
+- **Why the doubling family is not swept.** 22 framed units contain `add r,r`, and
+  several are small enough to be tempting (`2121:000a` `g_6cb6[i]++`, `4db6:000c`
+  `g_2c30[i & 0xF]`). But in every one of them the scaling instruction sits *inside*
+  MSC's own index code generation, so patching it means writing the whole indexed
+  access in assembly - four or more lines for a 24-byte function. That is exactly what
+  the narrow policy forbids, so they stay blocked and the limit stays at 3.
+- Ledger unchanged: 187 rows - MATCH 32, RELOCS 130, ASM 1, PENDING 24.
+
 ## Round 95 - inline assembly works; one ASM row, and a policy for it
 The significant finding of the round is a capability, not a match.
 
