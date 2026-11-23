@@ -1,5 +1,17 @@
 # PROGRESS
 
+## Runde 25 — Verdacht: falsche Compiler-Generation (Phase-0-Rueckfall) (2026-11-23)
+- Init-Familie (2x22 B: `g1=0; g2=0; far_call(0x18,1)`) vollstaendig entschluesselt
+  (pascal-Konvention, Argumentordnung aus Push-Reihenfolge bewiesen) — aber nicht
+  matchbar: /O2 liefert die C7-06-Stores MIT Rahmen, /Os|/Ot|/Ox rahmenlos OHNE.
+- **Byte-Statistik der Binary** als Gegenprobe: `add bx,bx` 74x vs `shl` 18x;
+  `C7 06 .. 0000` 130x vs Zero-Fold 32x; Rahmen-Dichte 1184x (passt zu /Os).
+  Die haeufigsten Original-Formen erzeugt MSC 7.0 in keiner Flag-Kombination.
+- Arbeitshypothese dokumentiert (CONVENTIONS): Spielmodule evtl. mit **MSC 6.x**
+  uebersetzt, gegen CRT 7 gelinkt. Vor weiterer Hand-ASM-Einordnung muss das
+  geprueft werden, sonst wird eine Toolchain-Annahme als Hand-ASM fehldiagnostiziert.
+- Ledger: 21 Zeilen, 14 RELOCS, 7 PENDING.
+
 ## Runde 24 — Integritaetsloch geschlossen: verify baut selbst (2026-11-23)
 - Ledger-Format kanonisiert: jede MATCH/RELOCS-Zeile traegt
   `src=<quelldatei>; flags="<cflags>"` — verify.py liest das und **kompiliert jede

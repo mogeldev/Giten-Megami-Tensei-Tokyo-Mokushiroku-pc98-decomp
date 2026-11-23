@@ -22,6 +22,24 @@ Gilt für das Byte-Match-Projekt zu **Giten Megami Tensei** (Spiel-Engine `DDS98
 - Dateioffset = `linear − 0x10000 + 0x3800`, gültig bis Offset 339 735 (danach Overlay).
 - MZ ist laufzeit-relocierbar (3 562 Relocs): Vergleiche immer **image-relativ gegen die Ghidra-Abbildung**; welche Bytes Linker-Operanden sind, **aus der Objekt-Relocation-Tabelle lesen**, nie raten.
 
+## Phase-0-Befund Runde 25 — Compiler-Generation pruefen (offener Punkt!)
+Byte-Statistik der Original-Binary (Load-Image, 294 603 Code-Bytes):
+
+| Muster | Original | MSC 7.0 (/Os) | Bewertung |
+|---|---|---|---|
+| `03 DB` (add bx,bx) | **74x** | erzeugt `D1 E3` (shl) | Original nutzt ADD |
+| `D1 E3` (shl bx,1) | 18x | Standard bei MSC7 | selten im Original |
+| `C7 06 .. 00 00` (Zero-Immediate-Store) | **130x** | /Os faltet zu `33 C0 A3` | Original nutzt Immediate |
+| `33 C0 A3` (Zero-Fold) | 32x | Standard bei MSC7 /Os | selten im Original |
+| `55 8B EC` (Rahmen) | 1184x | /Os erzeugt Rahmen | passt zu /Os |
+
+Die beiden haeufigsten Codegen-Formen des Originals (`add bx,bx`, Zero-Immediate)
+erzeugt MSC 7.0 in keiner getesteten Flagskombination; gleichzeitig passt die
+Rahmen-Dichte zu /Os. Arbeitshypothese: **Spielmodule mit MSC 6.x uebersetzt,
+gegen CRT 7 gelinkt**. Naechster Phase-0-Schritt: MSC 6.0 beschaffen, Kalibrier-
+Familien damit wiederholen. Erst danach neue PENDINGs als Hand-ASM einordnen —
+sonst wird eine falsche Toolchain-Annahme als "Hand-ASM" fehldiagnostiziert.
+
 ## Ledger (`docs/MATCHING.md`)
 Eine Zeile pro Adresse, Duplikate verboten, Größe ≠ 0:
 `| va (seg:off) | name | size | status | note |` mit Status ∈ `MATCH | RELOCS | PENDING`.
