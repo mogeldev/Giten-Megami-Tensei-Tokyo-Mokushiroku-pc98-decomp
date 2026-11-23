@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""build.py <quelle.c> [--flags "..."] — kompiliert EINE Quelldatei mit MSC 7.0 (CL 8.00).
+"""build.py <source.c> [--flags "..."] — compiles ONE source file with MSC 7.0 (CL 8.00).
 
-Kapselt die komplette DOS-Umgebung (Vorlage Phase 2, Details: docs/CONVENTIONS.md):
-  * dosbox-x (nicht DOSBox 0.74 — MSC7s DOSX32-DPMI laeuft nur mit externem DPMI-Host)
-  * HDPMI32 (HX-DOS-Runtime) als DPMI-Server-TSR vor jedem CL-Aufruf
-  * -nopromptfolder, APPDATA-Redirect in den Workspace, SDL-Dummy-Treiber, cycles=max
-  * Quellen/Objekte: dds98\\src (Drive D:) -> dds98\\build
+Wraps the complete DOS environment (template phase 2, details: docs/CONVENTIONS.md):
+  * dosbox-x (not DOSBox 0.74 — MSC7's DOSX32 DPMI only runs with an external DPMI host)
+  * HDPMI32 (HX-DOS runtime) as DPMI server TSR before every CL call
+  * -nopromptfolder, APPDATA redirect into the workspace, SDL dummy driver, cycles=max
+  * sources/objects: dds98\\src (drive D:) -> dds98\\build
 
-Aufruf: python build.py src/calib/triv1.c --flags "/G1 /AH"
-Voraussetzung: toolchain\\msc7i (BIN/LIB/INCLUDE) und toolchain\\HDPMI32.EXE."""
+Usage: python build.py src/calib/triv1.c --flags "/G1 /AH"
+Prerequisite: toolchain\\msc7i (BIN/LIB/INCLUDE) and toolchain\\HDPMI32.EXE."""
 import argparse
 import os
 import subprocess
@@ -29,23 +29,23 @@ def main():
     ap.add_argument("source")
     ap.add_argument("--flags", default="")
     ap.add_argument("--msc-dir", default="MSC7I",
-                    help="DOS-Verzeichnis der Toolchain auf Laufwerk C: "
+                    help="DOS directory of the toolchain on drive C: "
                          "(MSC7I = MS C 7.0, MSC6I = MS C 6.00ax)")
     ap.add_argument("--no-dpmi", action="store_true",
-                    help="HDPMI32-TSR nicht laden (MSC 6.0 braucht kein DPMI)")
+                    help="do not load the HDPMI32 TSR (MSC 6.0 needs no DPMI)")
     a = ap.parse_args()
 
     src_abs = os.path.abspath(os.path.join(ROOT, a.source))
     if not os.path.isfile(src_abs):
-        sys.exit(f"FEHLER: Quelle fehlt: {src_abs}")
+        sys.exit(f"ERROR: source missing: {src_abs}")
     stem = os.path.splitext(os.path.basename(a.source))[0]
     if len(stem) > 8:
-        sys.exit(f"FEHLER: '{stem}' ist laenger als 8 Zeichen — MSC-CL (1992) "
-                 "oeffnet keine Langdateinamen; Quelle bitte 8.3-konform nennen")
+        sys.exit(f"ERROR: '{stem}' is longer than 8 characters — MSC-CL (1992) "
+                 "does not open long file names; please name the source 8.3-compliant")
     for need in (DBX, os.path.join(TC, "HDPMI32.EXE"),
                  os.path.join(TC, "msc7i", "BIN", "CL.EXE")):
         if not os.path.isfile(need):
-            sys.exit(f"FEHLER: Toolchain fehlt: {need}")
+            sys.exit(f"ERROR: toolchain missing: {need}")
     os.makedirs(BUILD_DIR, exist_ok=True)
 
     base = os.path.splitext(os.path.basename(a.source))[0]
@@ -82,7 +82,7 @@ def main():
                        env=env, timeout=TIMEOUT_S, stdout=subprocess.DEVNULL,
                        stderr=subprocess.DEVNULL)
     except subprocess.TimeoutExpired:
-        sys.exit(f"FEHLER: Lauf ueber {TIMEOUT_S}s — dosbox-x gekillt")
+        sys.exit(f"ERROR: run exceeded {TIMEOUT_S}s — dosbox-x killed")
 
     obj_path = os.path.join(BUILD_DIR, f"{base}.OBJ")
     if os.path.isfile(obj_path):
@@ -92,7 +92,7 @@ def main():
     if os.path.isfile(log):
         with open(log, encoding="latin-1", errors="replace") as f:
             print(f.read()[-2000:])
-    sys.exit("FEHLER: kein OBJ erzeugt")
+    sys.exit("ERROR: no OBJ produced")
 
 
 if __name__ == "__main__":

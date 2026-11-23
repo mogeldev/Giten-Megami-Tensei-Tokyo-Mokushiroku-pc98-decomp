@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""omfdump.py <obj> — OMF-Reader (Vorlage Phase 1: OBJ_DUMP, Kern fuer match.py).
+"""omfdump.py <obj> — OMF reader (template phase 1: OBJ_DUMP, core for match.py).
 
-Unterstuetzt MSC-7-OMF inklusive der Microsoft-Erweiterung (COMENT class 0xA2):
-Fixups erscheinen dort als kompakte 0x9C-Records (3 Byte je Eintrag:
-flags/offset/fixdata) direkt nach dem LEDATA — statt klassischem FIXUPP 0xF4.
-LOC-Kodierung im flags-Byte ist identisch zum Klassiker (bits 5..2).
+Supports MSC-7 OMF including the Microsoft extension (COMENT class 0xA2):
+fixups appear there as compact 0x9C records (3 bytes per entry:
+flags/offset/fixdata) directly after the LEDATA — instead of classic FIXUPP 0xF4.
+LOC encoding in the flags byte is identical to the classic (bits 5..2).
 
-API fuer match.py: load(obj) -> (ledatas, pubdefs)
+API for match.py: load(obj) -> (ledatas, pubdefs)
   ledatas: [{'seg','off','data','fixups':[(off,size)]}]
   pubdefs: {name: (seg, off)}"""
 import sys
@@ -39,28 +39,28 @@ def _parse_fixupp_classic(rec):
         if d:
             i += 2
         if loc not in LOC_SIZE:
-            raise ValueError(f"unbekannter LOC-Typ {loc}")
+            raise ValueError(f"unknown LOC type {loc}")
         out.append((off, LOC_SIZE[loc]))
     return out
 
 
 def _parse_fixups_compact(rec):
-    """MSC-7-Erweiterung: Eintraege (flags, offset, fixdata[, zielindex]).
-    Beobachtete Formen: fd&0x80 -> 3-Byte-Eintrag (fd=0x9D);
-    sonst 4-Byte-Eintrag mit Zielindex (fd=0x56). Nicht Beobachtetes bricht ab."""
+    """MSC-7 extension: entries (flags, offset, fixdata[, target index]).
+    Observed forms: fd&0x80 -> 3-byte entry (fd=0x9D);
+    otherwise 4-byte entry with target index (fd=0x56). Anything not observed aborts."""
     out = []
     i = 0
     while i < len(rec):
         if i + 3 > len(rec):
-            raise ValueError("kompakter FIXUPP: Eintrag-Stumpf")
+            raise ValueError("compact FIXUPP: truncated entry")
         flags, off, fd = rec[i], rec[i + 1], rec[i + 2]
         if not (flags & 0x80):
-            raise ValueError(f"kompakter FIXUPP ohne Fixup-Bit: {flags:#x}")
+            raise ValueError(f"compact FIXUPP without fixup bit: {flags:#x}")
         loc = (flags >> 2) & 0xF
         if loc not in LOC_SIZE:
-            raise ValueError(f"unbekannter LOC-Typ {loc} (kompakt)")
+            raise ValueError(f"unknown LOC type {loc} (compact)")
         i += 3
-        if not (fd & 0x80):          # Zielindex-Byte folgt
+        if not (fd & 0x80):          # target-index byte follows
             i += 1
         out.append((off, LOC_SIZE[loc]))
     return out
@@ -75,34 +75,34 @@ def load(path):
         rtype = data[pos]
         rlen = data[pos + 1] | (data[pos + 2] << 8)
         if pos + 3 + rlen > len(data):
-            raise ValueError(f"Record bei {pos:#x} laeuft ueber Dateiende")
+            raise ValueError(f"record at {pos:#x} runs past end of file")
         rec = data[pos + 3: pos + 3 + rlen - 1]
         if rtype == 0xA0:                                   # LEDATA
             ledatas.append({"seg": rec[0], "off": rec[1] | (rec[2] << 8),
                             "data": rec[3:], "fixups": []})
-        elif rtype == 0xF4:                                 # FIXUPP klassisch
+        elif rtype == 0xF4:                                 # classic FIXUPP
             if not ledatas:
-                raise ValueError("FIXUPP ohne LEDATA")
+                raise ValueError("FIXUPP without LEDATA")
             ledatas[-1]["fixups"] = _parse_fixupp_classic(rec)
-        elif rtype == 0x9C and ledatas:                     # FIXUPP kompakt (MS A2)
+        elif rtype == 0x9C and ledatas:                     # compact FIXUPP (MS A2)
             ledatas[-1]["fixups"] = _parse_fixups_compact(rec)
         elif rtype == 0x90:                                  # PUBDEF
             i = 0
             grp = rec[i]
             i += 1
-            if grp == 0 and rec[i] == 0:                     # Frame-Absolut: 2 Byte
+            if grp == 0 and rec[i] == 0:                     # absolute frame: 2 bytes
                 i += 3
             seg = rec[i]
             i += 1
             while i < len(rec) and rec[i] > 0:
                 n = rec[i]
                 if i + 1 + n + 2 > len(rec):
-                    break                      # Fuellbyte/Checksummen-Rest
+                    break                      # padding byte/checksum remainder
                 name = rec[i + 1: i + 1 + n].decode("latin-1")
                 off = rec[i + 1 + n] | (rec[i + 2 + n] << 8)
                 pubdefs[name] = (seg, off)
                 i += 1 + n + 2
-                if i < len(rec) and rec[i] == 0:   # MS-Debug: Typindex-Byte
+                if i < len(rec) and rec[i] == 0:   # MS debug: type-index byte
                     i += 1
         pos += 3 + rlen
     return ledatas, pubdefs

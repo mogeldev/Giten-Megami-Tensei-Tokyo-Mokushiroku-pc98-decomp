@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""markcrt.py — CRT-Fremdcode per Bibliothekssignatur in DDS98.EXE markieren
-(Vorlage Phase 1: statisch gelinkten Fremdcode getrennt fuehren).
+"""markcrt.py — mark foreign CRT code in DDS98.EXE by library signature
+(template phase 1: keep statically linked foreign code separate).
 
-Liest die OMF-Module aus toolchain\\msc7i\\LIB\\MLIBCR.LIB (Microsoft-Librarian:
-Module rueck-an-rueck, dann Verzeichnis), nimmt je oeffentlichem Symbol die
-Code-Bytes + Reloc-Positionen und sucht sie reloc-maskiert im Load-Image von
-DDS98.EXE. Treffer -> ground_truth/foreign_crt.csv (getrennt vom Ledger).
+Reads the OMF modules from toolchain\\msc7i\\LIB\\MLIBCR.LIB (Microsoft librarian:
+modules back-to-back, then directory), takes the code bytes + reloc positions
+per public symbol and searches for them reloc-masked in the load image of
+DDS98.EXE. Hit -> ground_truth/foreign_crt.csv (separate from the ledger).
 
-Vorsicht bei winzigen Funktionen: nur Treffer mit eindeutiger Signatur
-(mind. MIN_LEN Bytes ausserhalb der Relocs) werden gemeldet."""
+Caution with tiny functions: only hits with a unique signature
+(at least MIN_LEN bytes outside the relocs) are reported."""
 import csv
 import os
 import sys
@@ -22,11 +22,11 @@ BIN = os.path.join(ROOT, "..", "giten", "DDS98", "DDS98.EXE")
 HDR = 896 * 16
 IMG_BASE = 0x10000
 IMG_END = 339735
-MIN_LEN = 12          # nicht-maskierte Bytes, damit ein Treffer zaehlt
+MIN_LEN = 12          # non-masked bytes for a hit to count
 
 
 def parse_lib(path):
-    """Module aus .LIB: Liste [{'pubs':{name:(seg,off)}, 'ledatas':[...]}]."""
+    """Modules from a .LIB: list [{'pubs':{name:(seg,off)}, 'ledatas':[...]}]."""
     data = open(path, "rb").read()
     pos = 0
     modules = []
@@ -35,9 +35,9 @@ def parse_lib(path):
         rtype = data[pos]
         rlen = data[pos + 1] | (data[pos + 2] << 8)
         if pos + 3 + rlen > len(data):
-            break                              # Bibliotheks-Verzeichnis erreicht
+            break                              # library directory reached
         rec = data[pos + 3: pos + 3 + rlen - 1]
-        if rtype == 0x80 and cur["pubs"]:     # THEADR = naechstes Modul
+        if rtype == 0x80 and cur["pubs"]:     # THEADR = next module
             modules.append(cur)
             cur = {"pubs": {}, "ledatas": []}
         if rtype == 0xA0:
@@ -50,7 +50,7 @@ def parse_lib(path):
                 cur["ledatas"][-1]["fixups"] = omfdump._parse_fixups_compact(rec)
             except ValueError:
                 pass
-        elif rtype == 0x90:                   # PUBDEF (MSC: Typindex-Byte!)
+        elif rtype == 0x90:                   # PUBDEF (MSC: type-index byte!)
             i = 0
             grp = rec[i]
             i += 1
@@ -68,12 +68,12 @@ def parse_lib(path):
                 i += 1 + n + 2
                 if i < len(rec) and rec[i] == 0:
                     i += 1
-        elif rtype == 0x8A:                   # MODEND -> Modulende
+        elif rtype == 0x8A:                   # MODEND -> end of module
             modules.append(cur)
             cur = {"pubs": {}, "ledatas": []}
             pos += 3 + rlen
-            # MS-Librarian richtet Module aus (Padding bis zur Grenze):
-            # zum naechsten THEADR (0x80) vortasten.
+            # MS librarian aligns modules (padding to the boundary):
+            # advance to the next THEADR (0x80).
             while pos + 3 <= len(data) and data[pos] != 0x80:
                 pos += 1
             continue
@@ -88,7 +88,7 @@ def main():
     code = bin_data[HDR:IMG_END]
 
     modules = parse_lib(LIB)
-    print(f"{LIB}: {len(modules)} Module")
+    print(f"{LIB}: {len(modules)} modules")
 
     rows = []
     for mod in modules:
@@ -98,7 +98,7 @@ def main():
             led = next((l for l in mod["ledatas"] if l["seg"] == seg), None)
             if led is None:
                 continue
-            # Funktionsgroesse: bis zum naechsten PUB im selben Segment
+            # function size: up to the next PUB in the same segment
             offs = sorted(o for (s, o) in mod["pubs"].values() if s == seg)
             nxt = min([o for o in offs if o > off], default=off + 32)
             size = min(nxt - off, len(led["data"]) - off)
@@ -114,7 +114,7 @@ def main():
             solid = size - len(mask)
             if solid < MIN_LEN:
                 continue
-            # reloc-maskierte Suche im Load-Image
+            # reloc-masked search in the load image
             hits = []
             for i in range(len(code) - size):
                 ok = True
@@ -137,7 +137,7 @@ def main():
         w.writerow(["va", "linear", "crt_symbol", "size"])
         for r in rows:
             w.writerow(r)
-    print(f"{len(rows)} eindeutige CRT-Treffer -> {out}")
+    print(f"{len(rows)} unique CRT hits -> {out}")
     for va, lin, name, size in rows[:20]:
         print(f"  {va}  {name:<24} {size} B")
 

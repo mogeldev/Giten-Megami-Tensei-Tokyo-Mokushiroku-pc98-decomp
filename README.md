@@ -1,37 +1,37 @@
-# Giten Megami Tensei: Tokyo Mokushiroku — DDS98.EXE-Decompilation
+# Giten Megami Tensei: Tokyo Mokushiroku — DDS98.EXE decompilation
 
-Byte-exakte Rekonstruktion der Spiel-Engine **DDS98.EXE** (偽典・女神転生 ～東京黙示録～,
-1997) nach dem Workflow für byte-verifizierte Decompilierung:
-Jede Funktion ist **MATCH** (byte-identisch), **RELOCS** (identisch bis auf echte
-OMF-Linker-Relocations) oder **PENDING** mit dokumentierter Ursache — nichts wird gefaked.
+Byte-exact reconstruction of the game engine **DDS98.EXE** (偽典・女神転生 ～東京黙示録～,
+1997) following the workflow for byte-verified decompilation:
+every function is **MATCH** (byte-identical), **RELOCS** (identical except for real
+OMF linker relocations), or **PENDING** with a documented cause — nothing is faked.
 
 ## Status (2026-11-23)
 
-- **Phase 0 abgeschlossen** — Original-Toolchain: **Microsoft C/C++ 7.0** (CL 8.00, 1992),
-  kompiliert unter dosbox-x mit HDPMI (HX-DOS-Runtime) als DPMI-Server.
-- Bestätigte Flags: **`/G1 /AM /Gs /Os`** (80186-Basis, Medium-Modell, keine
-  Stackchecks, Größenoptimierung) — nachgewiesen an byte-identischen Kalibrierfunktionen.
-- **12 Funktionen byte-verifiziert** (RELOCS), 1 PENDING (Sprung-Merge-Polarität,
-  fünf getestete Konstrukte dokumentiert).
-- Coverage: **66 / 306 814 Code-Bytes (0,022 %)** — die ehrliche Byte-Metrik aus
-  `tools/coverage.py`, nicht die Funktionszahl.
+- **Phase 0 complete** — original toolchain: **Microsoft C/C++ 7.0** (CL 8.00, 1992),
+  compiled under dosbox-x with HDPMI (HX-DOS runtime) as DPMI server.
+- Confirmed flags: **`/G1 /AM /Gs /Os`** (80186 base, medium model, no
+  stack checks, size optimization) — proven on byte-identical calibration functions.
+- **12 functions byte-verified** (RELOCS), 1 PENDING (jump-merge polarity,
+  five tested constructs documented).
+- Coverage: **66 / 306 814 code bytes (0.022%)** — the honest byte metric from
+  `tools/coverage.py`, not the function count.
 
-## Struktur
+## Structure
 
 ```
-docs/           CONVENTIONS (Parameter+Evidenz), MATCHING (Ledger), IDIOMS, PROGRESS, STATUS
-ground_truth/   functions/strings/imports + foreign_crt (Fremdcode-Signaturen)
-src/calib/      rekonstruierte Quellen (8.3-Namen — MSC-CL-1992-Pflicht)
-tools/          gt (Inventar), build (DOSBox-x-Rezept), omfdump, match, verify, coverage, markcrt
+docs/           CONVENTIONS (parameters+evidence), MATCHING (ledger), IDIOMS, PROGRESS, STATUS
+ground_truth/   functions/strings/imports + foreign_crt (foreign-code signatures)
+src/calib/      reconstructed sources (8.3 names — required by MSC-CL-1992)
+tools/          gt (inventory), build (DOSBox-x recipe), omfdump, match, verify, coverage, markcrt
 ```
 
-## Bauen
+## Building
 
-Benötigt Microsoft C/C++ 7.0 (Abandonware, z. B. via archive.org) und dosbox-x +
-HX-DOS-Runtime. Das komplette Rezept inklusive aller Fallen steht in
-`docs/CONVENTIONS.md`: HDPMI32-TSR vor jedem CL-Aufruf, `-nopromptfolder`,
-APPDATA-Redirect, 8.3-Quelldateinamen, `cycles=max`.
+Requires Microsoft C/C++ 7.0 (abandonware, e.g. via archive.org) and dosbox-x +
+HX-DOS runtime. The complete recipe including every pitfall is in
+`docs/CONVENTIONS.md`: HDPMI32 TSR before every CL call, `-nopromptfolder`,
+APPDATA redirect, 8.3 source file names, `cycles=max`.
 
-**Kein Original-Material in diesem Repo:** die Binary, die Toolchain und die
-dekompilierten Rohauszüge liegen bewusst außerhalb — hier stehen nur eigene
-Rekonstruktionen, Werkzeuge und Dokumentation.
+**No original material in this repo:** the binary, the toolchain, and the raw
+decompiled excerpts are deliberately kept outside — this repo contains only our
+own reconstructions, tools, and documentation.

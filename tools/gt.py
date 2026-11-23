@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""gt.py — Ground-Truth-Inventar aus DDS98.EXE (Vorlage Phase 1).
+"""gt.py — ground-truth inventory from DDS98.EXE (template phase 1).
 
-Erzeugt ground_truth/functions.csv (va, linear, name, size, section),
-strings.csv (ASCII im Load-Image), imports.csv (MZ-Notiz: keine Importtabelle).
-Groessen werden auf den Abstand zur naechsten Funktion geklemmt; Groesse 0 ist
-verboten (Vorlage Phase 6). Self-Checks als asserts."""
+Creates ground_truth/functions.csv (va, linear, name, size, section),
+strings.csv (ASCII in the load image), imports.csv (MZ note: no import table).
+Sizes are clamped to the distance to the next function; size 0 is
+forbidden (template phase 6). Self-checks as asserts."""
 import csv
 import os
 import re
@@ -12,9 +12,9 @@ import re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # dds98/
 BIN = os.path.join(ROOT, "..", "giten", "DDS98", "DDS98.EXE")
 FUNCS_TXT = os.path.join(ROOT, "..", "decompiled", "DDS98_functions.txt")
-HDR = 896 * 16          # MZ-Headergroesse (Dateioffset des Load-Images)
-IMG_BASE = 0x10000      # Ghidra-Abbildung: Segment 0x1000:0000
-IMG_END = 339735        # Load-Image endet bei diesem Dateioffset
+HDR = 896 * 16          # MZ header size (file offset of the load image)
+IMG_BASE = 0x10000      # Ghidra mapping: segment 0x1000:0000
+IMG_END = 339735        # load image ends at this file offset
 LINE_RE = re.compile(r"^([0-9a-f]{4}):([0-9a-f]{4})\s+(\S.*)$")
 
 
@@ -35,8 +35,8 @@ def load_functions():
     rows.sort(key=lambda r: r["linear"])
     for i, r in enumerate(rows):
         r["size"] = rows[i + 1]["linear"] - r["linear"] if i + 1 < len(rows) else 16
-    assert rows, "keine Funktionen im Export gefunden"
-    assert all(r["size"] > 0 for r in rows), "Funktion mit Groesse 0"
+    assert rows, "no functions found in export"
+    assert all(r["size"] > 0 for r in rows), "function with size 0"
     return rows
 
 
@@ -47,11 +47,11 @@ def main():
     rows = load_functions()
     lins = [r["linear"] for r in rows]
     assert lins == sorted(lins) and len(set(lins)) == len(lins), \
-        "Adressen nicht streng geordnet/eindeutig"
+        "addresses not strictly ordered/unique"
 
-    # Nicht-Code-Eintraege (Sondertreiber-Befehlsbloecke, Tabellen, Nullfelder,
-    # Strings) werden als section=DATA markiert statt geloescht: ihre Groesse
-    # haengt am Abstand zur naechsten Funktion, die Zeile traegt also Information.
+    # Non-code entries (special-driver command blocks, tables, null fields,
+    # strings) are marked section=DATA instead of deleted: their size
+    # depends on the distance to the next function, so the row carries information.
     notcode = set()
     nc_path = os.path.join(gt, "not_code.csv")
     if os.path.isfile(nc_path):
@@ -70,8 +70,8 @@ def main():
     n_str = 0
     with open(os.path.join(gt, "strings.csv"), "w", newline="") as f:
         w = csv.writer(f)
-        # va linear als Primaerschluessel (Ghidra seg:off-Splits sind fuer freie
-        # Adressen nicht reproduzierbar; functions.csv traegt beide Spalten)
+        # va linear as primary key (Ghidra seg:off splits are not reproducible
+        # for free addresses; functions.csv carries both columns)
         w.writerow(["va_linear", "text"])
         for m in re.finditer(rb"[\x20-\x7e]{6,}", data[HDR:IMG_END]):
             va = IMG_BASE + m.start()
@@ -81,15 +81,15 @@ def main():
     with open(os.path.join(gt, "imports.csv"), "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["kind", "ref", "note"])
-        w.writerow(["NOTE", "", "MZ hat keine Importtabelle; DOS-Zugriffe laufen ueber INT (21h etc.)"])
-        w.writerow(["RTL", "", "MS-C-8-CRT (Banner 1992 in der Binary) als Fremdcode markieren, sobald Region per Kalibrierung identifiziert"])
+        w.writerow(["NOTE", "", "MZ has no import table; DOS accesses go through INT (21h etc.)"])
+        w.writerow(["RTL", "", "Mark MS-C-8 CRT (1992 banner in the binary) as foreign code once the region is identified by calibration"])
 
     n_code = sum(1 for r in rows if r["linear"] not in notcode)
     n_data = len(rows) - n_code
-    print(f"functions.csv: {len(rows)} Eintraege = {n_code} Code + {n_data} Daten, "
-          f"{sum(r['size'] for r in rows)} Bytes Spanne")
-    print(f"strings.csv:   {n_str} ASCII-Strings")
-    print("imports.csv:   MZ-Notiz (keine Importtabelle)")
+    print(f"functions.csv: {len(rows)} entries = {n_code} code + {n_data} data, "
+          f"{sum(r['size'] for r in rows)} bytes span")
+    print(f"strings.csv:   {n_str} ASCII strings")
+    print("imports.csv:   MZ note (no import table)")
 
 
 if __name__ == "__main__":

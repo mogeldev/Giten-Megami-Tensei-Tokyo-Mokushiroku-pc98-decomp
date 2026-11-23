@@ -1,9 +1,9 @@
-/* GET-Familie, Teil 2: vier Einzelscalar-Getter (Form A1 <disp16> CB).
-   Originale:
+/* GET family, part 2: four single-scalar getters (form A1 <disp16> CB).
+   Originals:
      1fd5:0006  -> DGROUP 0x01A4      43a0:000c -> DGROUP 0x2FCE
      4dce:0002  -> DGROUP 0x2C50     4e99:000c -> DGROUP 0x2D0C
-   disp16 ist DGROUP-Relocation -> RELOCS. Namen vorlaeufig nach Adresse,
-   echte Namen folgen mit Subsystem-Kontext. */
+   disp16 is a DGROUP relocation -> RELOCS. Names provisional by address,
+   real names follow with subsystem context. */
 int g_01a4;
 int g_2fce;
 int g_2c50;

@@ -1,14 +1,14 @@
-/* Slot-Fuellroutine — Original 458e:a20e (166 B, __far __pascal, 1 Far-Param).
-   Byte-abgeleitete Form:
-     - slots als char-Array (Slotgroesse 0x27=39 ist UNGERADE — MSC rundet
-       Strukturen auf gerade, daher kein struct im Original)
-     - p = i*0x27 als lokale Temperatur -> lebt in [bp-2] (Original: 89 46 fe)
-     - Feldoffs als konstante disp16 (0,2,4,9,11,13,15,19) wie im Original
-     - if (i >= 0) -> or/jge; src unsigned -> sub ah,ah-Extends
-   Externe Helfer sind Standins; Near-Call-Ziele sind Relocations. */
-extern int  __near get_slot(void);       /* Original 4fab:000a  */
-extern int  __near conv(int c);          /* Original 458e:a1f6 */
-extern void __near slot_update(void);    /* Original 458e:a1ea */
+/* Slot fill routine — original 458e:a20e (166 B, __far __pascal, 1 far param).
+   Byte-derived form:
+     - slots as char array (slot size 0x27=39 is ODD — MSC rounds
+       structures up, hence no struct in the original)
+     - p = i*0x27 as local temp -> lives in [bp-2] (original: 89 46 fe)
+     - field offsets as constant disp16 (0,2,4,9,11,13,15,19) as in the original
+     - if (i >= 0) -> or/jge; src unsigned -> sub ah,ah extends
+   External helpers are stand-ins; near call targets are relocations. */
+extern int  __near get_slot(void);       /* original 4fab:000a  */
+extern int  __near conv(int c);          /* original 458e:a1f6 */
+extern void __near slot_update(void);    /* original 458e:a1ea */
 
 unsigned char slots[16 * 0x27];
 

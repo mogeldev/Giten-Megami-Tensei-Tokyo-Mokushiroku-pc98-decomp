@@ -1,34 +1,39 @@
-# MATCHING-Ledger
+# MATCHING ledger
 
-Eine Zeile pro Adresse; Größe = echte Länge ≠ 0; Status `MATCH | RELOCS | PENDING`.
-Zähler immer aus dieser Datei neu rechnen, nie aus dem Gedächtnis (Vorlage Phase 5).
+One line per address; size = real length ≠ 0; status `MATCH | RELOCS | PENDING`.
+Always recompute counters from this file, never from memory (template phase 5).
 
-**Format der Notiz (von `tools/verify.py` gelesen):**
-`src=<quelldatei>; flags="<cflags>"; <freitext>` — verify baut jede
-(src, flags)-Kombination einmal neu und vergleicht danach alle zugehörigen
-Zeilen. Damit hängt die Verifikation nicht davon ab, welches OBJ gerade in
-`build/` liegt. PENDING-Zeilen tragen kein `src=` und werden nicht gebaut.
+**Note format (read by `tools/verify.py`):**
+`src=<source file>; flags="<cflags>"; <free text>` — verify rebuilds each
+(src, flags) combination once and then compares all associated
+rows. Verification therefore does not depend on which OBJ currently sits in
+`build/`. PENDING rows carry no `src=` and are not built.
 
 | va | name | size | status | note |
 |----|------|------|--------|------|
-| 35ca:8090 | get0 | 4 | RELOCS | src=src/calib/cget.c; flags="/G1 /AM /Gs /Os"; disp16-DGROUP-Fixup |
-| 35ca:8094 | get1 | 4 | RELOCS | src=src/calib/cget.c; flags="/G1 /AM /Gs /Os"; disp16-DGROUP-Fixup |
-| 35ca:8098 | get2 | 4 | RELOCS | src=src/calib/cget.c; flags="/G1 /AM /Gs /Os"; disp16-DGROUP-Fixup |
-| 35ca:809c | get3 | 4 | RELOCS | src=src/calib/cget.c; flags="/G1 /AM /Gs /Os"; disp16-DGROUP-Fixup |
-| 1fd5:0006 | get_1a4 | 4 | RELOCS | src=src/calib/cget2.c; flags="/G1 /AM /Gs /Os"; disp16-Fixup (DGROUP 0x1A4) |
-| 43a0:000c | get_2fce | 4 | RELOCS | src=src/calib/cget2.c; flags="/G1 /AM /Gs /Os"; disp16-Fixup (DGROUP 0x2FCE) |
-| 4dce:0002 | get_2c50 | 4 | RELOCS | src=src/calib/cget2.c; flags="/G1 /AM /Gs /Os"; disp16-Fixup (DGROUP 0x2C50) |
-| 4e99:000c | get_2d0c | 4 | RELOCS | src=src/calib/cget2.c; flags="/G1 /AM /Gs /Os"; disp16-Fixup (DGROUP 0x2D0C) |
-| 257f:0004 | get_l | 8 | RELOCS | src=src/calib/cget3.c; flags="/G1 /AM /Gs /Os"; 2x disp16-Fixup, DX:AX-Rueckgabe (Ghidra FUN_1871_d0e4) |
-| 398d:0004 | get_ln | 8 | RELOCS | src=src/calib/cget3.c; flags="/G1 /AM /Gs /Os"; __near, 2x disp16-Fixup (Ghidra FUN_35ca_3c34) |
+| 35ca:8090 | get0 | 4 | RELOCS | src=src/calib/cget.c; flags="/G1 /AM /Gs /Os"; disp16 DGROUP fixup |
+| 35ca:8094 | get1 | 4 | RELOCS | src=src/calib/cget.c; flags="/G1 /AM /Gs /Os"; disp16 DGROUP fixup |
+| 35ca:8098 | get2 | 4 | RELOCS | src=src/calib/cget.c; flags="/G1 /AM /Gs /Os"; disp16 DGROUP fixup |
+| 35ca:809c | get3 | 4 | RELOCS | src=src/calib/cget.c; flags="/G1 /AM /Gs /Os"; disp16 DGROUP fixup |
+| 1fd5:0006 | get_1a4 | 4 | RELOCS | src=src/calib/cget2.c; flags="/G1 /AM /Gs /Os"; disp16 fixup (DGROUP 0x1A4) |
+| 43a0:000c | get_2fce | 4 | RELOCS | src=src/calib/cget2.c; flags="/G1 /AM /Gs /Os"; disp16 fixup (DGROUP 0x2FCE) |
+| 4dce:0002 | get_2c50 | 4 | RELOCS | src=src/calib/cget2.c; flags="/G1 /AM /Gs /Os"; disp16 fixup (DGROUP 0x2C50) |
+| 4e99:000c | get_2d0c | 4 | RELOCS | src=src/calib/cget2.c; flags="/G1 /AM /Gs /Os"; disp16 fixup (DGROUP 0x2D0C) |
+| 257f:0004 | get_l | 8 | RELOCS | src=src/calib/cget3.c; flags="/G1 /AM /Gs /Os"; 2x disp16 fixup, DX:AX return (Ghidra FUN_1871_d0e4) |
+| 398d:0004 | get_ln | 8 | RELOCS | src=src/calib/cget3.c; flags="/G1 /AM /Gs /Os"; __near, 2x disp16 fixup (Ghidra FUN_35ca_3c34) |
 | 2131:000c | set_flag | 6 | RELOCS | src=src/calib/cflag1.c; flags="/G1 /AM /Gs /Os"; or byte [0x0F44],0x40 |
-| 20b2:0000 | OR_JOIN | 14 | RELOCS | src=src/calib/cor1.c; flags="/G1 /AM /Gs /Os"; g_or \|= x (Store-Form 09, nicht Return 0B) |
-| 20ab:000c | _wait_change | 20 | RELOCS | src=src/calib/cor1.c; flags="/G1 /AM /Gs /Os"; Spin-Wait auf volatile int (Reload im Loop-Kopf) |
+| 20b2:0000 | OR_JOIN | 14 | RELOCS | src=src/calib/cor1.c; flags="/G1 /AM /Gs /Os"; g_or \|= x (store form 09, not return 0B) |
+| 20ab:000c | _wait_change | 20 | RELOCS | src=src/calib/cor1.c; flags="/G1 /AM /Gs /Os"; spin wait on volatile int (reload in loop head) |
 | 4fac:000a | inc_39f8_capped | 12 | RELOCS | src=src/calib/cinc1.c; flags="/G1 /AM /Gs /Os"; if (g<0x10) g++ |
-| 4fab:000a | get_39f8_clamped | 16 | PENDING | Slot-Index-Allokator (Aufrufer FUN_458e_a20e: Sentinel -1, Slots 0x27 B). Beste Variante /Ox: 14/16 B — Restdiff `C3 90` (Early-Return + Padding) vs. `EB 03` (Sprung-Merge, ein ret). Getestet: /Os, /Od, /O1, /O2, /Ox, /Os /Oy, Ternaer beide Polaritaeten, if/else+local |
-| 1f2d:000e | CLAMP_A | 20 | PENDING | min(max(x,1),g), __fastcall (Arg in AX, nacktes retn), Global 0x4688. Original rahmenlos mit DX-Temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`); MSC7 liefert unter /Ox Speicher-Operanden (`39 06 d / 7D 03 / A1 d`), unter /Os einen Rahmen. 6 Varianten getestet |
-| 1f2f:0002 | CLAMP_B | 20 | PENDING | Geschwister von CLAMP_A, Global 0x468A, gleiche Ursache |
-| 352a:0004 | reset_9b30 | 22 | PENDING | g1=0; g2=0; far-call(0x18,1) — pascal, Callee räumt auf. MSC7: /Os|/Ot|/Ox -> `33 C0 A3 A3` (8 B, rahmenlos); /O2 -> `C7 06` x2 (12 B, mit Rahmen). Original: C7-06-Stores OHNE Rahmen -> Codegen-Generation fraglich (MSC 6.x?) |
-| 4527:000a | reset_9b30b | 22 | PENDING | Duplikat-Body von reset_9b30 (zweite Code-Kopie), gleiche Ursache |
-| 458e:a20e | SLOT_FILL | 166 | PENDING | Slotfuellroutine (pascal, 1 Far-Param). Beste Variante 162/166 B; Restdiff: Original wandert den Offset nur in SI (kein Zurueckschreiben des Parameters), MSC7-C schreibt Param/Stackslot zurueck |
-| 4fad:0006 | CONV | 16 | PENDING | Lookup table[c] (Wort-Tabelle DGROUP 0x396A, near-pascal). /Os liefert alles identisch bis auf 2 B: `D1 E3` (shl bx,1) statt `03 DB` (add bx,bx); /Ox gegengeprueft, unveraendert |
+| 35ff:0004 | SET_21A4 | 13 | RELOCS | src=src/calib/coset1.c; flags="/G1 /AM /Gs /Os"; far pascal setter `g_21a4 = v` (A3 store form) |
+| 3b20:0006 | SET_1764 | 13 | RELOCS | src=src/calib/coset1.c; flags="/G1 /AM /Gs /Os"; far pascal setter `g_1764 = v` |
+| 4c9b:000a | SET_2C16 | 13 | RELOCS | src=src/calib/coset1.c; flags="/G1 /AM /Gs /Os"; far pascal setter `g_2c16 = v` |
+| 1fc6:0004 | AND_9B2A | 14 | RELOCS | src=src/calib/coset1.c; flags="/G1 /AM /Gs /Os"; `return v & g_9b2a` (23 = and ax,[disp], result in AX — not a store) |
+| 1fc7:0002 | AND_00F6 | 14 | RELOCS | src=src/calib/coset1.c; flags="/G1 /AM /Gs /Os"; `return v & g_00f6` |
+| 4fab:000a | get_39f8_clamped | 16 | PENDING | slot index allocator (caller FUN_458e_a20e: sentinel -1, slots 0x27 B). Best variant /Ox: 14/16 B — remaining diff `C3 90` (early return + padding) vs. `EB 03` (jump merge, one ret). Tested: /Os, /Od, /O1, /O2, /Ox, /Os /Oy, ternary both polarities, if/else+local |
+| 1f2d:000e | CLAMP_A | 20 | PENDING | min(max(x,1),g), __fastcall (arg in AX, bare retn), global 0x4688. Original frameless with DX temp (`8B 16 d / 3B C2 / 7E 02 / 8B C2`); MSC7 produces memory operands under /Ox (`39 06 d / 7D 03 / A1 d`), a frame under /Os. 6 variants tested |
+| 1f2f:0002 | CLAMP_B | 20 | PENDING | Sibling of CLAMP_A, global 0x468A, same cause |
+| 352a:0004 | reset_9b30 | 22 | PENDING | g1=0; g2=0; far call(0x18,1) — pascal, callee cleans up. MSC7: /Os|/Ot|/Ox -> `33 C0 A3 A3` (8 B, frameless); /O2 -> `C7 06` x2 (12 B, with frame). Original: C7-06 stores WITHOUT frame -> codegen generation questionable (MSC 6.x?) |
+| 4527:000a | reset_9b30b | 22 | PENDING | Duplicate body of reset_9b30 (second code copy), same cause |
+| 458e:a20e | SLOT_FILL | 166 | PENDING | Slot fill routine (pascal, 1 far param). Best variant 162/166 B; remaining diff: original walks the offset only in SI (no write-back of the parameter), MSC7 C writes the param/stack slot back |
+| 4fad:0006 | CONV | 16 | PENDING | Lookup table[c] (word table DGROUP 0x396A, near-pascal). /Os gives everything identical except 2 B: `D1 E3` (shl bx,1) instead of `03 DB` (add bx,bx); /Ox cross-checked, unchanged |

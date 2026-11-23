@@ -1,8 +1,8 @@
-/* Zwei Clamp-Geschwister (Runde 23), Originale:
+/* Two clamp siblings (round 23), originals:
      1f2d:000e (20 B): cmp ax,1 / jge +4 / mov ax,1 / ret
                        mov dx,[0x4688] / cmp ax,dx / jle +2 / mov ax,dx / ret
-     1f2f:0002 (20 B): identische Form, Global 0x468A
-   Variante: verschachtelter Ternaer, damit MSC den Globalwert in DX haelt. */
+     1f2f:0002 (20 B): identical form, global 0x468A
+   Variant: nested ternary, so MSC keeps the global value in DX. */
 int g_4688;
 int g_468a;
 

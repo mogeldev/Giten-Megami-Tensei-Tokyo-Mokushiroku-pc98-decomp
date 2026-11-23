@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""coverage.py — ehrliche Metrik (Vorlage Phase 6): Bytes pro 64-KiB-Region.
+"""coverage.py — honest metric (template phase 6): bytes per 64-KiB region.
 
-Gezaehlt wird der Anteil der INVENTARISIERTEN Code-Bytes (Summe der
-Funktionsgroessen aus ground_truth/functions.csv), die im Ledger als
-MATCH/RELOCS verifiziert sind — nicht die Funktionszahl. PENDING zaehlt
-separat. Fremd-CRT (Bibliothekssignaturen) und Daten (Fehlinventarisierung)
-werden abgezogen und getrennt ausgewiesen.
+Counted is the share of INVENTORIED code bytes (sum of the function sizes from
+ground_truth/functions.csv) that are verified as MATCH/RELOCS in the ledger —
+not the function count. PENDING is counted separately. Foreign CRT (library
+signatures) and data (misinventory) are subtracted and reported separately.
 
-`compute()` liefert die Zahlen auch an tools/report.py — eine Quelle, zwei
-Ausgaben (Konsole und docs/STATUS.md)."""
+`compute()` also supplies the numbers to tools/report.py — one source, two
+outputs (console and docs/STATUS.md)."""
 import csv
 import os
 import re
@@ -18,7 +17,7 @@ IMG_BASE = 0x10000
 
 
 def read_ledger():
-    """{linear: (va, name, size, status, note)} aus docs/MATCHING.md."""
+    """{linear: (va, name, size, status, note)} from docs/MATCHING.md."""
     rows = {}
     with open(os.path.join(ROOT, "docs", "MATCHING.md"), encoding="utf-8") as f:
         for line in f:
@@ -33,8 +32,8 @@ def read_ledger():
 
 
 def compute():
-    # Eine Quelle: functions.csv traegt section=CODE|DATA (DATA = belegte
-    # Fehlinventarisierung, s. not_code.csv). Nur CODE zaehlt als Funktion.
+    # One source: functions.csv carries section=CODE|DATA (DATA = proven
+    # misinventory, see not_code.csv). Only CODE counts as a function.
     funcs, notcode = {}, {}
     for r in csv.DictReader(open(os.path.join(ROOT, "ground_truth", "functions.csv"))):
         lin, size = int(r["linear"], 16), int(r["size"])
@@ -71,8 +70,8 @@ def compute():
     for lin, size in foreign.items():
         if reg_of(lin) in regions:
             regions[reg_of(lin)]["fremd"] += size
-    # regions["total"] zaehlt nur CODE-Rows; Daten/Sondertreiber kommen separat
-    # dazu und werden nie als Funktion gezaehlt.
+    # regions["total"] counts only CODE rows; data/special drivers are added
+    # separately and are never counted as a function.
     for lin, size in notcode.items():
         bucket(reg_of(lin))["notcode"] += size
 
@@ -101,20 +100,20 @@ def compute():
 def main():
     s = compute()
     regions = s["regions"]
-    print(f"{'Region':>8} {'Funktionen':>10} {'davon ok':>8} "
-          f"{'Code-Bytes':>11} {'verifiziert':>11} {'Fremd-CRT':>9} {'Daten':>6} {'PENDING':>7}")
+    print(f"{'Region':>8} {'Functions':>10} {'of which ok':>8} "
+          f"{'Code bytes':>11} {'verified':>11} {'Foreign CRT':>9} {'Data':>6} {'PENDING':>7}")
     for reg in sorted(regions):
         d = regions[reg]
         eig = d["total"] - d["fremd"]
         pct = f"{100 * d['matched'] / eig:.1f}%" if eig > 0 else "-"
         print(f"  {reg:>#6x} {d['n']:>10} {d['nm']:>8} "
               f"{d['total']:>11} {d['matched']:>11} {d['fremd']:>9} "
-              f"{d['notcode']:>6} {d['pend']:>7}  ({pct} Eigenbytes)")
+              f"{d['notcode']:>6} {d['pend']:>7}  ({pct} own bytes)")
     pct = f"{100 * s['ok_b'] / s['eig_b']:.3f}%" if s["eig_b"] else "-"
-    print(f"Gesamt: {s['tot_f']} Code-Funktionen, {s['ok_f']} verifiziert — "
-          f"{s['tot_b'] + s['nc_b']} inventarisiert (davon {s['nc_b']} Daten, kein Code), "
-          f"{s['tot_b']} Code-Bytes, davon {s['fremd_b']} Fremd-CRT -> {s['eig_b']} Eigenbytes, "
-          f"{s['ok_b']} verifiziert ({pct}), {s['pend_b']} PENDING")
+    print(f"Total: {s['tot_f']} code functions, {s['ok_f']} verified — "
+          f"{s['tot_b'] + s['nc_b']} inventoried (of which {s['nc_b']} data, not code), "
+          f"{s['tot_b']} code bytes, of which {s['fremd_b']} foreign CRT -> {s['eig_b']} own bytes, "
+          f"{s['ok_b']} verified ({pct}), {s['pend_b']} PENDING")
 
 
 if __name__ == "__main__":

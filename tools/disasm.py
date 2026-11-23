@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""disasm.py <seg:off|linear> [n] [--raw] — Hexdump sofort, Instruktionen via Ghidra.
+"""disasm.py <seg:off|linear> [n] [--raw] — hexdump immediately, instructions via Ghidra.
 
-n = Bytes im Hexdump bzw. Anzahl Instruktionen im Ghidra-Teil (Standard 32).
---raw: nur Hexdump, kein (langsamer) Ghidra-Headless-Aufruf."""
+n = bytes in the hexdump or number of instructions in the Ghidra part (default 32).
+--raw: hexdump only, no (slow) Ghidra headless call."""
 import argparse
 import os
 import sys
@@ -27,8 +27,8 @@ def parse_va(va):
 
 
 def hexdump(data, seg, off):
-    # Behalte das eingegebene seg:off als Anzeigeformat; Off wrappt bei 0x10000
-    # (Real Mode). Intern gerechnet wird ueberall linear.
+    # Keep the entered seg:off as display format; off wraps at 0x10000
+    # (real mode). Internally everything is computed linearly.
     for i in range(0, len(data), 16):
         c = data[i:i + 16]
         print(f"{seg:04x}:{(off + i) & 0xFFFF:04x}  "
@@ -46,7 +46,7 @@ def main():
 
     data = open(BIN, "rb").read()[lin - IMG_BASE + HDR: lin - IMG_BASE + HDR + a.n]
     if not data:
-        sys.exit("FEHLER: Adresse ausserhalb des Load-Images")
+        sys.exit("ERROR: address outside the load image")
     hexdump(data, seg, off)
     if a.raw:
         return
@@ -63,7 +63,7 @@ def main():
                 print(f"{addr}  {hexb:18}  {ins}")
                 found += 1
     if rc != 0 or found == 0:
-        print(f"(Ghidra rc={rc}, Instruktionen={found}; Log-Tail:)", file=sys.stderr)
+        print(f"(Ghidra rc={rc}, instructions={found}; log tail:)", file=sys.stderr)
         with open(log, encoding="utf-8", errors="replace") as fh:
             print("".join(fh.readlines()[-12:]), file=sys.stderr)
 

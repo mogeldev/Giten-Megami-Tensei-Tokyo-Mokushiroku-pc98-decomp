@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""match.py <va> <symbol> --obj <datei> [--size N] — Byte-Match-Harness (Vorlage Phase 3).
+"""match.py <va> <symbol> --obj <file> [--size N] — byte-match harness (template phase 3).
 
-Vergleicht ein Symbol aus einem MSC-7-OMF-Objekt gegen die Original-Bytes von
-DDS98.EXE und klassifiziert:
-  MATCH  = identisch
-  RELOCS = identisch bis auf Byte-Stellen mit OMF-Fixup (Linker-Operanden)
-  DIFF   = Byte-Diffs mit Original- und Eigen-Instruktion
-Groesse: Inventar-Abstand zur naechsten Funktion; --size ueberschreibt; 0 verboten.
-Fixups werden aus dem Objekt gelesen (MSC-7-kompakte 0x9C-Records, s. omfdump.py)
-und nie geraten. Ohne --obj: Abbruch mit Hinweis auf build.py (Layout-Konvention
-folgt, sobald echte Subsystem-Quelldateien stehen)."""
+Compares a symbol from an MSC-7 OMF object against the original bytes of
+DDS98.EXE and classifies:
+  MATCH  = identical
+  RELOCS = identical except for byte positions with an OMF fixup (linker operands)
+  DIFF   = byte diffs with original and own instruction
+Size: inventory distance to the next function; --size overrides; 0 forbidden.
+Fixups are read from the object (MSC-7 compact 0x9C records, see omfdump.py)
+and never guessed. Without --obj: abort with a hint to build.py (layout convention
+follows as soon as real subsystem source files exist)."""
 import argparse
 import csv
 import os
@@ -20,8 +20,8 @@ sys.path.insert(0, os.path.join(ROOT, "tools"))
 import omfdump  # noqa: E402
 
 BIN = os.path.join(ROOT, "..", "giten", "DDS98", "DDS98.EXE")
-HDR = 896 * 16          # MZ-Headergroesse (Dateioffset des Load-Images)
-IMG_BASE = 0x10000      # Ghidra-Abbildung: Segment 0x1000:0000
+HDR = 896 * 16          # MZ header size (file offset of the load image)
+IMG_BASE = 0x10000      # Ghidra mapping: segment 0x1000:0000
 
 
 def linear(va):
@@ -33,7 +33,7 @@ def linear(va):
 
 
 def compare(orig, mine, relocs):
-    """(status, diffs, masked). relocs = Byte-Offsets mit Linker-Operand."""
+    """(status, diffs, masked). relocs = byte offsets with a linker operand."""
     diffs, masked = [], 0
     for i in range(min(len(orig), len(mine))):
         if i in relocs:
@@ -62,7 +62,7 @@ def selftest():
     assert st == "RELOCS" and m == 2
     st, d, m = compare(a, a[:60], set())
     assert st == "DIFF" and d[0][1] == "LEN"
-    print("selftest OK: MATCH/RELOCS/DIFF, Reloc-Maskierung, Laengendiff")
+    print("selftest OK: MATCH/RELOCS/DIFF, reloc masking, length diff")
 
 
 def load_funcs():
@@ -74,7 +74,7 @@ def binary_bytes(lin, size):
     data = open(BIN, "rb").read()
     off = lin - IMG_BASE + HDR
     if off < 0 or off + size > 339735:
-        sys.exit(f"FEHLER: {lin:#x} ausserhalb des Load-Images")
+        sys.exit(f"ERROR: {lin:#x} outside the load image")
     return data[off: off + size]
 
 
@@ -90,36 +90,36 @@ def main():
         selftest()
         return
     if not a.va or not a.symbol or not a.obj:
-        ap.error("va, symbol und --obj erforderlich (oder --selftest)")
+        ap.error("va, symbol and --obj required (or --selftest)")
 
     lin = linear(a.va)
     funcs = load_funcs()
     size = a.size if a.size else funcs.get(lin, 0)
     if size <= 0:
-        sys.exit(f"FEHLER: {a.va} nicht im Inventar oder Groesse 0 — "
-                 "erst tools/gt.py laufen lassen; 0-Byte-Match ist verboten")
+        sys.exit(f"ERROR: {a.va} not in the inventory or size 0 — "
+                 "run tools/gt.py first; a 0-byte match is forbidden")
 
     ledatas, pubdefs = omfdump.load(a.obj)
     sym = a.symbol if a.symbol in pubdefs else "_" + a.symbol
     if sym not in pubdefs:
-        sys.exit(f"FEHLER: Symbol '{a.symbol}' nicht im Objekt "
-                 f"(vorhanden: {', '.join(sorted(pubdefs))})")
+        sys.exit(f"ERROR: symbol '{a.symbol}' not in object "
+                 f"(present: {', '.join(sorted(pubdefs))})")
     seg, off = pubdefs[sym]
     led = next((l for l in ledatas if l["seg"] == seg), None)
     if led is None:
-        sys.exit(f"FEHLER: kein LEDATA fuer Segment {seg}")
+        sys.exit(f"ERROR: no LEDATA for segment {seg}")
     code = led["data"][off: off + size]
     if len(code) < size:
-        sys.exit(f"FEHLER: Symbol am LEDATA-Ende — size {size} zu gross")
+        sys.exit(f"ERROR: symbol at end of LEDATA — size {size} too large")
     relocs = {(o + k) - off for (o, s) in led["fixups"]
               if off <= o < off + size for k in range(s)}
 
     orig = binary_bytes(lin, size)
     status, diffs, masked = compare(orig, code, relocs)
-    print(f"{a.va} {a.symbol}: {status}  (size={size}, reloc-maskiert={masked})")
+    print(f"{a.va} {a.symbol}: {status}  (size={size}, reloc-masked={masked})")
     for (o, ob, mb) in diffs[:12]:
         if isinstance(ob, int):
-            print(f"  DIFF @+{o:#x}: orig {ob:02X} vs objekt {mb:02X}")
+            print(f"  DIFF @+{o:#x}: orig {ob:02X} vs object {mb:02X}")
         else:
             print(f"  DIFF @+{o:#x}: {ob} {mb}")
     sys.exit(0 if status in ("MATCH", "RELOCS") else 1)

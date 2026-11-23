@@ -1,6 +1,6 @@
-/* Kalibrier-Quelldatei (Phase 0): triviale Getter/Setter/Leaf-Funktionen.
-   Dient nur dem Toolchain-Nachweis: kompiliert mit MSC 7.0 (/Gx + Memory-Modell),
-   Objekt wird spaeter gegen echte DDS98-Funktionen bytewise verglichen. */
+/* Calibration source file (phase 0): trivial getters/setters/leaf functions.
+   Serves only the toolchain proof: compiles with MSC 7.0 (/Gx + memory model),
+   the object is later compared bytewise against real DDS98 functions. */
 int g_val = 0;
 
 int get_val(void)

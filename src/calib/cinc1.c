@@ -1,10 +1,10 @@
-/* Geschwister-Paar am Globalen DGROUP 0x39F8 (beide __near):
+/* Sibling pair at global DGROUP 0x39F8 (both __near):
      4fab:000a (16 B): cmp [g],0x10 / jl +5 / mov ax,-1 / jmp +3
                        / mov ax,[g] / ret
-                       -> if/else mit EINEM gemeinsamen Exit (Sprung-Merge)
+                       -> if/else with ONE common exit (jump merge)
      4fac:000a (12 B): cmp [g],0x10 / jge +4 / inc [g] / ret
-   /Os /Oy: kein Rahmen, keine Pointer-Omission-Kosten -> lokale Ergebnis-
-   variable bleibt im Register und der Exit wird zusammengelegt. */
+   /Os /Oy: no frame, no pointer-omission cost -> the local result
+   variable stays in the register and the exit is merged. */
 int g_39f8;
 
 int __near get_39f8_clamped(void)

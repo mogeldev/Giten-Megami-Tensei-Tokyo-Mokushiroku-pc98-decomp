@@ -1,9 +1,9 @@
-"""Gemeinsamer Ghidra-Headless-Starter (alle tools/ nutzen ihn identisch).
+"""Shared Ghidra headless starter (all tools/ use it identically).
 
-Kapselt den Sandbox-Workaround: Ghidra 12 schreibt Log/OSGi-Cache nach %APPDATA%.
-Im DSH-Sandboxbetrieb ist nur der Workspace schreibbar -> APPDATA/LOCALAPPDATA/
-USERPROFILE/TEMP werden in den Workspace umgelenkt. Ausgaben laufen in Logdateien
-(keine Pipes)."""
+Wraps the sandbox workaround: Ghidra 12 writes log/OSGi cache to %APPDATA%.
+In DSH sandbox operation only the workspace is writable -> APPDATA/LOCALAPPDATA/
+USERPROFILE/TEMP are redirected into the workspace. Output goes to log files
+(no pipes)."""
 import os
 import subprocess
 
@@ -15,7 +15,7 @@ SCRIPT_PATH = os.path.join(WS, "ghidra_scripts")
 
 
 def run(program, post_args, log_path):
-    """Fuehrt -process (bereits analysiertes Programm, kein Re-Analysis) aus."""
+    """Runs -process (already analyzed program, no re-analysis)."""
     env = os.environ.copy()
     gh = os.path.join(WS, "ghidra_home")
     roam = os.path.join(gh, "AppData", "Roaming")

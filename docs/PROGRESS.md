@@ -1,196 +1,213 @@
 # PROGRESS
 
-## Runde 26 — MSC 6.00ax beschafft, Hypothese getestet und widerlegt (2026-11-23)
-- MSC 6.00ax von archive.org geholt (SHA1 verifiziert), Disketten entpackt.
-  Format ist `SZ` (nicht `KWAJ`) — der MSC-7-`DECOMP` kann beide; 34 Header +
-  8 Compiler-Paesse dekomprimiert (jetzt unter **dosbox-x**, eine Umgebung statt zwei).
-- `build.py` erweitert: `--msc-dir MSC6I` und `--no-dpmi` (MSC 6.0 ist reines
-  16-Bit, kein DOSX32/DPMI). MSC-7-Standardpfad weiterhin gruen (verify: 14 RELOCS).
-- **Test der Hypothese:** Init-Familie mit MSC 6.0 unter /Os, /Od, /Oa /Od ->
-  immer `33 C0 A3 A3`, also identisch zu MSC 7.0. Die Vermutung "Spielmodule mit
-  MSC 6.x" ist damit **widerlegt** (in CONVENTIONS.md dokumentiert).
-- Konsequenz: Hand-/Inline-ASM-Hypothese fuer Slot-Subsystem, Clamp- und
-  Init-Familie sowie CONV wird gestuetzt; Gegenprobe bleibt der Aufrufer-Kontext.
+## Round 27 — setter family matched: 5 new RELOCS, repo translated to English (2026-11-23)
+- Targeted pattern search for the canonical far-pascal one-param form
+  (`push bp / mov bp,sp / mov ax,[bp+6] / <op> / leave / retf 2`) found real C.
+- **5 new RELOCS** (src/calib/coset1.c, `/G1 /AM /Gs /Os`):
+  `35ff:0004`, `3b20:0006`, `4c9b:000a` (setters, 13 B) and
+  `1fc6:0004`, `1fc7:0002` (AND-return functions, 14 B).
+- Opcode direction mattered again: original `23 06` = `and ax,[disp]` (result in
+  AX, function returns it) — writing `g &= v;` produced `21 06` (store) and failed.
+- Sizing pitfall: the inventory size for the setters is 14 but the real function
+  is 13 bytes (the follow-up gap byte was counted). Matching with the ledger's
+  real length fixed the spurious `90 vs 00` diff.
+- Whole repository rewritten to English (docs, tool docstrings/messages, source
+  comments); logic, numbers and ledger notes verified unchanged (verify green,
+  AST/comment-stripped diffs identical).
+- Ledger: 26 rows — **19 RELOCS**, 7 PENDING.
 
-## Runde 25 — Verdacht: falsche Compiler-Generation (Phase-0-Rueckfall) (2026-11-23)
-- Init-Familie (2x22 B: `g1=0; g2=0; far_call(0x18,1)`) vollstaendig entschluesselt
-  (pascal-Konvention, Argumentordnung aus Push-Reihenfolge bewiesen) — aber nicht
-  matchbar: /O2 liefert die C7-06-Stores MIT Rahmen, /Os|/Ot|/Ox rahmenlos OHNE.
-- **Byte-Statistik der Binary** als Gegenprobe: `add bx,bx` 74x vs `shl` 18x;
-  `C7 06 .. 0000` 130x vs Zero-Fold 32x; Rahmen-Dichte 1184x (passt zu /Os).
-  Die haeufigsten Original-Formen erzeugt MSC 7.0 in keiner Flag-Kombination.
-- Arbeitshypothese dokumentiert (CONVENTIONS): Spielmodule evtl. mit **MSC 6.x**
-  uebersetzt, gegen CRT 7 gelinkt. Vor weiterer Hand-ASM-Einordnung muss das
-  geprueft werden, sonst wird eine Toolchain-Annahme als Hand-ASM fehldiagnostiziert.
-- Ledger: 21 Zeilen, 14 RELOCS, 7 PENDING.
+## Round 26 — MSC 6.00ax obtained, hypothesis tested and disproved (2026-11-23)
+- MSC 6.00ax fetched from archive.org (SHA1 verified), disks unpacked.
+  Format is `SZ` (not `KWAJ`) — the MSC-7 `DECOMP` handles both; 34 headers +
+  8 compiler passes decompressed (now under **dosbox-x**, one environment instead of two).
+- `build.py` extended: `--msc-dir MSC6I` and `--no-dpmi` (MSC 6.0 is pure
+  16-bit, no DOSX32/DPMI). MSC-7 default path still green (verify: 14 RELOCS).
+- **Test of the hypothesis:** init family with MSC 6.0 under /Os, /Od, /Oa /Od ->
+  always `33 C0 A3 A3`, i.e. identical to MSC 7.0. The assumption "game modules
+  with MSC 6.x" is therefore **disproved** (documented in CONVENTIONS.md).
+- Consequence: the hand/inline ASM hypothesis for the slot subsystem, clamp and
+  init family as well as CONV is supported; the caller context remains the cross-check.
 
-## Runde 24 — Integritaetsloch geschlossen: verify baut selbst (2026-11-23)
-- Ledger-Format kanonisiert: jede MATCH/RELOCS-Zeile traegt
-  `src=<quelldatei>; flags="<cflags>"` — verify.py liest das und **kompiliert jede
-  (src, flags)-Kombination neu**, statt sich auf vorhandene `build/*.OBJ` zu verlassen.
-- Beweis: `build/*.OBJ` geloescht -> verify baute alle 6 Quelldateien und meldete
-  14/14 RELOCS ok, PENDING 5, gruen. Vorher haette derselbe Lauf gegen veraltete
-  oder fremde Kompilate geprueft (Runde-23-Befund).
-- `--fast` ueberspringt den Neubau bewusst (nur Zwischencheck, nie Close-out).
-- Duplikat- und Groesse-0-Pruefung bleibt im Verify (Vorlage Phase 6).
+## Round 25 — suspicion: wrong compiler generation (phase-0 relapse) (2026-11-23)
+- Init family (2x22 B: `g1=0; g2=0; far_call(0x18,1)`) fully decoded
+  (pascal convention, argument order proven from push order) — but not
+  matchable: /O2 gives the C7-06 stores WITH frame, /Os|/Ot|/Ox frameless WITHOUT.
+- **Byte statistics of the binary** as cross-check: `add bx,bx` 74x vs `shl` 18x;
+  `C7 06 .. 0000` 130x vs zero fold 32x; frame density 1184x (fits /Os).
+  MSC 7.0 produces the most frequent original forms in no flag combination.
+- Working hypothesis documented (CONVENTIONS): game modules possibly translated
+  with **MSC 6.x**, linked against CRT 7. Before any further hand-ASM classification
+  this must be checked, otherwise a toolchain assumption gets misdiagnosed as hand ASM.
+- Ledger: 21 rows, 14 RELOCS, 7 PENDING.
 
-## Runde 23 — Optimierungsstufe als Codegen-Klasse entdeckt (2026-11-23)
-- Familien-Scan mit maskierten disp16: 3 Gruppen. Die groesste (3dd3:0000..) ist
-  ein **Segment-Alias** der bereits gematchten Getter (linear identisch mit
-  35ca:8090) — Lehre: Linearadresse ist die Identitaet, sonst Doppelzaehlung.
-- Clamp-Geschwister (1f2d:000e / 1f2f:0002, 2x20 B) entschluesselt: min(max(x,1),g)
-  mit __fastcall und DX-Temp. 6 Varianten getestet, MSC7 erzeugt weder
-  rahmenlos+DX (Original) — PENDING.
-- **Hauptfund:** `/Oy` und `/Ox` entfernen den Rahmen; alle bisherigen Matches
-  nutzten `/Os`. `/Ox` brachte get_39f8_clamped auf 14/16 B (Rest: `C3 90` vs
-  `EB 03`, also Early-Return+Pad statt Sprung-Merge). Flags sind pro Quelldatei
-  zu waehlen — als Regel in IDIOMS.md festgehalten.
-- CONV unter /Ox gegengeprueft: `D1 E3` bleibt (Hand-ASM-Verdacht dort bestaetigt).
-- Integritaetsloch notiert: verify.py baut nicht neu, prueft die vorhandenen OBJs.
+## Round 24 — integrity hole closed: verify builds itself (2026-11-23)
+- Ledger format canonicalized: every MATCH/RELOCS row carries
+  `src=<source file>; flags="<cflags>"` — verify.py reads that and **recompiles
+  every (src, flags) combination**, instead of relying on existing `build/*.OBJ`.
+- Proof: `build/*.OBJ` deleted -> verify built all 6 source files and reported
+  14/14 RELOCS ok, PENDING 5, green. Previously the same run would have checked
+  against stale or foreign compilations (round-23 finding).
+- `--fast` deliberately skips the rebuild (intermediate check only, never close-out).
+- Duplicate and size-0 checks remain in verify (template phase 6).
 
-## Runde 22 — report.py: STATUS.md wird generiert (2026-11-23)
-- `tools/coverage.py` in `compute()` (Zahlen) + `main()` (Konsolenausgabe) getrennt,
-  damit `tools/report.py` dieselben Zahlen ohne Doppel-Logik nutzen kann.
-- `tools/report.py` schreibt `docs/STATUS.md`: Ledger-Zaehler (MATCH/RELOCS/PENDING),
-  PENDING-Liste, Coverage-Tabelle, Regions-Tabelle. Handgeschriebener Teil steht
-  zwischen `MANUAL-BEGIN`/`MANUAL-END` und bleibt bei jedem Lauf erhalten (getestet).
-- Damit sind die Zaehler nicht mehr handgepflegt — STATUS kann nicht mehr
-  veralten oder widerspruechlich werden (die Ursache der Runde-21-Bereinigung).
-- verify gruen, Coverage-Zahlen unveraendert (100 / 293 640 B = 0,034 %).
+## Round 23 — optimization level discovered as a codegen class (2026-11-23)
+- Family scan with masked disp16: 3 groups. The largest (3dd3:0000..) is a
+  **segment alias** of the already-matched getters (linearly identical to
+  35ca:8090) — lesson: the linear address is the identity, otherwise double counting.
+- Clamp siblings (1f2d:000e / 1f2f:0002, 2x20 B) decoded: min(max(x,1),g)
+  with __fastcall and DX temp. 6 variants tested, MSC7 produces neither
+  frameless+DX (original) — PENDING.
+- **Main finding:** `/Oy` and `/Ox` remove the frame; all previous matches
+  used `/Os`. `/Ox` brought get_39f8_clamped to 14/16 B (remaining: `C3 90` vs
+  `EB 03`, i.e. early return+pad instead of jump merge). Flags are to be chosen
+  per source file — recorded as a rule in IDIOMS.md.
+- CONV cross-checked under /Ox: `D1 E3` remains (hand-ASM suspicion confirmed there).
+- Integrity hole noted: verify.py does not rebuild, it checks the existing OBJs.
 
-## Runde 21 — Inventar bereinigt: 1956 Code-Funktionen statt 1970 (2026-11-23)
-- `functions.csv` traegt jetzt `section=CODE|DATA`; `gt.py` setzt die Markierung aus
-  `not_code.csv`, `coverage.py` zaehlt nur CODE-Zeilen als Funktionen.
-- Zeilen bleiben erhalten (Groesse haengt am Abstand zur naechsten Funktion) —
-  geloescht wird nichts, nur klassifiziert. Eine Quelle statt zwei Zaehlwegen.
-- Zahlen unveraendert korrekt: 294 603 Code-Bytes − 963 CRT = 293 640 Eigenbytes,
-  100 verifiziert (0,034 %); Funktionszahl jetzt ehrlich 1 956 + 14 Daten.
-- verify gruen (17 Zeilen), kein Ledger-Eintrag faelschlich als DATA markiert.
+## Round 22 — report.py: STATUS.md is generated (2026-11-23)
+- `tools/coverage.py` split into `compute()` (numbers) + `main()` (console output),
+  so `tools/report.py` can use the same numbers without duplicate logic.
+- `tools/report.py` writes `docs/STATUS.md`: ledger counters (MATCH/RELOCS/PENDING),
+  PENDING list, coverage table, regions table. The hand-written part sits
+  between `MANUAL-BEGIN`/`MANUAL-END` and survives every run (tested).
+- Counters are therefore no longer maintained by hand — STATUS can no longer
+  become stale or contradictory (the cause of the round-21 cleanup).
+- verify green, coverage numbers unchanged (100 / 293 640 B = 0.034%).
 
-## Runde 20 — zwei RELOCS + zwei neue Idiom-Regeln (2026-11-23)
-- OR_JOIN (20b2:0000): `void: g_or |= x` — der Diff `09` vs `0B` war die
-  Zuweisungsrichtung (or r/m,r = Store vs. or r,r/m = Return), nicht der Ausdruck.
-- _wait_change (20ab:000c): Spin-Wait auf `volatile int` — ohne volatile hoistet
-  MSC7 den Loop-Load (18 B, degenerierter cmp), mit volatile steht der Reload im
-  Schleifenkopf und trifft das Original inkl. `74 F8` exakt (20 B).
-- verify.py reicht jetzt die **Ledger-Groesse** an match.py durch (--size):
-  Ledger-Groesse ist laut Vorlage die echte Laenge; Inventarfenster, die in die
-  Folge-Funktion laufen (hier 18 statt 14 B), verfaelschen sonst den Vergleich.
-- Stand: 14 RELOCS / 3 PENDING, 100 von 293 640 Eigencode-Bytes (0,034 %).
+## Round 21 — inventory cleaned up: 1956 code functions instead of 1970 (2026-11-23)
+- `functions.csv` now carries `section=CODE|DATA`; `gt.py` sets the marking from
+  `not_code.csv`, `coverage.py` counts only CODE rows as functions.
+- Rows are preserved (size depends on the distance to the next function) —
+  nothing is deleted, only classified. One source instead of two counting paths.
+- Numbers unchanged correct: 294 603 code bytes − 963 CRT = 293 640 own bytes,
+  100 verified (0.034%); function count now honestly 1 956 + 14 data.
+- verify green (17 rows), no ledger entry falsely marked as DATA.
 
-## Runde 19 — 12 211 Bytes Fehlinventarisierung als Daten klassifiziert (2026-11-23)
-- Die 38 Ghidra-Dekompilierungsfehler sortiert: 14 Eintraege nachweislich kein
-  Code — CD-3F-Soundtreiber-Befehlsbloecke (NMUSE/MIDE, 6-Byte-Stride), lineare
-  Wort-Tabellen, 10,9-KB-Nullfeld, ASCII-String 'num err floor'.
-- ground_truth/not_code.csv + coverage.py-Datenkategorie: Metrik jetzt dreifach
-  ehrlich — 293 640 Eigencode-Bytes (statt 306 814), 66 verifiziert.
-- ~24 weitere FAILs sehen nach echten Funktionen aus (ENTER-Rahmen, Parameter-
-  loads) — Kandidaten fuer spaetere Runden.
+## Round 20 — two RELOCS + two new idiom rules (2026-11-23)
+- OR_JOIN (20b2:0000): `void: g_or |= x` — the diff `09` vs `0B` was the
+  assignment direction (or r/m,r = store vs. or r,r/m = return), not the expression.
+- _wait_change (20ab:000c): spin wait on `volatile int` — without volatile MSC7
+  hoists the loop load (18 B, degenerate cmp), with volatile the reload stays in the
+  loop head and hits the original exactly including `74 F8` (20 B).
+- verify.py now passes the **ledger size** through to match.py (--size):
+  according to the template the ledger size is the real length; inventory windows that
+  run into the following function (here 18 instead of 14 B) would otherwise
+  falsify the comparison.
+- Status: 14 RELOCS / 3 PENDING, 100 of 293 640 own code bytes (0.034%).
 
-## Runde 18 — conv entschlusselt: 14/16 Byte, Muster-These Hand-ASM (2026-11-23)
-- 458e:a1ea == inc_39f8_capped (schon RELOCS ✓) — 'slot_update' gratis.
-- 4fad:0006 (CONV, 16 B, near-pascal Lookup): 5 Quellformen + 3 Opt-Stufen —
-  /Os matcht ALLES bis auf 2 Bytes (shl vs add bx,bx). Frame-Kompaktion
-  (push bp/mov bp,sp statt ENTER) im Original bestaetigt und reproduziert.
-- Muster-These gereift: das Slot-Subsystem (4 Funktionen) traegt konsistent
-  Hand-ASM-Idiome — dokumentiert in IDIOMS.md als Arbeitsgrundlage.
+## Round 19 — 12 211 bytes of misinventory classified as data (2026-11-23)
+- The 38 Ghidra decompilation errors sorted: 14 entries provably not
+  code — CD-3F sound-driver command blocks (NMUSE/MIDE, 6-byte stride), linear
+  word tables, 10.9 KB null field, ASCII string 'num err floor'.
+- ground_truth/not_code.csv + coverage.py data category: metric now threefold
+  honest — 293 640 own code bytes (instead of 306 814), 66 verified.
+- ~24 further FAILs look like real functions (ENTER frame, parameter
+  loads) — candidates for later rounds.
 
-## Runde 17 — Slot-Routine: Form entschuesselt, 4 Hypothesen, PENDING (2026-11-23)
-- 458e:a20e (166 B, pascal, Far-Param) vollstaendig zerlegt: Slot-Index-Flow,
-  8 Feldoffs 0/2/4/9/11/13/15/19, conv-CL-Push, retf 4 (=1 Far-Param, Ghidras
-  param_2 war Artefakt). Ungerade Slotgroesse 0x27 -> char-Array, kein struct.
-- Rekonstruktion v3 erreichte 162/166 B — Restdifferenz: Registerwanderung ohne
-  Stack-Rueckschreibung (MSC7-C schreibt Param zurueck). PENDING mit Formanalyse
-  in IDIOMS.md; cslot1.c behaelt v3 als naechsten Ansatzpunkt.
-- Praxisecke: __pascal versaliert Symbole; >127-Sprungdistanz erzeugt die
-  jge+3/jmp-Form automatisch (Branch-Erklaerung fuer 4fab:000a-Verwandtschaft).
+## Round 18 — conv decoded: 14/16 bytes, pattern thesis hand ASM (2026-11-23)
+- 458e:a1ea == inc_39f8_capped (already RELOCS ✓) — 'slot_update' for free.
+- 4fad:0006 (CONV, 16 B, near-pascal lookup): 5 source forms + 3 optimization
+  levels — /Os matches EVERYTHING except 2 bytes (shl vs add bx,bx). Frame
+  compaction (push bp/mov bp,sp instead of ENTER) confirmed in the original and reproduced.
+- Pattern thesis matured: the slot subsystem (4 functions) consistently carries
+  hand-ASM idioms — documented in IDIOMS.md as a working basis.
 
-## Runde 16 — PENDING-Semantik bewiesen (2026-11-23, Abend)
-- Aufrufer von 4fab:000a gefunden (FUN_458e_a20e): Slot-Index-Allokator,
-  Sentinel -1 wird geprueft, Slots 0x27 Byte, Array-Basis DGROUP-relativ
-  (-0x6d58). Sprung-Merge bleibt Hand-ASM-Verdacht — PENDING-Notiz vertieft.
-- FUN_458e_a20e selbst (52 B Slotfuell-Routine) ist ein Kandidat fuer die
-  naechste Familien-Runde: Parameter, Feldschreibzugriffe, RTC-lose Form.
+## Round 17 — slot routine: form decoded, 4 hypotheses, PENDING (2026-11-23)
+- 458e:a20e (166 B, pascal, far param) fully disassembled: slot index flow,
+  8 field offsets 0/2/4/9/11/13/15/19, conv CL push, retf 4 (=1 far param, Ghidra's
+  param_2 was an artifact). Odd slot size 0x27 -> char array, no struct.
+- Reconstruction v3 reached 162/166 B — remaining difference: register walk without
+  stack write-back (MSC7 C writes the param back). PENDING with form analysis
+  in IDIOMS.md; cslot1.c keeps v3 as the next starting point.
+- Practical corner: __pascal uppercases symbols; >127 jump distance produces the
+  jge+3/jmp form automatically (branch explanation for the 4fab:000a kinship).
 
-## Runde 15 — Coverage trennt Fremdcode (2026-11-23, abends)
-- coverage.py zeigt 'Fremd-CRT'-Spalte: 963 B (35 eindeutige Bibliothekssignaturen)
-  werden von der Eigenbyte-Metrik abgezogen — Prozent jetzt gegen Eigenbytes
-  (66/305851 = 0,022 %). CRT-Anteil waechst mit weiteren Signaturtreffern.
+## Round 16 — PENDING semantics proven (2026-11-23, evening)
+- Caller of 4fab:000a found (FUN_458e_a20e): slot index allocator,
+  sentinel -1 is checked, slots 0x27 bytes, array base DGROUP-relative
+  (-0x6d58). Jump merge remains a hand-ASM suspicion — PENDING note deepened.
+- FUN_458e_a20e itself (52 B slot fill routine) is a candidate for the
+  next family round: parameters, field writes, RTC-free form.
 
-## Runde 13 — CRT-Region abgesteckt (2026-11-23)
-- markcrt.py repariert: MS-Librarian richtet Module aus (Padding nach MODEND)
-  — Scan zum naechsten THEADR; jetzt 379/379 Module aus MLIBCR.LIB.
-- **35 eindeutige CRT-Treffer** (reloc-maskierte Bibliothekssignaturen) in
-  DDS98.EXE, ab 10bd:0002 aufwaerts: __int86/_abs/_srand/__NMSG_WRITE/__dos_setvect …
-  -> ground_truth/foreign_crt.csv. CRT liegt am Bildanfang (Linker-Reihenfolge).
-- Offen fuer naechste Session: coverage.py um Fremdcode-Spalte ergaenzen,
-  CRT-Byteanteil in der ehrlichen Metrik separat ausweisen.
+## Round 15 — coverage separates foreign code (2026-11-23, evening)
+- coverage.py shows a 'foreign CRT' column: 963 B (35 unique library signatures)
+  are subtracted from the own-byte metric — percentage now against own bytes
+  (66/305851 = 0.022%). The CRT share grows with further signature hits.
 
-## Runde 11 — coverage.py + PENDING-Vertiefung (2026-11-23)
-- get_39f8_clamped: 5 Konstrukt-/Opt-Kombis ausgereizt (Ternaer x2, if/else+r,
-  /O1, /O2) — MSC7 erzeugt die Sprung-Merge-Form nie aus C. PENDING mit
-  Hand-/Inline-ASM-Verdacht dokumentiert; Beweis via Aufrufer-Kontext spaeter.
-- coverage.py gebaut (Vorlage Phase 6): Bytes pro 64-KiB-Region gegen das
-  Original-Inventar — die ehrliche Metrik betraegt 66/306814 Bytes (0,022 %).
+## Round 13 — CRT region mapped (2026-11-23)
+- markcrt.py repaired: MS librarian aligns modules (padding after MODEND)
+  — scan to the next THEADR; now 379/379 modules from MLIBCR.LIB.
+- **35 unique CRT hits** (reloc-masked library signatures) in
+  DDS98.EXE, from 10bd:0002 upward: __int86/_abs/_srand/__NMSG_WRITE/__dos_setvect …
+  -> ground_truth/foreign_crt.csv. CRT lies at the start of the image (linker order).
+- Open for the next session: extend coverage.py with a foreign-code column,
+  report the CRT byte share separately in the honest metric.
 
-## Runde 10 — 0x39F8-Paar: 1 RELOCS, 1 ehrliches PENDING (2026-11-23)
-- inc_39f8_capped (4fac:000a): RELOCS — `if (g<0x10) g++;` Form exakt.
-- get_39f8_clamped (4fab:000a): PENDING — MSC7-/Os kompiliert Ternaer zur
-  Early-Return-Form; das Original benutzt Sprung-Merge mit einem RET. Zwei
-  Hypothesen (Ternaer, if/else+r) dokumentiert; dritte folgt mit Aufrufer-Kontext.
-- IDIOMS.md erstmals mit verifizierten MSC-Idiomen befuellt (Vorlage 4: nach
-  jeder geloesten Diff-Ursache ergaenzen — hier: die ungeloesste auch).
-- verify: gruen — 13 Ledger-Zeilen, RELOCS 12, PENDING 1.
+## Round 11 — coverage.py + PENDING deepening (2026-11-23)
+- get_39f8_clamped: 5 construct/opt combinations exhausted (ternary x2, if/else+r,
+  /O1, /O2) — MSC7 never produces the jump-merge form from C. PENDING with
+  hand/inline ASM suspicion documented; proof via caller context later.
+- coverage.py built (template phase 6): bytes per 64-KiB region against the
+  original inventory — the honest metric is 66/306814 bytes (0.022%).
 
-## Runde 9 — 32-Bit-Getter-Paar + Flag-Op: 11 RELOCS gesamt (2026-11-23)
-- cget3.c: get_l (far) + get_ln (__near) — DX:AX-Rueckgabe, je 2x disp16-Fixup,
-  Original 1871:d0e4 / 35ca:3c34 (Ghidra hatte get_l als 16-Bit fehltypisiert).
-- cflag1.c: set_flag = or byte [0x0F44],0x40 — Einzelmitglied, Bereich <=8 Bytes
-  damit vollstaendig klassifiziert (GET 8, Paar 2, Flag 1).
-- verify: gruen, Ledger 11 Zeilen, 0 PENDING.
+## Round 10 — 0x39F8 pair: 1 RELOCS, 1 honest PENDING (2026-11-23)
+- inc_39f8_capped (4fac:000a): RELOCS — `if (g<0x10) g++;` form exact.
+- get_39f8_clamped (4fab:000a): PENDING — MSC7 /Os compiles the ternary to the
+  early-return form; the original uses jump merge with one RET. Two
+  hypotheses (ternary, if/else+r) documented; the third follows with caller context.
+- IDIOMS.md populated with verified MSC idioms for the first time (template 4: add
+  after each solved diff cause — here: the unsolved one too).
+- verify: green — 13 ledger rows, RELOCS 12, PENDING 1.
 
-## Runde 8 — GET-Familie komplett: 8/8 RELOCS (2026-11-23)
-- Familien-Scan (Funktionen <=8 Bytes nach Codeform): GET-Familie hat 8 Mitglieder.
-- Teil 2 (cget2.c): vier Einzelscalar-Getter auf DGROUP 0x1A4/0x2FCE/0x2C50/0x2D0C —
-  alle vier RELOCS; verify: gruen, Ledger 8 Zeilen, 0 PENDING.
-- omfdump: kompakte 0x9C-Fixups mit variabler Eintraglaenge (3/4 Byte, Zielindex).
+## Round 9 — 32-bit getter pair + flag op: 11 RELOCS total (2026-11-23)
+- cget3.c: get_l (far) + get_ln (__near) — DX:AX return, 2x disp16 fixup each,
+  original 1871:d0e4 / 35ca:3c34 (Ghidra had mistyped get_l as 16-bit).
+- cflag1.c: set_flag = or byte [0x0F44],0x40 — single member, range <=8 bytes
+  thus fully classified (GET 8, pair 2, flag 1).
+- verify: green, ledger 11 rows, 0 PENDING.
 
-## Runde 7 — Phase 0 ABGESCHLOSSEN: 4 byte-verifizierte Funktionen (2026-11-23)
-- **Erste RELOCS-Matches**: Getter-Familie 35ca:8090..9c (get0..get3),
-  `mov ax,[disp16]; retf` — disp16 als einziger maskierter Linker-Fixup.
-- **CFLAGS bestätigt: `/G1 /AM /Gs /Os`** (Medium-Modell; /Gs = keine chkstk-
-  Prologen im Original; /Os = Bare-Leaf-Form; /G1 = 186-Idiome).
-  Korrektur: fruehere huge/large-Vermutung falsch (Near-Daten-Beweis).
-- match.py komplett: OMF-Extraktion (omfdump.py) + Reloc-Maskierung + Klassifikation.
-  MSC7-Fixups laufen als kompakte 0x9C-Records (COMENT-class-A2-Erweiterung).
-- verify.py steht, laeuft gruen: Ledger 4 Zeilen, 4 RELOCS, 0 PENDING.
-- Praxisecke: CL stirbt lautlos bei Quelldateien >8.3 Zeichen (Kalibrierquelle
-  umbenannt cget.c); LINK.EXE (DOSX16) unter dosbox-x bislang unbrauchbar (haengt
-  in allen DPMI-Varianten) — Phase-6-Thema.
+## Round 8 — GET family complete: 8/8 RELOCS (2026-11-23)
+- Family scan (functions <=8 bytes by code shape): GET family has 8 members.
+- Part 2 (cget2.c): four single-scalar getters on DGROUP 0x1A4/0x2FCE/0x2C50/0x2D0C —
+  all four RELOCS; verify: green, ledger 8 rows, 0 PENDING.
+- omfdump: compact 0x9C fixups with variable entry length (3/4 bytes, target index).
 
-## Runde 5/6 — Toolchain-Durchbruch (2026-11-23, 01:35)
-- **MSC 7.0 (CL 8.00) kompiliert**: `triv1.c /G1 /AL` → 480-Byte-OMF-Objekt.
-- Verifiziertes Rezept: dosbox-x + HDPMI32-TSR (HX-DOS 2.17) + `-nopromptfolder`
-  + APPDATA-Redirect + `cycles=max`. DOSBox 0.74: R6901/kein DPMI; dosbox-x-eigenes
-  DPMI crasht mit MSC7 (GitHub-Issue #3844).
-- `build.py` auf das Rezept umgestellt, End-to-End über sich selbst verifiziert.
-- Toolchain-Deko komplett: 224/224 Dateien aus den KWAJ-Disketten (DECOMP unter
-  DOSBox 0.74; Erkenntnisse: BAT ohne `CALL` frisst die restliche Autoexec;
-  Hintergrund-Jobs lassen DOSBox-0.74-Kinder hängen — nur Vordergrundläufe).
+## Round 7 — phase 0 COMPLETE: 4 byte-verified functions (2026-11-23)
+- **First RELOCS matches**: getter family 35ca:8090..9c (get0..get3),
+  `mov ax,[disp16]; retf` — disp16 as the only masked linker fixup.
+- **CFLAGS confirmed: `/G1 /AM /Gs /Os`** (medium model; /Gs = no chkstk
+  prologues in the original; /Os = bare leaf form; /G1 = 186 idioms).
+  Correction: earlier huge/large assumption wrong (near-data proof).
+- match.py complete: OMF extraction (omfdump.py) + reloc masking + classification.
+  MSC7 fixups run as compact 0x9C records (COMENT class A2 extension).
+- verify.py is in place, runs green: ledger 4 rows, 4 RELOCS, 0 PENDING.
+- Practical corner: CL dies silently for source files >8.3 characters (calibration source
+  renamed cget.c); LINK.EXE (DOSX16) under dosbox-x so far unusable (hangs
+  in all DPMI variants) — phase-6 topic.
 
-## Runde 1 — 2026-11-23
-- Parameterblock belegt und in `CONVENTIONS.md` festgehalten (MZ, x86-16 Real Mode,
-  Load-Image/Overlay-Geometrie, MSC-8-Kandidat via CRT-Banner, Entry `0x1871:0BE5`).
-- Skelett angelegt: `include/dds98 src tests tools docs ground_truth`.
-- `tools/`: `gt.py` (Inventar), `disasm.py` (Hexdump + Ghidra-Instruction-Dump),
-  `match.py` (Byte-Match-Kern mit Selbsttest; BUILD-Schritt bricht bis Kalibrierung
-  kontrolliert ab), `ghidra_run.py` (Headless-Starter mit APPDATA-Sandbox-Workaround),
-  `build.py` (Stub, `TOOLCHAIN_NOT_CALIBRATED`).
-- Phase-0-Scans ausgewertet (ScanIdioms, 68 452 Instruktionen): CPU-Basis 80186+
-  (`/G1`-Kandidat), Memory-Modell large/huge (Tendenz `/AH`, DGROUP ≈ 102 KB),
-  crt0-Sequenz am Entry `0x1871:0BE5` bestätigt Microsoft-C-16-Bit.
-- Overlay analysiert: dichter Binär-Payload (~141 KB), keine Archiv-Signatur,
-  kein Selbst-Pfad-Verweis — Klärung über Laderoutinen später.
-- match.py-Selbsttest grün (MATCH/RELOCS/DIFF-Kern, Reloc-Maskierung, Längendiff).
-- Offen: Toolchain-Beschaffung (MSC 8/MSVC 1.5x + DOSBox) — Freigabe des Nutzers nötig;
-  danach Kalibrier-Kompilierung (Phase 0) und erste MATCH-Runde.
+## Round 5/6 — toolchain breakthrough (2026-11-23, 01:35)
+- **MSC 7.0 (CL 8.00) compiles**: `triv1.c /G1 /AL` → 480-byte OMF object.
+- Verified recipe: dosbox-x + HDPMI32 TSR (HX-DOS 2.17) + `-nopromptfolder`
+  + APPDATA redirect + `cycles=max`. DOSBox 0.74: R6901/no DPMI; dosbox-x's own
+  DPMI crashes with MSC7 (GitHub issue #3844).
+- `build.py` switched to the recipe, verified end-to-end against itself.
+- Toolchain decoration complete: 224/224 files from the KWAJ disks (DECOMP under
+  DOSBox 0.74; findings: BAT without `CALL` eats the rest of the autoexec;
+  background jobs leave DOSBox-0.74 children hanging — foreground runs only).
+
+## Round 1 — 2026-11-23
+- Parameter block documented and recorded in `CONVENTIONS.md` (MZ, x86-16 real mode,
+  load-image/overlay geometry, MSC-8 candidate via CRT banner, entry `0x1871:0BE5`).
+- Skeleton created: `include/dds98 src tests tools docs ground_truth`.
+- `tools/`: `gt.py` (inventory), `disasm.py` (hexdump + Ghidra instruction dump),
+  `match.py` (byte-match core with self-test; the BUILD step aborts in a controlled
+  way until calibration), `ghidra_run.py` (headless starter with APPDATA sandbox workaround),
+  `build.py` (stub, `TOOLCHAIN_NOT_CALIBRATED`).
+- Phase-0 scans evaluated (ScanIdioms, 68 452 instructions): CPU base 80186+
+  (`/G1` candidate), memory model large/huge (tendency `/AH`, DGROUP ≈ 102 KB),
+  crt0 sequence at entry `0x1871:0BE5` confirms Microsoft-C-16-bit.
+- Overlay analyzed: dense binary payload (~141 KB), no archive signature,
+  no self-path reference — clarify via loader routines later.
+- match.py self-test green (MATCH/RELOCS/DIFF core, reloc masking, length diff).
+- Open: toolchain acquisition (MSC 8/MSVC 1.5x + DOSBox) — user approval needed;
+  then calibration compile (phase 0) and first MATCH round.
