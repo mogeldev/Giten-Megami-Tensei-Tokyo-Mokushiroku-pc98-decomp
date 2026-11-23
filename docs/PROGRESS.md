@@ -1,5 +1,10 @@
 # PROGRESS
 
+## Packed-table reset verified
+`42b9:0064` (21 B, RELOCS) marks 64 entries empty and zeros their counts
+without modifying the flag bits. The reset starts after a return and padding
+inside the preceding entry's inventory window.
+
 ## Verification now checks the recorded match class
 Both MATCH and RELOCS return success from the matcher, so checking only its
 exit code let the ledger report an incorrect class. The verifier now checks
