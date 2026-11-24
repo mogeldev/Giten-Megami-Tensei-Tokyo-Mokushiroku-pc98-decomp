@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 128: a documentation index, and the mid-size pool measured (no rows)
+Screened the pool above the sizes previous rounds covered (100-220 bytes): only **two**
+no-wall units exist there, `1c97:000c` (110 B) and `50ff:000e` (138 B), and both are long
+arithmetic / address-of-parameter routines with `+0x600` carry chains and six parameters.
+They are transcribable but not in a single sitting, so this round recorded the state
+instead:
+
+- added **`docs/README.md`** - an index of the seven documents, the command list for
+  building/matching/verifying, the screening tools and what each is for, and a
+  five-point "reading a new candidate" checklist built from the mistakes of the last
+  twenty rounds (run `dis.py` first; check the walls; distrust the inventory size; a
+  bare `55 8B EC 56` prologue means no locals; `/G0` for locals, `/G1` for 80186
+  encodings).
+
+The pool is now visibly finite: 144 unclassified units, of which the clean ones number
+three below 100 bytes plus these two above it. Everything else carries a named wall.
+
+Ledger 483 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 600 B (3.615 %).
+
 ## Round 127: a table-mask routine decoded, blocked on register choice (no rows)
 With wall 14 classified, the "no known wall" screen dropped from 38 to 36 units; one
 untried unit was decoded in full and transcribed:
