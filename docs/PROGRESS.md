@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 225: the push-order rule catches a unit before the compile (no rows)
+`3db4:000e` (32 B) copies eight bytes (four `movsw`) from a far pointer to the fixed address
+`0x78C6`:
+
+    *(long __far *)0x78C6 = *src;
+    *(long __far *)0x78CA = src[1];
+
+Four source shapes were compiled and three differ in the *destination/source ordering* (MSC
+sets up the destination first). The fourth gets past that and stops at offset 3 with `56`
+where the original has `57`.
+
+That is round 196's rule applying exactly as written: **the original saves DI before SI, MSC
+saves SI before DI**, and a unit whose prologue is `57 56` cannot be reproduced. For the first
+time the screening rule fired *before* wasting the compile - the unit was picked from a list
+that had already excluded walls, and its prologue alone predicts the outcome.
+
+The round still produced no row, which is the fifth in a row. But the rule paying off is worth
+something in a project where each screen costs a compile: it means a candidate's fate can now
+be predicted from four bytes at the front of the function, and the list of *worth trying*
+shrinks by inspection rather than by experiment.
+
+Ledger 519 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 224: the pending registry re-swept (no rows)
 Ran `tools/recheck.py --sweep`: all **13 registered PENDING rows** recompiled under their
 flags plus four alternatives each - 65 compilations - and **0 now match**. That is the
