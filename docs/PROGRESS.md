@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 247: a handoff document (documentation round)
+Wrote **`docs/HANDOFF.md`** - the practical guide the project has been missing: prerequisites,
+the five-command loop that produced the rows, the verification order (`--fast` while iterating,
+full before finishing, `checkled.py` after any ledger edit), and the rules that have actually
+paid.
+
+The rules section is the part worth having. Four of them cost a round each to learn:
+
+- **`dis.py` before anything** - hand-decoding produced at least three wrong conclusions;
+- **never exceed the object symbol's length** with `--size` - a longer comparison reads into the
+  next function and reports a false match (round 186);
+- **rows may be shorter or longer than their window** - three rows are 27 bytes inside 28-byte
+  windows (round 244), and `cutwin.py` lists the ones that need a longer row;
+- **suspect the declaration before the compiler** - round 238's near/far rule matched two units
+  that had failed rounds earlier, because one wrong attribute moves every operand by a constant.
+
+It also says what not to do, which matters more: don't add a row `verify.py` has not proved,
+don't publish image-derived bytes, and don't guess at sources until the bytes happen to line up.
+
+Linked from `docs/README.md`. No ledger movement; eight rounds left, and this is the artifact
+that makes the other 247 worth something to someone else.
+
+Ledger 523 rows (unchanged), PENDING 38; verify and checkled green; own-code
+coverage 11 645 B (3.972 %).
+
 ## Round 246: a null-checked dereference, blocked at the first load (no rows)
 Screened for small units that take a segment register from the frame (`8E 46 xx`) - the shape
 round 244's family used - and transcribed `2ad2:0006` (33 B):

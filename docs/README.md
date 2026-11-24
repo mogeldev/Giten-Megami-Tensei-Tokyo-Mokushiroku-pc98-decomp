@@ -2,6 +2,7 @@
 
 | file | what it is |
 |---|---|
+| `HANDOFF.md` | how to add a row: the loop, the rules that paid, where to look next |
 | `ENTER.md` | the `ENTER`-framed units - the highest-odds list in the repository |
 | `SUMMARY.md` | one page on what was found, how, and what would move it further - start here |
 | `MATCHING.md` | **the ledger**: every verified function, its source file, flags, size and status (MATCH / RELOCS / ASM / PENDING). This is the single source of truth; `tools/verify.py` rebuilds every row from source |
