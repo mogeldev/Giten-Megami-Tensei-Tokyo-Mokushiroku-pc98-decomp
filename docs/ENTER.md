@@ -709,3 +709,9 @@ Open question worth one test: do any two frame-only misses (`4349:005c`, `42fe:0
 
 - `4307:000a` (58 B, near, `ret 6`): clamp-add on byte field `[rec+2]` of a 4-byte record (`if (len + n > max) n = max - len; len += n; return n`). With a plain `unsigned char` field MSC gives the same compare/subtract body but `55 8B EC` and a byte `add [bx+2],dl`; with an `unsigned len:8` bit-field it does the word read-modify-write the original has, but via BX and a `push si` only at the end. The original keeps the record pointer in SI and has `C8 02`. Seven spellings. BX wall again.
 - All 38 PENDING notes re-read: the residues are pad bytes (`90`), `add r,r` doubling, shared `ret`, `xor` vs `mov ax,0`, BX/SI roles, `les` splits - each already on the proven-unreachable list. No PENDING row has an untested source-level lever.
+
+### Round 16: a call-free screen, and 36e7:0000
+
+Screen: ENTER-framed, 20-140 B, not in the ledger, ends in a return, no `90`/far call/near call/doubling/segment loads/`sub ax,ax`/`B4`/`les`. Eleven units, nine already worked: the new ones are `37d3:000c` (twin of `1e33:0006`, BX wall) and `36e7:0000`.
+
+`36e7:0000` (65 B, far): `if (!(g_flag & 0x80)) for (i = 0; i < g_n; i++) if (!(g_tab[i].g & 0x88) && (g_tab[i].f & 1)) (*g_fn[i])();` over 10-byte records and a table of far function pointers (`call far [bx]`). Every instruction is produced under `/Ox`, but the roles are swapped: the original keeps the **index in DI, the pointer-table cursor in the frame `[bp-2]`**, and the record pointer in SI; MSC puts the function-pointer cursor in DI and the index in the frame (`55` vs `57 56` stays, jump distance off by 2). Fourteen spellings (declaration order, `register` on each variable, while/for, an integer cursor, a dead local) all give the same assignment - register allocation by lifetime (wall 3) rather than by source. `3bcc:0004` has the same scaffold and is expected to share the miss.
