@@ -677,3 +677,7 @@ A byte screen (ENTER-framed, not already a ledger row, <= 80 B, no `90`, no far-
 `4349:005c` (33 B, far): counts entries of the 64 four-byte records at 0x866E whose first word has `(w & 0x7ff) != 0x7ff`. The body matches byte for byte under `/Ox` (`xor dx,dx` / `mov bx,866e` / `and ah,7` / `cmp ax,7ff` ... `jb`), but the original has `C8 02` with a **never-used** local. MSC drops an unused local; making it used (`volatile`, address taken, read-back) inserts stores and moves BX. Nine spellings, no match; the remaining difference is only the frame (`C8 02 00 00` / `C9` vs none).
 
 No ledger change, so verify.py was not re-run this round.
+
+### Round 8: long exchange, 1e33:0006 and 2d46:0008
+
+`long old = g; g = v; return old;` (far pascal, `C8 04`). Eight spellings (plain, extra local, `register`, union, split lo/hi) give the right frame under `/Ox` but the old low word goes to `[bp-4]` where the original keeps it in **BX** (`mov bx,ax` ... `mov ax,bx`). That is the BX wall (BX is never a C variable). `2d46:0008` is the same function on an `es:`-addressed global (segment 4827) and shares the wall. Not recorded. `477b:0000` (round 7) was the only ENTER unit that closed this way.
