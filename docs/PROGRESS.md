@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 229: the frame MSC omits (no rows)
+`1270:000e` (22 B) is the smallest possible statement sequence:
+
+    h1();
+    if (g_4abf) h2();
+
+The original opens with `55 8B EC`; MSC emits **no frame at all** for a function with no
+parameters and no locals, so its object starts straight at the `9A` of the call and is 18 bytes
+against the original's 22. Writing it as the object shows, the first byte differs; there is no
+source form that makes MSC emit a `push bp / mov bp,sp` it can see no use for.
+
+This is the mirror image of the `ENTER` wall (round 108): **MSC omits frames it does not need
+and the original never does**. Between the two, any function body that would otherwise match
+exactly either has a frame MSC drops or a frame MSC replaces with `C8` - which is why the
+"frame style" entry at the top of `docs/SUMMARY.md` is the first wall listed.
+
+No row. The remaining rounds are being used to check the cheapest candidates in the pool, and
+they are mostly confirming the walls rather than finding exceptions to them.
+
+Ledger 519 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 228: the summary brought to the end-state (documentation round)
 Updated `docs/SUMMARY.md` to the current numbers - **519 rows** (MATCH 38, RELOCS 438, ASM 2,
 PENDING 41), 476 verified, 11 351 of 293 211 bytes (3.871 %) - and added a section describing
