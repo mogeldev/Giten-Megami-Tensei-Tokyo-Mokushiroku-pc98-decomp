@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 41: a negated six-argument call (29 B)
+`crelay48.c` (`/Os`): `3e7f:0118` (29 B) - `return 1 - h6(a, b, 1, 0x10, g_98e4);`.
+The negation is `48 F7 D8` (`dec ax` / `neg ax`), the DGROUP object pointer is
+the last argument (`1E 68 <disp>`), and the two parameters are pushed before the
+two constants.
+
+Probed and blocked in the same band, all by already-documented traits:
+
+- `21fd:0006` (30 B) and `3ea9:005a` (29 B) - `8E 06 <disp>` (`mov es,[seg]`):
+  the inlined-`MK_FP` class.
+- `3dd8:0000` (29 B) - `8E C0` right after an argument push: same class, segment
+  from a parameter.
+- `29e9:000a`, `2a28:0000`, `3a3d:0006`, `4b6a:0056` - register allocation and
+  operand-order cases from rounds 39-40.
+
+Sweeps after the row: `reuse.py` reports no siblings.
+
+Ledger 442 rows - MATCH 38, RELOCS 380, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 025 B (3.078 %)**.
+
 ## Round 40: two DGROUP pointers relayed and one returned (28 B)
 `crelay47.c` (`/Os`): `2183:0008` (28 B) - `h3(x, g_10d8, g_6cf6); return g_6cf6;`
 in a near-Pascal function. Both object pointers are pushed as `1E 68 <disp>`
