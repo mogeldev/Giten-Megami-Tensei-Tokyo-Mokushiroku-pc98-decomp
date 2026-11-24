@@ -1,5 +1,35 @@
 # PROGRESS
 
+## Round 120: the nop padding is a non-merged epilogue, not a padding rule (no rows)
+Tested whether MSC can be made to emit the `90` at all, and it can - just not the way I
+had been thinking. Compiling
+
+    int f(int a) { if (a) { h(a); return 1; } return 0; }
+
+gives, under `/Ot` or `/Ox`:
+
+    ... B8 01 00 C9 CA 02 00 90 33 C0 C9 CA 02 00
+
+i.e. MSC keeps **two separate epilogues** and pads between them. That is the same shape
+as the original's padded units (`13d5:000c`'s pad after `CB`, `48eb:000c`'s pad after
+`EB`). Under `/Os` MSC merges the paths and the pad disappears.
+
+So wall 2 is really "**the older compiler does not merge return paths**", with the
+padding as a side effect - a more useful statement, because it predicts that padded
+units also contain repeated epilogues and it makes `/Ox`/`/Ot` a lever rather than a
+dead end.
+
+Applied to `48eb:000c` (30 B, `return h(a, b, c) == 1;`): under `/Os` it is **two
+differences** from a row (the pad and the branch distance it implies), under `/Ox` the
+whole epilogue shape changes instead. So the lever reproduces the padding but not the
+surrounding code for this unit - worth retrying on units where the epilogues are already
+duplicated.
+
+`docs/WALLS.md` now carries this refinement.
+
+Ledger 481 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 535 B (3.593 %).
+
 ## Round 119: the walls consolidated into one document (no new rows)
 Two row-less rounds in a row, both ending in "the instruction order is the only gap", so
 this round wrote the analysis down instead of repeating it: **`docs/WALLS.md`** now

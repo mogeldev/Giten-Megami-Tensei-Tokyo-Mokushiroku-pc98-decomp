@@ -21,6 +21,24 @@ produces.
 
 ## 2. Nop padding after short jumps and block ends
 
+Round 120 refinement: MSC **does** emit the `90`, but only between *duplicated*
+epilogues. Compiling `if (a) { h(a); return 1; } return 0;` with `/Ot` or `/Ox` gives
+
+    ... B8 01 00 C9 CA 02 00 90 33 C0 C9 CA 02 00
+
+- each path keeps its own epilogue and the compiler pads between them, which is exactly
+  the shape seen in `13d5:000c` (pad after `CB`) and `48eb:000c` (pad after `EB`). `/Os`
+  merges the epilogues instead and drops the pad.
+
+So the wall is not "the older compiler pads"; it is **"the older compiler does not merge
+return paths"**, and the padding is a side effect. That is a more useful statement: it
+predicts that padded units also have repeated epilogues, and it points at a lever
+(`/Ox`, `/Ot`) that reproduces the padding at the cost of a different epilogue shape.
+`48eb:000c` under `/Os` is two differences from a row (the pad and the branch distance
+it implies); under `/Ox` the shape changes too much.
+
+### Original text
+
 The original pads with `90` where MSC does not, so every following branch distance
 differs by one. Verified on `1036:000c` (`75 06 ... EB 19 90` versus `75 05 ... EB 18`),
 `13d5:000c`, `4998:000c`, `3b88:000e`, `31e3:0064`, `3cd1:02f2`, `3b9b:000a`.
