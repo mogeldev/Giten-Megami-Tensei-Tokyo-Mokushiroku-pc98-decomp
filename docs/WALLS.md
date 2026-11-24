@@ -122,6 +122,19 @@ The original pushes a `char` argument unpromoted, or stores AH directly
 (`26 88 27`); MSC promotes, or copies AH to AL first. Examples: `3c3d:000c`,
 `2d60:000e`, `29ed:0004`.
 
+## 13a. CX as the scratch for a parameter test
+
+A cluster of 10 units in the 36-130 byte range loads a parameter into **CX** and tests
+it with `or`/`cmp` (`8B 4E 06` / `0B C1` / `74 xx`). MSC 7 puts the parameter in AX and
+tests against memory under `/Os`, or in SI (with a prologue push) under `/Ox` - it
+reaches for CX only in one large function (`1f45:00b0`, 59 B), which does match. Examples
+of the blocked ones: `1f72:0044` and `1f7c:0008` (40 B each, `if ((a | b) != 0) { h(b, a);
+g_46ec--; } return 0;`), `2ad6:000a`, `1e1e:002a`.
+
+The source form matters and is worth recording: `if (a || b)` produces a compare chain,
+while `if ((a | b) != 0)` produces the single `or` - the original has the `or`, so the
+bit-or form is the correct transcription.
+
 ## 13. CX caching, constant folding, `or reg,ax`
 
 Three small peephole-level differences: the original caches a parameter in CX for

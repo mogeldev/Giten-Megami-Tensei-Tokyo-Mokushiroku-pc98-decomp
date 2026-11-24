@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 143: the CX-scratch cluster mapped (no rows)
+Screened for units that load a parameter into CX (`8B 4E xx`), i.e. the cluster where the
+original uses CX as its scratch register for a test: **10 units, 36-130 bytes**.
+
+Two were transcribed (`1f72:0044` and `1f7c:0008`, 40 B each, sharing a shape and
+differing only in which long global they decrement):
+
+    if ((a | b) != 0) { h(b, a); g_46ec--; }
+    return 0;
+
+The source form matters here and is now recorded: `if (a || b)` makes MSC emit a compare
+chain, while `if ((a | b) != 0)` produces the single `or` that the original has. With the
+right form the code is otherwise identical - and still differs in where the parameter
+goes: the original loads `a` into **CX** (`8B 4E 06`) and `b` into AX, MSC loads `a` into
+AX and ORs against memory (`/Os`) or keeps both in SI/DI (`/Ox`).
+
+So this cluster is wall 13a, documented with its examples: the only unit of this shape
+MSC reproduces is `1f45:00b0`, whose function is large enough that the allocator reaches
+for CX by itself.
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 142: MSC 6.0 available, and it does not help (no rows)
 Round 141 concluded that the DOS 6.00A compiler sits on DISK8 behind KWAJ compression,
 and that unpacking it was the next step. Before writing a KWAJ decoder, one check was
