@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 103: a 63-byte marshalling wrapper, and the value of `/G0` (63 B)
+`crelay70.c` (`/G0 /AM /Gs /Os`): `103b:000c` (63 B) - a wrapper that calls three
+functions through far pointers it builds itself. What made it work:
+
+- the callees are `__cdecl`, and **mixed**: `h1` near, `h2` far, `h3` near. That mix
+  is visible only as `E8` versus `90 0E E8` in the image, and it took three attempts
+  (all-far, all-near, then the mix) before the call sites agreed;
+- the `__far` casts on a near pointer produce `push ds` / `push si`, and taking the
+  address of a parameter produces `lea ax,[bp+0E]` / `push ss` / `push ax`;
+- `register char *p` and `register int t` put the pointer in SI and the temporary in
+  DI, and the locals are declared `u1, u2, r` so the result slot lands at `[bp-6]`,
+  which is where the original stores it;
+- everything else needed `/G0` for the classic frame - this unit has six bytes of
+  locals, so no `/G1` transcription could ever have matched it.
+
+Its sibling `1070:0008` (67 B, same shape with a DGROUP object at 0x4AD0 instead of a
+pointer parameter) came out one instruction short: the original puts its single
+register variable in **DI** (`57` / `8B F8`) where MSC puts it in SI (`56` / `8B F0`).
+Same family as the round-93 finding, but reversed - MSC's first register variable goes
+to SI, the original's went to DI here with no other register variable in play.
+
+Ledger 476 rows - MATCH 38, RELOCS 412, ASM 2, PENDING 24; verify and checkled
+green; own-code coverage **10 327 B (3.522 %)**.
+
 ## Round 102: the two bracketing near-misses recorded as PENDING (no new rows)
 Round 100 and 101 produced two units that are fully understood but unreachable, and
 they bracket the original's compiler between them - worth recording as ledger entries
