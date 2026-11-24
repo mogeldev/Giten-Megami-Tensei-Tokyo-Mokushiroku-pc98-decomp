@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 234: the word-count loop, and why it cannot be written (no rows)
+Worked the second of `docs/ENTER.md`'s clear units, `47c8:000a` (48 B): a loop that counts and
+clears nonzero words in a twelve-word array at offset `0x2C` of a far struct.
+
+The loop is now fully understood, including one detail worth recording: the original counts
+**eleven** iterations (`di = 11`, `dec di` / `jnz`, so the body runs for 11..1 and exits when
+`dec` reaches zero), not twelve - the array's twelfth word is not touched. Getting that right
+moved the transcription from "differs at the frame size" to "differs at the loop bound".
+
+What blocks it is now unambiguous and is not a wall the project can move:
+
+- the count lives in **CX** and the index in **DI** - MSC never allocates CX to a C variable
+  (round 220's wall 20 is the BX case; CX is the same story);
+- the far pointer is kept in **BX** with `ds` overridden (`8e da` / `16 1f`), which MSC never
+  generates for a `__far *` local;
+- and the frame is two bytes for a function that visibly needs no stack at all.
+
+So the C is `n = 0; for (i = 11; i > 0; i--) { if (q[i]) n++; q[i] = 0; }` and every compiler
+decision in it is one MSC does not make. Recorded here rather than as PENDING: the source is
+right, but "blocked by three separate register choices" is not the same kind of entry as the
+ones in that column.
+
+Ledger 520 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 393 B (3.886 %).
+
 ## Round 233: the ENTER list written down (no rows)
 Round 232 matched an `ENTER`-framed unit and noted that the pool had never been screened
 before. This round enumerated it properly and wrote the result to **`docs/ENTER.md`** - the
