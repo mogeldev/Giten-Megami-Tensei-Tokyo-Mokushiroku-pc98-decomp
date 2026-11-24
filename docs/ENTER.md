@@ -235,7 +235,7 @@ only **eight**, and those are the ones to work first - they are marked "clear" b
 | `4744:00b4` | 77 | open |
 | `37f3:0006` | 78 | open |
 | `3a68:0008` | 78 | open |
-| `4332:0048` | 78 | open | clear |
+| `4332:0048` | 78 | MATCHED earlier (crelay95.c) | clear |
 | `46b0:0006` | 78 | open |
 | `2b17:0074` | 79 | open |
 | `2f08:0054` | 79 | open |
