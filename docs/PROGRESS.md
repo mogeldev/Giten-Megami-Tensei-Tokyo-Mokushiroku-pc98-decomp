@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 115: a long-parameter guard (59 B)
+`crelay75.c` (`/G1 /AM /Gs /Os`): `1e88:000e` (59 B) - `if (!v) { h0(); return; }
+if (h1(v)) { h2(v, c); g_40b4--; }` with `long v`.
+
+The unit matched on the first attempt once the shapes were read correctly:
+
+- the zero test is the word-OR of the long's halves (`8B 46 0A` / `0B 46 08`), so `v`
+  is a `long`, not two ints;
+- the global decrement is a **word pair** (`83 2E <g> 01` / `83 1E <g+2> 00`), i.e. a
+  `long` global decremented in place - a plain `int` would give a single `83 2E`;
+- the no-argument call is `__near` while the two long-taking calls are `__far`, which
+  the image shows as `E8` versus `90 0E E8`.
+
+That is the fourth row from the pool round 110's fix uncovered, and the third from a
+unit that only became visible because its final `retf 6` was no longer mis-read as "not
+a return".
+
+Ledger 481 rows - MATCH 38, RELOCS 417, ASM 2, PENDING 24; verify and checkled
+green; own-code coverage **10 535 B (3.593 %)**.
+
 ## Round 114: a long-result guard, and `MK_FP` as the wrong tool (43 B)
 `crelay74.c` (`/G1 /AM /Gs /Os`): `1fc8:0048` (43 B) -
 `if (h(a, 0x760E, 0x0871) == -1L) h2(0x48, g_0128);`.
