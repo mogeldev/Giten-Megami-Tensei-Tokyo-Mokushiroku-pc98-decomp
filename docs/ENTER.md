@@ -69,7 +69,7 @@ only **eight**, and those are the ones to work first - they are marked "clear" b
 | `2a8a:0064` | 48 | open |
 | `33d7:0000` | 48 | open |
 | `34b7:003c` | 48 | open |
-| `375a:0008` | 48 | open |
+| `375a:0008` | 48 | MATCHED (round 12) |
 | `3809:0000` | 48 | open | clear |
 | `3982:0004` | 48 | open |
 | `47c8:000a` | 48 | open | clear |
@@ -105,7 +105,7 @@ only **eight**, and those are the ones to work first - they are marked "clear" b
 | `30fb:00ae` | 55 | open |
 | `30fb:00e6` | 55 | open |
 | `35f7:0004` | 55 | open |
-| `379e:0006` | 55 | open |
+| `379e:0006` | 55 | MATCHED (round 12) |
 | `42b9:0042` | 55 | open |
 | `20ae:0008` | 56 | open |
 | `2fae:0008` | 56 | open |
