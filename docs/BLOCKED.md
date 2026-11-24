@@ -10,15 +10,16 @@ under two spellings), so treat them as an upper bound.
 | class | units | bytes | why it stays open |
 |---|---|---|---|
 | ENTER frame | 589 | 85535 | `C8 xx xx 00` prologue - the original never uses ENTER; MSC 7 only emits it with /Gs plus a local, so these come from the older compiler |
-| unclassified | 922 | 50096 | no known blocker - these are the real candidates for new source shapes |
+| unclassified | 909 | 49227 | no known blocker - these are the real candidates for new source shapes |
 | add reg,reg doubling | 84 | 21170 | `add ax,ax`-style doubling for `x * 2` - MSC 7 uses `shl` |
 | split far-pointer load | 99 | 16124 | `mov es,[bp+xx]` loading only the segment half of a far pointer - blocked trait |
 | jump-merge boolean | 32 | 3219 | `jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns |
 | redundant or reg,ax | 20 | 1727 | `mov si,ax; or si,ax` - older codegen tests the just-moved value again |
 | ES absolute access | 20 | 1333 | `mov ax,es:[disp16]` - MSC 7 emits `les bx` + `es:[bx]` instead |
 | rep stosw memset | 16 | 1288 | word-fill inline `memset` - MSC 7 with /Oi emits `rep stosb` |
+| CX-staged value | 14 | 993 | a value is compared and then pushed: the original loads it into **CX** once (`8B 4E xx`) and reuses it (`cmp cx,..`, `or ch,..`, `push cx`), while MSC 7 compares from memory and pushes the slot again |
 | AH argument | 6 | 928 | `mov ah,imm` before a far call - an argument in AH, a DOS/EMS register convention the original used and MSC 7 cannot be told to produce |
-| operand order | 8 | 732 | `or ax,di` where MSC 7 canonicalises to loading the register operand first |
+| operand order | 7 | 608 | `or ax,di` where MSC 7 canonicalises to loading the register operand first |
 
 ## ENTER frame (589 units, 85535 bytes)
 
@@ -26,7 +27,7 @@ under two spellings), so treat them as an upper bound.
 
 Largest: `41ef:0004` (2087 B), `3fcf:0036` (1786 B), `45b3:00d0` (1747 B), `4c9c:008e` (1423 B), `4b7d:000a` (1186 B), `238f:000e` (918 B), `455a:0000` (834 B), `44a4:0124` (814 B), `4c61:0004` (806 B), `258d:0008` (785 B), `3cd1:000e` (739 B), `33f2:000c` (678 B)
 
-## unclassified (922 units, 50096 bytes)
+## unclassified (909 units, 49227 bytes)
 
 no known blocker - these are the real candidates for new source shapes
 
@@ -68,15 +69,21 @@ word-fill inline `memset` - MSC 7 with /Oi emits `rep stosb`
 
 Largest: `19bf:0000` (292 B), `1997:000e` (188 B), `40dc:0058` (110 B), `4f54:0004` (107 B), `11c3:000a` (72 B), `1131:000c` (72 B), `1f9a:0002` (68 B), `1fb1:0006` (62 B), `4f5d:000e` (54 B), `1115:000e` (46 B), `1113:0000` (46 B), `1110:0002` (46 B)
 
+## CX-staged value (14 units, 993 bytes)
+
+a value is compared and then pushed: the original loads it into **CX** once (`8B 4E xx`) and reuses it (`cmp cx,..`, `or ch,..`, `push cx`), while MSC 7 compares from memory and pushes the slot again
+
+Largest: `1057:0000` (163 B), `103f:000c` (163 B), `1c30:0006` (124 B), `3f0d:005a` (92 B), `1597:0008` (90 B), `377f:000a` (68 B), `375e:000c` (51 B), `2061:0008` (40 B), `1f7c:0008` (40 B), `1f72:0044` (40 B), `1f7f:0036` (33 B), `2216:002a` (32 B)
+
 ## AH argument (6 units, 928 bytes)
 
 `mov ah,imm` before a far call - an argument in AH, a DOS/EMS register convention the original used and MSC 7 cannot be told to produce
 
 Largest: `2baa:1208` (514 B), `1e3b:000a` (229 B), `4649:000e` (64 B), `4646:0004` (58 B), `4642:0004` (37 B), `4642:002a` (26 B)
 
-## operand order (8 units, 732 bytes)
+## operand order (7 units, 608 bytes)
 
 `or ax,di` where MSC 7 canonicalises to loading the register operand first
 
-Largest: `4497:0006` (208 B), `5132:0000` (148 B), `1c30:0006` (124 B), `1c07:0000` (92 B), `20f9:000c` (44 B), `1e17:000a` (40 B), `2b34:006a` (38 B), `159d:16c3` (38 B)
+Largest: `4497:0006` (208 B), `5132:0000` (148 B), `1c07:0000` (92 B), `20f9:000c` (44 B), `1e17:000a` (40 B), `2b34:006a` (38 B), `159d:16c3` (38 B)
 

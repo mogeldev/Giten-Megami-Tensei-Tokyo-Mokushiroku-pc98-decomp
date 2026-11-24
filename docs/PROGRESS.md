@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 28: an unprototyped call (41 B) and the CX-staging class
+`crelay38.c` (`/Os`): `1fc8:0074` (41 B) -
+`if (h(a, 0, 0) == -1L) h2(g_013a, 0x4F);`. The callee is **unprototyped**, and
+that is what makes MSC clean the arguments with `mov sp,bp` (`8B E5`) instead of
+`add sp,6`; the long comparison against -1 is `3D FFFF` / `3B D0`.
+
+**New blocker class found and added to `tools/classify.py`:** *CX-staged value*
+(14 units, 993 bytes). The original compiler loads a value into **CX** when it is
+both compared and then pushed (`8B 4E xx` once, then `cmp cx,..` / `or ch,..` /
+`push cx`); MSC 7 compares from memory and pushes the stack slot again. This is
+the same mechanism that blocked `1f72:0044`, `1f7c:0008` and `37a8:0008`.
+
+That also closed `2061:0008` down to a single demonstrated difference:
+declaring the parameter **unsigned** turns `7D` (`jge`) into the original's `73`
+(`jae`), leaving only the CX staging (`8B 4E 08` + `81 F9` + `80 CD 80` + `51`)
+between our output and the original.
+
+`docs/BLOCKED.md` regenerated: 11 classes, unclassified down from 922 to 909
+units (50 096 -> 49 227 bytes).
+
+Ledger 428 rows - MATCH 38, RELOCS 366, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage 8 546 B (2.915 %).
+
 ## Round 27: wildcard every fixup site (2 C rows, 1 ASM reclassification)
 `tools/probe.py` now builds each probe symbol's pattern by masking **every
 FIXUPP site** it finds in the object (2 or 4 bytes), not just the call-target

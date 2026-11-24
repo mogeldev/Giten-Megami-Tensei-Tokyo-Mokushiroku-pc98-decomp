@@ -39,6 +39,10 @@ TRAITS = [
      "`mov si,ax; or si,ax` - older codegen tests the just-moved value again"),
     ("rep stosw memset", lambda b: b"\xf3\xab" in b,
      "word-fill inline `memset` - MSC 7 with /Oi emits `rep stosb`"),
+    ("CX-staged value", lambda b: b"\x8b\x4e" in b and b"\x51" in b,
+     "a value is compared and then pushed: the original loads it into **CX** once "
+     "(`8B 4E xx`) and reuses it (`cmp cx,..`, `or ch,..`, `push cx`), while MSC 7 "
+     "compares from memory and pushes the slot again"),
     ("operand order", lambda b: b"\x0b\xc7" in b or b"\x0b\xc6" in b,
      "`or ax,di` where MSC 7 canonicalises to loading the register operand first"),
 ]

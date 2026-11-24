@@ -445,3 +445,4 @@ eturn psub(g_78c4); one push [disp16] then the translated call; image `90 0E E8`
 | 416f:006c | F_36E7 | 41 | RELOCS | src=src/calib/crelay25.c; flags="/G1 /AM /Gs /Os"; byte-identical to a verified sibling modulo call targets |
 | 3238:009c | _get_l | 8 | RELOCS | src=src/calib/cget3.c; flags="/G1 /AM /Gs /Os"; reuses a calibration probe shape (confirmed by match.py) |
 | 3e34:0044 | _init_234e | 7 | RELOCS | src=src/calib/cset3.c; flags="/G1 /AM /Gs /Os"; reuses a calibration probe shape (confirmed by match.py) |
+| 1fc8:0074 | F_1FC8 | 41 | RELOCS | src=src/calib/crelay38.c; flags="/G1 /AM /Gs /Os"; `if (h(a, 0, 0) == -1L) h2(g_013a, 0x4F);` - the callee is **unprototyped**, which is why the arguments are cleaned with `mov sp,bp` (`8B E5`) instead of `add sp,6`; the long compare against -1 is `3D FFFF`/`3B D0`; image `90 0E E8` = LINK /F translation of the object's `9A` |

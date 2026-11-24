@@ -163,6 +163,7 @@ def main():
         for src, flags, msc, nodpmi, name, pat, n, wild in lib:
             if n > len(nb):
                 continue
+            # a symbol may also be a prefix of the unit (trailing padding)
             ok = True
             for i in range(n):
                 if i not in wild and pat[i] != nb[i]:
