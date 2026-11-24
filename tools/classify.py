@@ -33,6 +33,15 @@ TRAITS = [
      "variable; MSC 7 only allocates SI and DI and treats BX as scratch, so any unit that "
      "preserves BX cannot be reproduced. Verified on 11a2:000c, where the whole body "
      "matches once the pointer is near and the callee fastcall"),
+    ("frame without frame use",
+     lambda b: b[:3] == b"\x55\x8b\xec" and not re.search(
+         rb"(?:\x8b|\x89|\x8a|\x88|\xc7|\xc6|\xff|\x83|\x81|\x3b|\x39|\x03|\x2b|\x0b|\x01"
+         rb"|\x29|\x21|\x31|\x09|\x11|\x19|\xf7|\xd1)[\x46\x4e\x56\x5e\x66\x6e\x76\x7e]",
+         b[3:]) and (b.endswith(b"\xc3") or b.endswith(b"\xcb")
+                     or (len(b) >= 4 and b[-3] in (0xca, 0xc2))),
+     "the unit opens with a frame and never references `[bp+nn]`, so the function has no "
+     "parameters and no locals: the original still emits `55 8B EC` while MSC omits the "
+     "frame entirely (verified on 1270:000e; /G0 and /Gd both keep it frameless)"),
     ("sub ax,ax zeroing", lambda b: b"\x2b\xc0" in b,
      "the original zeroes a register with `2B C0` (`sub ax,ax`); MSC 7 always emits `33 C0` "
      "(`xor ax,ax`), so a unit containing the older form cannot match. Verified on 3da5:000a, "

@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 126: wall 14 is now a classifier trait (no new rows)
+Round 125 identified "frames where MSC omits them" as a wall but left it detectable only
+by hand. This round added it to `tools/classify.py` as **frame without frame use**: a
+unit that opens `55 8B EC`, ends at a return and whose body contains no `[bp+nn]`
+reference (detected as a common opcode followed by a ModRM byte with `rm = 110` and
+`mod = 01`/`10`).
+
+The effect on the accounting:
+
+| | before | after |
+|---|---|---|
+| classes | 19 | **20** |
+| unclassified | 160 units / 9 511 B | **144 units / 9 511 B** |
+| frame without frame use | - | **36 units / 1 583 B** |
+
+The unclassified pool is now 144 units, and the count has been falling for the right
+reason each time: 160 was the count after the return-predicate fix, and every round
+since has either matched a unit or moved a group into a named class.
+
+`docs/BLOCKED.md` regenerated; `verify.py` and `checkled.py` still green.
+
+Ledger 483 rows (unchanged), PENDING 24; own-code coverage 10 600 B (3.615 %).
+
 ## Round 125: a fourteenth wall - frames where no frame is needed (no rows)
 Screened the smallest clean units (8-40 bytes, 23 candidates) and found a class that had
 been hiding as "frame mismatch":
