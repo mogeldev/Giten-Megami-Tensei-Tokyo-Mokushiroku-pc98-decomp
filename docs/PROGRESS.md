@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 182: the pending registry gains a flag sweep (tooling round)
+`tools/recheck.py` now takes `--sweep`: for every registered pending row it recompiles the
+source under the registered flags **and** the four common alternatives
+(`/G1 /Os`, `/G1 /Ox`, `/G1 /Ot`, `/G0 /Os`, `/G0 /Ox`), stopping at the first that matches.
+
+The first run covers six rows in thirty compiles and reports all six still differing - which
+is the expected result, and also the point: the negative answer that used to cost a round
+per unit now costs one command, so the set can be re-tested whenever a wall's understanding
+changes.
+
+Two useful properties of the design:
+
+- the sweep reports the flags that came *closest* even when nothing matches, so a row that
+  improves under a different flag is visible;
+- adding a row is one line in `tools/pending.txt`, so the registry grows as near-misses are
+  found rather than being re-derived.
+
+Ledger 506 rows (unchanged), PENDING 32; verify and checkled green; own-code
+coverage 11 214 B (3.825 %).
+
 ## Round 181: the PENDING rows become a testable registry (tooling round)
 Thirty-two ledger rows are PENDING: the C is believed correct and each misses by a byte or
 two. Until now each one was prose in a table, so re-testing them meant re-reading and

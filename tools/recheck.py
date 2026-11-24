@@ -35,14 +35,27 @@ def rows():
     return out
 
 
+SWEEP = ("/G1 /AM /Gs /Os", "/G1 /AM /Gs /Ox", "/G1 /AM /Gs /Ot",
+         "/G0 /AM /Gs /Os", "/G0 /AM /Gs /Ox")
+
+
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--sweep", action="store_true",
+                    help="also try the common flag sets, not just the registered one")
+    a = ap.parse_args()
     entries = rows()
+    if a.sweep:
+        entries = [(src, "|".join([flags] + [f for f in SWEEP if f != flags]), msc, va, sym, size)
+                   for src, flags, msc, va, sym, size in entries]
     objs = {}
     hits = 0
     for src, flags, msc, va, sym, size in entries:
         key = (src, flags, msc)
+        flags_list = flags.split("|")
         if key not in objs:
-            cmd = [PY, os.path.join(ROOT, "build.py"), src, "--flags", flags, "--force"]
+            cmd = [PY, os.path.join(ROOT, "build.py"), src, "--flags", flags_list[0], "--force"]
             if msc and msc != "-":
                 cmd += ["--msc-dir", msc]
             q = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
@@ -53,14 +66,24 @@ def main():
         if not obj:
             print(f"  {va}: source did not compile ({src})")
             continue
-        q = subprocess.run([PY, os.path.join(ROOT, "tools", "match.py"), va, sym,
-                            "--obj", obj, "--size", str(size)],
-                           cwd=ROOT, capture_output=True, text=True)
-        first = ((q.stdout or q.stderr).strip().splitlines() or ["?"])[0]
-        flag = "**" if ("MATCH" in first or "RELOCS" in first) else "  "
+        best = None
+        for fl in flags_list:
+            q = subprocess.run([PY, os.path.join(ROOT, "build.py"), src, "--flags", fl,
+                                "--force"], cwd=ROOT, capture_output=True, text=True)
+            q = subprocess.run([PY, os.path.join(ROOT, "tools", "match.py"), va, sym,
+                                "--obj", obj, "--size", str(size)],
+                               cwd=ROOT, capture_output=True, text=True)
+            first = ((q.stdout or q.stderr).strip().splitlines() or ["?"])[0]
+            if "MATCH" in first or "RELOCS" in first:
+                best = (fl, first)
+                break
+            best = best or (fl, first)
+        flag = "**" if ("MATCH" in best[1] or "RELOCS" in best[1]) else "  "
         if flag == "**":
             hits += 1
-        print(f"{flag} {first}")
+            print(f"{flag} {best[1]}   [{best[0]}]")
+        else:
+            print(f"{flag} {best[1]}")
     print(f"\n# {hits} of {len(entries)} pending rows now match")
 
 
