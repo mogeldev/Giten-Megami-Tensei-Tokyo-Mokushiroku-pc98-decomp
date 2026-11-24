@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 72: a bitfield writer decoded (no new rows)
+Back at the unblocked pool after the compiler thread. `437e:0032` (58 B) was
+decoded byte by byte and is a **bitfield writer into a 4-byte table**:
+
+    si = b;  h1(b);  di = h1();          ; result kept in DI
+    ax = h2();  ax = a - ax;  ax = -ax;  ; = a - h2()
+    si <<= 2;                            ; 4-byte entries
+    ax <<= 11;
+    cx = [si+0x866E];  ch &= 7;  ax |= cx;
+    [si+0x866E] = ax;                    ; word field
+    or byte [si+0x8671], 0x80            ; top bit set separately
+    return di;
+
+So the word at table+2 is written as `(old & 0x0700) | (value << 11)`, and then bit
+15 is set through a separate byte operation - the shape MSC produces for two or
+three bitfield assignments in a row. The exact field declaration order is not yet
+pinned down, and without it the `shl`/`and ch,7` combination cannot be reproduced;
+one more attempt with a `struct { short x; unsigned v:5; unsigned m:3; ... }`
+should settle it.
+
+Two probes and two sweeps came back empty (`reuse.py`, and `probe.py` over every
+calibration symbol), so the pool's easy seam is closed for now.
+
+Ledger 455 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 796 B (3.341 %).
+
 ## Round 71: the pre-MSC7 thread shelved, with a correction (no new rows)
 Per round 70's own plan, this round either finished the MSC 6.0 diagnosis or
 shelved it. It was shelved, and the round also **corrected round 70's conclusion**.
