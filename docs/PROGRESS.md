@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 186: the padding wall gains a sixth witness (no rows, PENDING record)
+Continued the adjacency filter with `4962:000c` (48 B), a table scan:
+
+    for (i = 0; g_f623[i] != -1; i++) { if (g_f623[i] == a) return 1; }
+    return 0;
+
+Under `/G1 /Os` the transcription matches for **46 of 48 bytes** and the difference is the
+now-familiar one: the original's loop entry is `EB 04 90` (a jump over a `90`) where MSC
+emits `EB 03`. That is the sixth witness for the late-peephole padding documented in round
+172, and the first one found in a *loop* rather than in a conditional's return paths - which
+broadens the mechanism from "duplicated epilogues" to "any block shortened after layout".
+
+Recorded as PENDING. Deliberately **not** registered in `tools/pending.txt`: the object's
+symbol is 46 bytes while the unit is 48, so a size-48 comparison reads two bytes into the
+next function and would report a false hit. That is a trap worth naming - `match.py --size`
+must never exceed the object symbol's length, and the one time it did here it produced a
+"match" that was really the following function's bytes.
+
+Ledger 509 rows - MATCH 38, RELOCS 436, ASM 2, **PENDING 33**; verify and checkled
+green; own-code coverage 11 260 B (3.840 %).
+
 ## Round 185: the adjacency filter pays twice (28 B)
 Worked further through the 80 units that begin where a verified row ends. `1ec0:0004`
 (28 B) took two attempts and the second one is instructive:

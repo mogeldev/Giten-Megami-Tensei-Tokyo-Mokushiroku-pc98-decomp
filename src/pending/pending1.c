@@ -28,3 +28,12 @@ void __fastcall P_20F6(unsigned x) { if (x & 1) q5(); if (x & 2) q5(); }
 extern char g_4642[];
 extern char g_76b4[];
 char __far __pascal P_2603(int n) { return g_4642[n & 7] | g_76b4[n / 8]; }
+
+/* 4962:000c - a table scan ending in the padded-jump shape (`EB 03 90`). */
+extern int g_f623[];
+int __far __pascal P_4962(int a)
+{
+    int i;
+    for (i = 0; g_f623[i] != -1; i++) { if (g_f623[i] == a) return 1; }
+    return 0;
+}
