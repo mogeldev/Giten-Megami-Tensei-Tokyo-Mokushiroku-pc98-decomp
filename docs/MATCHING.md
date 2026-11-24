@@ -424,3 +424,7 @@ eturn psub(g_78c4); one push [disp16] then the translated call; image `90 0E E8`
 | 33c1:0006 | F_33C1 | 48 | RELOCS | src=src/calib/crelay30.c; flags="/G1 /AM /Gs /Os"; `h4(h3(c2(c1(-1), a))); return h5(1);` - five calls in a long chain; `h4`'s result is discarded by making it a separate statement, and the wrapper returns `int` (a `long` return inserts `cwd`); image `90 0E E8` = LINK /F translation of the object's `9A` |
 | 33c4:0006 | F_33C1 | 48 | RELOCS | src=src/calib/crelay30.c; flags="/G1 /AM /Gs /Os"; sibling of 33c1:0006 with different call targets; image `90 0E E8` = LINK /F translation of the object's `9A` |
 | 48aa:0008 | F_48AA | 47 | RELOCS | src=src/calib/crelay30.c; flags="/G1 /AM /Gs /Os"; same guard as 48ad:0008 but the body calls twice (`fc0()` then `fc2(0, 1)`), which shifts the `75 21` skip; image `90 0E E8` = LINK /F translation of the object's `9A` |
+| 2e55:003c | F_2E55 | 23 | RELOCS | src=src/calib/crelay18.c; flags="/G1 /AM /Gs /Os"; byte-identical to a verified sibling modulo call targets |
+| 31d3:0004 | F_31CF_08 | 29 | RELOCS | src=src/calib/crelay21.c; flags="/G1 /AM /Gs /Os"; byte-identical to a verified sibling modulo call targets |
+| 31d3:0038 | F_31CF_08 | 29 | RELOCS | src=src/calib/crelay21.c; flags="/G1 /AM /Gs /Os"; byte-identical to a verified sibling modulo call targets |
+| 36e7:01bc | F_36E7 | 41 | RELOCS | src=src/calib/crelay25.c; flags="/G1 /AM /Gs /Os"; byte-identical to a verified sibling modulo call targets |

@@ -1,5 +1,34 @@
 # PROGRESS
 
+## Round 17: tools/reuse.py - and a lesson about segment aliases (4 rows, 122 B)
+New tool `tools/reuse.py`: every verified row is reduced to a **normalised byte
+pattern** (all direct call targets masked) keyed by length, and every unmatched
+unit is normalised the same way. An exact pattern match plus equal length makes
+the unit a *sibling* of that row; `match.py` then confirms it before anything is
+written. This automates the manual discovery of the round-13 `36e7` family.
+
+First run reported 38 "candidate siblings", but only four were real:
+
+- `2e55:003c` (23 B) - another `F_2E55` sibling;
+- `31d3:0004` and `31d3:0038` (29 B each) - more `F_31CF_08` siblings;
+- `36e7:01bc` (41 B) - a seventh member of the `36e7` family.
+
+**The other 34 were segment aliases**, not new functions: the inventory lists the
+same code under two spellings (`458e:8650` and `4df2:0010`, linear 0x4DF30), so a
+pattern match there re-finds an already verified row. `verify.py`'s linear-address
+duplicate check caught this, and the sweep is now hardened: candidates whose
+*linear* address is already claimed are skipped, after which it reports **zero**
+candidates. So the sibling vein is exhausted - the remaining unmatched units are
+genuinely different code.
+
+Process notes from the same pass: 13 of the swept rows were plain `MATCH` rather
+than `RELOCS` (no relocations in the window), so the status must come from
+`match.py`, never assumed; and four rows had to be dropped as alias duplicates
+before `verify.py` went green.
+
+Ledger 410 rows - MATCH 37, RELOCS 349, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 7 874 B (2.685 %).
+
 ## Round 16: a five-call long chain and a guarded double call (143 B)
 `crelay30.c` (`/Os`):
 
