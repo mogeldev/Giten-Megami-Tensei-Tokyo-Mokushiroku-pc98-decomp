@@ -614,3 +614,21 @@ Decoded far enough to say what they do, even where they are not yet transcribed:
 
 None is recorded as a row. The nibble family is the one worth another attempt: it is the only
 group where three rows sit behind a single source shape.
+
+### The nibble family: what is settled and what is not (round 236)
+
+Four source shapes were compiled for `3813:0000`. What the attempts establish:
+
+- the function has **one two-byte local** (`C8 02 00 00`) - `x`, held at `[bp-2]`;
+- it uses **DX/DL as scratch**, not the frame;
+- the operations are two `xor`s into `x`: one built from `((a >> 4) ^ a) & 0x0F` and one from
+  `(a & 0x0F) << 4`, with the second operand pair computed **before** the first `xor` - so the
+  source reads `x = a;` then two `^=` statements whose right-hand sides both use `a`.
+
+MSC gets the frame right when the source uses a single local, but then it loads the parameter
+into **CX** where the original loads **AX** (register naming again), and with two locals the
+frame doubles to four bytes and the shape diverges at the first instruction.
+
+Not recorded. The translation is close - two instructions of the whole function are wrong - but
+"close" is not this ledger's standard, and the family is worth another attempt with the
+scratch-register requirement in mind.

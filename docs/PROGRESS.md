@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 236: the nibble family narrowed to two instructions (no rows)
+Round 235 identified `3809:0000` / `380d:000c` / `3813:0000` as a family of nibble transforms
+worth three rows between them. This round compiled four source shapes against `3813:0000` and
+narrowed the gap considerably.
+
+Settled by the attempts:
+
+- the function has **one two-byte local** (`C8 02 00 00`), the value at `[bp-2]`;
+- it uses **DX/DL as scratch** - not the frame, which is why a two-local source doubles the
+  frame and diverges immediately;
+- the body is two `xor`s into that local, one built from `((a >> 4) ^ a) & 0x0F` and one from
+  `(a & 0x0F) << 4`, both reading the **original** argument - so the source is `x = a;`
+  followed by two `^=` statements.
+
+With a single-local source the frame is right, MSC loads the parameter into **CX** where the
+original uses **AX** - register naming again, wall 6/7 - and the function differs in two
+instructions out of about twenty.
+
+Not recorded: two instructions is not "one byte", and the ledger's standard is verify-proven.
+But the analysis is written into `docs/ENTER.md` so the next attempt starts from the settled
+parts rather than re-deriving them.
+
+Ledger 520 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 393 B (3.886 %).
+
 ## Round 235: the remaining clear units, decoded far enough to describe (no rows)
 Worked through `docs/ENTER.md`'s remaining clear units far enough to say what each one *is*,
 even where none of them transcribed cleanly, and wrote the descriptions into the document.
