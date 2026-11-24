@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 166: two rows in two rounds from the `char` prototype find (32 B)
+Round 165's discovery that a byte argument pushes unconverted only when the *callee*
+declares `char` reopened the "byte argument" class (23 units). The first one tried,
+`2127:000c` (32 B), matched:
+
+    void f(char a, int b) { if (h1(a, b)) h2(a); }
+
+It needed a second insight: the function is **`void`, not `int` returning 0**. The skip path
+falls into the epilogue without zeroing AX, so an `int` version adds a `33 C0` and the
+branch becomes `jz +0x0B` instead of `jz +0x09`. The zero the caller sees is the one left
+over from the `or ax,ax` test, so both behave identically - only the code differs. That is
+now a section in `docs/CONVENTIONS.md` ("look at the skip path").
+
+The size was also wrong on the first attempt (30 instead of 32, a prefix that happened to
+match) and `verify.py` caught it with "does not end at a return instruction" - the tool
+doing exactly what it was built for.
+
+Ledger **496 rows** - MATCH 38, RELOCS 428, ASM 2, PENDING 28; verify and checkled
+green; own-code coverage **11 031 B (3.762 %)**.
+
 ## Round 165: a row from where the `char` is declared (21 B)
 `2d49:0034` (21 B) is a three-argument call whose first argument is a global byte:
 

@@ -762,3 +762,14 @@ So when a unit pushes a byte loaded from memory without any widening, the callee
 prototype is the thing to fix, not the call site: declare the parameter `char` and the
 widening disappears. This is the mirror of the usual mistake (assuming the *argument*
 controls the conversion - it is the prototype that does).
+
+## `void` versus "returns 0": look at the skip path
+
+If the fall-through after a test goes straight into the epilogue **without zeroing AX**, the
+function is `void`. Writing `int f(...) { if (cond) return h(...); return 0; }` adds a
+`33 C0` that the image does not have, and the branch distance gives it away (`jz +0x0B`
+instead of `jz +0x09`).
+
+The zero the caller observes is the one left over from the `or ax,ax` test itself, so the
+behaviour is indistinguishable - only the code differs. Verified on `2127:000c`, where the
+`void` form matches and both `int` forms are two bytes long.
