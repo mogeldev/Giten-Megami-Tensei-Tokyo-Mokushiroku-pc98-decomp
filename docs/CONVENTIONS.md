@@ -792,3 +792,23 @@ the one after it - which is easy to get wrong when a function dispatches on its 
 For a call, the push order is the declaration order (`push a; push b; push c`), so in a pascal
 callee the first argument ends up at the highest offset - the two facts are consistent; the
 trap is only in reading.
+
+### `char` parameters, measured (round 217)
+
+Compiling pascal functions with `char` parameters and dumping the object:
+
+| declaration | first parameter's offset |
+|---|---|
+| `f(char a, int b)` | `a` at `[bp+08]` |
+| `f(int a, char b)` | `a` at `[bp+08]`, `b` at `[bp+06]` |
+| `f(char a, int b, int c, int d, int e, int f)` | `a` at **`[bp+10]`**, `b` at `[bp+0E]`, `c` at `[bp+0C]` |
+
+The last row is the useful one: a six-parameter pascal function with a leading `char` gets a
+frame starting at `+10` even though it pops only **twelve** bytes (`retf 0C`), i.e. MSC leaves
+an extra slot for the `char`. That is a compiler behaviour, not a source mistake - and it is
+why `2d60:000e` cannot be transcribed: the original's own six-parameter function reads its
+byte parameter at `[bp+0E]`, with no extra slot.
+
+A `char` parameter also always costs a `cbw` (`98`) after the byte load when it is stored into
+an `int`, which is the tell that distinguishes "this parameter is a `char`" from "the compiler
+narrowed an `int`".

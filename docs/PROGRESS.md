@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 217: the char-parameter slot, measured (no rows)
+Round 216 left `2d60:000e` one parameter offset out and unexplained. This round measured the
+cause by compiling pascal functions with `char` parameters and dumping them:
+
+- `f(char a, int b)` - `a` at `[bp+08]`;
+- `f(int a, char b)` - `a` at `[bp+08]`, `b` at `[bp+06]`;
+- `f(char a, int b, int c, int d, int e, int f)` - `a` at **`[bp+10]`**, `b` at `[bp+0E]`,
+  and the epilogue still `retf 0C`.
+
+So a six-parameter pascal function with a leading `char` gets an **extra slot**: seven words of
+frame for a twelve-byte pop. That is MSC's behaviour, not a mistake in my declaration, and it
+is precisely why the unit cannot be transcribed - the original's six-parameter function reads
+its byte parameter at `[bp+0E]` with no extra slot.
+
+Two facts now in `docs/CONVENTIONS.md`: the offset table for `char` parameters, and the `cbw`
+(`98`) that follows a byte load when a `char` is stored into an `int` - which distinguishes
+"this parameter is a `char`" from "the compiler narrowed an `int`".
+
+Ledger 517 rows (unchanged), PENDING 39; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 216: a six-argument pass-through, one offset out (no rows)
 `2d60:000e` (31 B) is the simplest possible shape - a function that forwards all six of its
 parameters to one call:
