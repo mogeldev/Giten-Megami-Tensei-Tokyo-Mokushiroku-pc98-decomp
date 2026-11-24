@@ -225,7 +225,7 @@ only **eight**, and those are the ones to work first - they are marked "clear" b
 | `1df5:0030` | 76 | open |
 | `202b:0038` | 76 | open |
 | `23e2:0006` | 76 | open |
-| `2a2b:0038` | 76 | open | clear |
+| `2a2b:0038` | 76 | MATCHED (round 3) | clear |
 | `3180:011e` | 76 | open |
 | `349a:018a` | 76 | open |
 | `3824:0000` | 76 | open |
