@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 35: a nested relay (34 B) and the `or reg,ax` peephole pinned down
+`crelay43.c` (`/Os`): `3a4a:0052` (34 B) - `h1(h1(h3(a, a, b)))`, three calls
+nested through AX with the first parameter in a register (pushed from SI twice).
+
+**The most frequent remaining one-byte blocker is now named and documented.**
+Four candidates this round were perfect except for a single byte, all with the
+same cause: when a call result is compared, the original writes
+`8B F0 0B F0` (`mov si,ax; or si,ax`) - it ORs the register with **AX** even
+though the value has just been moved out of AX - while MSC 7 emits `or si,si`.
+Recorded in `docs/CONVENTIONS.md` as the `or reg,ax` peephole, because it now
+accounts for `4690:0000`, `31cd:0006`, `2b9a:0000` and the `or ax,di` cases
+(`1f72:0044`, `1f7c:0008`).
+
+Other candidates probed and classified:
+
+- `218f:0004` / `2191:0008` (36 B) - the original puts the first parameter in
+  **DI** and the second in **SI** (MSC 7 does the opposite), the same register-role
+  reversal as `20f9:000c`; the source shape is recorded.
+- `1233:000e` (34 B) - an indirect far call through a global (`FF 1E`); with `/G0`
+  every instruction matches (`B8 FC 00 50` constant pushes, the `FF 1E` call) but
+  the original keeps a `55 8B EC` / `8B E5 5D` frame although the function has no
+  locals, which this compiler only emits when a frame is otherwise needed.
+- `41d8:000c` (30 B) - `03 F6` (`add si,si`): trait-1, ASM-only.
+
+Ledger 434 rows - MATCH 38, RELOCS 372, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage 8 726 B (2.976 %).
+
 ## Round 34: two small relays (62 B) from the candidate pool
 `crelay42.c` (`/Os`):
 

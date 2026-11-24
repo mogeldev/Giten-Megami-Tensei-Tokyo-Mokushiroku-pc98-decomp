@@ -279,3 +279,13 @@ write a slash-prefixed flag immediately before an asterisk in a comment:
 Write flags unadorned (`G0`) or outside emphasis. This looks identical to the
 known MSC 7 crash class, so check the comment first when a new source fails with
 "no OBJ produced" and no log.
+
+## The `or reg,ax` peephole
+
+When a call result is compared, the original compiler writes
+`8B F0 0B F0` (`mov si,ax; or si,ax`): it ORs the register with **AX** even
+though the value was just moved out of AX. MSC 7 emits `or si,si` instead. The
+two sequences are semantically identical and differ in one byte, so a unit that
+is otherwise perfect and shows `0B F0` / `0B C7` / `0B C6` is blocked by this
+peephole and nothing else. It is the most frequent remaining one- or two-byte
+blocker in the 30-40 byte band.
