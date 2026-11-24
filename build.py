@@ -31,6 +31,8 @@ def main():
     ap.add_argument("--msc-dir", default="MSC7I",
                     help="DOS directory of the toolchain on drive C: "
                          "(MSC7I = MS C 7.0, MSC6I = MS C 6.00ax)")
+    ap.add_argument("--run", help="DOS command to run instead of CL (diagnostics); "
+                                 "build.py then skips the object check")
     ap.add_argument("--cd", help="DOS directory to change into before running CL "
                                 "(MSC 6.0 loads c1.err/c23.err from the current directory)")
     ap.add_argument("--no-dpmi", action="store_true",
@@ -107,6 +109,8 @@ def main():
     except subprocess.TimeoutExpired:
         sys.exit(f"ERROR: run exceeded {TIMEOUT_S}s — dosbox-x killed")
 
+    if a.run:
+        return 0
     obj_path = os.path.join(BUILD_DIR, f"{base}.OBJ")
     if os.path.isfile(obj_path):
         with open(stamp_path, "w", encoding="ascii") as f:

@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 70: the DOS MSC 6.0 driver crashes the DOS session (no new rows)
+`build.py` grew a **`--run "<dos command>"`** diagnostic mode (it substitutes one
+DOS command for the CL line and skips the object check), which finally makes the
+DOS session scriptable through the same invocation that is known to work. With it:
+
+- `dir C:\MSC6DOS\BIN\CL.EXE > D:\BUILD\T.TXT` works: the mount sees the
+  extracted driver (`CL EXE 28.858`), so extraction, mount and redirection are all
+  fine. Manual conf files of my own, by contrast, never ran the autoexec at all -
+  `build.py`'s environment (APPDATA redirect, cwd, conf path) is required, which
+  is now proven rather than suspected.
+- `cd C:\MSC6DOS\BIN & CL.EXE > D:\BUILD\T2.TXT` produces **nothing**: no
+  banner, no error, and the redirect file is not even created. A command that
+  fails normally still creates its (empty) redirect target, so the DOS session is
+  being torn down mid-line - the driver is *crashing* DOSBox, not exiting.
+
+That is a much more specific symptom than "no object". Two plausible causes to
+test next: MSC 6.0's CL wants a particular memory configuration (the phase
+binaries are huge - C2.EXE is 354 KB - and CL may need all of conventional memory
+plus XMS), or the driver needs `TOOLS.INI`/`INIT` to locate its phase binaries.
+Running `C1.EXE` through `--run` directly will separate a driver crash from a
+phase crash.
+
+Ledger 455 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 796 B (3.341 %).
+
 ## Round 69: two harness fixes, MSC 6.0 CL still silent (no new rows)
 Chased the last blocker on the pre-MSC7 toolchain. Three findings, two of them
 lasting improvements:
