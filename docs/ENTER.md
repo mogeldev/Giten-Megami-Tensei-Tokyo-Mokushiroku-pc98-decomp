@@ -657,3 +657,7 @@ mapping.
 ### Round 1 of the new session: nine more shapes, no change
 
 Nine further spellings of `3813:0000` (plain, `volatile` local, union, byte pointer, scoped temporary; `/Od /Ox /Os`) never gave the original's `mov [bp-2],ax` then `mov dl,[bp-2]` start. MSC either drops the local (`55 8B EC`, no `C8`) or loads the parameter byte-wise. Same two walls (6, 19); family stays open.
+
+### Round 2: 47c8:000a (48 B, far, clears 11 words after +0x2c and counts the non-zero ones)
+
+Twelve spellings (array/pointer, `register`, do-while, spare local; `/Ox`, `/Os`). `/Ox` gives the right loop and `C8 02` with a spare local, but keeps the count in DI and the counter in CX; the original counts in CX and loops on DI, and emits `xor cx,cx` before the argument loads. `/Os` spills everything to the frame. Same register-naming wall (CX is MSC's scratch); not recorded.
