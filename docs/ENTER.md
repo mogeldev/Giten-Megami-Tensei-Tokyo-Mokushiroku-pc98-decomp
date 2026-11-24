@@ -688,3 +688,8 @@ No ledger change, so verify.py was not re-run this round.
 - `4978:000a` (44 B): `r = i = 0` stored through the frame (`xor ax,ax; mov [bp-2],ax; mov [bp-4],ax`) around a loop of 35 near calls `r |= G(i,p)`. MSC register-allocates r and i under `/Ox` (`xor dx,dx` ...) and uses `mov [bp-x],0` under `/Os`; neither gives the shared-zero store. Six spellings, no match.
 
 Open question worth one test: do any two frame-only misses (`4349:005c`, `42fe:000c`) share a *used-but-optimised-away* local that a different construct keeps alive?
+
+### Round 10: third frame-only miss, and a test of the dead-local idea
+
+- `4a03:000c` (48 B, far): counts leading entries of 32 far pointers at 0x9973 that are non-null and (when the argument is 0) point at a word >= 0x20. Four spellings give the body under `/Ox` with only the frame different (`C8 02` vs `55 8B EC`). Third unit of this kind with `4349:005c` and `42fe:000c`.
+- Test of round 9's question: on `4349:005c` a local that is *used* (`long t; t=1; t<<=1;`, a struct local, a char array) is simply optimised away; the object has **no frame at all** (no `55 8B EC`, `retf` direct). So under `/Ox` no source-level local survives when the function body does not need one; the original's `C8 02` frame is not explainable by a live variable. Three units / ~125 B behind it; no source route.
