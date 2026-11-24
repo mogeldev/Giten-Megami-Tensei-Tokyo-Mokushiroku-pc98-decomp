@@ -134,3 +134,19 @@ candidate pool:
 That is the pattern worth carrying forward: **a rule that closes an "open question" reopens
 every unit filed against it at once.** The remaining fourteen rounds are consolidation, with the
 ledger at 523 rows and the walls measured.
+
+## Final state (round 254)
+
+- **523 ledger rows**, all rebuilt from source by `tools/verify.py`; the latest full sweep
+  (round 253) is clean and `tools/checkled.py` reports no inconsistency.
+- **483 verified functions**, **11 645 of 293 211 own bytes (3.972 %)**.
+- **21 walls**, eight of them measured with unit counts, and a three-wall pattern behind the
+  worst of them (MSC reserves BX, CX and the segment registers for itself).
+- **38 PENDING rows**, 13 re-testable in one command, each with its cause named.
+- The repository publishes no game binary, no toolchain and nothing derived byte-for-byte from
+  the image.
+
+Where this leaves the project: the C for a large part of the remaining code is recoverable, and
+the bytes are not, for reasons that are now specific and written down rather than vague. Anyone
+continuing has `HANDOFF.md` for the loop, `ENTER.md` for the best-odds list, and this file for
+why the number is what it is.

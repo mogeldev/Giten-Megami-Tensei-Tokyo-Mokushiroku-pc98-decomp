@@ -1,5 +1,18 @@
 # PROGRESS
 
+## Round 254: the summary's final state (documentation round)
+Added a short "final state" section to `docs/SUMMARY.md`: the five numbers that matter (523
+rows, 483 verified functions, 3.972 % of own bytes, 21 walls with eight measured, 38 PENDING
+rows), the statement that the repository publishes no game binary or toolchain, and one
+sentence on where the project stands - the C for much of the remaining code is recoverable, the
+bytes are not, and the reasons are specific and written down.
+
+Two rounds remain. Both will be short: a final `verify.py` and nothing else, because the useful
+work at this point is confirming the record rather than extending it.
+
+Ledger 523 rows (unchanged), PENDING 38; verify and checkled green; own-code
+coverage 11 645 B (3.972 %).
+
 ## Round 253: a final state check, and a stale stub removed (maintenance round)
 Checked the repository as it would be found by a successor:
 
