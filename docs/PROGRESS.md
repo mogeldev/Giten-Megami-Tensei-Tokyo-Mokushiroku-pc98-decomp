@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 150: half-way point; two more units read exactly (no rows)
+Round 150 of 256. Two more small units decoded with the new tool:
+
+- **`37f8:0008`** (20 B) is `int __far *f(int *p, int v) { *p = v; return (int __far *)p; }`.
+  The store is a plain `mov [bx], ax`, but the return is `mov dx, ss` - the compiler
+  inlined `MK_FP`'s segment half, which MSC cannot express without inline assembly. Wall
+  11 ("inlined MK_FP"), but now with a witness that is *only* that: the whole function is
+  otherwise six instructions.
+- **`29e6:000c`** (22 B) is a fixed-point multiply, `c++; if (c == 0) return 0; return
+  (unsigned char)(((unsigned)h() * c) >> 8);` with the 8-bit `mul bl` and `mov al,ah`.
+  The original emits the **call before the increment**; MSC emits `inc` first, and
+  forcing a variable to hold the result gives it a frame the original does not have. That
+  is an evaluation-order difference (wall 9).
+
+Five of the last eight rounds have been row-less, and the reason is consistent: what
+remains is register allocation, evaluation order, and inlined segment arithmetic. Each of
+those is a compiler-internal decision, so the bottleneck is no longer *reading* the
+original but *searching* the space of equivalent C. That suggests the next tooling step
+should be a shape generator - compile a batch of template variants per unit and let
+`match.py` pick - rather than more manual transcription.
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 149: the new disassembler pays for itself twice (no rows)
 First round using the rewritten `tools/dis.py`, and it immediately produced two clean
 readings that hand-decoding had got wrong or half-right:
