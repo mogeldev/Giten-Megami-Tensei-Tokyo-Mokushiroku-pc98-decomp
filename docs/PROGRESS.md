@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 114: a long-result guard, and `MK_FP` as the wrong tool (43 B)
+`crelay74.c` (`/G1 /AM /Gs /Os`): `1fc8:0048` (43 B) -
+`if (h(a, 0x760E, 0x0871) == -1L) h2(0x48, g_0128);`.
+
+Two things had to be right:
+
+- the far-pointer constant is passed as **two plain int arguments**, not through
+  `MK_FP`. With `MK_FP(0x0871, 0x760E)` the pushes come out the wrong way round *and*
+  the callee gets an extra call to a helper - the unit grew to 49 bytes. As
+  `h(a, 0x760E, 0x0871)` the two `push imm16` land in the original's order;
+- the guard compares against `-1L`, which is what produces the `cmp ax,-1` /
+  `cmp dx,ax` pair (`3D FF FF` / `3B D0`) rather than a single word compare.
+
+Worth noting from the same round: `1fc8:0048` was invisible before round 110 because it
+ends `retf 2`.
+
+Ledger 480 rows - MATCH 38, RELOCS 416, ASM 2, PENDING 24; verify and checkled
+green; own-code coverage **10 476 B (3.573 %)**.
+
 ## Round 113: the register-assignment rule is not characterisable yet (no rows)
 Two more units from the 160-unit pool, both one trait short, and between them they
 **refute** the rule I wrote down last round:
