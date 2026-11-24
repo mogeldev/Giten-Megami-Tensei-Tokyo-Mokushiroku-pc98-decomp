@@ -669,3 +669,11 @@ Twelve spellings (array/pointer, `register`, do-while, spare local; `/Ox`, `/Os`
 - `3a24:0006` (26 B): `g(n)->v = 0` - the original keeps the offset in SI (HOWTO 4.9); MSC uses BX.
 - `3a5c:0004`, `1e9f:0004`, `35ec:0098`: contain `90 0E E8` / far-call relays; not tried this round.
 - Note: the *open* column of this table is stale for at least `4332:0048` (already a ledger row, crelay95.c); check MATCHING.md before starting a unit.
+
+### Round 6: screened list, and 4349:005c
+
+A byte screen (ENTER-framed, not already a ledger row, <= 80 B, no `90`, no far-call relay, no doubling, no `sub ax,ax`, no `B4`) leaves 64 units; the short ones are mostly `call 7cb8` + `mov si,ax` / `es:` field accessors (SI-holder wall, HOWTO 4.9) or `les` word extraction (see round 5).
+
+`4349:005c` (33 B, far): counts entries of the 64 four-byte records at 0x866E whose first word has `(w & 0x7ff) != 0x7ff`. The body matches byte for byte under `/Ox` (`xor dx,dx` / `mov bx,866e` / `and ah,7` / `cmp ax,7ff` ... `jb`), but the original has `C8 02` with a **never-used** local. MSC drops an unused local; making it used (`volatile`, address taken, read-back) inserts stores and moves BX. Nine spellings, no match; the remaining difference is only the frame (`C8 02 00 00` / `C9` vs none).
+
+No ledger change, so verify.py was not re-run this round.
