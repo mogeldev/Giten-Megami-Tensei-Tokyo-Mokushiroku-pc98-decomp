@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 125: a fourteenth wall - frames where no frame is needed (no rows)
+Screened the smallest clean units (8-40 bytes, 23 candidates) and found a class that had
+been hiding as "frame mismatch":
+
+**The original emits `55 8B EC` on every function**, including ones with no parameters
+and no locals. MSC omits the frame entirely when nothing needs it:
+
+    original   55 8B EC 90 0E E8 <h1> A0 <g> 0A C0 74 05 90 0E E8 <h2> 5D CB
+    MSC 7      9A <h1> 80 3E <g> 00 74 05 9A <h2> CB
+
+(`1270:000e`, 22 B - `h1(); if (g_4abf) h2();`). Neither `/G0` nor `/Gd` makes MSC
+emit the frame, and the same thing is visible on the 9-byte units `141f:0000`,
+`1420:000f` and `1466:0052` (`55 8B EC 8B E5 5D CA 0A 00` for an empty function).
+
+The class is **detectable without disassembly**: an unmatched unit whose body contains
+no `[bp+xx]` or `[bp-xx]` reference but which still opens `55 8B EC` and closes
+`5D CB`/`C9`. That makes it a good candidate for a `classify.py` trait in a later round.
+
+Also examined: `2141:00a6` (20 B) - `if (v > 0) v = -v; g_0f80 = v;` - blocked on the
+DX scratch-register choice again.
+
+`docs/WALLS.md` now lists this as wall 14.
+
+Ledger 483 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 600 B (3.615 %).
+
 ## Round 124: the reading rules written down (no new rows)
 One more pool unit examined (`25f0:0092`, 39 B) - a subtraction loop that keeps its
 counter in **BX** and its accumulator in DX, i.e. walls 7 and 8 together, with no frame

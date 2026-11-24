@@ -155,3 +155,15 @@ So there are at least two causes: non-merged epilogues (round 120, `13d5:000c`) 
 this late-shortening pad (`4998:000c`, `48eb:000c`). `1036:000c`'s pad sits after a jump
 before a `push`, matching neither description exactly - so the family is not fully
 explained yet.
+
+## 14. Frames on functions that need none
+
+The original emits `55 8B EC` on **every** function, including ones with no parameters
+and no locals (an empty five-parameter function is `55 8B EC 8B E5 5D CA 0A 00`). MSC
+omits the frame entirely when nothing needs it: `void f(void) { h1(); if (g) h2(); }`
+compiles to `9A ... 80 3E <g> 00 74 05 9A ... CB` with no `55 8B EC` at all, and neither
+`/G0` nor `/Gd` changes that.
+
+Detectable without disassembly: an unmatched unit whose body contains no `[bp+xx]` /
+`[bp-xx]` reference but which still opens `55 8B EC` and closes `5D CB`/`C9` belongs
+here. Example: `1270:000e` (22 B), `141f:0000` / `1420:000f` / `1466:0052` (9 B each).
