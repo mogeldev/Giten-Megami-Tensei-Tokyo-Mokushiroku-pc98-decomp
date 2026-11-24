@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 136: the `/Ox` win applied to the next CX-staged unit (no rows)
+Followed round 135 by transcribing `1e1e:002a` (27 B), the other CX-staged unit I had a
+candidate source for. Under `/Ox` it is now **two differences** from a row, and they are
+not register naming but *structure*:
+
+    original   cmp cx,0xFF ; ja skip ; mov ax,cx ; jmp end ; mov ax,cx ; call h ; ...
+    MSC 7      cmp x,0xFF  ; ja skip ; mov ax,x  ; jmp end ; ... call h ...
+
+i.e. the original returns the parameter on one path and calls `h` on the other
+(`if (x > 0xFF) return h(x); return x;` compiled as an if/else with a shared tail),
+while MSC keeps the early-return shape and reaches the common epilogue by falling
+through. So `/Ox` resolved the register question but the unit needs the other C shape -
+`if (x <= 0xFF) r = x; else r = h(x); return r;` - which is what the next round should
+try.
+
+Also recorded: the "CX-staged value" classifier trait is **too loose** - it matches far
+more than the 9 units the class reports, including multi-kilobyte data blobs, because
+`classify.py` assigns each unit to the first matching trait. Tightening it is a tooling
+task for a later round; the class ordering already keeps `BLOCKED.md`'s numbers sane,
+but the raw trait should not be used as a work list without a size bound.
+
+Ledger 487 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 135: `/Ox` also resolves the CX-staged wall (59 B)
 Round 134 bounded `/Ox` to "use it when only the register name differs". This round
 found a second family where it applies: the units classified as **CX-staged value**,
