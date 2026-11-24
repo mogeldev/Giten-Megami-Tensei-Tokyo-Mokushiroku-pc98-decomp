@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 88: a long-result relay (29 B)
+`crelay68.c` (`/Os`): `2193:000c` (29 B) - `h1(-1); h3(h2(a), a);`. Three things had
+to line up and each was one of the existing levers:
+
+- the parameter is `register`, so all three uses push SI (`56`) instead of the
+  frame slot;
+- the middle call returns a **long**, so its DX:AX is pushed as a pair into the
+  tail call (`52 50 56`);
+- the tail call is `__near` (`E8`), which the first transcription got wrong by
+  assuming a far call - the far form alone accounted for the last two differences.
+
+The unit's final byte is padding, so the row is 29 rather than the inventory's 30.
+
+The candidate came from round 87's widened screen (stores and loads allowed), which
+still has a handful of untried units left.
+
+Ledger 472 rows - MATCH 38, RELOCS 410, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **10 239 B (3.492 %)**.
+
 ## Round 87: a seventh wall named - register variables in BX (no new rows)
 Widened round 86's screen to allow stores and loads, which surfaced the `11ax` family.
 `11a2:000c` (30 B) is `*p = nc(*p, v);` and it is now **fully understood**:
