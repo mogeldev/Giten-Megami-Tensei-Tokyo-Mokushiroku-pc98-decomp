@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 207: thirteen PENDING rows in the registry (tooling round)
+Added four more hypotheses to `src/pending/pending1.c` and `tools/pending.txt`, bringing the
+machine-re-testable set to **13 of the 39 PENDING rows**:
+
+| row | what it waits for |
+|---|---|
+| `2e68:000c` | a branch distance across the pad byte |
+| `41d8:000c` | `add si,si` instead of `shl si,1` |
+| `1ab4:0028` | a DX-cached state word |
+| `3b5d:0006` | one pad byte after `push ds`/`push imm16` |
+
+All 13 compile from the single pending object and all 13 still differ, so the command that
+answers "has anything changed?" is now one line for a third of the set.
+
+Two of the four are worth noting for what they represent rather than what they test: they are
+*functions the inventory does not name* - the second halves of mis-cut windows, recorded at
+their true start addresses (`1ab4:0028`, `3b5d:0006`). Earlier in the project those would
+simply have been lost between the ledger's rows.
+
+Ledger 517 rows (unchanged), PENDING 39; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 206: the nop closed, and what that means for PENDING (no rows)
 Round 199 closed the doubling class by asking whether MSC ever emits `add reg,reg`. This
 round asked the same of the **pad byte**: does MSC ever put a `90` inside a function body?

@@ -56,3 +56,33 @@ void __far __pascal P_31DF(int v, int sel)
     case 1: q7(v); q8(v); break;
     }
 }
+
+/* 2e68:000c - a two-word signed comparison; one branch distance. */
+int __far __pascal P_2E68(long x, long y)
+{
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
+
+/* 41d8:000c - a far pointer subscript; the index is scaled with add instead of shl. */
+extern int __far * __far __pascal q9(int x);
+extern int g_2f5c;
+int __far __pascal P_41D8(int i) { int __far *p; p = q9(g_2f5c); return p[i]; }
+
+/* 1ab4:0028 - the second function of a mis-cut window; DX-cached state word. */
+extern int g_536e;
+extern long g_9950, g_9b18, g_9b10;
+extern void __far __pascal q10(int x);
+extern void __far __pascal q11(char __far *a, char __far *b, char __far *c);
+void __near __cdecl P_1AB4B(void)
+{
+    if (g_536e != 0 && g_536e != -1) q10(g_536e);
+    g_536e = 0;
+    q11((char __far *)&g_9950, (char __far *)&g_9b18, (char __far *)&g_9b10);
+}
+
+/* 3b5d:0006 - the second function of a split window; one pad byte after a far-pointer push. */
+extern int g_995d;
+extern void __far __pascal q12(char __far *p);
+void __near __cdecl P_3B5D(void) { if (!g_995d) q12((char __far *)0x1766); }
