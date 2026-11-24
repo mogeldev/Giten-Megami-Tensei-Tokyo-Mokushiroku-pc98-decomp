@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 19: two long call chains (113 B) with a shared rule
+`crelay32.c` (`/Os`):
+
+- `3e4f:008c` (54 B) - `fc0(); t = h1(1); h5(a, b, g_1bba); h3(t); return fc2(c, 0);`.
+  Two details decide it: the temporary is assigned *after* a discarded call
+  (assigning it to the first call puts `8B F0` in the wrong place), and the
+  three pushes `a`, `b`, `g_1bba` belong to **one** three-argument call, not to
+  two calls (splitting them breaks the match at +0x18).
+- `31f6:000c` (59 B) - eight calls in a row:
+  `fc3(h1b(a, a)); h2(a, 2); h1(a); h4(a, 3); fc0(); return fc3(0);`.
+
+**Rule confirmed for the third time:** the parameter must be `register`. With a
+plain parameter MSC emits `FF 76 06` (push memory) for every use; with
+`register int a` it emits `8B 76 06` once and `56` (push si) afterwards, which
+is exactly the original. The same rule produced `JSON`-style staging in rounds
+12, 13 and here - it is the single most reusable source-level lever found so
+far for this band.
+
+Ledger 415 rows - MATCH 38, RELOCS 353, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 8 009 B (2.731 %).
+
 ## Round 18: the smallest units (3 rows, 22 B) and two source rules
 Walking the remainder of the sub-30-byte pool for units that actually end at a
 return turned up three that are worth keeping:
