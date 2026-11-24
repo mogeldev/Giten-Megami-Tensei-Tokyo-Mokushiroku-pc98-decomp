@@ -204,6 +204,11 @@ def main():
     sym = next((s for s in (a.symbol, "_" + a.symbol, "@" + a.symbol)
                 if s in pubdefs), None)
     if sym is None:
+        # round 111: __pascal and __cdecl mangle differently (F_xxx vs _f), and a
+        # case-only difference has cost several rounds a retry - fall back to it
+        low = a.symbol.lower()
+        sym = next((s for s in pubdefs if s.lower() in (low, "_" + low, "@" + low)), None)
+    if sym is None:
         sys.exit(f"ERROR: symbol '{a.symbol}' not in object "
                  f"(present: {', '.join(sorted(pubdefs))})")
     seg, off = pubdefs[sym]

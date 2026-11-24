@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 111: a lost row recovered, and the symbol lookup made forgiving (32 B)
+Worked round 110's corrected list of 160 complete unclassified units and immediately
+found `49de:000e` (32 B) - `he(hd(a, b, c, d), 0);`. It had been **verified in round 86
+and never written into the ledger**: that round produced three matches, two were added,
+and the third was dropped between the match output and the ledger edit. Re-matching
+reproduced it byte for byte, so it is now row 478.
+
+Two process fixes came out of it:
+
+- `tools/match.py` now falls back to a case-insensitive symbol lookup. The mangling
+  difference between `__pascal` (`F_xxx` / `F`) and `__cdecl` (`_f`) has cost a retry in
+  three separate rounds (`F_103B` vs `_f`, `4dca` and `49de` as `f` vs `F`); the tool
+  now just finds it, and the error message already listed the available symbols when it
+  did not;
+- the lesson about round 86 is worth keeping: a round that produces several matches must
+  have every one of them entered, not the ones that fit in the remaining time. The
+  verification gate cannot catch a row that was never written down - only a re-scan of
+  the pool can, which is exactly what the completeness filter did here.
+
+That is also the first concrete payoff from round 110's bug fix: the corrected predicate
+surfaced a unit that had been invisible to every earlier screen.
+
+Ledger 478 rows - MATCH 38, RELOCS 414, ASM 2, PENDING 24; verify and checkled
+green; own-code coverage **10 393 B (3.545 %)**.
+
 ## Round 110: my ad-hoc scans had a bug - the unclassified pool is 160 units, not 11
 Working round 109's cut-window list, `41e7:000a` refused to classify. The cause was in
 the *scan scripts I have been writing all along*, not in the tools: their
