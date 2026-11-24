@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 44: a fastcall chain and an init unit (120 B)
+`crelay51.c` (`/Os`), two rows:
+
+- `3e15:0000` (66 B) - `f1(1); f2(a); f3(b); f4(c); if (d >= 0 && a == 1) f5(d, -1, -1);`
+  with four **`__fastcall`** relays (argument in AX, no push: `B8 01 00`, `8B C6`,
+  `8B 46 0A`, `8B 46 08`) and the first parameter `register` so it reloads from SI.
+- `1ec4:00ae` (54 B) - `if (g_466e) h1(); g_466a = v; h2(); h3(0x0871, 0x6614); g_466e = 1;`
+  (the leading function of an 81-byte unit).
+
+Both needed one correction each, and both corrections are the same lesson:
+- the stored value is **1**, not 0x100 - reading the immediate from the *hex
+  dump* (`C7 06 6E 46 01 00`) as 0x0100 instead of little-endian is a classic slip;
+- the row size must come from the object symbol: 54, not the 45 or 55 I counted
+  by hand (fourth time this has bitten; `verify.py` caught it every time).
+
+Ledger 446 rows - MATCH 38, RELOCS 384, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 251 B (3.155 %)**.
+
 ## Round 43: the biggest single row in twenty rounds (77 B)
 `crelay50.c` (`/Os`): `3ba3:0006` (77 B) -
 `r = h4(a, b, c, d); h4b(g_17d2, c, 1); if (r) { h1(1); h2(); h4c(h3(g_98e4)); } return c;`.
