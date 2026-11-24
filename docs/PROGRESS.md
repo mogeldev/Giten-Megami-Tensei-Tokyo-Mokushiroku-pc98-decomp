@@ -1,5 +1,38 @@
 # PROGRESS
 
+## Round 119: the walls consolidated into one document (no new rows)
+Two row-less rounds in a row, both ending in "the instruction order is the only gap", so
+this round wrote the analysis down instead of repeating it: **`docs/WALLS.md`** now
+collects every blocker as a numbered wall, each with a verified example unit and, where
+known, the byte pattern that identifies it:
+
+1. frame/instruction coupling (`ENTER` vs classic, only half-solved by `/G0`);
+2. **nop padding** after short jumps and block ends - the largest remaining family;
+3. immediate pushes (`6A`/`68` selection);
+4. register-parameter assignment (four contradictory data points);
+5. assignment persistence (values kept in a register across statements);
+6. register reuse;
+7. scratch-register naming (AX vs CX/DX);
+8. BX as a register variable;
+9. scheduling (hoisted constants, interleaved load/store);
+10. argument evaluation order;
+11. split far-pointer loads and the inlined `MK_FP`;
+12. byte-argument promotion and byte selection;
+13. three peephole differences (CX caching, constant folding, `or reg,ax`).
+
+The document ends with what would unblock the most: the padding rule first, because it
+blocks whole families and is the reason several otherwise-perfect transcriptions miss by
+exactly one byte; and a working pre-MSC6 compiler second, because walls 1, 3, 4, 6, 7, 8
+and 9 are all "how the older compiler allocated and ordered things" and one such build
+would settle several at once.
+
+That is the useful form for this stage: a reader - or a future session with a different
+compiler - can now see the whole blocker set in one page instead of reconstructing it
+from a hundred round entries.
+
+Ledger 481 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 535 B (3.593 %).
+
 ## Round 118: both sweeps empty, one more unit down to scheduling (no rows)
 Ran `tools/reuse.py` and `tools/probe.py` again now that twelve sources have been added
 since the last sweep: **both report zero**. The sibling and pattern seams are exhausted
