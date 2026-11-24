@@ -1,5 +1,42 @@
 # PROGRESS
 
+## Round 24: tools/classify.py - a map of what is left (0 new rows)
+Three transcription attempts all landed on generation-specific codegen, so the
+round produced `tools/classify.py` and `docs/BLOCKED.md` instead: every
+unmatched whole function is sorted by the code-generation idiom that blocks it.
+That turns "probe this unit and see" into "this unit is in class X, skip it"
+and stops the next rounds from re-deriving the same dead ends.
+
+The map (upper bound - segment aliases inflate the counts):
+
+| class | units | bytes |
+|---|---|---|
+| `ENTER` frame | 589 | 85 535 |
+| unclassified (real candidates) | 922 | 50 096 |
+| `add reg,reg` doubling | 84 | 21 170 |
+| split far-pointer load | 99 | 16 124 |
+| jump-merge boolean | 32 | 3 219 |
+| redundant `or reg,ax` | 20 | 1 727 |
+| ES absolute access | 20 | 1 333 |
+| `rep stosw` memset | 16 | 1 288 |
+| AH argument | 6 | 928 |
+| operand order | 8 | 732 |
+
+The three near-misses from this round, each now filed under its class:
+
+- `2b9a:0000` (46 B) - a polling loop, correct to two bytes: the original has
+  `8B F0 0B F0` (`mov si,ax; or si,ax`) where MSC 7 emits `or si,si`
+  ("redundant or reg,ax"). Source shape settled:
+  `void f(int a) { register int t, d; d = a; do { t = fc0(); if (t >= 0) d = t; t = fc1(fc2(d, d)); } while (t == 0); }`
+- `3141:0002` (47 B) - the double far dereference
+  `*(struct V __far * __far *)MK_FP(g_61b4, 0x8E2)` compiles to `8E 06` +
+  `26 C4 1E` in the original but MSC 7 calls the `MK_FP` helper instead.
+- `437e:0032` (58 B) - `C1 E0 0B` / `C1 E6 02` bit assembler; not yet decoded
+  far enough to write a source.
+
+Ledger 420 rows - MATCH 38, RELOCS 358, ASM 1, PENDING 23 (unchanged); verify and
+checkled green; own-code coverage 8 312 B (2.835 %).
+
 ## Round 23: tools/probe.py - the probe library is exhausted (0 new rows)
 New tool `tools/probe.py` generalises `tools/reuse.py` from "unit the same length
 as a verified row" to "unit the same length as **any calibration probe symbol**":

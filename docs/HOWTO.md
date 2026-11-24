@@ -30,6 +30,9 @@ python tools/verify.py        # rebuilds every src=/flags= group, re-matches eve
 python tools/checkled.py      # bookkeeping: statuses, duplicates, missing/orphan sources
 python tools/coverage.py      # the honest byte metric
 python tools/report.py        # regenerates docs/STATUS.md
+python tools/classify.py      # regenerates docs/BLOCKED.md (why each unit stays open)
+python tools/reuse.py         # re-match verified rows against unmatched siblings
+python tools/probe.py         # sweep all calibration probes over unmatched units
 ```
 
 `verify.py` exits 0 only if every row still matches. It refuses rows that end
