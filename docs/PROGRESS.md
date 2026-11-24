@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 197: the push-order rule tested against the whole pool (no rows)
+Round 196's rule says a unit whose prologue is `56 57` (SI saved before DI) can still match,
+while `57 56` cannot. That is directly testable: **seven** unmatched units have the
+`55 8B EC 56 57` prologue, and this round read all seven.
+
+All seven carry a different wall, none of them the push order:
+
+| unit | what blocks it |
+|---|---|
+| `1118:000c`, `111b:000a` (18 B) | `les di,[bp+06]` - a far pointer loaded in one instruction |
+| `1119:000e` (18 B) | sets `cx`/`di` and calls without arguments (a `rep stosw` helper) |
+| `194e:0004` (26 B), `194b:000f` (37 B) | `mov ax,cs` / `mov ds,ax` - segment registers as values |
+| `1265:0004` (43 B) | `repne scasb` inline string search |
+| `10b9:0007` (59 B) | far call through a stored vector, plus segment work |
+
+So the push-order rule did not unlock anything, which is itself the answer: the units that
+have `56 57` are blocked earlier, and the units blocked *only* by push order do not exist in
+the pool. The rule is still worth keeping - it prevents mis-diagnosing a future candidate -
+but it is a rule about a corner this binary does not occupy.
+
+That is the fourth "rule confirmed, no units behind it" result in ten rounds, and it is
+consistent with the summary's conclusion: the remaining pool is blocked at the level of
+whole idioms (segments, string instructions, far pointers), not at fine register details.
+
+Ledger 512 rows (unchanged), PENDING 36; verify and checkled green; own-code
+coverage 11 260 B (3.840 %).
+
 ## Round 196: the prologue push order (no rows)
 `31cd:0006` (34 B) is a counted loop:
 
