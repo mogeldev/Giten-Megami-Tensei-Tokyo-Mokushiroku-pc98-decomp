@@ -787,3 +787,7 @@ Also read, not tried: `43b0:0200`/`43d2:000a` (`es:` byte flag clears - decoder 
 
 - `43b0:0200` and `43d2:000a` (42 B each, byte-identical code copies, near `ret 8`): `g1 = 0; g2 = 0; x[0x186] &= 0x80; x[0x185] |= 0x80; y[0x185] |= 0x80;` through two far pointers (the `26 80 A7 ..` / `26 80 8F ..` bytes are `and/or es:[bx+disp16],imm8`; dis.py prints `?` for them). Parameter order `(y, x)`. The body is right under `/Ox`, but MSC keeps the first pointer's offset in SI (`push si; mov si,[bp+4]`) and uses `and [si+..]`/`or [si+..]` where the original keeps both pointers in BX, reloading it with `les bx` between the two (`8E 46 0A` ... `C4 5E 04`) and shares `xor ax,ax` for both global stores. Four spellings; BX-wall variant (BX never a C variable).
 - `4b61:0062` (50 B): `g_t->e[i]->a * g_t->e[i]->b`: contains `mov ax,bx; add ax,bx` (`03 C3`) twice - doubling wall; three spellings, no byte match.
+
+### Round 26: 2d7d:0042 matched
+
+Two adjacent one-bit fields of a far global written from one parameter. `g.c = 1 - v; g.b = v;` with `unsigned v` reproduces the original's `mov al,0xFF / sub al,bl / shl al,6` complement staging; `!v`, `~v` and `v ^ 1` do not. Lesson: for a bit-field written from the *complement* of a parameter, `1 - v` is the spelling MSC compiles to `sub` from an immediate in AL. Worth trying on other bit-field writes in the unmatched pool (`3809:0000` family does not use it).
