@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 40: two DGROUP pointers relayed and one returned (28 B)
+`crelay47.c` (`/Os`): `2183:0008` (28 B) - `h3(x, g_10d8, g_6cf6); return g_6cf6;`
+in a near-Pascal function. Both object pointers are pushed as `1E 68 <disp>`
+pairs, and the returned pointer is built with `B8 <disp>` plus `8C DA` (offset in
+AX, data segment in DX) - the far-pointer return convention.
+
+Three further candidates probed and classified this round:
+
+- `29e9:000a` (28 B) - a list walk keeping the node in ES:BX (`26 C4 1F`,
+  `26 0B 57 02`): the far-pointer-in-registers class.
+- `3a3d:0006` (28 B) - the pointer parameter lands in **DI** (single register
+  parameter), i.e. the reversed register-parameter assignment.
+- `4b6a:0056` (28 B) - a table walk through a global far pointer loaded with
+  `C4 1E <disp>`; the addressing is reproducible but the index scaling and
+  operand order are the older optimiser's.
+
+Sweeps after the row landed: `reuse.py` and `classify.py` report nothing new.
+
+Ledger 441 rows - MATCH 38, RELOCS 379, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **8 996 B (3.068 %)**.
+
 ## Round 39: a far-pointer base in ES:BX (46 B) and the DX/BX allocation class
 `crelay46.c` (`/Os`): `37fc:000e` (46 B) - `h1(nc2(nc(n, n)->f4)); h2(n); h3(n);`
 in a near-Pascal function. The far pointer returned by the first call is used
