@@ -1,5 +1,33 @@
 # PROGRESS
 
+## Round 232: a MATCH, from a screen nobody had run (42 B)
+Screened for **`ENTER`-framed units** - functions that start with `C8` - which had never been
+searched directly. There are only eight that survive the wall filter, and the second of them
+matched outright:
+
+    long r;
+    r = 1;
+    while (n > 0) { r <<= 1; n--; }
+    return r;
+
+This is the first **MATCH** (not RELOCS) since round 175: the object and the image agree byte
+for byte with **no relocation masking at all**, in 42 bytes, under `/G1 /AM /Gs /Ox`.
+
+Two things made it possible and both are worth keeping:
+
+- a `long` shift is a `D1`/`D16` pair in **both** compilers, so the doubling wall - which is
+  about `add reg,reg` - does not apply here;
+- it has none of the other walls: no pad byte, no register-cached parameter, no BX, no `les`,
+  no segment work. It is, in the terms the project has accumulated, a *clean* function.
+
+The `ENTER` screen is a small but real pool (eight candidates) and this is the first one
+worked. It exists because MSC under `/G1` emits `C8` for functions with locals - the same
+choice the original made - so those units deserve priority over the `55 8B EC` pool where the
+frame wall sits.
+
+Ledger **520 rows** - **MATCH 39**, RELOCS 438, ASM 2, PENDING 41; verify and checkled
+green; own-code coverage **11 393 B (3.886 %)**.
+
 ## Round 231: a publication audit (compliance round)
 Audited what the repository actually publishes, since the objective forbids shipping game
 binaries, toolchains, credentials or local-only analysis files.
