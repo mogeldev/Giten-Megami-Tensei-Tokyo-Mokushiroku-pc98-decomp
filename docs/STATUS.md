@@ -10,7 +10,7 @@
 | MATCH | 38 |
 | RELOCS | **423** |
 | ASM (excluded from C coverage) | 2 |
-| PENDING | **24** |
+| PENDING | **25** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -38,6 +38,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `3811:0004` **UPD_FP (dup 3/3)** (28 B) — byte-identical to 3807:0004, same split-load cause
 - `1036:000c` **LONG_IFELSE** (52 B) — `long r, u
 - `200d:0006` **FAR_PTR_STORE** (42 B) — `register char *p
+- `3cd1:02f2` **RANGE_CHECK** (56 B) — `h((int __far *)&a, (int __far *)&b)
 
 ## Coverage (honest byte metric)
 
@@ -49,7 +50,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
 | of which **verified** | **10869 (3.707%)** |
-| PENDING bytes | 935 |
+| PENDING bytes | 991 |
 
 Code functions: **2523**, of which verified **461**.
 
@@ -59,7 +60,7 @@ Code functions: **2523**, of which verified **461**.
 |---|---|---|---|---|---|---|---|
 | 0x0000 | 619 | 50 | 65131 | 1298 (2.0%) | 897 | 360 | 211 |
 | 0x0001 | 525 | 88 | 65757 | 2027 (3.1%) | 0 | 569 | 190 |
-| 0x0002 | 763 | 186 | 65522 | 4096 (6.3%) | 0 | 0 | 191 |
+| 0x0002 | 763 | 186 | 65522 | 4096 (6.3%) | 0 | 0 | 247 |
 | 0x0003 | 561 | 127 | 64435 | 2878 (4.5%) | 0 | 0 | 343 |
 | 0x0004 | 55 | 10 | 33329 | 570 (1.7%) | 66 | 11282 | 0 |
 

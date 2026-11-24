@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 145: full sweep, and the state of the pool written down (no rows)
+Ran `tools/verify.py` without `--fast`: **488/488 rows ok** (MATCH 38, RELOCS 423,
+ASM 2, PENDING 25), `checkled.py` consistent. Third full sweep of the project.
+
+Also tried `register` on the dispatched value of `2a7e:0000` (round 144's unit) in case
+that put it in SI as the original does; it does not - MSC picks another register under
+`/Ox` and emits nothing extra under `/Os`.
+
+The shape of the remaining work, stated plainly:
+
+- **488 ledger rows, 10 869 B of own code verified (3.707 %)**. Every row is rebuilt from
+  source and byte-compared on demand, and all of them pass;
+- the 144-unit unclassified pool has three clean units below 100 bytes and nothing above;
+- **every unit transcribed in rounds 137-145 differed only in register allocation**, and
+  that family does not respond to `/G0`, `/G1`, `/Os`, `/Ox`, `/Od`, or MSC 6.0;
+- the only lever that produced rows in that stretch is `/Ox`'s effect on register
+  *reuse* (`50ff:000e`, `218f:0004`/`2191:0008`, `1f45:00b0`), which has now been applied
+  to every unit where it plausibly applies.
+
+So the C coverage is at the limit of what this compiler can express for this binary. The
+remaining routes are a toolchain this machine cannot obtain (a pre-6.0 Microsoft C), a
+linker-level explanation for the one-byte padding (three witnesses, no mechanism), or
+ASM-assisted rows that document the functions without claiming C coverage.
+
+Ledger 488 rows; verify (full) and checkled green; own-code coverage 10 869 B (3.707 %).
+
 ## Round 144: a three-way dispatch transcribed, blocked on the register save (no rows)
 `2a7e:0000` (67 B) - one of the larger units in the CX-scratch cluster - decodes cleanly
 to a three-way dispatch:
