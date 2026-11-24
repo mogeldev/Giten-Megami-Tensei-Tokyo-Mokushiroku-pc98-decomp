@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 185: the adjacency filter pays twice (28 B)
+Worked further through the 80 units that begin where a verified row ends. `1ec0:0004`
+(28 B) took two attempts and the second one is instructive:
+
+    struct S s;
+    s.x = 0;
+    h(&s, &s, 0x33);
+    return s.x;
+
+Without the `return`, the epilogue goes straight to `leave`; the original reloads the field
+into AX first (`8B 46 F2`), which is the only difference in the whole 28 bytes. So a unit
+whose epilogue starts with a load from the frame instead of `leave` is telling you the
+function **returns** something it stored - and the frame size (`enter 0x0E, 0`) gave the
+struct's size away as 14 bytes.
+
+Two of the last two rounds have produced a row from the same adjacency filter, which makes it
+the best remaining source of candidates: the functions adjacent to matched ones were written
+by the same hand, in the same module, and often with the same idioms - the struct-passed-by-
+far-pointer idiom here is exactly the kind of thing that repeats within a module.
+
+Ledger **508 rows** - MATCH 38, RELOCS 436, ASM 2, PENDING 32; verify and checkled
+green; own-code coverage **11 260 B (3.840 %)**.
+
 ## Round 184: a new search heuristic pays immediately (18 B)
 Screened for units that **begin exactly where a verified row ends** - the next function in
 the same translation unit - which is a tighter version of the "segments with matches"
