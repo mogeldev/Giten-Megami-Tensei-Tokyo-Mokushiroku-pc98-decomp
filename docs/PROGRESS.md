@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 184: a new search heuristic pays immediately (18 B)
+Screened for units that **begin exactly where a verified row ends** - the next function in
+the same translation unit - which is a tighter version of the "segments with matches"
+heuristic: 80 such units exist, the first of them was transcribed and it matched.
+
+`4e75:000a` (18 B):
+
+    h1();
+    h3();
+    h2(-1);
+
+The one subtlety was the epilogue: the function is `__far __pascal` with no parameters, so
+it ends in a bare `retf` (`CB`) rather than cdecl's `ret` (`C3`). That single byte was the
+only difference on the first attempt, and it is now a recorded tell - a `CB` epilogue with no
+`pop` in front means the function is far, whatever the calls look like.
+
+The "begins where a verified row ends" filter is worth keeping: it is the strongest form of
+the "same module, same style" idea, because the two functions were adjacent in the original
+source file, and there are 80 candidates against the 49 the looser filter produced.
+
+Ledger **507 rows** - MATCH 38, RELOCS 435, ASM 2, PENDING 32; verify and checkled
+green; own-code coverage **11 232 B (3.831 %)**.
+
 ## Round 183: a fragment proved to be one, and a clean probe (no rows)
 Tried `2daa:000a` (17 B) as a `__fastcall` long XOR - `g_1be8 ^= v; h();` - and the
 transcription came within **one byte**: everything matches except that the original ends
