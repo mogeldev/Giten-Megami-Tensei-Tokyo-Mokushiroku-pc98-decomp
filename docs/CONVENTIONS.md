@@ -652,3 +652,20 @@ So on any unit whose frame is just `55 8B EC` plus a register save, assume **zer
 locals and restructure until nothing needs storing. The same applies to a parameter that
 is modified and used again (`a -= 0x119; ... while (a > 0) ...`), which the original
 keeps in a scratch register rather than writing back to the frame slot.
+
+## `/Ox` resolves register reuse and allocation - try it before declaring a unit blocked
+
+Round 133 found that `/Ox` (rather than `/Os`) matches units that `/Os` misses on
+register grounds, in two different ways:
+
+- `50ff:000e` (138 B): under `/Os` MSC takes a fresh CX for the second pointer of a
+  call's argument list; under `/Ox` it **reuses AX**, as the original does (the value is
+  already pushed and `push ss` does not clobber AX);
+- `218f:0004` / `2191:0008` (36 B each): under `/Os` MSC assigns the two register
+  parameters to SI/DI in the opposite order to the original; under `/Ox` the allocation
+  matches exactly.
+
+So the "register assignment" wall recorded in rounds 93/112/113/116 is at least partly a
+*flag* artefact, not a compiler-generation difference. Compile a unit whose only
+difference is a register name under `/Ox` (`/G1` for the frame and 80186 encodings,
+`/G0` when it has locals) before concluding anything about the allocator.

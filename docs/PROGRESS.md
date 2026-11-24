@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 133: `/Ox` is a lever - three rows, 210 B (largest single round since round 96)
+Round 132 left `50ff:000e` two bytes from a row, differing only in which register MSC
+used for a `lea`. Trying the other optimiser settings on that unit produced the answer
+and then a second, larger finding:
+
+- **`50ff:000e` (138 B)** - the largest row in the project. `/Ox` makes MSC reuse AX for
+  the second pointer of `h2`'s argument list, exactly as the original does; `/Os` takes
+  a fresh CX. Together with the `int __far *` cast on the parameter addresses (which is
+  what produces `lea`/`push ss`) and the `h4(b, c) == 1` guard, the whole 138 bytes match.
+- **`218f:0004` (36 B)** and its byte-identical sibling **`2191:0008`** - the pair that
+  round 116 used as the fourth counter-example to every register-assignment rule. Under
+  `/Ox` the allocation matches; under `/Os` it is swapped.
+
+So the "register assignment" wall - four contradictory data points, recorded as
+un-explained - is at least partly a **flag artefact**. `docs/CONVENTIONS.md` now says to
+compile a register-only difference under `/Ox` before concluding anything about the
+allocator, and `docs/WALLS.md`'s walls 6 and 7 should be re-examined the same way in
+the next rounds.
+
+Ledger 486 rows - MATCH 38, RELOCS 422, ASM 2, PENDING 24; verify and checkled
+green; own-code coverage **10 810 B (3.687 %)**.
+
 ## Round 132: the 138-byte state machine is 136 bytes right (no rows, PENDING record)
 Round 131 left `50ff:000e` decoded but with an unresolved question about the `h5` call
 sites. The answer turned out to be simple: the three `h5` calls pass their arguments in
