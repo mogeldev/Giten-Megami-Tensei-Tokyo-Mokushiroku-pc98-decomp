@@ -30,7 +30,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `2aa3:0048` **ZERO_Z** (38 B) — Zeroes six words of a far struct in the order +6, +0, +8, +2, +0xA, +4. Original loads the pointer as `8B 5E 06` + `8E 46 08` and keeps AX=0 throughou
 - `29ed:0004` **PUT_BE** (35 B) — Writes a big-endian word then a zero byte, returns p+2. The original stores the high byte straight from AH (`26 88 27`) after `8B 46 08 / 03 46 06`, a
 - `11d8:000c` **SET4** (41 B) — `struct S4 *__far f(int a,int b,int c,int d)` storing three words plus `d & 0x7FFF` into a 4-int near struct and returning `(struct S4 __far *)&g_s4`.
-- `1e38:0002` **RECORD_CFG** (56 B) — Saves `g_40ba` in DX, stores two arguments, records a code (`(c == -1) ? 7 : c` when `c != 0`), sets a flag and returns the saved word. With /Ox /Oa /
+- `1e38:0002` **RECORD_CFG** (56 B) — `int f(int a, int b, int c)` - `old = g_40ba
 - `465d:0000` **UPD** (60 B) — `if (s) { if (x != -1) s->t->x = x
 - `4e11:007e` **WEIGHT2** (40 B) — `return 2*(5*(abs(a)+1) + abs(b)) + c
 - `3807:0004` **UPD_FP (dup 1/3)** (28 B) — `*p = HELP(*p)` through a far pointer built from a seg/off pair. Original loads it split: `8B 76 04` + `8E 46 06` + `26 FF 34`

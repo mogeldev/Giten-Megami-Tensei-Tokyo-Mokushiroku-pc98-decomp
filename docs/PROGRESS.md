@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 106: a PENDING note corrected - the blocker is a spill, not scheduling
+Re-examined `1e38:0002` (56 B, RECORD_CFG), which the ledger described as "scheduling
+difference only - the original loads the global before the parameter". Transcribing it
+in full shows that note was incomplete:
+
+    int f(int a, int b, int c) {
+        int old;
+        old = g_40ba;  g_40b8 = a;  g_40ba = b;
+        if (c) { if (c == -1) g_40bc = 7; else g_40bc = c; }
+        g_40be = 1;
+        return old;
+    }
+
+The original keeps `old` in **DX** from the first instruction to the last and has **no
+frame at all** - `55 8B EC` then straight into the body. MSC 7 builds an ENTER frame
+under `/G1` and a `83 EC 02` frame under `/G0`, because `old` is a local it will not
+keep in a scratch register across ten statements. So the two-load ordering is a symptom;
+the cause is assignment persistence, the same family as `122f:000c` (where the original
+stores `r` *earlier* than MSC). The ledger note is corrected.
+
+That also means the earlier claim that `/Ox /Oa /Os` matched "every instruction except
+the order of the first two" cannot have been measured against this body as written.
+
+Ledger 476 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 327 B (3.522 %).
+
 ## Round 105: `/G0` on the system-info routine - down to scratch-register choice (no rows)
 `1486:0002` (89 B) is a system-info routine: it calls one function with a far pointer to
 a DGROUP object (0x9740) and to a stack local, derives a value from the local, and ORs
