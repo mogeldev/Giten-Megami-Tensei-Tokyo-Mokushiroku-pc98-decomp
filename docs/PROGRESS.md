@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 176: the six-byte zero resists, and why (no rows)
+Followed round 175's note on `2b2e:0000` (29 B), which zeroes six bytes through a far
+pointer returned by a call:
+
+    p = h(1, 6);
+    ... 2B C0 (sub ax,ax) then three 26 89 47 xx stores ...
+
+Three source shapes were compiled - a three-`int` struct zeroed as a whole, the three fields
+assigned individually, and a chained assignment - and all of them make MSC emit
+**immediate stores** (`26 C7 47 xx 00 00`) instead of zeroing a register once and storing it
+three times. The original's register-store form needs a single zeroed *value* to store
+three times, and no expression form MSC accepts produces that; a zeroed
+struct-assignment would go through a copy routine.
+
+Also looked at `1fff:0002` (33 B) and `324b:0008` (40 B): the first sets `es` from a global
+and clears a word through it, which needs a segment register (`es` is never a C value);
+the second is a 32-bit clamped subtract whose comparison is exactly the long-comparison
+idiom, but it needs `2B C0` **and** `2B C9` together and is a good next candidate for the
+long-zeroing rule found in round 175.
+
+Ledger 504 rows (unchanged), PENDING 30; verify and checkled green; own-code
+coverage 11 214 B (3.825 %).
+
 ## Round 175: round 174's narrowed wall pays a row immediately (15 B)
 Round 174 found that MSC emits `2B C0` (`sub ax,ax`) when the zero being stored is
 **wider than AX**. That prediction was tested on the first small unit containing `2B C0`,
