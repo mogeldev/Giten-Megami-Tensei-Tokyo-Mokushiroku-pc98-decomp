@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 153: four more sweep runs, and the linker question closed by construction (no rows)
+`tools/regsweep.py` was run against two more units with known candidate sources:
+
+| unit | template | variants x flag sets | result |
+|---|---|---|---|
+| `3874:000a` (38 B) | `h2(h1(c, b, a))` | 64 x 2 | no match |
+| `4ab2:000c` (32 B) | `r = h1(a); if (r != -1) h2(r); return r;` with a `register int r` | 4 x 2 | no match |
+| `4ab2:000c` | the same with a plain `int r` under `/G0` | 4 x 2 | no match |
+
+Then the objective's "alternative linker" thread was closed. `toolchain` has three
+`LINK.EXE` binaries, but `msc6b` and `msc7i` are **byte-identical** (LINK 5.1x), and the
+only other one is the old `msc51` linker. More importantly a different linker *cannot*
+change a row: `verify.py` compares the compiler's **object** against the image with
+relocations masked, and the linker's only visible contribution - the
+`/FARCALLTRANSLATION` rewrite of a far call into `90 0E E8` - is already modelled by
+`match.py` as an equivalent form.
+
+So that avenue is closed by construction, and `docs/GAP.md` now says so, next to the
+compiler findings.
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 152: the `|` operand order settled (no rows)
 Continued the sweep work on `2603:463c`, the close PENDING row. Five source shapes were
 compiled under `/Ox` and compared byte for byte:

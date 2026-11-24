@@ -213,3 +213,21 @@ That closes the "try another compiler" avenue for the walls that matter: MSC 5.1
 the only older Microsoft C available here, and its extraction cannot yet be made to run
 (round 92). Unpacking DISK8 is therefore only worth doing if a DOS *5.x* toolchain turns
 up on it - it does not.
+
+### Linkers: three exist, and none of them can change a ledger row
+
+`toolchain` carries three `LINK.EXE` binaries: `msc51` (65 539 B, an old
+pre-5.0-generation linker) and `msc6b` / `msc7i`, which are **byte-identical** (199 552 B,
+LINK 5.1x). So MSC 6.0 and MSC 7.0 share one linker, and the only genuinely different
+linker available is the old one.
+
+That does not matter for matching, and the reason is worth stating: `tools/verify.py`
+compares the **object** produced by the compiler against the image window with relocations
+masked. The linker's only visible contribution is the `/FARCALLTRANSLATION` rewrite of a
+5-byte far call into `90 0E E8` (nop / push cs / near call), which `match.py` already
+models as an equivalent form. No layout, padding or alignment decision of the linker can
+change whether a row matches - except by moving the bytes, which the relocation masking
+already tolerates.
+
+So the "try another linker" avenue is closed by construction rather than by experiment,
+which is worth recording so it is not re-opened.
