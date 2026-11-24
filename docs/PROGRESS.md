@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 32: inner functions of large units (1 row, 12 B)
+Large inventory "units" usually contain **several functions**: a 248-byte unit can
+be one 65-byte function followed by further code. `tools/probe.py` now enumerates
+every window inside an unmatched unit that starts at 0 or at a return and ends at
+a later return, and sweeps those windows against the probe library too. That
+found `3670:00e2` (12 B, the `cfarl2.c` relay symbol) buried inside a larger unit.
+
+The first attempt at this shape was also instructive, even though it did not
+land: `2d08:007a`'s leading function matched byte for byte over its first 40
+bytes, but the full 65-byte function differs at one instruction - the original
+zeroes AX with `2B C0` (`sub ax,ax`) where MSC 7 emits `33 C0`. So that unit is
+pre-MSC6 in exactly one instruction and the row was dropped rather than resized
+(verify's window check caught both mistakes: the truncated size and the
+regression).
+
+Ledger 430 rows - MATCH 38, RELOCS 368, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage 8 600 B (2.933 %).
+
 ## Round 31: `_based` ruled out, map sharpened again (0 new rows)
 The round targeted the biggest new class from round 30, "ES from global"
 (`8E 06 <disp>` plus ES-relative access, the original's inline

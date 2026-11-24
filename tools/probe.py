@@ -177,6 +177,49 @@ def main():
         if len(hits) >= a.limit:
             break
 
+    # Second pass: a large "unit" often contains several functions. Take every
+    # prefix of an unmatched unit that ends at a return and try it too.
+    def ret_ends(b):
+        ends = []
+        for i in range(len(b)):
+            if b[i] in (0xC3, 0xCB):
+                ends.append(i + 1)
+            elif b[i] in (0xCA, 0xC2) and i + 2 < len(b):
+                ends.append(i + 3)
+        return sorted(set(ends))
+
+    lib_by_len = {}
+    for entry in lib:
+        lib_by_len.setdefault(entry[6], []).append(entry)
+    for lin, (va, size) in sorted(units.items(), key=lambda kv: -kv[1][1]):
+        if lin in seen:
+            continue
+        b = IMG[lin - 0x10000: lin - 0x10000 + size]
+        if len(b) < 12:
+            continue
+        ends = ret_ends(b)
+        starts = [0] + ends
+        for start in starts:
+            for end in ends:
+                if end - start < 12 or end <= start or end == len(b):
+                    continue
+                nb = b[start:end]
+                for src, flags, msc, nodpmi, name, pat, n, wild in lib_by_len.get(end - start, []):
+                    ok = True
+                    for i in range(n):
+                        if i not in wild and pat[i] != nb[i]:
+                            ok = False
+                            break
+                    if ok:
+                        off = va.split(":")[0] + ":" + "%04x" % (int(va.split(":")[1], 16) + start)
+                        hits.append((off, end - start, name, src, flags, msc, nodpmi))
+                        seen.add(lin)
+                        break
+                if lin in seen:
+                    break
+            if lin in seen:
+                break
+
     print(f"# {len(hits)} pattern hits (confirming with match.py)")
     good = []
     for va, size, name, src, flags, msc, nodpmi in hits:
