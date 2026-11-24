@@ -595,3 +595,22 @@ only **eight**, and those are the ones to work first - they are marked "clear" b
 Groups worth noticing in the open ones: three consecutive units (`3809:0000`,
 `380d:000c`, `3813:0000`) look like nibble/bit-swap routines over the same two locals -
 likely one small family; `2a2b:0038` and `4332:0048` are long-arithmetic loops.
+
+## What the remaining clear units are (round 235)
+
+Decoded far enough to say what they do, even where they are not yet transcribed:
+
+- **`3809:0000`, `380d:000c`, `3813:0000`** - a family of **nibble transforms** on a two-byte
+  value. Each takes the parameter into a two-byte local, then mixes the two bytes' nibbles with
+  `and 0x0F` / `shr 4` / `shl 4` / `xor` and stores the result back. `3813:0000` is the clearest
+  (`and dx,0x0F`; `shr cx,4`; `xor cl,al`; `shl dx,4`; `xor al,dl`; `and ax,0xF000`), which
+  reads like a small scrambling or checksum routine over a 16-bit value. Three members means a
+  transcription that works would pay three rows.
+- **`2a2b:0038`** (76 B) and **`4332:0048`** (78 B) are long-arithmetic loops: the first does
+  two subtractions of a `long` delta and a signed comparison against a threshold before
+  storing, the second walks a table at `0x866E` in four-byte steps.
+- **`3b29:0006`** (38 B) is an exchange (`old = g; g = v; return old;`) - blocked by the BX
+  save, wall 20.
+
+None is recorded as a row. The nibble family is the one worth another attempt: it is the only
+group where three rows sit behind a single source shape.

@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 235: the remaining clear units, decoded far enough to describe (no rows)
+Worked through `docs/ENTER.md`'s remaining clear units far enough to say what each one *is*,
+even where none of them transcribed cleanly, and wrote the descriptions into the document.
+
+The useful finding is a **family of three**: `3809:0000`, `380d:000c` and `3813:0000` are
+nibble transforms on a two-byte value - each loads the parameter into a two-byte local and
+mixes the two bytes' nibbles with `and 0x0F`, `shr 4`, `shl 4` and `xor`. `3813:0000` reads
+clearest (`and dx,0x0F`; `shr cx,4`; `xor cl,al`; `shl dx,4`; `xor al,dl`; `and ax,0xF000`) and
+looks like a scrambling or checksum step over a 16-bit value.
+
+That matters because a source shape that reproduces one of them would pay **three rows**, and
+it is the only place in the current pool where that is true.
+
+The other two clear units are long-arithmetic loops (`2a2b:0038` subtracts a `long` delta twice
+and compares against a threshold; `4332:0048` walks a table at `0x866E` in four-byte steps) and
+`3b29:0006` is an exchange blocked by the BX save.
+
+No row, but the ENTER document now says what its own list contains - which is what a priority
+list should do.
+
+Ledger 520 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 393 B (3.886 %).
+
 ## Round 234: the word-count loop, and why it cannot be written (no rows)
 Worked the second of `docs/ENTER.md`'s clear units, `47c8:000a` (48 B): a loop that counts and
 clears nonzero words in a twelve-word array at offset `0x2C` of a far struct.
