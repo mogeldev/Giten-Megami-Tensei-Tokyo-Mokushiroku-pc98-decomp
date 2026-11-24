@@ -776,3 +776,9 @@ Screen with 'no forward `EB`' on top of the linear screen leaves 13 units, 12 al
 - `4e9b:0008` (24 B, far `retf 4`): `g = v; return v;` on a long with the result in DX:AX built from BX and AX (`mov dx,ax; mov ax,bx`). MSC loads `bx` the same but stores via `mov [g],bx` and returns via `mov dx,bx` - register naming (wall 6). Six spellings.
 
 Remaining of the 13: `2141:00a6` (pad), `4d98:000a` (narrowing), `10b7:0006`, `3b29:0006` (BX), `3809:0000`/`3813:0000`/`36e7:0000` (wall 6), `118f:000a` (32-bit multiply helper, `mul`), `2a28:0000`/`2a29:000c` (PENDING), `2b3e:0002` (doubling).
+
+### Round 24: 4739:002a (58 B) - the pointer-returning twin of 473f:0004
+
+Same table (sixteen 0x21F-byte records at es/ds=0x43A3), but returns `&g_s[i]` (`imul ax,di,0x21f; add ax,0; mov dx,0x43a3`) or `0:0` (`xor ax,ax; cwd`). Under `pack(1)` the unit matches to byte 0x22 under `/Ox`; the first miss is `EB 0E` vs `EB 12` - MSC puts a `90` between the two exits that the original does not have, and the original's last exit is the 3-byte `33 C0 99` reached by `EB 03`. Four spellings for this one plus five (`goto`, `break`, `while`, `?:`) on `473f:0004`: none changes the exit layout. Third and fourth unit of the 'shared exit' class (`50b1:0008`, `2a2b:0008`, `473f:0004`, `4739:002a`, `37a8:0008`, `37ab:0002`: six units, ~290 B).
+
+Also read, not tried: `43b0:0200`/`43d2:000a` (`es:` byte flag clears - decoder shows `?`, bytes are `26 80 A7 ..` = `and es:[bx+disp],imm`), `4b61:0062` (two `es:` table loads + `imul`), `2d7d:0042` (bit-field insert via xor/and into an `es:` global), `3b2f:000e`.
