@@ -812,3 +812,18 @@ byte parameter at `[bp+0E]`, with no extra slot.
 A `char` parameter also always costs a `cbw` (`98`) after the byte load when it is stored into
 an `int`, which is the tell that distinguishes "this parameter is a `char`" from "the compiler
 narrowed an `int`".
+
+## Signedness is readable from the condition code (round 220)
+
+`2121:000a` compares a byte parameter against `0x10` and jumps with `73` (**`jae`**), not `7D`
+(`jge`). That single byte says the parameter is **`unsigned char`**: compiled as `char` MSC
+emits `jge`, compiled as `unsigned char` it emits `jae`, and nothing else about the function
+changes.
+
+So when a comparison's branch mnemonic is one of the unsigned family (`73 jae`, `76 jbe`,
+`77 ja`, `72 jb`), the compared value is unsigned - and getting that right removes one
+difference without any further experiment. The same applies in reverse: a `7C/7E/7F/7D` in a
+unit whose parameter "looks" unsigned means it is declared signed.
+
+This also corrects a reading hazard: `FF 87` is `inc word [bx+disp]`, *not* `call far` (that
+is `FF 9F`). Misreading it once turned a table increment into a table dispatch.

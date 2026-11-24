@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 220: two decode lessons and a PENDING row (no rows)
+Screened for units clear of every wall measured so far - 15 candidates - and transcribed two.
+
+`50b1:0008` (33 B) is a three-way comparison (`== -1`, `< 0`, else `1`) and is blocked at the
+first instruction: the original loads the first parameter into **BX**, MSC into AX.
+
+`2121:000a` (24 B) produced two lessons and a PENDING row. I first read its `FF 87 B6 6C` as
+a far call and wrote a dispatch; it is **`inc word [bx+0x6CB6]`** (a far call is `FF 9F`), so
+the function is a guarded table increment:
+
+    if (a < 16) g_6cb6[a]++;
+
+Then the branch mnemonic settled the parameter type: the original uses `73` (**`jae`**), and
+compiling the same source with `char` gives `7D` (`jge`) while `unsigned char` gives `jae`.
+With that fixed the function matches except for `03 DB` versus `D1 E3` - the doubling wall,
+which round 199 proved unreachable. Recorded as PENDING with the diagnosis.
+
+Both lessons are now in `docs/CONVENTIONS.md`: **signedness is readable from the condition
+code**, and `FF 87` is an increment, not a call.
+
+Ledger 518 rows - MATCH 38, RELOCS 438, ASM 2, **PENDING 40**; verify and checkled
+green; own-code coverage 11 351 B (3.871 %).
+
 ## Round 219: wall 17 measured (no rows)
 Tried `1f7f:0036` (33 B) - a guard, a call, and a `long` decrement:
 
