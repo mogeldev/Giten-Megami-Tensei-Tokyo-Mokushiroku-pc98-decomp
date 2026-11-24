@@ -472,3 +472,15 @@ Practical consequence: a function whose source needs a *pointer or index kept
 across a call* cannot be reproduced with MSC 7, even when every instruction is
 understood. `437e:0032` is fully decoded (a bitfield writer: `(old & 0x0700) |
 (value << 11)`, then bit 15 via a byte OR) and still out of reach for this reason.
+
+## Struct members are packed in the original: use `/Zp1`
+
+`4e72:000a` reads a word at `es:[bx+7]` from a far struct, i.e. the member follows
+seven `char`s with **no alignment padding**. MSC 7's default puts that member at
++8 (`/Zp2`-style alignment), and adding `/Zp1` to the flags moves it to +7 and
+removes the whole difference. So when a unit's field offsets land on odd addresses,
+compile it with `/Zp1` before assuming the structure is wrong.
+
+(The same unit still differs afterwards in two swapped instructions - the original
+emits `8B D8` / `8E C2` (`bx = ax`, then `es = dx`) where MSC emits the segment load
+first - so packing alone is not always enough.)

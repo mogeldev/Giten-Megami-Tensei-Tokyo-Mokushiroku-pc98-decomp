@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 74: struct packing is a flag, not a source shape (no new rows)
+Five tiny candidates (20-26 B) were transcribed in one batch. None matched, but one
+of them produced a **new compiler-flag finding**:
+
+`4e72:000a` reads a word at `es:[bx+7]` - a far-struct member right after seven
+`char`s, with no padding. MSC 7's default aligns that member to +8; adding
+**`/Zp1`** moves it to +7 and removes the offset difference entirely. Recorded in
+`docs/CONVENTIONS.md`: when a unit's field offsets land on odd addresses, try `/Zp1`
+before doubting the structure.
+
+The other four, and what stopped them:
+
+- `4e72:000a` and `3556:000e` - after packing, each differs only in two swapped
+  instructions: the original emits `8B D8` / `8E C2` (`bx = ax`, then `es = dx`)
+  where MSC emits the segment load first.
+- `4e9b:0008` (24 B, `long f(long v) { g = v; return v; }`) - the original loads the
+  low word into **BX** and the high into AX, then rebuilds DX:AX before returning
+  (`8B D0` / `8B C3`); MSC loads them straight into AX/DX and returns for free. A
+  worse register choice by the older compiler, and not reachable from source.
+- `32da:000c` (24 B, `h2(h1(a))`) - block reason not yet isolated (it compiled
+  cleanly in the batch, so the match output was cut off by the size error on the
+  neighbouring symbol).
+
+Ledger 455 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 796 B (3.341 %).
+
 ## Round 73: the bitfield layout pinned, and the real blocker named (no new rows)
 Round 72's open question is answered. `437e:0032`'s table entry is a 4-byte struct
 whose second word is a bitfield group laid out **8 / 3 / 4 / 1** from the low bit:
