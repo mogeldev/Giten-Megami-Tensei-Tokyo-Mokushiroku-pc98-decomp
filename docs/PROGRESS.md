@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 63: the nop-padding class generalised - 4.5 KB reclassified (no new rows)
+Chased `3b9b:000a` (124 B), a nested guard in the `g_17d2` family
+(`if (h4(a,b,c,d)) { if (h0()) { if (h2(2,0x39)) { h3(a,b,1); h4b(g_190c,-1); } else { h5(1); h6(0x20); } } else h7(a,b,1); } h8(g_17d2,c,1); return c;`).
+It matched in every instruction except a single `90`: the original pads the
+`jmp` that reaches the shared tail (`EB 0E 90`), MSC 7 does not (`EB 0D`), and
+the padding shifts every earlier branch distance by one.
+
+That is the **fifth** fully-analysed instance of the padding class
+(`4998:000c`, `3b88:000e`, `31e3:0064`, `3cd1:02f2`, `3b9b:000a`), which was
+enough evidence to generalise the `classify.py` trait from the narrow
+`EB 02 90` / `EB 03 90` forms to any `EB <n> 90`. The effect on the map:
+
+| | before | now |
+|---|---|---|
+| unclassified | 233 units / 15 801 B | **186 units / 11 319 B** |
+| nop-padded branch | (narrow forms) | 147 units / 23 745 B |
+
+The trait is explicitly documented as a heuristic in `BLOCKED.md` and in
+`CONVENTIONS.md`, with the five verified instances named, because the pattern
+alone cannot distinguish padding from a coincidental byte pair - but five
+independent full analyses of 30-124 byte functions is strong support.
+
+Ledger 455 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 796 B (3.341 %).
+
 ## Round 62: the pointer-exchange family matches modulo a scratch register (no new rows)
 Two more members of the family found in rounds 60-61, both now down to **two bytes**:
 

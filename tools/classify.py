@@ -27,10 +27,12 @@ TRAITS = [
      "the original inlines a 32-bit `x << 8` as `mov ah,al` / `sub al,al` (and the high "
      "word with `mov dh,dl` / `mov dl,ah`); MSC 7 calls the shift helper for the same "
      "expression (`9A __aFulshl`), so any unit doing long shifts is unreachable"),
-    ("nop-padded branch", lambda b: b"\xeb\x03\x90" in b or b"\xeb\x02\x90" in b
+    ("nop-padded branch", lambda b: re.search(rb"\xeb[\x00-\x7f]\x90", b) is not None
                                        or b"\x74\x03\x90" in b or b"\x75\x03\x90" in b,
-     "the original pads a short jump with a `90` before the next block (`EB 03 90 33 C0`); "
-     "MSC 7 emits the jump without padding, so every following branch distance differs by one"),
+     "the original pads a short jump with a `90` before the next block (`EB 03 90 33 C0`, "
+     "`EB 0E 90`); MSC 7 emits the jump without padding, so every following branch distance "
+     "differs by one. Verified by full analysis on 4998:000c, 3b88:000e, 31e3:0064, 3cd1:02f2 "
+     "and 3b9b:000a; the pattern itself is a heuristic (185 units match it)"),
     ("jump-merge boolean", lambda b: b"\xeb\x03\xb8\x01\x00" in b or b"\xeb\x02\x33\xc0" in b
                                  or b"\x33\xc0\xeb" in b or b"\x99\xeb" in b,
      "`jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns"),
