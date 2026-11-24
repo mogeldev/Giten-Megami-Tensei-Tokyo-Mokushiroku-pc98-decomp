@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 124: the reading rules written down (no new rows)
+One more pool unit examined (`25f0:0092`, 39 B) - a subtraction loop that keeps its
+counter in **BX** and its accumulator in DX, i.e. walls 7 and 8 together, with no frame
+at all. Not transcribable, but it confirmed the pattern.
+
+So this round recorded the two *reading* lessons that the last three rounds taught, in
+`docs/CONVENTIONS.md`:
+
+- **"No frame means no locals."** Two units were first transcribed with a temporary for
+  a call result; that makes MSC allocate a frame and adds `83 EC nn`. The original
+  consumes the value inside the expression (`if (h3(x) == 9)` rather than `r = h3(x);
+  if (r == 9)`). On a unit whose frame is just `55 8B EC` plus a register save, assume
+  zero locals and restructure until nothing needs storing;
+- the same holds for a modified parameter (`a -= 0x119; while (a > 0) ...`), which the
+  original keeps in a scratch register instead of writing back.
+
+And `docs/WALLS.md`'s scratch-register entry now names the signed/unsigned clamp pair
+(`2a28:0000` / `2a29:000c`) as **the best single test case in the project**: three
+otherwise-perfect units that differ only in which register holds the working value, and
+two of them resolve together the moment that choice is explained.
+
+Ledger 483 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 600 B (3.615 %).
+
 ## Round 123: three more units, all on the DX-versus-AX scratch choice (no rows)
 Widened round 122's no-wall screen to include call-free units (38 candidates) and
 transcribed three:

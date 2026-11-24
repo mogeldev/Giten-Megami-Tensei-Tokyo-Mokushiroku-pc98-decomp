@@ -634,3 +634,21 @@ mistake - and no flag turns it off.
 
 Also from the same unit: the first call is `__fastcall` - the value arrives in AX
 (`B8 08 00`) with no push at all, which is the tell recorded in round 45.
+
+## No frame means no locals - rewrite the expression, do not introduce a variable
+
+Two rounds produced the same mistake (round 122's `438c:0004`, round 123's
+`3e48:000a`): a unit whose prologue is only `55 8B EC 56` was first transcribed with a
+temporary variable for a call result or a computed value, which makes MSC allocate a
+frame and adds `83 EC nn`. The original has **no locals at all** - the value is consumed
+inside the expression that produces it:
+
+    /* wrong: forces a frame */
+    r = h3(x); if (r == 9) return x - g;
+    /* right: matches */
+    if (h3(x) == 9) return x - g;
+
+So on any unit whose frame is just `55 8B EC` plus a register save, assume **zero**
+locals and restructure until nothing needs storing. The same applies to a parameter that
+is modified and used again (`a -= 0x119; ... while (a > 0) ...`), which the original
+keeps in a scratch register rather than writing back to the frame slot.

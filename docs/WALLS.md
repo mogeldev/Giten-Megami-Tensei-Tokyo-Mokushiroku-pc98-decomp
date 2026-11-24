@@ -73,7 +73,15 @@ again). MSC allocates a second register and saves it in the prologue. Example:
 
 Where MSC reaches for AX, the original often reaches for CX or DX (and vice versa).
 Examples: `1486:0002` (`lea cx,[bp-4]` / `xor dx,dx` versus `lea ax,[bp-4]` /
-`xor cx,cx`), `4e72:000a` (`8B D8` / `8E C2` order), `322c:002c` (push AX versus push SI).
+`xor cx,cx`), `4e72:000a` (`8B D8` / `8E C2` order), `322c:002c` (push AX versus push SI),
+`1e1e:002a` and `1f45:00b0` (parameter cached in CX).
+
+Round 123 added three units that are **otherwise perfect**: `3e48:000a` (24 B) and the
+signed/unsigned clamp pair `2a28:0000` / `2a29:000c` (28 B each). All three differ from
+their transcription in exactly one thing - the original keeps the working value in
+**DX** (`8B 56 06`, `8B 56 0A`) where MSC uses AX. Because the pair differs only in its
+comparison opcodes, both units resolve together if this wall is ever explained, which
+makes them the best single test case in the project.
 
 ## 8. BX as a register variable
 
