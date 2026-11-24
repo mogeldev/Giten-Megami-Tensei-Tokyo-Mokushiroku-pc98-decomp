@@ -37,3 +37,22 @@ int __far __pascal P_4962(int a)
     for (i = 0; g_f623[i] != -1; i++) { if (g_f623[i] == a) return 1; }
     return 0;
 }
+
+/* 4aae:0006 - early return plus a padded `EB 07 90`. */
+extern int __far __pascal q6(int a);
+int __far __pascal P_4AAE(int a) { if (a == -1) return a; return q6(a); }
+
+/* 3d91:0020 - a global comparison whose two return paths are joined differently. */
+extern int g_1b12, g_1b14;
+int __near __cdecl P_3D91(void) { return g_1b12 < g_1b14; }
+
+/* 31df:0004 - a two-case switch the original walks with inc/dec. */
+extern void __far __pascal q7(int x);
+extern void __far __pascal q8(int x);
+void __far __pascal P_31DF(int v, int sel)
+{
+    switch (sel) {
+    case 0: q7(v); break;
+    case 1: q7(v); q8(v); break;
+    }
+}

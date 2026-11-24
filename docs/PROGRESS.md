@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 192: the pending registry grows to nine (tooling round)
+Extended `src/pending/pending1.c` and `tools/pending.txt` with three more of the ledger's
+PENDING hypotheses, so that a third of them are now machine-re-testable:
+
+| row | what it waits for |
+|---|---|
+| `4aae:0006` | a `90` after an early return's jump |
+| `3d91:0020` | two return paths joined differently |
+| `31df:0004` | a two-case switch walked with `inc`/`dec` |
+
+All nine registered rows compile from one file (802 bytes of object) and all nine still
+differ - the registry is 9 of the 35 PENDING rows now, and `tools/recheck.py --sweep` retests
+the whole set across five flag combinations in about a minute.
+
+One small defect surfaced and was fixed on the way: `P_3D91` referenced its globals before
+declaring them, so the *whole file* failed to compile and every row reported "source did not
+compile". That is the registry's own failure mode - one bad row hides the others - and the
+tool reported it per row rather than crashing, which is why it took one command to see.
+
+Ledger 511 rows (unchanged), PENDING 35; verify and checkled green; own-code
+coverage 11 260 B (3.840 %).
+
 ## Round 191: a small switch, and how the two compilers differ (no rows, PENDING record)
 `31df:0004` (48 B) is a two-case dispatch:
 

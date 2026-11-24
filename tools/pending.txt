@@ -5,3 +5,6 @@ src/pending/pending1.c | /G1 /AM /Gs /Os | MSC7I | 20b4:0130 P_20B4 27
 src/pending/pending1.c | /G1 /AM /Gs /Os | MSC7I | 3ebd:0068 P_3EBD 17
 src/pending/pending1.c | /G1 /AM /Gs /Ox | MSC7I | 20f6:0000 P_20F6 23
 src/pending/pending1.c | /G1 /AM /Gs /Ox | MSC7I | 2603:463c P_2603 38
+src/pending/pending1.c | /G1 /AM /Gs /Os | MSC7I | 4aae:0006 P_4AAE 24
+src/pending/pending1.c | /G1 /AM /Gs /Os | MSC7I | 3d91:0020 P_3D91 17
+src/pending/pending1.c | /G1 /AM /Gs /Os | MSC7I | 31df:0004 P_31DF 46
