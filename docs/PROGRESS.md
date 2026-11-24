@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 64: the largest padding-blocked unit found (362 B) - no new rows
+`3bab:00aa` (362 B) is the biggest function the padding class has claimed so far:
+a `switch` on its parameter with case blocks that each issue a run of
+`h(g_17d2, n, 0x8000, flag)` calls, twenty-one references to the same DGROUP object
+overall. It is transcribable and I started it, but the first case block already
+shows the padded jump (`EB 2C 90`), so the whole function is out of reach for the
+same one-byte reason as its smaller relatives.
+
+Two more units examined and left alone for stated reasons:
+
+- `1eab:0002` (58 B) - two calls where the second's arguments are the *long result*
+  of the first plus a byte-swapped parameter (`8B C7 8A C4`), and whose segment is
+  then written back into a parameter slot (`8C 46 0C`). The older compiler reuses
+  the parameter frame as scratch storage; MSC 7 allocates a local.
+- `3ede:00a0` (64 B) - the byte stream stops looking like code after the first far
+  call (`9A 09 88 3A A3` followed by what decodes as inline data), so the unit is
+  a function-plus-table rather than a pure function.
+
+Sweeps (`reuse.py`, `probe.py`) report nothing new after the reclassifications.
+
+Ledger 455 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 796 B (3.341 %).
+
 ## Round 63: the nop-padding class generalised - 4.5 KB reclassified (no new rows)
 Chased `3b9b:000a` (124 B), a nested guard in the `g_17d2` family
 (`if (h4(a,b,c,d)) { if (h0()) { if (h2(2,0x39)) { h3(a,b,1); h4b(g_190c,-1); } else { h5(1); h6(0x20); } } else h7(a,b,1); } h8(g_17d2,c,1); return c;`).
