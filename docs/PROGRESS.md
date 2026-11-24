@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 155: another unit down to two bytes (no rows, PENDING record)
+Continued the "look near matched code" heuristic on `20b4:0130` (27 B, from a segment with
+three verified rows):
+
+    void __cdecl f(void) { int r; r = h1(); h2(); h3(r); }
+
+with three far `__cdecl` callees. The `ENTER` frame matches under `/G1 /Os` - worth
+noting, because it confirms that a cdecl function *with a local* is exactly the case where
+`/G1`'s `ENTER` is correct - and every instruction matches except **two bytes**: the
+original loads the saved value into AX before pushing it (`8B 46 FE` + `50`), while MSC
+pushes the frame slot directly (`FF 76 FE`).
+
+Three attempts to force the load (`volatile`, `r + 0`, `(int)r`) all still push memory, so
+this is the "push memory rather than load-then-push" habit that also shows up in wall 10.
+
+Recorded as a PENDING row with the exact difference.
+
+Ledger 490 rows - MATCH 38, RELOCS 424, ASM 2, **PENDING 26**; verify and checkled
+green; own-code coverage 10 902 B (3.718 %).
+
 ## Round 154: a row from the reverse declaration trick (33 B)
 Rather than sweeping more variants, this round looked for unmatched units in segments
 that already have several matched rows - the same module usually means the same style.
