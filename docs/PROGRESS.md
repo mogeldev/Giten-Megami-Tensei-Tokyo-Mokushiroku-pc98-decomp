@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 226: the cut-window survey (no rows)
+`tools/cutwin.py` lists units whose inventory window *cuts the function short* - a row may use
+the real, larger size (round 174's practice). There are **12 of them, 884 bytes in total**, and
+the two smallest were inspected:
+
+- `137a:0006` (window 16, real 27) is an **INT 21h** file call (`AH = 0x41`, delete) inside a
+  `lds`/`pop ds` wrapper - the inline-interrupt wall, with a `jmp` tail into another function;
+- `4f4f:0000` (window 12, real **72**) opens `push bp / mov bp,sp / push di / push si` - the
+  `57 56` prologue that round 196 proved MSC cannot produce - and then runs a loop with two
+  calls.
+
+So both are walled, and the survey is consistent with everything since round 200: the units
+that are *cut* are cut because the inventory could not find their end, and the reason it could
+not is often that the function contains something MSC cannot recount - an interrupt return, a
+`jmp` out, or a prologue it cannot match.
+
+Worth recording because it closes a hypothesis: cut windows are not a hidden reservoir of easy
+rows. Of 12, two inspected, both blocked by already-named walls.
+
+Ledger 519 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 225: the push-order rule catches a unit before the compile (no rows)
 `3db4:000e` (32 B) copies eight bytes (four `movsw`) from a far pointer to the fixed address
 `0x78C6`:
