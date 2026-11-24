@@ -399,3 +399,22 @@ perform the range narrowing, and MSC does. It is a third instance of the general
 original's optimiser is *less* aggressive than MSC 7.0's in several places (no narrowing, no
 `shl` for doubling, no `test`-for-`and`), which is consistent with it being an earlier
 compiler.
+
+### Arguments are all evaluated before any push (round 213)
+
+`31dd:0008` (27 B) calls `h3(h2(a, h1()))`. The original:
+
+    call h1            ; 90 0E E8
+    push [bp+06]       ; a
+    push ax            ; h1()'s result
+    call h2
+    push ax
+    call h3
+
+MSC instead **pushes each argument as it evaluates it**, so `push a` comes before `call h1`.
+Writing `h2(h1(), a)` reverses which value is pushed first but not the interleaving; a
+temporary (`t = h1(); h2(a, t);`) either gets a frame (`ENTER`) or keeps MSC's order.
+
+So this is a sub-case of wall 9 with its own tell: if the original's call sequence starts with
+a **call** and the first `push` comes after it, the source had a nested call in a *later*
+argument, and MSC cannot reproduce the order.

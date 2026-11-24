@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 213: evaluation order before pushes (no rows)
+Round 212's clean pool has **77 call-bearing candidates**; three were transcribed this round
+and all three are blocked, but one of them produced a rule.
+
+`31dd:0008` (27 B) is `h3(h2(a, h1()))`. The original calls `h1` **first**, then pushes both
+arguments, then calls `h2`. MSC pushes each argument as it evaluates it, so `push a` precedes
+`call h1`. Reversing the argument order changes which value is pushed first but not the
+interleaving, and a temporary either earns an `ENTER` frame or keeps MSC's order.
+
+That is now recorded under wall 9 with its own tell: **a call sequence that starts with a
+`call` and only then pushes means a nested call in a later argument**, and MSC cannot
+reproduce it.
+
+The other two attempts hit walls already named - `1e1e:002a` caches the parameter in CX before
+comparing (wall 17), and `3eb9:0006` loads `es` before `bx` from a far-pointer result (the
+`3ebd:0068` sub-case).
+
+The clean pool is real - 77 candidates with no doubling, no zeroing, no segment or port work -
+but each one still has to clear a handful of named walls, and most do not.
+
+Ledger 517 rows (unchanged), PENDING 39; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 212: a clean-pool screen, and a nineteenth wall (no rows)
 Round 211 showed that 23 % of the remaining code sits behind the doubling wall, so this round
 screened for what is **not**: unmatched units with no `add reg,reg` doubling, no `sub ax,ax`
