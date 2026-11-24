@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 149: the new disassembler pays for itself twice (no rows)
+First round using the rewritten `tools/dis.py`, and it immediately produced two clean
+readings that hand-decoding had got wrong or half-right:
+
+- **`2603:463c`** (38 B) is `char f(int n) { return g_4642[n & 7] | g_76b4[n / 8]; }` -
+  a bit-test getter: the mask table at `0x4642`, the bit array at `0x76b4`, and the
+  signed-division idiom `cwd` / `and dx,7` / `add ax,dx` / `sar ax,3` that MSC also emits
+  for `n / 8`. Under `/Ox` it is **one byte pair from a row**: the original copies `n`
+  into BX *before* the division (`8B DE`) and masks it in place, while MSC uses BX for
+  the quotient and reloads `n` afterwards (`8B C6`). Three source shapes were tried -
+  operands swapped, an `int bit` variable, a `register int bit` - and all give MSC's
+  order, so this is register-copy placement, not expression order.
+- **`2a7e:0000`** (67 B, round 144) confirmed: the three-way dispatch with `push si` at
+  the top and `si = b` loaded inside the second branch, i.e. the original keeps `b` in SI
+  from the first use onward. With `register int b` MSC instead *duplicates the epilogue*
+  three times - worse, not better.
+
+The ledger row for `2603:463c` now carries the exact remaining difference instead of the
+older summary.
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 148: `tools/dis.py` can now actually disassemble (tooling round, no rows)
 The annotation tool used to print `?` for anything with a ModRM byte, which is why so
 much of this project's analysis was hand-decoded - and hand-decoding has produced at
