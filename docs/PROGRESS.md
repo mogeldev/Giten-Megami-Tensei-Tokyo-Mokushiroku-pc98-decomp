@@ -1,5 +1,38 @@
 # PROGRESS
 
+## Round 200: the biggest class measured, not closed (no rows)
+Round 199 closed the doubling class by experiment; this round asked the same question of the
+**largest** class - "sub ax,ax zeroing", 74 units and 15 KB - and got a more interesting
+answer.
+
+First, what MSC emits for an `int` zero in eight different contexts (local, through a pointer,
+global, `char`, `register` local, array element, a value used afterwards): **always `33 C0`**
+(`xor`). For a `long` *return* it is `33 C0 99`. But for a `long` **store** it is `2B C0`
+(`sub ax,ax`) followed by two word stores - which is how `1ab9:0004` matched in round 175.
+
+So the class is not closed; it is **split**, and the split is measurable:
+
+| shape | units | bytes |
+|---|---|---|
+| `2B C0` followed by two word stores (long-store shape) | **72** | 15 495 |
+| everything else (no MSC equivalent) | 5 | 15 475 |
+
+The first column is *reachable* - declare the destination `long` and MSC emits the older
+zeroing form. The second column is the real wall.
+
+The caveat, which the round also measured: **no unit in the reachable set is small**. Every
+one of the 72 is over 40 bytes or carries another wall (segment work, ports, string ops), so
+the class cannot be mined by transcription alone - the long-store zeroing needs to be one
+detail among several in each unit, which is a slower kind of work than the small-unit screens
+that have been paying lately.
+
+That is the right note to reach round 200 on: the ledger has 513 rows, the biggest class is
+understood rather than merely counted, and what remains is understood work rather than
+mystery.
+
+Ledger 513 rows (unchanged), PENDING 37; verify and checkled green; own-code
+coverage 11 260 B (3.840 %).
+
 ## Round 199: the doubling class closed by experiment (no rows)
 Round 198 found `add si,si` where MSC emits `shl si,1`, so this round asked the direct
 question: **is `add reg,reg` reachable at all?** Six source forms were compiled for `x * 2` -
