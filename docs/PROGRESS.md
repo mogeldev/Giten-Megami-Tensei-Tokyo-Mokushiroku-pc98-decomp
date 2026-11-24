@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 163: full sweep, and one more unit on the register boundary (no rows)
+Ran `tools/verify.py` without `--fast`: **493/493 rows ok** (MATCH 38, RELOCS 426,
+ASM 2, PENDING 27), `checkled.py` consistent. Fourth full sweep; every row added since
+round 145 - eight of them - rebuilt from source and re-matched in one pass.
+
+Also worked `1e1e:0008` (33 B) from the `55 8B EC 57 56` family:
+
+    register int b, a;
+    b = b0; a = a0;
+    h(a, b, c);
+    return ((long)a << 16) | (unsigned)b;
+
+The return is two registers assembled by the compiler (`8B C6 8B D7`), which MSC does
+produce for that expression - and the call's three pushes and both parameter loads line up.
+What does not is the assignment: the original has `b` in SI and `a` in DI, MSC the reverse,
+under both `/Os` and `/Ox` and with both declaration orders. That is the same boundary as
+rounds 160-161, and it is now the *dominant* remaining cause in this family: seven of the
+fifteen `57 56` units have been read and all seven turn on it.
+
+Ledger 493 rows; verify (full) and checkled green; own-code coverage 10 978 B (3.744 %).
+
 ## Round 162: a row from telling `mov ah,al` from `mov al,ah` (48 B)
 `2b4b:0008` (48 B) is two calls whose results are combined:
 

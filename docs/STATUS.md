@@ -8,16 +8,16 @@
 | Status | Count |
 |---|---|
 | MATCH | 38 |
-| RELOCS | **423** |
+| RELOCS | **426** |
 | ASM (excluded from C coverage) | 2 |
-| PENDING | **25** |
+| PENDING | **27** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
 - `2603:ccda` **NEG_MINUS1** (15 B) — `return -1 - v
 - `1871:5c26` **SWAP_LONG_40C0** (38 B) — `long f(long v) { long old = g
 - `35ca:209c` **SWAP_LONG_13F6** (38 B) — Sibling of SWAP_LONG_40C0 with the long at 0x13F6/0x13F8, identical cause
-- `2603:463c` **SET_BIT** (38 B) — `table[n / 8]
+- `2603:463c` **SET_BIT** (38 B) — `char f(int n) { return g_4642[n & 7]
 - `1871:7874` **SEG_OF** (24 B) — Returns the segment half of a far pointer. Original loads it with `C4 46 06` (les) + `8C C0` (mov ax,es) after initialising a local to 0
 - `31e3:0064` **W_COND** (32 B) — `if (b == 1) f1(a)
 - `20b4:0160` **_read24** (37 B) — Assembles a value from three bytes 0x0F3A/0x0F3B/0x0F3C without any runtime call: `A0`/`2B D2`/`8A E0`/`2A C0` pack g_f3C into AH, `ADD AX,CX` then `1
@@ -39,6 +39,8 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `1036:000c` **LONG_IFELSE** (52 B) — `long r, u
 - `200d:0006` **FAR_PTR_STORE** (42 B) — `register char *p
 - `3cd1:02f2` **RANGE_CHECK** (56 B) — `h((int __far *)&a, (int __far *)&b)
+- `20b4:0130` **SAVED_RELAY** (27 B) — `void __cdecl f(void) { int r
+- `5026:013e` **CMP_GETTER** (17 B) — `int __near __cdecl f(void) { return g_3950 < g_3952
 
 ## Coverage (honest byte metric)
 
@@ -49,20 +51,20 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | Code bytes | 294174 |
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
-| of which **verified** | **10869 (3.707%)** |
-| PENDING bytes | 991 |
+| of which **verified** | **10978 (3.744%)** |
+| PENDING bytes | 1035 |
 
-Code functions: **2523**, of which verified **461**.
+Code functions: **2523**, of which verified **464**.
 
 ## Regions (64 KiB)
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
 | 0x0000 | 619 | 50 | 65131 | 1298 (2.0%) | 897 | 360 | 211 |
-| 0x0001 | 525 | 88 | 65757 | 2027 (3.1%) | 0 | 569 | 190 |
-| 0x0002 | 763 | 186 | 65522 | 4096 (6.3%) | 0 | 0 | 247 |
+| 0x0001 | 525 | 89 | 65757 | 2075 (3.2%) | 0 | 569 | 217 |
+| 0x0002 | 763 | 188 | 65522 | 4157 (6.3%) | 0 | 0 | 247 |
 | 0x0003 | 561 | 127 | 64435 | 2878 (4.5%) | 0 | 0 | 343 |
-| 0x0004 | 55 | 10 | 33329 | 570 (1.7%) | 66 | 11282 | 0 |
+| 0x0004 | 55 | 10 | 33329 | 570 (1.7%) | 66 | 11282 | 17 |
 
 <!-- MANUAL-BEGIN -->
 ## Toolchain
