@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 178: wall 16 resists its obvious fix, and a full sweep (no rows)
+Tried the natural way to produce a shared epilogue on `315b:0008`, whose if-arm ends in a
+call: write the arm with an explicit **early `return`** so the fall-through path is the one
+that reaches the tail.
+
+    if (i >= 0 && i < 0x1A) { g_7d22[i].v = 0; h(0x0F, i); return; }
+    h2(i);
+
+MSC still duplicates the five-byte `pop si` / `leave` / `retf 4` tail after both calls, under
+`/Os` and `/Ox`, so the difference is not about which arm falls through - it is that MSC
+never emits the `jmp` over the else-arm to a shared tail in a function of this shape. Wall
+16 stays open, with that negative result recorded.
+
+Then ran `tools/verify.py` without `--fast`: **504/504 rows ok** (MATCH 38, RELOCS 434,
+ASM 2, PENDING 30) - the fifth full sweep, covering every row added since round 145.
+
+Ledger 504 rows; verify (full) and checkled green; own-code coverage 11 214 B (3.825 %).
+
 ## Round 177: a sixteenth wall - duplicated versus shared epilogues (no rows)
 Following round 176's queue, `315b:0008` (53 B) was transcribed:
 
