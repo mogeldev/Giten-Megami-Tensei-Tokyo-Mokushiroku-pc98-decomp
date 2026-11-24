@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 164: a table scan down to one byte (no rows, PENDING record)
+Picked `37c1:0004` (30 B) out of the small-unit screen and it turned out to be the closest
+unit found yet:
+
+    int f(void) { int i; for (i = 0; i < 16; i++) { if (g_6e34[i].f0 == -1) return i; } return -1; }
+
+A scan of a 16-entry table of 0x34-byte structs, ending at address `0x7174` - and under
+`/G1 /Ox` **thirty of thirty-one bytes match**, including the address-limit loop
+(`81 FB <end>` rather than a counter compare), the `bx += 0x34` stride and the `-1` default.
+
+The single remaining difference is the epilogue: the original shares the final `ret`
+between its two exits (`8B C2 EB 03 B8 FF FF C3`), while MSC duplicates it and pads
+(`8B C2 C3 90 B8 FF FF C3`). Three source shapes were compiled - two `return`s, a single
+`return r` with `break`, and a `goto` - and MSC duplicates in all three, so this is the
+mirror image of wall 2's usual complaint: here it is the *original* that shares a bare
+`ret` where MSC makes two.
+
+Recorded as a PENDING row. Note that this is also the first unit where `/Ox` both removes
+the frame *and* keeps the address-limit loop, which confirms `/Ox` is the right flag for
+"no-frame loop" units.
+
+Ledger 494 rows - MATCH 38, RELOCS 426, ASM 2, **PENDING 28**; verify and checkled
+green; own-code coverage 10 978 B (3.744 %).
+
 ## Round 163: full sweep, and one more unit on the register boundary (no rows)
 Ran `tools/verify.py` without `--fast`: **493/493 rows ok** (MATCH 38, RELOCS 426,
 ASM 2, PENDING 27), `checkled.py` consistent. Fourth full sweep; every row added since
