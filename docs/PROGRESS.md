@@ -1,5 +1,33 @@
 # PROGRESS
 
+## Round 148: `tools/dis.py` can now actually disassemble (tooling round, no rows)
+The annotation tool used to print `?` for anything with a ModRM byte, which is why so
+much of this project's analysis was hand-decoded - and hand-decoding has produced at
+least three wrong conclusions (rounds 93, 108, 121). It now decodes the 8086 subset this
+binary uses properly:
+
+    before                     after
+    0003  8B 56                 mov dx, [bp+0x6]
+    0005  06                    or dx, dx
+    0007  6B 34                 imul ax, [bp+0x34]
+    000c  F7 D0                 neg ax
+
+Concretely it now handles: ModRM operands in all four `mod` forms with the byte/word
+register tables (`[bp+0x6]`, `[bx+si]`, `[si+0x8870]`, `ah`), the full ALU group with
+correct operand direction, `mov`/`lea`/`test`/`xchg`/`segment-register` forms, the shift
+group, `imul` with an immediate, `F6`/`F7` (`not`/`neg`/`mul`/`imul`/`div`/`idiv`),
+`FE`/`FF` (`inc`/`dec`/`call`/`jmp`/`push`), `les`/`lds`, the string ops, segment
+prefixes, and the sixteen real condition names (`jl`, `jge`, ... rather than `j0c`).
+Branch and call targets are printed as **absolute VAs** so they can be compared against
+`units.csv` directly.
+
+That is the difference between a tool that stops interpreting and one that can be trusted
+for a first read - and it directly addresses the failure mode that cost this project the
+most time.
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 147: mining the reopened `2A E4` class (no rows)
 Worked the 74-unit class that round 146 reopened. The classes' units come in four shapes,
 and each was pinned:
