@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 159: a parameter can be moved into DI after all (no rows)
+Round 158 concluded that `20f9:000c` was unreachable because parameters are allocated
+before locals. This round found the way around it, and it is now recorded in
+`docs/CONVENTIONS.md`:
+
+- MSC gives **SI to the first** `register` local and **DI to the second**;
+- a parameter copied into a register local gets the load **folded** into the parameter
+  fetch (`b = b0;` with `register int r, b;` emits `57 8B 7E 06` - push di; mov di,[bp+6]),
+  so a parameter can be moved into DI without any extra instruction.
+
+The swap in `20f9:000c` is fixed by that, and the unit moved from "two bytes, wrong
+register" to "two bytes, `or` operand base": the original loads `a` into AX and ORs DI
+(`8B 46 08 0B C7`), MSC reuses DI as the base (`8B C7 0B 46 08`). Four source shapes were
+tried - `(a | b)`, `(b | a)`, `a != 0 || b != 0`, and the copy-to-local variants - and all
+give MSC's form, so the base is chosen by "operand already in a register", not by source
+order.
+
+So the unit is one named wall (9) from a row rather than two walls, and the DI trick is
+available for the other 14 units with that prologue.
+
+Ledger 491 rows (unchanged), PENDING 27; verify and checkled green; own-code
+coverage 10 902 B (3.718 %).
+
 ## Round 158: parameters are allocated before locals (no rows)
 Screened for units whose prologue is `55 8B EC 57 56` - the two-register-local shape that
 round 154's reverse-declaration trick solved - and found 15 of them. The simplest,

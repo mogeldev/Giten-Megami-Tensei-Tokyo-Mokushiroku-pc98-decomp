@@ -691,3 +691,20 @@ Verified on `3e19:0002` (33 B), which matches exactly this way. The same unit al
 confirms a related trap: the original ends with `33 C0` before the pops, so the function
 returns **int 0**, not `void` - a `void` version is byte-identical except that it is two
 bytes shorter.
+
+## Getting a parameter into DI, not just a local
+
+Round 154's trick extends to parameters. MSC loads a parameter directly into DI when the
+`register` local that receives it is declared **second**; the copy disappears and the load
+is folded into the parameter fetch:
+
+    register int r, b;      /* r -> SI, b -> DI */
+    b = b0;                 /* becomes 57 8B 7E 06: push di; mov di,[bp+6] */
+
+Verified by compiling both orders: with `register int b, r;` MSC emits `8B 76 06`
+(SI) and with `register int r, b;` it emits `8B 7E 06` (DI) plus the `57` save. So the
+assignment is driven purely by declaration order, and renaming a parameter into a register
+local is the only way to move it - parameters themselves are allocated before locals.
+
+The load-then-`or` order is still fixed by MSC (it uses whichever operand is already in a
+register as the base), so `20f9:000c` remains two bytes out even with the DI fix.
