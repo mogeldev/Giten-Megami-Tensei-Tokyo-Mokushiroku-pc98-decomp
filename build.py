@@ -96,7 +96,7 @@ def main():
     else:
         lines.append(f'C:\\{a.msc_dir}\\BIN\\CL.EXE /c {a.flags} /Fo{obj} {src_f} '
                      f'> D:\\BUILD\\{base}.CL.TXT')
-    conf = "[cpu]\r\ncycles=max\r\n[autoexec]\r\n" + "\r\n".join(lines) + "\r\nexit\r\n"
+    conf = "[cpu]\r\ncycles=max\r\n[dos]\r\nems=true\r\nxms=true\r\n[autoexec]\r\n" + "\r\n".join(lines) + "\r\nexit\r\n"
     with open(CONF, "w", encoding="ascii", newline="") as f:
         f.write(conf)
 

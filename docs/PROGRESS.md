@@ -1,5 +1,39 @@
 # PROGRESS
 
+## Round 140: the installed MSC 6.0 was the OS/2 build - found the DOS one (no rows)
+Went back to the compiler question with one specific doubt: whether the `msc6dos` set is
+really the DOS distribution. It is **not**. `DISK6.IMG`, which round 68 extracted from,
+also carries `OS2.LI$`, `CDLLOBJS.*` and `LLIBCDLL.LI$` - it is the **OS/2** disk, and its
+28 858-byte `CL.EXE` is an OS/2 binary. That is why it always ran and did nothing.
+
+`DISK2.IMG` is the DOS compiler disk, and every pass differs in size and md5:
+
+| file | DISK6 (was installed) | DISK2 (DOS) |
+|---|---|---|
+| `CL.EXE` | 28 858 | **29 859** |
+| `C1.EXE` | 148 060 | **146 928** |
+| `C2.EXE` | 354 338 | **345 721** |
+| `C3.EXE` | - | **152 683** |
+
+The DISK2 set is now installed in `toolchain/msc6dos/BIN` (the OS/2 driver kept as
+`CL.EXE.os2`). It still produces no object, and this time the diagnosis is tight: `CL`
+returns control - a `; echo` marker after it is created - with no object, no stdout, no
+stderr, from both the C: root and its own directory, with `TMP` set, and with EMS/XMS
+enabled in the DOSBox configuration (that change is harmless; MSC 7 was re-verified
+afterwards).
+
+So the DOS 6.00A driver is finally in place and remains silent. Two explanations are
+left: a `SETUP`-written configuration (the `msc51` distribution carries `NEW-CONF.SYS`
+and `NEW-VARS.BAT` for exactly that purpose), or console output via INT 10h that the
+dummy video driver hides. Both are recorded in `docs/GAP.md`.
+
+This is the most useful kind of row-less round: it removes a wrong assumption
+("msc6dos is the DOS compiler") that had blocked the whole alternative-compiler thread
+since round 68.
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 139: `/Ox` does not help the scratch-naming wall (no rows)
 Two PENDING rows re-tested under `/Ox` and `/Ox /Oi`, both previously blocked on a
 scratch register:

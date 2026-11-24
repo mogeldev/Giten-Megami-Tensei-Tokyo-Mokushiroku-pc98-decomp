@@ -142,3 +142,30 @@ video driver hides them, so they fail and exit without a redirectable message; o
 step, a `TMP`/`INIT` variable with a specific shape, or a companion file outside
 `BIN`). Distinguishing them needs a run whose *screen* can be observed, which the
 current headless harness cannot do.
+
+### Round 140: the installed MSC 6.0 driver was the OS/2 build
+
+The `toolchain/msc6dos/BIN` set - extracted in round 68 from `DISK6.IMG` - is the **OS/2**
+distribution: `DISK6` also carries `OS2.LI$`, `CDLLOBJS.*` and `LLIBCDLL.LI$`, and its
+`CL.EXE` (28 858 B) is an OS/2 binary. That is why it always "ran" and did nothing under
+DOS.
+
+`DISK2.IMG` is the **DOS** compiler disk, and its files differ in both size and md5:
+
+| file | DISK6 (installed) | DISK2 (DOS) |
+|---|---|---|
+| `CL.EXE` | 28 858 | **29 859** |
+| `C1.EXE` | 148 060 | **146 928** |
+| `C2.EXE` | 354 338 | **345 721** |
+| `C3.EXE` | - | **152 683** |
+
+Installing the DISK2 set (`build/cl_DISK2.bin`, `d2_C1_EX.bin`, `d2_C2_EX.bin`,
+`d2_C3_EX.bin`) still produces no object: `CL.EXE /c ...` returns control (a `; echo`
+marker after it is created) with no object, no stdout, no stderr, from both the C: root
+and its own directory, with `TMP` set. EMS and XMS were also enabled in the DOSBox
+configuration, which changed nothing (and does not affect MSC 7, re-verified).
+
+So the DOS 6.00A driver is now in place and still silent. The remaining explanations are
+narrower: the driver may need the `SETUP`-written configuration that the retail
+distribution installs (`msc51` has `NEW-CONF.SYS` / `NEW-VARS.BAT` for exactly that), or
+it reports through the console (INT 10h) which the dummy video driver hides.
