@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 123: three more units, all on the DX-versus-AX scratch choice (no rows)
+Widened round 122's no-wall screen to include call-free units (38 candidates) and
+transcribed three:
+
+- `3e48:000a` (24 B) - `if (a < 1) a = 0x0F; g_1bbc = a; return a;`. The original loads
+  `a` into **DX** (`8B 56 06`) and compares the register; MSC compares the frame slot.
+- `2a28:0000` (28 B, signed) and `2a29:000c` (28 B, unsigned) - a clamp pair:
+  `if (b <= a) { if (c < a) a = c; } return a;`, differing only in `7F`/`7D` versus
+  `77`/`73`. Again the original keeps the value in DX (`8B 56 0A`) where MSC uses AX.
+
+So all three reduce to the same two bytes of register naming. Both also taught a
+reading lesson: the first transcription of the clamp pair used the wrong parameter
+roles (the function modifies `a` and compares against `b` and `c`, not the other way
+round), and the first transcription of `3e48` invented a local for the value, which
+forced a frame the original does not have - the same mistake as round 122's `F_438C`,
+which suggests the rule "no frame means no locals, rewrite the expression" is worth
+applying before anything else on a `55 8B EC 56`-style unit.
+
+The clamp pair is a ready-made test case: two 28-byte units that differ only in their
+comparison opcodes, so if the scratch-register choice is ever explained they both
+resolve at once.
+
+Ledger 483 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 600 B (3.615 %).
+
 ## Round 122: two frame-less shapes (65 B)
 A screen for units free of *every* known wall (no `les`/segment moves, no interrupts, no
 padded jump, no two-register prologue) returned 23 candidates; two matched:
