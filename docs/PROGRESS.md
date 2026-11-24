@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 168: a missed sibling, and the tool bug behind it (32 B)
+While looking for the twin of `2daa:001c`, `2dad:000c` (32 B) turned out to match the *same*
+source - the two units differ only in which helper the middle far call reaches, i.e. a
+relocated target. `tools/reuse.py` had reported **0 siblings**, and it should have found
+this one, so the reason mattered more than the row.
+
+Two real bugs, both now fixed:
+
+- `tools/dis.py` did not decode **`68 imm16` / `6A imm8`** (push immediate), so it printed
+  `68   ?` and the instruction walk desynchronised. That also means every `?` in a previous
+  dump could shift everything after it - a silent hazard, now gone;
+- `tools/reuse.py`'s `norm()` masked operands with a **byte scan**, so a `68 E8 1B`
+  (push 0x1BE8) looked like a call `E8 1B ...` and it masked the wrong two bytes, leaving
+  the actual `9A seg:off` target in place. Two units that differ only in that target then
+  normalised differently and the pair was missed.
+
+`norm()` now walks instructions with the project's own decoder and masks only genuine
+operand bytes; the two units normalise identically, and `reuse.py` finds nothing new but
+would now catch pairs like this.
+
+Ledger **498 rows** - MATCH 38, RELOCS 430, ASM 2, PENDING 28; verify and checkled
+green; own-code coverage **11 095 B (3.784 %)**.
+
 ## Round 167: a third row from the `char` prototype find (32 B)
 `2daa:001c` (32 B), the next unit in the byte-argument class:
 

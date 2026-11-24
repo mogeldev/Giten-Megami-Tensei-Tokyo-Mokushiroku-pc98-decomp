@@ -28,26 +28,35 @@ def linear(va):
 
 
 def norm(b):
+    """Mask call targets and far-pointer immediates, walking instruction by instruction.
+
+    A byte scan is not enough: a `68 imm16` whose immediate happens to contain an 0xE8 byte
+    is indistinguishable from a call, and the old scan masked the wrong two bytes and left
+    the real `9A` target in place (which is why the `2daa` / `2dad` pair was missed for a
+    round). Decoding first is the only reliable way to know where operands start.
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("dds98_dis", os.path.join(ROOT, "tools", "dis.py"))
+    dismod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(dismod)
     out = bytearray(b)
     i = 0
-    while i < len(out) - 1:
-        if out[i:i + 3] == b"\x90\x0e\xe8":
-            out[i + 3:i + 5] = b"\x00\x00"
-            i += 5
-            continue
-        if out[i:i + 2] == b"\x1e\x68":          # push ds; push <DGROUP disp16>
-            out[i + 2:i + 4] = b"\x00\x00"
+    while i < len(b):
+        try:
+            _, ln = dismod.decode(b, i)
+        except Exception:
+            ln = 1
+        if b[i] == 0x9A and ln == 5:
+            out[i + 1:i + 5] = b"\x00" * 4
+        elif b[i] == 0xE8 and ln == 3:
+            out[i + 1:i + 3] = b"\x00" * 2
+        elif b[i] == 0x68 and ln == 3:
+            out[i + 1:i + 3] = b"\x00" * 2
+        elif b[i:i + 2] == b"\x1e\x68" and ln == 4:
+            out[i + 2:i + 4] = b"\x00" * 2
             i += 4
             continue
-        if out[i] == 0x9A:
-            out[i + 1:i + 5] = b"\x00\x00\x00\x00"
-            i += 5
-            continue
-        if out[i] == 0xE8 and i + 2 < len(out):
-            out[i + 1:i + 3] = b"\x00\x00"
-            i += 3
-            continue
-        i += 1
+        i += max(ln, 1)
     return bytes(out)
 
 

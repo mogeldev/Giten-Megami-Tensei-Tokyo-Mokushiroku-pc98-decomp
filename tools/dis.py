@@ -193,6 +193,11 @@ def decode(b, i):
     if op in (0xC4, 0xC5):
         reg, rmtxt, n, _ = modrm(b, i + 1)
         return (pfx + f"{'les' if op == 0xC4 else 'lds'} {reg}, {rmtxt}", n + i - start)
+    if op == 0x68:
+        return (pfx + f"push {int.from_bytes(b[i+1:i+3],'little'):#06x}", 3 + i - start)
+    if op == 0x6A:
+        d = b[i + 1]
+        return (pfx + f"push {(d - 256 if d > 127 else d):#04x}", 2 + i - start)
     if 0xB8 <= op <= 0xBF:
         return (pfx + f"mov {R16[op - 0xB8]}, {int.from_bytes(b[i+1:i+3],'little'):#06x}", 3)
     if op == 0xCD:
