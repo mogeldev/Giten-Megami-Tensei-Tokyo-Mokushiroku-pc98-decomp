@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 191: a small switch, and how the two compilers differ (no rows, PENDING record)
+`31df:0004` (48 B) is a two-case dispatch:
+
+    switch (sel) {
+    case 0: h1(v); break;
+    case 1: h1(v); h2(v); break;
+    }
+
+The original distinguishes the cases with an **`inc`/`dec` chain** - `inc ax` / `jz` to the
+default, `dec ax` / `jz` to case 0, `dec ax` / `jz` to case 1 - which is only valid because
+the cases are consecutive, and which also folds the default into the fall-through. MSC emits
+a `cmp`/branch chain instead, and an if/else chain gives frame compares (`83 7E`). Three
+source forms were compiled and none reproduces the chain.
+
+So this is another sub-case of wall 9, this time about *strategy* rather than opcode: for a
+dense small switch the original compiler walks the case values with `inc`/`dec`, and MSC
+compares. Recorded as PENDING with that diagnosis.
+
+The two large units tried this round and last (`4a9f:0004`, `31df:0004`) both came from the
+reversed adjacency filter and both ended up as documented walls rather than rows - which is
+the filter doing its job, just at a stage where most of what it finds is blocked.
+
+Ledger 511 rows - MATCH 38, RELOCS 436, ASM 2, **PENDING 35**; verify and checkled
+green; own-code coverage 11 260 B (3.840 %).
+
 ## Round 190: a seventeenth wall - range guards and the index register (no rows)
 Worked larger units from the reversed adjacency filter. Two transcribed, both blocked by the
 same thing:
