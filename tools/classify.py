@@ -27,6 +27,15 @@ TRAITS = [
      "the original inlines a 32-bit `x << 8` as `mov ah,al` / `sub al,al` (and the high "
      "word with `mov dh,dl` / `mov dl,ah`); MSC 7 calls the shift helper for the same "
      "expression (`9A __aFulshl`), so any unit doing long shifts is unreachable"),
+    ("sub ax,ax zeroing", lambda b: b"\x2b\xc0" in b,
+     "the original zeroes a register with `2B C0` (`sub ax,ax`); MSC 7 always emits `33 C0` "
+     "(`xor ax,ax`), so a unit containing the older form cannot match. Verified on 3da5:000a, "
+     "which differs only in that byte pair; 25 unmatched units (19.7 KB) carry it"),
+    ("byte argument without promotion",
+     lambda b: re.search(rb"(?:\x8a\x46[\x00-\xff]\x50|\xa0[\x00-\xff][\x00-\xff]\x50)", b) is not None,
+     "the original pushes a `char` argument straight from the byte it loaded (`8A 46 <n>` + `50`, "
+     "or `A0 <disp>` + `50`) with no `cbw`/`sub ah,ah`; MSC 7 always promotes (`98` or `2A E4` first), "
+     "so every such call site diverges by one or two bytes. Verified on 2127:000c and 2daa:001c"),
     ("nop-padded branch", lambda b: re.search(rb"\xeb[\x00-\x7f]\x90", b) is not None
                                        or b"\x74\x03\x90" in b or b"\x75\x03\x90" in b,
      "the original pads a short jump with a `90` before the next block (`EB 03 90 33 C0`, "

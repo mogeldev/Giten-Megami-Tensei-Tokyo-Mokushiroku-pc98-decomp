@@ -11,14 +11,16 @@ under two spellings), so treat them as an upper bound.
 |---|---|---|---|
 | ENTER frame | 584 | 85251 | `C8 xx xx 00` prologue - the original never uses ENTER; MSC 7 only emits it with /Gs plus a local, so these come from the older compiler |
 | fragment (no prologue) | 237 | 26163 | the unit does not start with a function prologue, so the inventory window began in the middle of a routine: it cannot be matched as a function at all |
-| nop-padded branch | 147 | 23745 | the original pads a short jump with a `90` before the next block (`EB 03 90 33 C0`, `EB 0E 90`); MSC 7 emits the jump without padding, so every following branch distance differs by one. Verified by full analysis on 4998:000c, 3b88:000e, 31e3:0064, 3cd1:02f2 and 3b9b:000a; the pattern itself is a heuristic (185 units match it) |
-| unclassified | 186 | 11319 | no known blocker - these are the real candidates for new source shapes |
-| split far-pointer load | 59 | 5345 | `mov es,[bp+xx]` loading only the segment half of a far pointer - blocked trait |
-| add reg,reg doubling | 41 | 5320 | `add ax,ax`-style doubling for `x * 2` - MSC 7 uses `shl` |
-| inlined MK_FP | 60 | 4742 | `mov es,[disp16]` or `mov es,ax` right before an ES-relative access - the original inlines `MK_FP(seg, off)` (with a global or a parameter segment); MSC 7 calls the `MK_FP` helper and then does `mov es,dx` |
+| nop-padded branch | 139 | 21018 | the original pads a short jump with a `90` before the next block (`EB 03 90 33 C0`, `EB 0E 90`); MSC 7 emits the jump without padding, so every following branch distance differs by one. Verified by full analysis on 4998:000c, 3b88:000e, 31e3:0064, 3cd1:02f2 and 3b9b:000a; the pattern itself is a heuristic (185 units match it) |
+| unclassified | 177 | 10957 | no known blocker - these are the real candidates for new source shapes |
+| add reg,reg doubling | 39 | 4858 | `add ax,ax`-style doubling for `x * 2` - MSC 7 uses `shl` |
+| inlined MK_FP | 59 | 4558 | `mov es,[disp16]` or `mov es,ax` right before an ES-relative access - the original inlines `MK_FP(seg, off)` (with a global or a parameter segment); MSC 7 calls the `MK_FP` helper and then does `mov es,dx` |
+| split far-pointer load | 50 | 4431 | `mov es,[bp+xx]` loading only the segment half of a far pointer - blocked trait |
+| sub ax,ax zeroing | 20 | 4224 | the original zeroes a register with `2B C0` (`sub ax,ax`); MSC 7 always emits `33 C0` (`xor ax,ax`), so a unit containing the older form cannot match. Verified on 3da5:000a, which differs only in that byte pair; 25 unmatched units (19.7 KB) carry it |
 | inline long shift | 12 | 3810 | the original inlines a 32-bit `x << 8` as `mov ah,al` / `sub al,al` (and the high word with `mov dh,dl` / `mov dl,ah`); MSC 7 calls the shift helper for the same expression (`9A __aFulshl`), so any unit doing long shifts is unreachable |
-| jump-merge boolean | 33 | 2061 | `jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns |
-| far pointer in a register pair | 27 | 1840 | `lds bx,[bp+..]` - the original keeps a far pointer in DS:BX across a loop and tests it with `mov ax,ds; or ax,bx`; MSC 7 keeps it in the stack frame |
+| jump-merge boolean | 32 | 1954 | `jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns |
+| far pointer in a register pair | 25 | 1628 | `lds bx,[bp+..]` - the original keeps a far pointer in DS:BX across a loop and tests it with `mov ax,ds; or ax,bx`; MSC 7 keeps it in the stack frame |
+| byte argument without promotion | 12 | 744 | the original pushes a `char` argument straight from the byte it loaded (`8A 46 <n>` + `50`, or `A0 <disp>` + `50`) with no `cbw`/`sub ah,ah`; MSC 7 always promotes (`98` or `2A E4` first), so every such call site diverges by one or two bytes. Verified on 2127:000c and 2daa:001c |
 | CX-staged value | 9 | 690 | a value is compared and then pushed: the original loads it into **CX** once (`8B 4E xx`) and reuses it (`cmp cx,..`, `or ch,..`, `push cx`), while MSC 7 compares from memory and pushes the slot again |
 | redundant or reg,ax | 9 | 571 | `mov si,ax; or si,ax` - older codegen tests the just-moved value again |
 | inline interrupt | 8 | 433 | an inline `int 21h` / `int 2Fh` / `int 31h` - the original issues DOS, multiplex or DPMI calls in line; MSC 7 only offers library wrappers (`intdos`, `int86`), so these are hand-written or builtin-generated |
@@ -38,35 +40,41 @@ the unit does not start with a function prologue, so the inventory window began 
 
 Largest: `159d:03e4` (4519 B), `1847:000c` (1413 B), `2ff9:000a` (1002 B), `4c9c:08f2` (818 B), `159d:0148` (668 B), `2e88:000e` (536 B), `159d:1a36` (529 B), `159d:16e9` (521 B), `2baa:1208` (514 B), `1534:0000` (512 B), `159d:1c47` (443 B), `46ec:0000` (339 B)
 
-## nop-padded branch (147 units, 23745 bytes)
+## nop-padded branch (139 units, 21018 bytes)
 
 the original pads a short jump with a `90` before the next block (`EB 03 90 33 C0`, `EB 0E 90`); MSC 7 emits the jump without padding, so every following branch distance differs by one. Verified by full analysis on 4998:000c, 3b88:000e, 31e3:0064, 3cd1:02f2 and 3b9b:000a; the pattern itself is a heuristic (185 units match it)
 
-Largest: `2baa:0004` (4612 B), `19e2:0008` (986 B), `1b7d:0004` (802 B), `307b:0018` (517 B), `1349:0000` (416 B), `4416:0002` (407 B), `1394:000c` (398 B), `43db:0184` (381 B), `43db:0006` (381 B), `1bc2:0002` (380 B), `3bab:00aa` (362 B), `13b0:0004` (348 B)
+Largest: `2baa:0004` (4612 B), `1b7d:0004` (802 B), `307b:0018` (517 B), `4416:0002` (407 B), `1394:000c` (398 B), `43db:0184` (381 B), `43db:0006` (381 B), `1bc2:0002` (380 B), `3bab:00aa` (362 B), `13b0:0004` (348 B), `1dac:0002` (324 B), `4082:0000` (286 B)
 
-## unclassified (186 units, 11319 bytes)
+## unclassified (177 units, 10957 bytes)
 
 no known blocker - these are the real candidates for new source shapes
 
 Largest: `4b23:01d6` (264 B), `1061:0003` (245 B), `116f:000c` (224 B), `34ce:000a` (218 B), `1d9c:0006` (182 B), `34c3:000c` (174 B), `1d19:000b` (173 B), `1d24:0008` (161 B), `1d0f:000a` (161 B), `1192:000c` (160 B), `1272:0004` (156 B), `1186:0000` (154 B)
 
-## split far-pointer load (59 units, 5345 bytes)
-
-`mov es,[bp+xx]` loading only the segment half of a far pointer - blocked trait
-
-Largest: `4885:0006` (340 B), `4870:0004` (268 B), `225b:0005` (227 B), `40e8:0040` (223 B), `1ed7:000c` (209 B), `2274:0003` (203 B), `2269:0008` (171 B), `464d:000e` (160 B), `1c43:0008` (158 B), `4679:0000` (150 B), `224b:0004` (131 B), `25f0:00ba` (128 B)
-
-## add reg,reg doubling (41 units, 5320 bytes)
+## add reg,reg doubling (39 units, 4858 bytes)
 
 `add ax,ax`-style doubling for `x * 2` - MSC 7 uses `shl`
 
-Largest: `1a22:000e` (750 B), `1dc7:000a` (522 B), `1f0d:0084` (394 B), `45b3:07a4` (336 B), `128e:0004` (316 B), `44a4:0006` (285 B), `4b23:00fa` (219 B), `1aec:0002` (212 B), `11c8:0002` (202 B), `1c1d:0000` (146 B), `1bb7:0004` (140 B), `1ad2:000c` (134 B)
+Largest: `1a22:000e` (750 B), `1dc7:000a` (522 B), `1f0d:0084` (394 B), `45b3:07a4` (336 B), `44a4:0006` (285 B), `4b23:00fa` (219 B), `1aec:0002` (212 B), `11c8:0002` (202 B), `1bb7:0004` (140 B), `1ad2:000c` (134 B), `23c9:0004` (130 B), `4f67:0134` (121 B)
 
-## inlined MK_FP (60 units, 4742 bytes)
+## inlined MK_FP (59 units, 4558 bytes)
 
 `mov es,[disp16]` or `mov es,ax` right before an ES-relative access - the original inlines `MK_FP(seg, off)` (with a global or a parameter segment); MSC 7 calls the `MK_FP` helper and then does `mov es,dx`
 
-Largest: `19a8:000a` (358 B), `1adb:0002` (272 B), `1d36:0003` (208 B), `3141:0032` (197 B), `1d47:0078` (194 B), `1a8a:0004` (184 B), `1cf7:0000` (169 B), `3280:000e` (168 B), `125b:0004` (160 B), `193d:000a` (149 B), `4c9c:0008` (133 B), `1baf:0006` (126 B)
+Largest: `19a8:000a` (358 B), `1adb:0002` (272 B), `1d36:0003` (208 B), `3141:0032` (197 B), `1d47:0078` (194 B), `1cf7:0000` (169 B), `3280:000e` (168 B), `125b:0004` (160 B), `193d:000a` (149 B), `4c9c:0008` (133 B), `1baf:0006` (126 B), `1d47:000d` (106 B)
+
+## split far-pointer load (50 units, 4431 bytes)
+
+`mov es,[bp+xx]` loading only the segment half of a far pointer - blocked trait
+
+Largest: `4885:0006` (340 B), `4870:0004` (268 B), `225b:0005` (227 B), `40e8:0040` (223 B), `1ed7:000c` (209 B), `2274:0003` (203 B), `2269:0008` (171 B), `4679:0000` (150 B), `224b:0004` (131 B), `25f0:00ba` (128 B), `1e8d:000e` (128 B), `40e8:0120` (114 B)
+
+## sub ax,ax zeroing (20 units, 4224 bytes)
+
+the original zeroes a register with `2B C0` (`sub ax,ax`); MSC 7 always emits `33 C0` (`xor ax,ax`), so a unit containing the older form cannot match. Verified on 3da5:000a, which differs only in that byte pair; 25 unmatched units (19.7 KB) carry it
+
+Largest: `19e2:0008` (986 B), `1349:0000` (416 B), `128e:0004` (316 B), `1aa1:0000` (304 B), `19bf:0000` (292 B), `19d1:0004` (276 B), `2d08:007a` (248 B), `1a8a:0004` (184 B), `464d:000e` (160 B), `1c43:0008` (158 B), `479e:0188` (152 B), `1c1d:0000` (146 B)
 
 ## inline long shift (12 units, 3810 bytes)
 
@@ -74,17 +82,23 @@ the original inlines a 32-bit `x << 8` as `mov ah,al` / `sub al,al` (and the hig
 
 Largest: `1c4d:0006` (1190 B), `1b39:0000` (852 B), `1b1b:000e` (466 B), `1a51:000c` (248 B), `1a61:0004` (224 B), `1a6f:0004` (196 B), `1c0c:000c` (184 B), `1a81:000a` (138 B), `1990:000c` (114 B), `198b:0008` (84 B), `122f:000c` (66 B), `2b4b:0008` (48 B)
 
-## jump-merge boolean (33 units, 2061 bytes)
+## jump-merge boolean (32 units, 1954 bytes)
 
 `jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns
 
-Largest: `1a95:000c` (180 B), `4f54:0004` (107 B), `2a58:0000` (101 B), `2570:007c` (94 B), `5063:000c` (88 B), `3600:0002` (88 B), `2115:0002` (88 B), `496b:0070` (86 B), `3b34:0000` (78 B), `4f67:0094` (71 B), `1b74:000e` (68 B), `3b2f:000e` (66 B)
+Largest: `1a95:000c` (180 B), `2a58:0000` (101 B), `2570:007c` (94 B), `5063:000c` (88 B), `3600:0002` (88 B), `2115:0002` (88 B), `496b:0070` (86 B), `3b34:0000` (78 B), `4f67:0094` (71 B), `1b74:000e` (68 B), `3b2f:000e` (66 B), `5151:000a` (64 B)
 
-## far pointer in a register pair (27 units, 1840 bytes)
+## far pointer in a register pair (25 units, 1628 bytes)
 
 `lds bx,[bp+..]` - the original keeps a far pointer in DS:BX across a loop and tests it with `mov ax,ds; or ax,bx`; MSC 7 keeps it in the stack frame
 
-Largest: `1529:0002` (174 B), `1d01:0009` (172 B), `10be:0005` (153 B), `4e49:0002` (136 B), `4b76:000a` (112 B), `11be:0006` (84 B), `138f:000a` (82 B), `2aae:000e` (79 B), `1b17:0002` (76 B), `11c3:000a` (72 B), `1131:000c` (72 B), `2d6f:002a` (62 B)
+Largest: `1529:0002` (174 B), `1d01:0009` (172 B), `10be:0005` (153 B), `4b76:000a` (112 B), `11be:0006` (84 B), `138f:000a` (82 B), `2aae:000e` (79 B), `11c3:000a` (72 B), `1131:000c` (72 B), `2d6f:002a` (62 B), `3162:0004` (58 B), `315b:003e` (54 B)
+
+## byte argument without promotion (12 units, 744 bytes)
+
+the original pushes a `char` argument straight from the byte it loaded (`8A 46 <n>` + `50`, or `A0 <disp>` + `50`) with no `cbw`/`sub ah,ah`; MSC 7 always promotes (`98` or `2A E4` first), so every such call site diverges by one or two bytes. Verified on 2127:000c and 2daa:001c
+
+Largest: `4e49:0002` (136 B), `4f54:0004` (107 B), `4101:00b6` (89 B), `4101:005c` (89 B), `4101:0002` (89 B), `40e8:0006` (57 B), `2dad:000c` (32 B), `2daa:001c` (32 B), `2d60:000e` (32 B), `2127:000c` (32 B), `3c3d:000c` (28 B), `2d49:0034` (21 B)
 
 ## CX-staged value (9 units, 690 bytes)
 

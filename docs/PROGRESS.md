@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 65: two more classes named (no new rows)
+Both came out of probing units that had failed before for reasons I had assumed
+rather than proven.
+
+**`char` arguments are pushed unpromoted.** `2127:000c` (32 B) is
+`if (h1(a, b)) h2(a);` with `a` a byte parameter: the original loads `8A 46 08` and
+pushes AX with AH untouched, while MSC 7 promotes first (`98` = `cbw`, or `2A E4`).
+Declaring the callee unprototyped does not change it - MSC still emits the
+promotion - so this is a pre-ANSI language difference. Thirteen unmatched units
+(885 bytes) carry the pattern.
+
+**`sub ax,ax` zeroing.** `3da5:000a` (67 B) differs from a full match only in
+`2B C0` versus `33 C0`: the original zeroes with `sub ax,ax`, MSC 7 only ever emits
+`xor ax,ax`. Twenty unmatched units (4 224 bytes) contain the older form.
+
+`docs/BLOCKED.md` now lists **18 classes** and the unclassified pool is
+**177 units / 10 957 B** (from 186 / 11 319 B). Three of the classes are heuristic
+patterns (`nop-padded branch`, `byte argument without promotion`, `sub ax,ax
+zeroing`) and each is documented with the units that were verified by full
+analysis, so the map distinguishes "proven unreachable" from "suspected".
+
+Ledger 455 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 796 B (3.341 %).
+
 ## Round 64: the largest padding-blocked unit found (362 B) - no new rows
 `3bab:00aa` (362 B) is the biggest function the padding class has claimed so far:
 a `switch` on its parameter with case blocks that each issue a run of

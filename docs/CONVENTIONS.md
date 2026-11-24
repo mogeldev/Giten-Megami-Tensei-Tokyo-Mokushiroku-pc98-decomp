@@ -442,3 +442,19 @@ those two units out of the ledger: they are `G0` cdecl functions with a stack
 local and a `&parameter` argument, and MSC always splits the reservation there.
 Declaring the function `__pascal`, dropping the `&parameter` and casting the
 pointer all leave the split form in place.
+
+## `char` arguments are pushed unpromoted in the original
+
+The original pushes a byte argument directly out of the register it loaded into:
+
+    8A 46 08   mov al,[bp+8]
+    50         push ax            ; AH untouched
+    A0 97 83   mov al,[0x8397]
+    50         push ax
+
+MSC 7 always promotes first (`98` = `cbw`, or `2A E4` = zero the high half), so a
+call site like this differs by one or two bytes whatever the source casts look
+like - an unprototyped callee was tried and MSC still emits `98`. The same applies
+to integer promotion of `char` parameters in general, which suggests the original
+compiler is pre-ANSI in this respect. Thirteen unmatched units (885 bytes) carry
+the pattern and are now the `byte argument without promotion` class.
