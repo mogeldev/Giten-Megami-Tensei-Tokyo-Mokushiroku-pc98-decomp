@@ -25,7 +25,7 @@ sweep of all 523 rows takes about ten minutes.
 
 The decompilation itself is the smaller half. The larger half is a description of **how the
 original compiler differs from MSC 7.0**, which is what stops the remaining 96 % from
-matching. `docs/WALLS.md` holds twenty numbered walls with witnesses; the important ones:
+matching. `docs/WALLS.md` holds twenty-one numbered walls with witnesses; the important ones:
 
 - **frame style** - the original always emits `55 8B EC`, MSC omits it for functions that
   need no frame and uses `ENTER` (`C8`) when they have locals under `/G1`. `/G0` gives the

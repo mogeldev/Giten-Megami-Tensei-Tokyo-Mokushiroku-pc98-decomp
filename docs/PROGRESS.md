@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 252: the segment-register wall written up as wall 21 (documentation round)
+Round 251 established that the ES-versus-DS choice is not steerable; this round recorded it as
+**wall 21** in `docs/WALLS.md` with its witnesses, and updated `docs/SUMMARY.md`'s wall count.
+
+The entry is deliberately short, because the wall has almost no diagnostic depth: a unit that
+reloads a segment register for a far-pointer dereference is at this wall before any C is
+written, and the only useful sentence is "look at which register the unit reloads". What it does
+carry is a number: the affected pair differs in **four bytes** and would pay **two rows**.
+
+That makes three register-choice walls in the list (BX as never-a-variable, CX as
+never-a-counter, and now the segment register), which is a pattern worth naming: MSC's code
+generator reserves three registers for its own purposes and hands the rest to the source, and
+anything the original kept in those three is unreachable. That is the single largest structural
+reason the ledger stops where it does.
+
+Ledger 523 rows (unchanged), PENDING 38; verify and checkled green; own-code
+coverage 11 645 B (3.972 %).
+
 ## Round 251: the segment-register choice confirmed as a wall (no rows)
 Retried round 248's whitespace-skip pair (`1df5:0008`, `1dfc:0066`) with two more shapes - one
 through a `struct __far *`, one through a local copy of the pointer - to try to make MSC address

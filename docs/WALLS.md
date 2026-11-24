@@ -447,3 +447,20 @@ That is the same order as the doubling class counted by trait (37 units / 4 767 
 smaller than doubling counted by opcode presence (199 units). The pattern is therefore a
 common *shape* but a secondary blocker: many of those 41 also sit behind something else, which
 is what the attempts keep showing.
+
+## 21. The segment register is MSC's choice, not the source's
+
+A far-pointer dereference reloads a segment register; **which one** is a code-generation
+decision. The original uses **ES** (`8E 46 08` then `26 80 3F xx`); MSC uses **DS**
+(`8E 5E 08`) for the same source, and no declaration changes it - two shapes were compiled for
+`1df5:0008`, one through a `struct __far *` and one through a local copy of the pointer, and both
+emit DS.
+
+The affected pair (`1df5:0008` and `1dfc:0066`, byte-identical, 39 bytes each) differs in
+**four bytes**: the `46`/`5E` operand and the `26` prefix that follows it. Two rows sit behind
+that byte.
+
+This is the third register-choice wall after BX (20) and CX (round 234): the object always
+contains one specific byte and it is not the one the original has. Unlike the earlier walls it
+has no diagnostic value beyond "look at which segment register the unit reloads" - a unit using
+`8E 46` is at this wall before you write any C.
