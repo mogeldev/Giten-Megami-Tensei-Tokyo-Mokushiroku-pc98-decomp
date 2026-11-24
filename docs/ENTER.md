@@ -726,3 +726,11 @@ Screen: ENTER-framed, 20-140 B, not in the ledger, ends in a return, no `90`/far
 - `2b3e:0002` (82 B, far, `retf 6`): `r = {-80,-80}; if (s <= 0 && s >= -4) { r.x = -(g_a[-s]*k); r.y = g_b[-s]; } return r;` returning a 4-byte struct through a hidden pointer. Same loads, `imul [bp+0xa]`, `neg` and stores as MSC, but the original builds the word offset with `mov ax,bx; add ax,bx; sub si,ax` and MSC with `shl bx,1` - the doubling wall; second difference is the order `mov bx,[bp+6]` / `mov dx,[bp-2]` before the stores. Three spellings.
 - `430b:0004` (68 B, near): subtracts `min(n, len)` from a byte field of the 4-byte record at 0x866E and calls `H(i,-1,-1)` when it reaches zero. Index scale is `shl bx,2` in the original (so no doubling problem here); misses are `C8` vs `55` and `57 56` vs `56 57` - the byte field read through BX and `si` kept as the result across the call. Six spellings incl. bit-field.
 - `1ef8:000c` (67 B): a longer nibble-mixing routine returning a pointer to its own frame (`mov ax,si; mov dx,ss`), of the same family as `3809:0000` (wall 6).
+
+### Round 18b: the 55 8B EC screen, and an aliasing trap
+
+Screen (`55 8B EC`, 14-90 B, ends in a return, no `90`/far call/near call/doubling/segment loads/`es:`-style opcodes, no `push si/di` right after the frame, not in the ledger by `seg:off`) leaves eight units. Four of them (`4c93:000a`, `4c93:001e`, `4df2:0010`, `2b3d:0000`) **matched on the first try** - and were already ledger rows under another seg:off: `458e:705a`, `458e:706e`, `458e:8650`, `2603:53a0`. The image maps the same linear address through two segment bases, and units.csv lists both. `verify.py` rejects the duplicate by linear value (DUP), so nothing wrong was committed.
+
+**Rule for every future screen: compare against the ledger by *linear address* (`seg*16+off`), not by the `seg:off` string.** The screens of rounds 6-18 compared strings; the `done` set should be rebuilt from linear values and the earlier candidate lists re-filtered. Also: before saving a new source, check `Test-Path src/calib/<name>.c` - `cxchg1.c` and `cset3.c` already existed and were overwritten (restored from git before anything was committed).
+
+Remaining of the eight: `4e9b:0008` (long store+return, window is 24 B not 22), `50b1:0008` (long compare), `2a2b:0008` (loop on a range), `118f:000a` (32x32 multiply helper, `mul`).
