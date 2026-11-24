@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 83: two giant blobs explain the byte count (no new rows)
+Checked how the remaining unmatched bytes are distributed by segment, and found that
+two entries dominate:
+
+- `515a:0008` - **26 882 bytes in one unit**, starting with an ordinary prologue
+  (`55 8B EC 57 56 8B 7E 0A 57`) and ending in a run of zero padding;
+- `2603:000e` - **14 458 bytes in one unit**, opening with `83 C4 E2` (a 226-byte
+  frame) and ending in what is clearly a data table (`10xx` values every 0x20).
+
+Together with `2baa` (4 612 B) that is roughly 46 KB of the unmatched total sitting in
+three entries that can never be a single ledger row: either one enormous function or
+a region the inventory merged. This is why the pool's *byte* count looks large while
+the *candidate* count is small - `tools/nextup.py` already excludes them by its
+100-byte ceiling, which is the right behaviour.
+
+Nothing here is matchable, but the accounting is worth recording: anyone reading
+"10 KB unclassified" should know that 46 KB of unmatched material is outside that
+figure because those units are classified by their first trait, not by their size.
+
+Also re-read the three most promising PENDING rows (`4fab:000a` 16 B, `11d8:000c` 41 B,
+`1871:7874` 24 B) against the newer rules; each is blocked on a redundant `8B E5`
+teardown, a `C3 90`/`EB 03` padding pair, or an `les` that MSC will not emit - the
+same walls as the rest of the pool.
+
+Ledger 460 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 926 B (3.385 %).
+
 ## Round 82: two more misses named, one of them a known peephole (no new rows)
 Round 81's `200d:0006` curious null test is explained: the original emits
 `8B F0 0B F0` (`mov si,ax` then `or si,ax`) where MSC emits `8B F0 0B F6`
