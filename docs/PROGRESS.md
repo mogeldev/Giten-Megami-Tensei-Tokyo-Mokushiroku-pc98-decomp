@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 112: a two-register guard with no frame (40 B)
+`crelay73.c` (`/G1 /AM /Gs /Os`): `3238:00fe` (40 B) - `old = g_1cf0; if (v == 1 &&
+old == 0) h(old, old); g_1cf0 = v; return old;`. The unit was invisible before round
+110's predicate fix because it ends `retf 2`.
+
+What made it match is declaring **both** the parameter and the copy `register`: SI holds
+`v`, DI holds the copy of the global (`8B 3E <g>`), the guard pushes DI twice, and the
+function needs no frame at all. With only the parameter declared, MSC builds a frame for
+`old` and the two prologue pushes never appear.
+
+Two near-misses on the way, both now understood:
+
+- `3874:000a` / `3877:0000` (38 and 41 B) - `h2(h1(c, b, a))` with `b` in DI and `c` in
+  SI. MSC puts the *first-declared* register parameter in SI, so it assigns `b` there
+  and the two prologue loads swap. This contradicts the round-93 note that MSC assigns
+  by first use; the accurate statement is that it assigns in declaration order, and
+  round 93's unit matched because there the two orders coincided.
+- `322c:002c` (43 B) - one instruction off: the original pushes `AX` immediately after
+  `mov si,ax`, MSC pushes `SI`. Same "use the register the value is already in" habit as
+  the `or reg,ax` peephole.
+
+Ledger 479 rows - MATCH 38, RELOCS 415, ASM 2, PENDING 24; verify and checkled
+green; own-code coverage **10 433 B (3.558 %)**.
+
 ## Round 111: a lost row recovered, and the symbol lookup made forgiving (32 B)
 Worked round 110's corrected list of 160 complete unclassified units and immediately
 found `49de:000e` (32 B) - `he(hd(a, b, c, d), 0);`. It had been **verified in round 86

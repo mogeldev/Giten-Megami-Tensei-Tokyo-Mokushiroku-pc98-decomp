@@ -602,3 +602,12 @@ original's own choice, not a flag artefact.
 `68 06 00`; MSC 7 under `/G1` pushes both with `6A` (short form) and under `/G0` with
 `B8 xx` / `50` (`mov` + `push`). So the original picks `6A` for small values and `68`
 for large ones - the 80186 rule - and no MSC 6/7 flag reproduces that selection.
+
+### Correction (round 112): MSC assigns register parameters in declaration order
+
+Round 93 concluded "MSC assigns by first use". `3874:000a` refutes that: with
+`register int b` declared before `register int c`, MSC puts **b** in SI even though the
+body touches `c` first. The accurate rule is declaration order, and round 93's unit
+matched because its body happened to use the first-declared parameter first. The
+original also uses declaration order, so these units match only when the two orders
+coincide.
