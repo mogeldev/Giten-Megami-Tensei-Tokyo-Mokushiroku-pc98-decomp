@@ -135,6 +135,20 @@ The source form matters and is worth recording: `if (a || b)` produces a compare
 while `if ((a | b) != 0)` produces the single `or` - the original has the `or`, so the
 bit-or form is the correct transcription.
 
+## 12b. `sub ah,ah` is NOT a wall (corrected in round 146)
+
+The class used to be described as "the original zeroes with `2B C0`, MSC always emits
+`33 C0`". That is true for `sub ax,ax` / `sub cx,cx`, but **false for `2A E4`**: MSC emits
+`sub ah,ah` for a zero-extended byte load (`int f(unsigned i) { return
+(unsigned char)g[i]; }` -> `8A 87 <t> 2A E4`) and for a byte field of a struct with
+alignment greater than one. 74 units / 15 007 B were reclassified from blocked to
+candidate on that basis.
+
+What remains in that class is an **order** difference, not a missing opcode: the original
+zeroes AH *before* the load (`C1 E3 02 2A E4 8A 87`), MSC after it (`C1 E3 02 8A 87 ...
+2A E4`). Examples: `4344:000e` (19 B) and `43a1:0000` (38 B), the latter also caching the
+index in BX.
+
 ## 13. CX caching, constant folding, `or reg,ax`
 
 Three small peephole-level differences: the original caches a parameter in CX for

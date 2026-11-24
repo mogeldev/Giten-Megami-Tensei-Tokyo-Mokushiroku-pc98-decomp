@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 147: mining the reopened `2A E4` class (no rows)
+Worked the 74-unit class that round 146 reopened. The classes' units come in four shapes,
+and each was pinned:
+
+- **`call` then `2A E4`** - the "promote a char return" idiom. Verified that MSC produces
+  exactly it (`int f(int a) { return h(a); }` with `h` returning `unsigned char` gives
+  `... 2A E4 C9 CA`), but a scan for that byte pattern in the image finds **0 units**, so
+  the original does not use the idiom;
+- **byte-table lookups** - `4344:000e` (19 B, struct stride 4) and `43a1:0000` (38 B,
+  guarded, stride 4, `-1` default). Both transcribe cleanly and both differ only in
+  *order*: the original zeroes AH **before** the load, MSC after it (`C1 E3 02 2A E4 8A
+  87` versus `C1 E3 02 8A 87 ... 2A E4`). `43a1` additionally caches the index in BX,
+  which is wall 7 on top;
+- **`les`-based** (`479e:0004`) - blocked on the split far-pointer load regardless;
+- **`43a1`'s `-1` default** was a useful detail: the return type is `int` on one path and a
+  zero-extended byte on the other, which is why the compiler bothers to clear AH at all.
+
+So the class is a genuine candidate pool, but its units need the scheduler to emit a
+zeroing *before* a load - the same wall 9 that the `3ede` pair hit - and in two of the
+four shapes wall 7 as well.
+
+`docs/WALLS.md` now carries the correction as its own section (12b) so the misleading
+description cannot be quoted again, and the two decoded units are its witnesses.
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 146: `2A E4` is NOT a wall - a class of 74 units reopens (no rows)
 The "sub ax,ax zeroing" class (20 units when it was written, 74 after widening the trait
 this round to `2A E4` / `2A C0` / `2B C9`) said MSC always emits `33 C0`. **It does not.**
