@@ -62,7 +62,7 @@ matching. `docs/WALLS.md` holds twenty-one numbered walls with witnesses; the im
 
 ## What would move the needle
 
-- **A pre-6.0 Microsoft C.** MSC 6.0's codegen matches 7.0's for every wall that matters;
+- **A pre-6.0 Microsoft C.** MSC 6.0 matches 7.0 for the frame and the doubling but not for zeroing (round 260);
   the original is older still (unoptimised selection, classic frames, 80186 encodings).
 - **A different linker** would change nothing: `verify.py` compares objects with relocations
   masked, and `/FARCALLTRANSLATION` is already modelled.

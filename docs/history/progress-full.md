@@ -6,6 +6,21 @@ which round.
 
 # PROGRESS
 
+## Round 260: MSC 6.0 was never broken - round 208 was wrong, and 6.0 reaches the zeroing class
+Started the compiler line of work. Round 208's "MSC 6.0 no longer produces an object" was **my
+mistake, not a regression**: 6.0 parses only `near`/`far`/`pascal`, and the `__near __pascal`
+spellings used for 7.0 are a syntax error that leaves no object and no log. Bisected with five
+probes (plain int, `far pascal`, `near pascal`, `far cdecl`, `fastcall`): everything compiles
+except `fastcall` and any double-underscore keyword. Round 143 had already recorded the keyword
+restriction; round 208 forgot it. The round-208 text above is kept as written; this entry
+supersedes it, and `GAP.md` and `HOWTO.md` are corrected.
+
+Measured on MSC 6.0 vs 7.0: `int` zeroing is `2B C0` on 6.0 (the original's form) and `33 C0`
+on 7.0; doubling is `D1 E0` on both (the 199-unit wall holds). The 12 pending sources compile
+under all four flag sets on 6.0 and none matches (pad byte, `3d91`'s tail merge and the
+register choices are unchanged). The open prize is the zeroing class: 77 units / 30 970 B
+contain `2B C0`, of which 5 units / 15 475 B had no MSC 7.0 equivalent.
+
 ## Round 256: closing report
 Final round. The state, verified, is:
 

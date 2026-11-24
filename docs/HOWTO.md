@@ -14,12 +14,12 @@ re-check the whole ledger, reproduce one row, and diagnose a mismatch.
 ../giten/DDS98/DDS98.EXE     the original binary (NOT in this repo)
 ```
 
-**MSC 6.0 does not currently produce an object in this environment** (round 208): `--msc-dir
-MSC6C` reports "no OBJ produced" with no compiler output while MSC7I on the same source works,
-and the failure is identical with `--no-dpmi` and with `--run` substituting the CL line. The
-toolchain is present and `build.py`'s existence check passes, so this is an environment
-regression rather than a missing disk. Nothing in the ledger was ever verified with 6.0, and
-`GAP.md` records the conclusions that were drawn from it while it worked.
+**MSC 6.0 works** (`--msc-dir MSC6C --no-dpmi`), with one trap: it parses only the single-word
+keywords `near`, `far`, `pascal`, `cdecl` and has no `fastcall`. The double-underscore forms this
+project uses for MSC 7.0 (`__near`, `__pascal`) are a hard syntax error that produces **no
+object and no log** - which round 208 mistook for a toolchain regression. Strip the underscores
+(or `#define` them) before compiling a source with 6.0. Ledger rows may select it with
+`msc=MSC6C` in the note; `verify.py` honours that.
 
 `build.py` launches DOSBox-X with `-nopromptfolder`, loads `HDPMI32`, sets
 `PATH`/`INCLUDE`/`LIB` to the MSC directory, and compiles one source file. It
