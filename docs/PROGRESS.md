@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 51: a guarded four-argument relay (57 B)
+`crelay56.c` (`/Os`): `3b72:0040` (57 B) -
+`if (h4(a,b,c,d)) { f1(1); f2(); } h4b(g_17d2, c, 1); return c;`.
+The guarded block is skipped by a single `jz` and the DGROUP-pointer call always
+runs; this is the sibling of the round-20 `3b72:0002` relay, and the two rows
+together cover the pair of functions that segment holds at those offsets.
+
+Probed in the same band and blocked:
+
+- `322c:002c` (43 B) - correct in structure but the temporary is pushed from AX
+  right after the call and from SI later (`50 ... 56`), while MSC 7 pushes SI
+  both times; the round-22 AX/SI scheduler difference again.
+- `1dfc:0116` / `1e12:0006` and `2daa:001c` / `2dad:000c` stay blocked as recorded
+  in round 50 (postponed cdecl cleanup; byte global pushed without extension).
+
+Ledger 452 rows - MATCH 38, RELOCS 390, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 582 B (3.268 %)**.
+
 ## Round 50: milestone summary (no new rows, one artefact)
 Fifty rounds in, the ledger stands at **451 rows** (MATCH 38, RELOCS 389, ASM 2,
 PENDING 22) and **9 525 B of own code (3.249 %)** are byte-verified against MSC 7.
