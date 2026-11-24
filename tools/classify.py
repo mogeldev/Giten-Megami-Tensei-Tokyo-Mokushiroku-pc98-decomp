@@ -20,7 +20,8 @@ TRAITS = [
     ("ENTER frame", lambda b: b[:1] == b"\xc8",
      "`C8 xx xx 00` prologue - the original never uses ENTER; MSC 7 only emits "
      "it with /Gs plus a local, so these come from the older compiler"),
-    ("jump-merge boolean", lambda b: b"\xeb\x03\xb8\x01\x00" in b or b"\xeb\x02\x33\xc0" in b,
+    ("jump-merge boolean", lambda b: b"\xeb\x03\xb8\x01\x00" in b or b"\xeb\x02\x33\xc0" in b
+                                 or b"\x33\xc0\xeb" in b or b"\x99\xeb" in b,
      "`jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns"),
     ("add reg,reg doubling", lambda b: any(b[i:i+2] in (b"\x03\xc0", b"\x03\xc6", b"\x03\xd2",
                                                         b"\x03\xdb", b"\x03\xc9", b"\x03\xff")
@@ -43,6 +44,9 @@ TRAITS = [
      "convention the original used and MSC 7 cannot be told to produce"),
     ("redundant or reg,ax", lambda b: re.search(b"\x8b[\xf0-\xff]\x0b[\xf0\xc0-\xff]", b, re.S) is not None,
      "`mov si,ax; or si,ax` - older codegen tests the just-moved value again"),
+    ("string walk (lodsb/stosb)", lambda b: b"\xac" in b and b"\xaa" in b and b"\xe2" in b,
+     "hand-optimised byte loops (`lodsb` / `stosb` / `loop`) - MSC 7 always addresses "
+     "through `26 8A 07` / `26 88 07` and keeps the pointers in the frame"),
     ("rep stosw memset", lambda b: b"\xf3\xab" in b,
      "word-fill inline `memset` - MSC 7 with /Oi emits `rep stosb`"),
     ("CX-staged value", lambda b: b"\x8b\x4e" in b and b"\x51" in b,

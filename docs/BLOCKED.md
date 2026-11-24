@@ -10,17 +10,18 @@ under two spellings), so treat them as an upper bound.
 | class | units | bytes | why it stays open |
 |---|---|---|---|
 | ENTER frame | 589 | 85535 | `C8 xx xx 00` prologue - the original never uses ENTER; MSC 7 only emits it with /Gs plus a local, so these come from the older compiler |
-| unclassified | 859 | 44452 | no known blocker - these are the real candidates for new source shapes |
-| add reg,reg doubling | 84 | 21170 | `add ax,ax`-style doubling for `x * 2` - MSC 7 uses `shl` |
-| split far-pointer load | 92 | 14009 | `mov es,[bp+xx]` loading only the segment half of a far pointer - blocked trait |
-| ES from global | 69 | 7927 | `mov es,[disp16]` - the original inlines `MK_FP(global, off)` and addresses through ES; MSC 7 calls the `MK_FP` helper and then does `mov es,dx` |
-| jump-merge boolean | 32 | 3219 | `jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns |
-| redundant or reg,ax | 17 | 1216 | `mov si,ax; or si,ax` - older codegen tests the just-moved value again |
-| rep stosw memset | 14 | 1038 | word-fill inline `memset` - MSC 7 with /Oi emits `rep stosb` |
-| CX-staged value | 14 | 993 | a value is compared and then pushed: the original loads it into **CX** once (`8B 4E xx`) and reuses it (`cmp cx,..`, `or ch,..`, `push cx`), while MSC 7 compares from memory and pushes the slot again |
+| unclassified | 819 | 40595 | no known blocker - these are the real candidates for new source shapes |
+| add reg,reg doubling | 77 | 19762 | `add ax,ax`-style doubling for `x * 2` - MSC 7 uses `shl` |
+| split far-pointer load | 87 | 13405 | `mov es,[bp+xx]` loading only the segment half of a far pointer - blocked trait |
+| jump-merge boolean | 94 | 9533 | `jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns |
+| ES from global | 66 | 7478 | `mov es,[disp16]` - the original inlines `MK_FP(global, off)` and addresses through ES; MSC 7 calls the `MK_FP` helper and then does `mov es,dx` |
+| redundant or reg,ax | 14 | 985 | `mov si,ax; or si,ax` - older codegen tests the just-moved value again |
+| CX-staged value | 12 | 930 | a value is compared and then pushed: the original loads it into **CX** once (`8B 4E xx`) and reuses it (`cmp cx,..`, `or ch,..`, `push cx`), while MSC 7 compares from memory and pushes the slot again |
 | AH argument | 6 | 928 | `mov ah,imm` before a far call - an argument in AH, a DOS/EMS register convention the original used and MSC 7 cannot be told to produce |
+| rep stosw memset | 10 | 793 | word-fill inline `memset` - MSC 7 with /Oi emits `rep stosb` |
 | far pointer in DS:BX | 7 | 749 | `lds bx,[bp+..]` - the original keeps a far pointer in DS:BX across a loop and tests it with `mov ax,ds; or ax,bx`; MSC 7 keeps it in the stack frame |
-| operand order | 7 | 608 | `or ax,di` where MSC 7 canonicalises to loading the register operand first |
+| string walk (lodsb/stosb) | 3 | 691 | hand-optimised byte loops (`lodsb` / `stosb` / `loop`) - MSC 7 always addresses through `26 8A 07` / `26 88 07` and keeps the pointers in the frame |
+| operand order | 6 | 460 | `or ax,di` where MSC 7 canonicalises to loading the register operand first |
 | ES absolute access | 6 | 308 | `mov ax,es:[disp16]` - MSC 7 emits `les bx` + `es:[bx]` instead |
 
 ## ENTER frame (589 units, 85535 bytes)
@@ -29,53 +30,47 @@ under two spellings), so treat them as an upper bound.
 
 Largest: `41ef:0004` (2087 B), `3fcf:0036` (1786 B), `45b3:00d0` (1747 B), `4c9c:008e` (1423 B), `4b7d:000a` (1186 B), `238f:000e` (918 B), `455a:0000` (834 B), `44a4:0124` (814 B), `4c61:0004` (806 B), `258d:0008` (785 B), `3cd1:000e` (739 B), `33f2:000c` (678 B)
 
-## unclassified (859 units, 44452 bytes)
+## unclassified (819 units, 40595 bytes)
 
 no known blocker - these are the real candidates for new source shapes
 
-Largest: `1847:000c` (1413 B), `159d:1a36` (529 B), `159d:16e9` (521 B), `1534:0000` (512 B), `159d:1c47` (443 B), `3bab:00aa` (362 B), `1471:000d` (325 B), `1dac:0002` (324 B), `1aa1:0000` (304 B), `4b23:01d6` (264 B), `159d:191b` (253 B), `2d08:007a` (248 B)
+Largest: `1847:000c` (1413 B), `159d:1a36` (529 B), `159d:16e9` (521 B), `1534:0000` (512 B), `159d:1c47` (443 B), `3bab:00aa` (362 B), `4b23:01d6` (264 B), `159d:191b` (253 B), `1061:0003` (245 B), `116f:000c` (224 B), `34ce:000a` (218 B), `4ad2:008e` (208 B)
 
-## add reg,reg doubling (84 units, 21170 bytes)
+## add reg,reg doubling (77 units, 19762 bytes)
 
 `add ax,ax`-style doubling for `x * 2` - MSC 7 uses `shl`
 
-Largest: `2baa:0004` (4612 B), `1c4d:0006` (1190 B), `19e2:0008` (986 B), `1b39:0000` (852 B), `4c9c:08f2` (818 B), `1a22:000e` (750 B), `159d:0148` (668 B), `2e88:000e` (536 B), `1dc7:000a` (522 B), `307b:0018` (517 B), `1b1b:000e` (466 B), `1349:0000` (416 B)
+Largest: `2baa:0004` (4612 B), `1c4d:0006` (1190 B), `19e2:0008` (986 B), `1b39:0000` (852 B), `1a22:000e` (750 B), `159d:0148` (668 B), `2e88:000e` (536 B), `1dc7:000a` (522 B), `307b:0018` (517 B), `1b1b:000e` (466 B), `1349:0000` (416 B), `4416:0002` (407 B)
 
-## split far-pointer load (92 units, 14009 bytes)
+## split far-pointer load (87 units, 13405 bytes)
 
 `mov es,[bp+xx]` loading only the segment half of a far pointer - blocked trait
 
-Largest: `159d:03e4` (4519 B), `2ff9:000a` (1002 B), `4885:0006` (340 B), `4870:0004` (268 B), `4093:000e` (231 B), `225b:0005` (227 B), `40e8:0040` (223 B), `1ed7:000c` (209 B), `2274:0003` (203 B), `1a95:000c` (180 B), `252b:000a` (173 B), `2269:0008` (171 B)
+Largest: `159d:03e4` (4519 B), `2ff9:000a` (1002 B), `4885:0006` (340 B), `4870:0004` (268 B), `4093:000e` (231 B), `225b:0005` (227 B), `40e8:0040` (223 B), `1ed7:000c` (209 B), `2274:0003` (203 B), `252b:000a` (173 B), `2269:0008` (171 B), `464d:000e` (160 B)
 
-## ES from global (69 units, 7927 bytes)
-
-`mov es,[disp16]` - the original inlines `MK_FP(global, off)` and addresses through ES; MSC 7 calls the `MK_FP` helper and then does `mov es,dx`
-
-Largest: `1b7d:0004` (802 B), `19a8:000a` (358 B), `46ec:0000` (339 B), `2dce:0004` (339 B), `1adb:0002` (272 B), `320f:0001` (233 B), `2e5b:0000` (214 B), `1906:0000` (214 B), `1d36:0003` (208 B), `1012:0002` (201 B), `3141:0032` (197 B), `1971:0032` (193 B)
-
-## jump-merge boolean (32 units, 3219 bytes)
+## jump-merge boolean (94 units, 9533 bytes)
 
 `jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns
 
-Largest: `1394:000c` (398 B), `1bc2:0002` (380 B), `13b0:0004` (348 B), `19d1:0004` (276 B), `1c9e:000a` (224 B), `13c8:0008` (212 B), `324b:0030` (155 B), `10e5:0008` (128 B), `2570:007c` (94 B), `3e39:000a` (82 B), `4f67:0094` (71 B), `5151:000a` (64 B)
+Largest: `4c9c:08f2` (818 B), `1394:000c` (398 B), `1bc2:0002` (380 B), `13b0:0004` (348 B), `2dce:0004` (339 B), `1aa1:0000` (304 B), `19d1:0004` (276 B), `2d08:007a` (248 B), `1c9e:000a` (224 B), `13c8:0008` (212 B), `1a95:000c` (180 B), `1224:0008` (180 B)
 
-## redundant or reg,ax (17 units, 1216 bytes)
+## ES from global (66 units, 7478 bytes)
+
+`mov es,[disp16]` - the original inlines `MK_FP(global, off)` and addresses through ES; MSC 7 calls the `MK_FP` helper and then does `mov es,dx`
+
+Largest: `1b7d:0004` (802 B), `19a8:000a` (358 B), `46ec:0000` (339 B), `1adb:0002` (272 B), `320f:0001` (233 B), `2e5b:0000` (214 B), `1906:0000` (214 B), `1d36:0003` (208 B), `1012:0002` (201 B), `3141:0032` (197 B), `1971:0032` (193 B), `1b06:0006` (192 B)
+
+## redundant or reg,ax (14 units, 985 bytes)
 
 `mov si,ax; or si,ax` - older codegen tests the just-moved value again
 
-Largest: `50c7:0002` (167 B), `159d:158b` (110 B), `2b91:000e` (99 B), `2ef8:000c` (96 B), `3e24:000c` (95 B), `1425:0008` (90 B), `5063:000c` (88 B), `46e1:005c` (84 B), `4a3c:0002` (78 B), `3fcf:0000` (53 B), `2b9a:0000` (46 B), `437e:0006` (43 B)
+Largest: `50c7:0002` (167 B), `159d:158b` (110 B), `2b91:000e` (99 B), `2ef8:000c` (96 B), `3e24:000c` (95 B), `46e1:005c` (84 B), `4a3c:0002` (78 B), `2b9a:0000` (46 B), `437e:0006` (43 B), `223b:000e` (38 B), `4690:0000` (34 B), `31cd:0006` (34 B)
 
-## rep stosw memset (14 units, 1038 bytes)
-
-word-fill inline `memset` - MSC 7 with /Oi emits `rep stosb`
-
-Largest: `19bf:0000` (292 B), `40dc:0058` (110 B), `4f54:0004` (107 B), `11c3:000a` (72 B), `1131:000c` (72 B), `1f9a:0002` (68 B), `4f5d:000e` (54 B), `1115:000e` (46 B), `1113:0000` (46 B), `1110:0002` (46 B), `1a20:0002` (44 B), `2dce:01fe` (29 B)
-
-## CX-staged value (14 units, 993 bytes)
+## CX-staged value (12 units, 930 bytes)
 
 a value is compared and then pushed: the original loads it into **CX** once (`8B 4E xx`) and reuses it (`cmp cx,..`, `or ch,..`, `push cx`), while MSC 7 compares from memory and pushes the slot again
 
-Largest: `1057:0000` (163 B), `103f:000c` (163 B), `1c30:0006` (124 B), `3f0d:005a` (92 B), `1597:0008` (90 B), `377f:000a` (68 B), `375e:000c` (51 B), `2061:0008` (40 B), `1f7c:0008` (40 B), `1f72:0044` (40 B), `1f7f:0036` (33 B), `2216:002a` (32 B)
+Largest: `1057:0000` (163 B), `103f:000c` (163 B), `1c30:0006` (124 B), `3f0d:005a` (92 B), `1597:0008` (90 B), `377f:000a` (68 B), `375e:000c` (51 B), `2061:0008` (40 B), `1f7c:0008` (40 B), `1f72:0044` (40 B), `1f7f:0036` (33 B), `4aae:0006` (26 B)
 
 ## AH argument (6 units, 928 bytes)
 
@@ -83,17 +78,29 @@ Largest: `1057:0000` (163 B), `103f:000c` (163 B), `1c30:0006` (124 B), `3f0d:00
 
 Largest: `2baa:1208` (514 B), `1e3b:000a` (229 B), `4649:000e` (64 B), `4646:0004` (58 B), `4642:0004` (37 B), `4642:002a` (26 B)
 
+## rep stosw memset (10 units, 793 bytes)
+
+word-fill inline `memset` - MSC 7 with /Oi emits `rep stosb`
+
+Largest: `19bf:0000` (292 B), `40dc:0058` (110 B), `11c3:000a` (72 B), `1131:000c` (72 B), `1f9a:0002` (68 B), `4f5d:000e` (54 B), `1a20:0002` (44 B), `2dce:01fe` (29 B), `2dce:021c` (28 B), `4080:0008` (24 B)
+
 ## far pointer in DS:BX (7 units, 749 bytes)
 
 `lds bx,[bp+..]` - the original keeps a far pointer in DS:BX across a loop and tests it with `mov ax,ds; or ax,bx`; MSC 7 keeps it in the stack frame
 
 Largest: `1161:000e` (222 B), `3c55:0002` (174 B), `10be:0005` (153 B), `1b17:0002` (76 B), `4acf:0004` (48 B), `115f:0004` (42 B), `2a55:000e` (34 B)
 
-## operand order (7 units, 608 bytes)
+## string walk (lodsb/stosb) (3 units, 691 bytes)
+
+hand-optimised byte loops (`lodsb` / `stosb` / `loop`) - MSC 7 always addresses through `26 8A 07` / `26 88 07` and keeps the pointers in the frame
+
+Largest: `1471:000d` (325 B), `1dac:0002` (324 B), `10d3:0022` (42 B)
+
+## operand order (6 units, 460 bytes)
 
 `or ax,di` where MSC 7 canonicalises to loading the register operand first
 
-Largest: `4497:0006` (208 B), `5132:0000` (148 B), `1c07:0000` (92 B), `20f9:000c` (44 B), `1e17:000a` (40 B), `2b34:006a` (38 B), `159d:16c3` (38 B)
+Largest: `4497:0006` (208 B), `1c07:0000` (92 B), `20f9:000c` (44 B), `1e17:000a` (40 B), `2b34:006a` (38 B), `159d:16c3` (38 B)
 
 ## ES absolute access (6 units, 308 bytes)
 

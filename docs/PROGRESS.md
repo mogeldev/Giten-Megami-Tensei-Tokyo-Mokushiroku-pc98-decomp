@@ -1,5 +1,34 @@
 # PROGRESS
 
+## Round 31: `_based` ruled out, map sharpened again (0 new rows)
+The round targeted the biggest new class from round 30, "ES from global"
+(`8E 06 <disp>` plus ES-relative access, the original's inline
+`MK_FP(variable_segment, off)`). Two formulations were tried:
+
+- `__based(...)` - **rejected by CL 8.00** in every spelling except
+  `int _based(b) *p;` where `b` is a *near pointer* variable; that form compiles
+  but emits `push si; mov bx,[b]; mov si,[b2]; mov word ptr [bx],1`, i.e. no
+  ES-relative access at all. So Microsoft's based-pointer feature does **not**
+  explain the original's `8E 06` idiom - the hypothesis is ruled out, not just
+  unproven.
+- a plain `strncpy`-style loop for `10d3:0022` (42 B): the original is a
+  hand-optimised `lodsb`/`stosb`/`loop` + `rep stosb` walk, which MSC 7 never
+  emits for a C pointer loop (it addresses through `26 8A 07` / `26 88 07` and
+  keeps the pointers in the frame).
+
+Map improvements in `tools/classify.py`:
+
+- the jump-merge predicate was too narrow (it only looked for `EB 03 B8 01 00`
+  and `EB 02 33 C0`); it now also catches `33 C0 EB` and `99 EB`, which took that
+  class from 32 to **94 units / 9 533 bytes**;
+- new class "string walk (`lodsb`/`stosb`/`loop`)" - 3 units, 691 bytes.
+
+`docs/BLOCKED.md` regenerated: 14 classes, unclassified down to
+**819 units / 40 595 bytes** (from 922 / 50 096 at round 24).
+
+Ledger 429 rows - MATCH 38, RELOCS 367, ASM 2, PENDING 22 (unchanged); verify and
+checkled green; own-code coverage 8 588 B (2.929 %).
+
 ## Round 30: two more classes mapped, unclassified down to 44 KB (0 new rows)
 Three transcription attempts landed on generation-specific codegen, so the round
 went into the map instead:
