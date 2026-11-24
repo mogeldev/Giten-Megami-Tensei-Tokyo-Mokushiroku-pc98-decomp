@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 60: a guarded initialiser chain (86 B)
+`crelay58.c` (`/Os`): `5116:0008` (86 B) -
+`h1(&a, &b); h2(&b, &c); r = h3(a, b, 0); if (r >= 0x20) r = h4(0, c, 0); g_4090 = 0x0A; h5(); return r;`.
+Two calls take far pointers to the **parameters themselves** (`8D 46 <n>` + `16` +
+`50`, i.e. SS:BP), so the parameters must stay addressable on the stack, and the
+status guard is a `7C` that jumps *over* the second call.
+
+Four iterations on the same unit, each a different question, and all four were
+worth asking:
+
+1. the two pointer calls take `(&a, &b)` and `(&b, &c)` - a chain, not the reverse;
+2. the status call takes `(a, b, 0)`, not `(c, b, 0)`;
+3. the guard is `if (r >= 0x20)` (fall-through call), the mirror of my first guess;
+4. the second call takes `(0, c, 0)`, not `(0, a, 0)`.
+
+The size was again the object symbol's (86), not the 82 I first used - the fifth
+time `verify.py` has caught that, and it caught it here within one run.
+
+Batch screening continued to pay: this unit came out of a six-candidate compile and
+took four cheap iterations instead of four compile-heavy rounds.
+
+Ledger 454 rows - MATCH 38, RELOCS 392, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 701 B (3.309 %)**.
+
 ## Round 59: batch screening pays off, two units down to one prologue (no new rows)
 First round with the batched method: six candidates transcribed mechanically, one
 compile, all matched at once. Two of them came back **byte-identical except for a
