@@ -681,3 +681,10 @@ No ledger change, so verify.py was not re-run this round.
 ### Round 8: long exchange, 1e33:0006 and 2d46:0008
 
 `long old = g; g = v; return old;` (far pascal, `C8 04`). Eight spellings (plain, extra local, `register`, union, split lo/hi) give the right frame under `/Ox` but the old low word goes to `[bp-4]` where the original keeps it in **BX** (`mov bx,ax` ... `mov ax,bx`). That is the BX wall (BX is never a C variable). `2d46:0008` is the same function on an `es:`-addressed global (segment 4827) and shares the wall. Not recorded. `477b:0000` (round 7) was the only ENTER unit that closed this way.
+
+### Round 9: 42fe:000c, 4978:000a
+
+- `42fe:000c` (44 B, far): sums byte field `[bx+2]` over the records at 0x866E whose sign-extended 11-bit key (`shl ax,5; sar ax,5`) equals the argument. Bit-field spelling gives the body byte for byte under `/Ox`; only the frame differs (original `C8 02` with an unused local, MSC emits `55 8B EC`). Same frame-only miss as `4349:005c` (round 6); eight spellings of a dead local (assigned, initialised, array, address taken) are all dropped.
+- `4978:000a` (44 B): `r = i = 0` stored through the frame (`xor ax,ax; mov [bp-2],ax; mov [bp-4],ax`) around a loop of 35 near calls `r |= G(i,p)`. MSC register-allocates r and i under `/Ox` (`xor dx,dx` ...) and uses `mov [bp-x],0` under `/Os`; neither gives the shared-zero store. Six spellings, no match.
+
+Open question worth one test: do any two frame-only misses (`4349:005c`, `42fe:000c`) share a *used-but-optimised-away* local that a different construct keeps alive?
