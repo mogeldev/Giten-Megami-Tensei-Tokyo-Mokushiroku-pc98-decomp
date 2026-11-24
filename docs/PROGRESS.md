@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 96: an if/else over two calls, from the unclassified list (25 B)
+`crelay69.c` (`/Os`): `34b7:001c` (25 B) - `if (!a) h1(); else h2();`. The two calls
+share a tail, so there is no nop padding and no branch-distance problem; the unit's
+inventory window simply runs into the following function, which is why its size had to
+come from the object symbol rather than `units.csv`.
+
+The candidate came from a new view: filtering the unclassified pool to units that are
+**complete** (their core ends at a return) rather than by prologue bytes. That leaves
+just **11 units of 24-64 bytes**, of which this was one - the rest are either
+interrupt wrappers, `les`-based, or have multi-branch range checks.
+
+The remaining complete-unclassified units, for the next round:
+
+- `3bd3:0002` (52 B) - a four-way range test (`jl`/`jo`/`sub 0x800`/`jg`) guarding a
+  four-argument call; the exact source comparison is not obvious from the branch
+  layout (signed checks plus an overflow check suggest a hand-shaped expression);
+- `10b7:0006` (33 B) - a struct update against a global at 0x4A4C, with `4B 4B`
+  (decrement twice) where MSC would likely emit `83 EB 02`;
+- `1233:000e`, `138c:000c`, `1137:0002`, `11ea:0002`, `10b9:0007`, `103b:000c` - all
+  interrupt wrappers or `les`-heavy, i.e. already-known families.
+
+Ledger 473 rows - MATCH 38, RELOCS 411, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **10 264 B (3.501 %)**.
+
 ## Round 95: probe.py re-proposed claimed windows - fixed (no new rows)
 Ran the full `probe.py` sweep (all 150 calibration sources against every window in
 the image) hoping for free sibling rows. It reported one hit, `3670:00e2 = _F_3309`
