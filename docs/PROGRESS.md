@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 160: the DI trick pays a row (28 B), and a second unit down to two bytes
+Round 159's "move a parameter into DI" recipe was applied to the 15 units with a
+`55 8B EC 57 56` prologue, and the first one matched:
+
+**`3a3d:0006` (28 B)** - `a = a0; r = h1(a); h2(a); return r;` with `register int r, a;`.
+The original keeps the parameter in DI and the call result in SI; the reversed
+declaration order plus the folded copy produce `57 8B 7E 06` exactly, and the far/near
+call pair is far then near.
+
+Then `437e:0006` (43 B) was transcribed - a masked-struct write after a guard:
+
+    r = h1(a);
+    if (r >= 0) { g_866f[a].f0 &= 7; g_866f[a].f2 &= 0x7F; }
+    return r;
+
+It is **two bytes** from a row either way round: with `register int a, r;` the index
+register is right but one access uses the other register; with `register int r, a;` both
+registers swap (`8B 7E 06` where the original has `8B 76 06`). So the unit sits exactly on
+the boundary the round-159 trick moves, which makes it the best next candidate for a
+declaration-order sweep.
+
+Ledger **492 rows** - MATCH 38, RELOCS 425, ASM 2, PENDING 27; verify and checkled
+green; own-code coverage **10 930 B (3.728 %)**.
+
 ## Round 159: a parameter can be moved into DI after all (no rows)
 Round 158 concluded that `20f9:000c` was unreachable because parameters are allocated
 before locals. This round found the way around it, and it is now recorded in
