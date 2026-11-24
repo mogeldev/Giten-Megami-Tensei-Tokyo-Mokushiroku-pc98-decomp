@@ -1,5 +1,34 @@
 # PROGRESS
 
+## Round 193: a retry loop with two register locals (no rows)
+`2b9a:0000` (46 B) is a do/while retry loop found by the adjacency filter:
+
+    register int r, x;
+    x = a0;
+    do {
+        r = h1();
+        if (r >= 0) x = r;
+        r = h3(h2(x, x));
+    } while (r);
+    return x;
+
+The original keeps `x` in **DI** and `r` in **SI**; both declaration orders were compiled and
+MSC always gives SI to `x` - the value assigned first and live across the whole loop. That is
+the clearest instance yet of round 161's rule that the assignment follows *lifetime* rather
+than declaration order: the longest-lived value gets SI, and here the original's compiler
+chose DI for exactly that value.
+
+So the round-159 DI recipe works when the parameter (short-lived) goes to DI, and this unit is
+the mirror image - it needs the *long-lived* value in DI - so the recipe does not apply.
+
+The adjacency filter has now produced rows from both directions and is delivering roughly one
+matchable unit per three candidates, with the rest landing on named walls. That is a fair
+description of the remaining pool as a whole: it contains real functions whose C is
+recoverable, gated on about a dozen compiler decisions that no source form reaches.
+
+Ledger 511 rows (unchanged), PENDING 35; verify and checkled green; own-code
+coverage 11 260 B (3.840 %).
+
 ## Round 192: the pending registry grows to nine (tooling round)
 Extended `src/pending/pending1.c` and `tools/pending.txt` with three more of the ledger's
 PENDING hypotheses, so that a third of them are now machine-re-testable:
