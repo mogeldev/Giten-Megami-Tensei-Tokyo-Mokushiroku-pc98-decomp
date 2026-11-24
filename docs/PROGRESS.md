@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 135: `/Ox` also resolves the CX-staged wall (59 B)
+Round 134 bounded `/Ox` to "use it when only the register name differs". This round
+found a second family where it applies: the units classified as **CX-staged value**,
+where the original caches a parameter in CX for two comparisons.
+
+`1f45:00b0` (59 B) now matches under `/G1 /AM /Gs /Ox`:
+
+    if (sel == 0x19 || sel == 0x14) {
+        g_4688 = sel;
+        h(sel == 0x19 ? 0x6C : 0x68, g_46e1, v);
+    }
+    return v;
+
+with parameters `(long v, int sel)`. Two things had to be right:
+
+- the selector is the **last** parameter, at `[bp+06]`, which is why the original's first
+  instruction reads it; my earlier attempt had `(int sel, long v)` and every offset was
+  wrong;
+- `/Ox` is what makes MSC cache it in CX (`8B 4E 06` / `81 F9 19 00`); under `/Os` it
+  compares the frame slot twice (`83 7E 06`).
+
+So the "CX-staged value" class (9 units / 690 B) is a `/Ox` candidate, not a wall - which
+reclassifies it from the permanently-blocked list to the work list.
+
+Ledger 487 rows - MATCH 38, RELOCS 423, ASM 2, PENDING 24; verify and checkled
+green; own-code coverage **10 869 B (3.707 %)**.
+
 ## Round 134: the `/Ox` lever tested against seven blocked units (no rows)
 Round 133 found `/Ox` resolves some register-naming misses, so this round applied it to
 the units that had been blocked on exactly that:
