@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 241: a six-parameter dispatch, blocked at the register call (no rows)
+`4e58:0004` (51 B) is the last clean near-ret unit in the inventory and the most intricate
+shape worked recently: it makes **three** calls, the last two with six arguments each, and the
+first with its arguments in **registers** (`57 56 8B 7E 04 8B 76 06 E8 ...` - DI and SI loaded
+before a call with nothing pushed).
+
+Three source shapes were compiled. What they establish:
+
+- the function is `__near __pascal` (ret 0C, first parameter at `[bp+0E]`) - round 238's rule
+  again, and it is now the first thing checked;
+- the two six-argument calls forward `p1..p6` with two constants each (`0x1F`, `0` and
+  `0x80`, `0x0D`), which the object reproduces exactly;
+- the **first** call passes two values in DI/SI rather than on the stack, and MSC cannot be
+  made to do that: declaring the callee's parameters `register` still pushes them, so the
+  object diverges at `E8` (the original's call) versus `56` (MSC's `push si`).
+
+So the whole 51 bytes match except the calling convention of one callee - and that convention
+is not expressible. It is the same finding as round 232's `20f6:0000`: MSC's register
+parameters live in SI/DI for *its own* functions, but it will not emit a call that passes stack
+parameters in registers.
+
+Ledger 523 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 564 B (3.944 %).
+
 ## Round 240: round 222's unit lands, from the same rule again (62 B)
 Round 222 transcribed `1e2f:0008` (62 B) - a 32-bit running maximum over two `long` parameters -
 and could not reconcile the parameter offsets: the subtraction looked like it was using the
