@@ -1,5 +1,34 @@
 # PROGRESS
 
+## Round 151: a variant sweep tool, since guessing one shape at a time has run dry (no rows)
+Round 150 named the bottleneck: the remaining near-misses differ in choices MSC makes
+internally, so each unit needs several equivalent C shapes tried before one matches. Doing
+that by hand costs a round per unit and has been yielding one row every five rounds.
+
+Added **`tools/regsweep.py`**: it takes a template containing a function named `CAND`,
+generates every combination of `register` and `unsigned` over its parameter list, compiles
+each variant, and reports which ones match the target unit. One round can now test 64
+source shapes against a unit in a few minutes, across several flag sets.
+
+First uses found no hit, and that is itself informative:
+
+| unit | variants | flag sets | result |
+|---|---|---|---|
+| `2a7e:0000` (67 B) | 16 | 3 | no match |
+| `43a1:0000` (38 B) | 2 | 2 | no match |
+| `1f72:0044` (40 B) | 4 | 2 | no match |
+| `4d98:000a` (18 B) | 16 | 2 | no match |
+| `2a28:0000` (28 B) | 64 | 3 | no match |
+
+So the clamp unit's DX-versus-AX difference is **not** reachable by any combination of
+`register` and signedness on its three parameters - which is worth knowing, because that
+unit has been the project's canonical example of the register-assignment wall since round
+123. The tool is now available for every future candidate, and its cost is one compile per
+variant.
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 150: half-way point; two more units read exactly (no rows)
 Round 150 of 256. Two more small units decoded with the new tool:
 
