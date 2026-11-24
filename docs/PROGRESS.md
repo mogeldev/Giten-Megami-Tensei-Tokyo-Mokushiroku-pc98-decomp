@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 58: `/G0` confirmed on a near function, and a change of method (no new rows)
+`13db:000c` (50 B) is a near-Pascal function with a long parameter
+(`void f(long v, int n) { if (n) h2(h1(v) + 1, v + n); }`). It confirmed two things:
+
+- its epilogue is `8B E5 5D C2 06 00` - a **`G0` frame** (`mov sp,bp` then `pop bp`),
+  and under `/G0` MSC 7 reproduces that epilogue exactly;
+- its cdecl cleanup is `8B E5` rather than `add sp,4`, matching the `/G0` form.
+
+It still does not match, for a reason already documented in round 38: the original
+evaluates the **first** argument (`h1(v) + 1`) before the second (`v + n`), while
+MSC 7 evaluates function arguments right to left. No source formulation of a
+two-argument call changes that.
+
+**Change of method.** Rounds 54-58 produced no rows because I was deep-diving one
+or two units per round; the remaining pool of 97 "no known blocker" candidates is
+mostly small relays whose tell is a single instruction. From round 59 I will
+**batch-screen six to eight candidates per round** - transcribe them mechanically
+into one file, compile once, and run `match.py` over all of them - which cuts the
+compile cost per candidate by roughly five times and should restore a row every
+round or two. Anything that survives the screen gets the deeper treatment.
+
+Ledger 453 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 615 B (3.279 %).
+
 ## Round 57: the inline-long-shift class (3.8 KB) - no new rows
 Chased the oldest open PENDING row, `20b4:0160` (_read24, 37 B), and proved why it
 cannot be written: the original **inlines** a 32-bit `x << 8` as `8A E0` (`mov

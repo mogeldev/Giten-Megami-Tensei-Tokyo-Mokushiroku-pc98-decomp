@@ -418,3 +418,11 @@ shift. `20b4:0160` (_read24) is the canonical case: the original assembles a
 same value in MSC 7 avoids the helper. Fourteen unmatched units contain the idiom,
 including six functions over 130 bytes, so this is one of the larger remaining
 classes (now `inline long shift` in tools/classify.py).
+
+## `G0` frames appear in the pool too
+
+Not every function uses the `C9`-style frame. `13db:000c` ends `8B E5 5D C2 06 00`
+- `mov sp,bp` / `pop bp` / `ret n` - which is exactly what MSC 7 emits under `G0`.
+That unit also cleans a cdecl call with `8B E5` instead of `add sp,4`, another `G0`
+trait. When a unit's epilogue has `8B E5 5D` (or `5D` alone), compile that source
+with `G0` and expect the cdecl cleanup to match as well.
