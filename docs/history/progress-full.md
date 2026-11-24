@@ -6,6 +6,29 @@ which round.
 
 # PROGRESS
 
+## Round 261: first zeroing-class row via MSC 6.0 work (2b2e:0000), and what 6.0 did not change
+Screened for zeroing-class units clear of the other known walls (<=80 B, no doubling, port or
+segment work): **six** exist. Worked four on both compilers.
+
+- **`2b2e:0000` (29 B) matched** - RELOCS, and the identical object on MSC 6.0 and 7.0, so the row
+  needs no `msc=` selector. `p = alloc(1, 6); *(long far *)&p->a = 0; p->c = 0; return p;`: the
+  original zeroes AX once and stores the register three times, while `p->a = p->b = p->c = 0`
+  gives three immediate stores on **both** compilers. Round 175's long-store rule is what
+  reaches it. The allocator arguments are pushed `01, 06`; I first had them reversed.
+- **`324b:0008` (40 B)**, the 32-bit clamped subtract, stays blocked on both: the original loads
+  the parameter into BX and keeps zero in AX; both compilers keep the parameter in AX and
+  compare through DX.
+- **`315b:0008` (53 B)** is the tail-merge wall (the first jump is one byte off on both).
+
+**What this says about MSC 6.0.** Its `2B C0` for a plain `int` zero did not turn out to matter
+for the units that were reachable: the six remaining zeroing units are blocked by *other* walls
+(register choice, tail merging), not by the zeroing byte. The 77-unit zeroing class is
+therefore mostly not a zeroing problem once the other walls are removed. 6.0 remains useful as
+a second opinion - it gave the same answer on every unit above - but it is not the key.
+
+Ledger **524 rows** - MATCH 39, RELOCS 445, ASM 2, PENDING 38; verify and checkled green;
+own-code coverage **11 674 B (3.981 %)**.
+
 ## Round 260: MSC 6.0 was never broken - round 208 was wrong, and 6.0 reaches the zeroing class
 Started the compiler line of work. Round 208's "MSC 6.0 no longer produces an object" was **my
 mistake, not a regression**: 6.0 parses only `near`/`far`/`pascal`, and the `__near __pascal`

@@ -32,6 +32,7 @@ handoff guide, a publication audit, and eleven full verification sweeps.
 
 Each line is a `## heading` in `history/progress-full.md`.
 
+- Round 261: first zeroing-class row via MSC 6.0 work (2b2e:0000), and what 6.0 did not change
 - Round 260: MSC 6.0 was never broken - round 208 was wrong, and 6.0 reaches the zeroing class
 - Round 256: closing report
 - Round 255: the final verification (maintenance round)
