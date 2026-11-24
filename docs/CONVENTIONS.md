@@ -843,3 +843,14 @@ measured cleanly.
 What the measurement does establish, and what matters for reading a unit: a `long` parameter
 is loaded as a **pair of word loads with the low word first**, so a unit that reads
 `[bp+04]`/`[bp+06]` and `[bp+08]`/`[bp+0A]` is working with two `long`s, not four `int`s.
+
+## Near vs far is readable from the parameter offset (round 238)
+
+A function whose epilogue is a plain `ret n` and whose first parameter is read at `[bp+04]` is
+**near**: `[bp]` is the saved frame pointer, `[bp+02]` the return IP, and parameters start at
+`+04`. In a **far** function the return address is `CS:IP`, so parameters start at `[bp+06]`.
+
+So the two facts go together and confirm each other - `C9 C2 02 00` plus `8B 7E 04` means
+`__near __pascal`, and writing `__far __pascal` shifts every parameter by two bytes and moves
+the epilogue to `retf`. This cost round 238 one compile: the same source matched immediately
+once the declaration became `__near __pascal`.

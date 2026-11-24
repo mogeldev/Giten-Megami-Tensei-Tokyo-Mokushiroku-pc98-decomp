@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 238: a 78-byte row, and the near/far tell (78 B)
+Worked the largest of `docs/ENTER.md`'s clear units, `4332:0048` (78 B): a `long` array rotated
+right by one element, with the saved element written back to index zero at the end.
+
+First transcription differed at `push di` and, under `/Ox`, at a parameter offset - the original
+reads `[bp+04]` where mine read `[bp+06]`. That one offset is the tell: **a far function's
+parameters start at `[bp+06]`** (`[bp+02]` is the return IP, `[bp+04]` the return CS), while a
+near function's start at `[bp+04]`. Combined with the `ret 2` epilogue it says
+**`__near __pascal`**, and with that declaration the whole 78 bytes matched.
+
+This is the largest row since round 201 and the second from the ENTER pool (the first was
+round 232's `2a87:0008`). The tell is now in `docs/CONVENTIONS.md`, because it generalises:
+**reading a parameter at `+04` in a function that ends in `ret n` means near**, and getting it
+wrong shifts every offset by two.
+
+    t = g_866e[n];
+    while (n > 0) { g_866e[n] = g_866e[n - 1]; n--; }
+    g_866e[0] = t;
+
+Ledger **521 rows** - MATCH 39, **RELOCS 439**, ASM 2, PENDING 41; verify and checkled
+green; own-code coverage **11 471 B (3.912 %)**.
+
 ## Round 237: the nibble family's exact blocker chain (no rows)
 Finished round 236's line of attack on `3813:0000`. Writing the second `xor` with the `0xF000`
 mask the original applies brought the object within one instruction again - and the remaining
