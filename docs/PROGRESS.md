@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 37: two straight-line relays (93 B) - own-code coverage crosses 3 %
+`crelay45.c` (`/Os`):
+
+- `2f3f:0006` (38 B) - `g_1c36 = h5(g_1c36, x, 0, g_1c48);`: the long global is
+  pushed as two words (high word first), then the ints, and the long result is
+  stored back with `A3` / `89 16`.
+- `3e4f:003a` (55 B) - six calls in a row, of which the first two are
+  **`__fastcall`** (argument in AX, no push: `B8 23 00` and `8B 46 06`), then two
+  no-argument calls, a one-argument push and a three-argument far call.
+
+The first attempt at `3e4f:003a` failed because I wrote the second call as
+`h2(a)` (Pascal) - the argument in AX with no push is the tell for `__fastcall`
+(same rule as round 20's `3b6e:0002`).
+
+Also probed: `3da5:000a` (67 B) differs only in `2B C0` versus `33 C0` - the
+pre-MSC6 zero idiom again, third sighting.
+
+Process note (third time): the row size must be read from the object symbol, not
+counted by hand from the hex dump - I guessed 52 for `3e4f:003a` and `verify.py`
+caught it (real size 55).
+
+Ledger 437 rows - MATCH 38, RELOCS 375, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **8 855 B (3.020 %)** - past 3 % of our own bytes.
+
 ## Round 36: two far stores of one result (36 B) and the register-parameter reversal
 `crelay44.c` (`/Os`): `388d:0022` (36 B) - `*a = h(x); *b = h(x);`, two
 far-pointer stores of the same call result with the argument in a register.
