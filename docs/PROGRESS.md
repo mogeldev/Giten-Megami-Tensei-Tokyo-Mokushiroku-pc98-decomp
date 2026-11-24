@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 239: round 216's unit lands, three rounds after it failed (31 B)
+Round 216 transcribed `2d60:000e` (31 B) - a six-parameter pass-through - and was one parameter
+offset out: with `__far __pascal` the `char` parameter landed at `[bp+10]` instead of the
+image's `[bp+0E]`. Round 217 measured that offset and found a seven-word frame for a
+twelve-byte pop, and the unit was left as unexplained.
+
+Round 238's near/far tell is the missing piece. The epilogue is `ret 0C` and the first parameter
+is at `[bp+0E]`, so the function is **`__near __pascal`** - and with that declaration the offsets
+are exactly right. The callee stays **`__far`**, because the image's call is `90 0E E8`, which is
+LINK `/F`'s translation of the object's `9A`.
+
+So the unit needed **three** declaration details at once:
+
+1. `__near` on the function (frame offsets);
+2. a `char` last parameter (pushed with `8A 46` / `50`);
+3. `__far` on the callee (the `9A` that LINK translates).
+
+This is the third row out of the last three rounds and the second this round's predecessor
+unlocked - evidence that a *new general rule* is worth more than any number of attempts on
+known walls, and that units filed as "one offset out" are worth re-opening once a rule lands.
+
+    h(a, b, c, d, e, f);
+
+Ledger **522 rows** - MATCH 39, **RELOCS 440**, ASM 2, PENDING 41; verify and checkled
+green; own-code coverage **11 502 B (3.923 %)**.
+
 ## Round 238: a 78-byte row, and the near/far tell (78 B)
 Worked the largest of `docs/ENTER.md`'s clear units, `4332:0048` (78 B): a `long` array rotated
 right by one element, with the saved element written back to index zero at the end.
