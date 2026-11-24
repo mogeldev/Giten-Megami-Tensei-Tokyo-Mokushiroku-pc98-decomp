@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 199: the doubling class closed by experiment (no rows)
+Round 198 found `add si,si` where MSC emits `shl si,1`, so this round asked the direct
+question: **is `add reg,reg` reachable at all?** Six source forms were compiled for `x * 2` -
+`x * 2`, `x + x`, `x << 1`, `y = x; y += y;`, `2 * x`, and `x * g` - and **all six** produce
+`D1 E0`.
+
+So MSC never emits `03 C0` for a doubling, in any context or under any flag. That closes the
+"add reg,reg doubling" class - **37 units, 4 767 bytes** in `BLOCKED.md` - as *unreachable*
+rather than unexplained, and the same statement now covers `41d8:000c`'s index scaling and
+`4e11:007e`'s value doubling: one behaviour, not two.
+
+This is the largest class the project has been able to close with a single experiment, and it
+is closed with six lines of C and one compile - which is what the accumulated documentation
+was for.
+
+Ledger 513 rows (unchanged), PENDING 37; verify and checkled green; own-code
+coverage 11 260 B (3.840 %).
+
 ## Round 198: doubling in address arithmetic (no rows, PENDING record)
 `41d8:000c` (30 B) is a far-pointer subscript through a call result:
 

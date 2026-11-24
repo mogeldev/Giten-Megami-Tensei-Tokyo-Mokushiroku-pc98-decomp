@@ -328,3 +328,14 @@ using an early `return` instead of `if (n) { ... }`.
 
 Practical rule: a unit whose prologue is `57 56` and whose body otherwise matches is at this
 wall; a unit whose prologue is `56 57` may still match if the assignment is natural.
+
+### Doubling: `add reg,reg` is unreachable (round 199)
+
+Six source forms were compiled for `x * 2` - `x * 2`, `x + x`, `x << 1`, `y = x; y += y;`,
+`2 * x`, and `x * g` - and **all six** produce `D1 E0` (`shl ax,1`). MSC never emits
+`03 C0` (`add ax,ax`) for a doubling, in any context or under any flag.
+
+So this class - 37 units / 4 767 bytes in `BLOCKED.md` - is closed for this toolchain: the
+original's doubling idiom cannot be produced, and the units that carry it are unreachable
+rather than unexplained. The same applies to the index scaling in `41d8:000c` and the value
+doubling in `4e11:007e`, which are now understood as one behaviour rather than two.
