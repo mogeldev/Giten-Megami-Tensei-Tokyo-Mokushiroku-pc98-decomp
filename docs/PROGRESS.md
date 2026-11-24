@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 233: the ENTER list written down (no rows)
+Round 232 matched an `ENTER`-framed unit and noted that the pool had never been screened
+before. This round enumerated it properly and wrote the result to **`docs/ENTER.md`** - the
+complete list of `C8`-framed units, their sizes, and which of them are still open.
+
+There are fifteen such units in the inventory; one is now matched (`2a87:0008`), leaving
+fourteen, and three of those are consecutive addresses (`3809:0000`, `380d:000c`, `3813:0000`)
+whose code looks like the same nibble-swap operation over the same pair of locals - a small
+family that would pay several rows at once.
+
+The document exists because the *reason* to prefer these units is structural, not empirical:
+MSC under `/G1` emits `ENTER` for functions with locals, which is exactly the frame the
+original chose, so this pool is clear of the frame wall that blocks most of the `55 8B EC`
+pool. That reasoning is worth more than a note in a round log - it is a starting point for
+whoever picks the project up.
+
+No row this round: the two units transcribed were the exchange function (BX wall, round 215)
+and a far-struct word-count loop, neither of which came close.
+
+Ledger 520 rows (MATCH 39), PENDING 41; verify and checkled green; own-code
+coverage 11 393 B (3.886 %).
+
 ## Round 232: a MATCH, from a screen nobody had run (42 B)
 Screened for **`ENTER`-framed units** - functions that start with `C8` - which had never been
 searched directly. There are only eight that survive the wall filter, and the second of them
