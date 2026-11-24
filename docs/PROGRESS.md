@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 174: a cut unit, and a zeroing opcode that goes the other way (no rows)
+Worked `cutwin.py`'s list - units whose inventory window cuts the function short. The
+smallest pair, `3d85:000e` (window 10 B, real 47 B), was transcribed in full:
+
+    if (!g_1b0e) g_1b12 = 0;
+    g_1b10 += a;
+    g_1b0e = h(g_1b0e, (long)g_1b10);
+
+Everything matches except **one byte**: the original zeroes AX with `33 C0` (`xor`) where
+MSC uses `2B C0` (`sub`). Three spellings of the zero give MSC's form.
+
+That is the *reverse* of the usual "sub ax,ax" complaint, and it is informative: the
+context is a `long` global cleared with two word stores, so **`2B C0` is not unreachable in
+general** - only for a plain `int` zero. Wall 12 is now narrowed rather than confirmed, and
+`docs/WALLS.md` says so.
+
+Two tooling notes: `tools/dis.py` crashed on `mov al,imm8` (opcode `B0`-`B7` had a
+malformed table entry) and that is fixed; the crash came from using the dumper on a unit
+that starts with `lds`, which is how the bad entry surfaced.
+
+Both units are recorded as PENDING, since the C is known and one byte is the difference.
+
+Ledger 503 rows - MATCH 38, RELOCS 433, ASM 2, **PENDING 30**; verify and checkled
+green; own-code coverage 11 199 B (3.819 %).
+
 ## Round 173: the call-free global screen is exhausted (no rows, PENDING record)
 Screened for units with **no calls at all** that touch globals - the shape most likely to
 transcribe directly, since there is no prototype or calling-convention question. There are

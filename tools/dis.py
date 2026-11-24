@@ -40,7 +40,7 @@ for _i in range(8):
     SIMPLE.setdefault(0x48 + _i, ("dec " + R16[_i], 1))
     SIMPLE.setdefault(0x50 + _i, ("push " + R16[_i], 1))
     SIMPLE.setdefault(0x58 + _i, ("pop " + R16[_i], 1))
-    SIMPLE.setdefault(0xB0 + _i, ("mov " + R16[_i & 3].replace(R16[_i & 3], ("al", "cl", "dl", "bl")[_i & 3]), "imm8", 2))
+    SIMPLE.setdefault(0xB0 + _i, ("mov " + R8[_i] + ", imm8", 2))
     SIMPLE.setdefault(0x91 + _i - 1 if _i else 0x90, ("xchg ax, " + R16[_i], 1))
 
 PREFIX = {0x26: "es:", 0x2E: "cs:", 0x36: "ss:", 0x3E: "ds:"}

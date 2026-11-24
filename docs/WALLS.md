@@ -268,3 +268,15 @@ at `0x0010`): plain pointer, `register char *`, `register int` plus a cast, subs
 explicit `+ 10`. None produce `8B 36`, so the encoding itself is unreachable - a sixth
 form of the register-naming family, but a distinct one worth naming because it is about
 *encodings*, not allocation.
+
+### The zeroing opcode is context-dependent (round 174)
+
+`3d85:000e` shows MSC emitting **`2B C0`** (`sub ax,ax`) where the original has `33 C0`
+(`xor ax,ax`) - the reverse of the usual complaint. The context is a `long` global being
+cleared, which MSC does with `sub ax,ax` followed by two word stores; three spellings of
+the zero (bare `0`, `0L`, a braced block) all produce it.
+
+So `2B C0` is not unreachable in general - it is unreachable *for a plain `int` zero*. That
+narrows wall 12 rather than confirming it, and it means any unit whose only difference is
+`2B C0` versus `33 C0` should be checked for a wider-integer context before being written
+off.
