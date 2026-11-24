@@ -550,3 +550,18 @@ declared first ends up in SI. So the original separates two decisions - **which
 register a parameter gets** follows the declaration (a -> SI, b -> DI), while **the
 order the prologue loads them** follows first use. MSC 7 couples both to first use,
 which is why an exchange in the prologue is the signature of this class.
+
+## LINK /F can leave a near-branch displacement one byte short
+
+At `13d5:000c` a `jnz` whose target is the next block carries displacement `1B`
+where the self-consistent value for the bytes present is `1A`: the target lands one
+byte into the following instruction. The block it jumps over contains a far call that
+`/FARCALLTRANSLATION` folded from `9A seg off` (5 bytes) to `0E E8 rel16` (4 bytes),
+so a block the compiler measured with the longer call shrank after the displacement
+was emitted.
+
+Consequence for matching: a unit whose branch displacement is off by exactly the
+number of folded calls it jumps over cannot be reproduced by any source - the object
+file would have to be linked with `/F` (or the displacement repaired) and then
+compared. Keep these in mind before classifying a one-byte branch miss as padding or
+scheduling.

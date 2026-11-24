@@ -1,5 +1,41 @@
 # PROGRESS
 
+## Round 98: `13d5:000c` decoded, with a one-byte displacement puzzle (no rows)
+Worked the 96-byte character dispatcher from round 97. Its structure is now clear:
+
+    0x00  frame
+    0x03  cmp [bp+0E],'e' ; jz 0x0F
+    0x09  cmp [bp+0E],'E' ; jnz 0x2A
+    0x0F  push 6 args (12,10,0C,0A,08,06) ; call ; mov sp,bp ; retf
+    0x28  90 (padding)
+    0x29  cmp [bp+0E],'f' ; jnz 0x44
+    0x2F  push 5 args (10,0C,0A,08,06) ; call ; jmp 0x0F (EB E0)
+    0x44  push 6 args ; call ; mov sp,bp ; retf
+
+i.e. `for(;;) { if (c=='e'||c=='E') { h6(...); return; } if (c=='f') h5(...); else { h6b(...); return; } }`.
+
+Two facts make it un-transcribable as a ledger row yet:
+
+1. The `jnz` at 0x0D targets **0x2A**, one byte past the block boundary at 0x29 -
+   i.e. into the middle of the following `cmp`. The block itself is 26 bytes long
+   (0x0F..0x28, including the trailing `90`), so a displacement of `1A` would be the
+   self-consistent value; the image has `1B`. The plausible cause is LINK's `/F`
+   far-call folding: the object's `9A` (5 bytes) becomes `0E E8 rel16` (4 bytes), so
+   a block that the compiler measured with the longer call shrinks by one *after* the
+   displacement was emitted. That is a link-time effect inside a single function, and
+   it would make several "impossible" displacements in this binary explicable.
+2. The backwards `EB E0` from the `'f'` path returns to the *frame* at 0x00, not to
+   the first comparison - so the C form is a loop whose top is the comparison, which
+   is fine, but combined with (1) the exact byte sequence cannot be produced by the
+   compiler alone.
+
+This is worth recording because it is a **new explanation for a whole family of
+branch-distance misses**: not the compiler's padding and not scheduling, but LINK
+rewriting call sites and leaving near-branch displacements one byte off.
+
+Ledger 473 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 10 264 B (3.501 %).
+
 ## Round 97: the last unclassified units, assessed (no new rows)
 Widened round 96's completeness filter to 64-130 bytes: **12 complete, unclassified
 units** remain outside every known class. Two were transcribed or decoded this round:
