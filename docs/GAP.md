@@ -76,3 +76,19 @@ DOSBox-X, with `CL.MSG`/`CL.ERR` beside it and `C1.EXE`/`C2.EXE` on `PATH`. Note
 that DOSBox-X silently does nothing when its stdout is redirected to null in this
 workspace, so any manual test must run with its output captured to a variable -
 that cost most of this round's debugging time.
+
+
+### Correction (round 71): "no output" does not mean "crashed"
+
+Round 70 concluded that the DOS CL crash was tearing DOSBox down because its
+redirect file was never created. A control test disproves the inference: the
+**known-good CL 7.0** run with no arguments through the same `--run` path also
+produces no output and no redirect file, while `CL /c ...` works normally. So
+`PROGRAM.EXE > file` in this autoexec simply does not behave like a shell
+redirect for these drivers, and the missing file says nothing about a crash.
+
+What remains true: `dir C:\MSC6DOS\BIN\CL.EXE > file` works, the extracted
+binaries are md5-identical to the known-good copies, and `CL /c` with the MSC6DOS
+toolchain still yields no object. The next probe must therefore capture CL's
+output *inside* the program run (e.g. have CL write its own log with `/Zs` style
+options or check `CL`'s exit code via `if errorlevel`), not via shell redirection.

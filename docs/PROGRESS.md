@@ -1,5 +1,35 @@
 # PROGRESS
 
+## Round 71: the pre-MSC7 thread shelved, with a correction (no new rows)
+Per round 70's own plan, this round either finished the MSC 6.0 diagnosis or
+shelved it. It was shelved, and the round also **corrected round 70's conclusion**.
+
+`build.py --run` was used for three probes:
+
+- `C:\MSC6DOS\BIN\C1.EXE > D:\BUILD\T3.TXT` - no output, no file;
+- `echo A & CL.EXE /? & echo B` - nothing at all (the DOS shell here does not
+  support `&`), so that probe was worthless;
+- **control: `C:\MSC7I\BIN\CL.EXE > D:\BUILD\T5.TXT`** with the *known-good*
+  compiler also produced no output and no file.
+
+The control disproves round 70's inference: a missing redirect file does not mean
+the driver crashed DOSBox, because the working CL 7.0 behaves identically when run
+without `/c`. `docs/GAP.md` now records the correction, and the next attempt must
+observe CL's behaviour from inside the program run (exit code via `if errorlevel`,
+or a driver-written log) rather than through shell redirection.
+
+The thread is shelved for now: three rounds, no rows, and one wrong inference. The
+remaining 154 unblocked candidates are the better use of the next rounds.
+
+Also tried and blocked this round: `2daf:000c` (97 B), the sibling of `2d9b:0002`,
+transcribed with the cdecl pointer-first argument order learned in round 54. It
+matches structurally but keeps MSC's `8B E5` cleanup where the original has
+`83 C4 0C` - the class documented in round 54 - and MSC also stages the two global
+stores through AX instead of `C7 06` immediates.
+
+Ledger 455 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 796 B (3.341 %).
+
 ## Round 70: the DOS MSC 6.0 driver crashes the DOS session (no new rows)
 `build.py` grew a **`--run "<dos command>"`** diagnostic mode (it substitutes one
 DOS command for the CL line and skips the object check), which finally makes the
