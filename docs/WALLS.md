@@ -280,3 +280,23 @@ So `2B C0` is not unreachable in general - it is unreachable *for a plain `int` 
 narrows wall 12 rather than confirming it, and it means any unit whose only difference is
 `2B C0` versus `33 C0` should be checked for a wider-integer context before being written
 off.
+
+## 16. MSC duplicates short epilogues; the original jumps to one
+
+Distinct from wall 2 (padding): here the two exit paths differ in *size*, not by one byte of
+displacement. `315b:0008` (53 B) is the clearest witness. The original ends
+
+    6A 0F 56 90 0E E8 ...  EB 07  90  56 90 0E E8 ...  5E C9 CA 02 00
+
+with **one** `pop si` / `leave` / `retf 4` shared by both paths, while MSC emits the same
+five-byte tail twice (once after each call), and the two branch distances grow by exactly
+that difference. So a conditional whose two arms end in a call has a shared tail in the
+original and duplicated tails in MSC.
+
+Four other units differ only in this way (`3cd1:02f2`, `5026:013e`, `3d91:0020`, `37c1:0004`),
+which makes it the second most common remaining cause after the padding itself - and, unlike
+the padding, it is a *layout* choice rather than a missed peephole, which is why no source
+shape has produced it yet.
+
+Practical rule: a unit whose two arms end in identical instruction runs, with a short `jmp`
+between them, is at this wall and belongs in PENDING.

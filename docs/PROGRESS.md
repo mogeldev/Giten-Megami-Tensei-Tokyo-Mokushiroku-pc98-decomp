@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 177: a sixteenth wall - duplicated versus shared epilogues (no rows)
+Following round 176's queue, `315b:0008` (53 B) was transcribed:
+
+    if (i >= 0 && i < 0x1A) { g_7d22[i].v = 0; h(0x0F, i); }
+    else h2(i);
+
+with `g_7d22` an array of 4-byte structs whose only member is a `long` - so round 175's rule
+supplies the `2B C0` and the two word stores exactly. Everything matches except the
+**epilogue**: MSC emits the five-byte `pop si` / `leave` / `retf 4` tail twice, once after
+each call, where the original shares one and jumps to it (`EB 07`). The two branch distances
+then differ by exactly that five bytes.
+
+That is a *layout* choice rather than a missed peephole, so it is now wall 16, with
+`315b:0008` as its clearest witness and four more units that differ only in this way
+(`3cd1:02f2`, `5026:013e`, `3d91:0020`, `37c1:0004`). It is the second most common
+remaining cause after the padding itself.
+
+Practical rule recorded: a unit whose two arms end in identical instruction runs with a
+short `jmp` between them is at this wall and belongs in PENDING.
+
+Ledger 504 rows (unchanged), PENDING 30; verify and checkled green; own-code
+coverage 11 214 B (3.825 %).
+
 ## Round 176: the six-byte zero resists, and why (no rows)
 Followed round 175's note on `2b2e:0000` (29 B), which zeroes six bytes through a far
 pointer returned by a call:
