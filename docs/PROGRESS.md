@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 116: a fourth data point on register assignment, and the clean pool drains (no rows)
+`218f:0004` and `2191:0008` (36 B each, differing only in call targets) decode cleanly as
+`h1(-1); h3(h2(a, b), a, b);` with both parameters in registers - and they miss **only**
+in the two prologue loads:
+
+    original   8B 7E 08 (DI = a)   8B 76 06 (SI = b)
+    MSC 7      8B 76 08 (SI = a)   8B 7E 06 (DI = b)
+
+That is the fourth unit in the register-assignment series and it breaks every rule
+proposed so far, so `docs/CONVENTIONS.md` now carries a four-row table instead of a
+claim: declaration order fails on `3ede` and `4e58`, first-use fails on `3874`, and
+"lowest offset wins" fails on `3874` and `218f`. The practical rule recorded is to treat
+any unit with two register parameters as test-me-not-predict.
+
+Also worth recording: the "clean relay" subset of the 160-unit pool is now nearly
+drained - five units of 41-52 bytes and thirteen of 18-41, with overlap, and every one
+of them has either been transcribed or is blocked on one of the named traits. What
+remains in the pool is longer, messier code, not more of the same shape.
+
+Ledger 481 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 535 B (3.593 %).
+
 ## Round 115: a long-parameter guard (59 B)
 `crelay75.c` (`/G1 /AM /Gs /Os`): `1e88:000e` (59 B) - `if (!v) { h0(); return; }
 if (h1(v)) { h2(v, c); g_40b4--; }` with `long v`.

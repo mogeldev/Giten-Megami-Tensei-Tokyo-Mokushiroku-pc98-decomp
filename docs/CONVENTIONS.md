@@ -603,18 +603,18 @@ original's own choice, not a flag artefact.
 `B8 xx` / `50` (`mov` + `push`). So the original picks `6A` for small values and `68`
 for large ones - the 80186 rule - and no MSC 6/7 flag reproduces that selection.
 
-### Register-parameter assignment: still not characterised (rounds 93, 112, 113)
+### Register-parameter assignment: four data points, still no rule
+(rounds 93, 112, 113, 116)
 
-Three units disagree, so no single rule fits yet:
-
-| unit | register params | MSC put in SI | original put in SI |
+| unit | register params (declaration order) | MSC put in SI | original put in SI |
 |---|---|---|---|
-| `3ede:00a0` | `a` then `b`, body uses `b` first | `b` | `a` |
-| `3874:000a` | `b` then `c`, body uses `c` first | `b` | `c` |
-| `4e58:0004` | `e` then `g`, body uses both | `g` | `e` |
+| `3ede:00a0` | `a` (08), `b` (06), body uses `b` first | `b` (06) | `a` (08) |
+| `3874:000a` | `b` (08), `c` (06), body uses `c` first | `b` (08) | `c` (06) |
+| `4e58:0004` | `e` (06), `g` (04) | `g` (04) | `e` (06) |
+| `218f:0004` | `a` (08), `b` (06) | `a` (08) | `b` (06) |
 
-`3ede` looked like "first use", `3874` looked like "declaration order", and `4e58`
-fits neither (it gave SI to the second-declared parameter). Until the rule is pinned
-down, treat a unit whose prologue loads two register parameters as a candidate that
-has to be *tested*, not predicted - `register` on one parameter at a time is the
-cheap way to bracket it.
+No ordering rule explains all four: declaration order fails on `3ede` and `4e58`,
+first use fails on `3874`, and "lowest offset" fails on `3874` and `218f`. MSC's
+allocator is doing something demand-driven that this project has not reverse-engineered.
+Treat any unit whose prologue loads **two** register parameters as test-me-not-predict,
+and bracket it with `register` on one parameter at a time.
