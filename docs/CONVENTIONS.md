@@ -773,3 +773,22 @@ instead of `jz +0x09`).
 The zero the caller observes is the one left over from the `or ax,ax` test itself, so the
 behaviour is indistinguishable - only the code differs. Verified on `2127:000c`, where the
 `void` form matches and both `int` forms are two bytes long.
+
+## Parameter offsets, measured (round 210)
+
+Compiling `void f(int a, int b, int c)` in both conventions with `/G1 /AM /Gs /Os` and
+dumping the object gives the mapping outright:
+
+| convention | `a` | `b` | `c` | epilogue |
+|---|---|---|---|---|
+| `__far __pascal` | `[bp+0A]` | `[bp+08]` | `[bp+06]` | `leave; retf 6` |
+| `__far __cdecl` | `[bp+06]` | `[bp+08]` | `[bp+0A]` | `leave; retf` |
+
+So pascal numbers parameters **backwards** from the frame: the first declared parameter has
+the *highest* offset. Reading a pascal unit, `[bp+06]` is the **last** parameter and `[bp+04]`
+the one after it - which is easy to get wrong when a function dispatches on its third argument
+(this cost a round on `19a3:000a`).
+
+For a call, the push order is the declaration order (`push a; push b; push c`), so in a pascal
+callee the first argument ends up at the highest offset - the two facts are consistent; the
+trap is only in reading.

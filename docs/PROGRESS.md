@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 210: parameter offsets measured, not reasoned (no rows)
+Round 209 stumbled on a parameter-offset mismatch and guessed at the cause. This round settled
+it by compiling `void f(int a, int b, int c)` in both conventions and dumping the object:
+
+| convention | `a` | `b` | `c` |
+|---|---|---|---|
+| `__far __pascal` | `[bp+0A]` | `[bp+08]` | `[bp+06]` |
+| `__far __cdecl` | `[bp+06]` | `[bp+08]` | `[bp+0A]` |
+
+Pascal numbers parameters **backwards**: the first declared has the highest offset. That is
+now in `docs/CONVENTIONS.md` as a table rather than a sentence, because it is a fact to look up,
+not to derive - misreading it cost round 209 a candidate.
+
+Re-reading `19a3:000a` with the correct mapping (the dispatch is on the *third* parameter)
+moved the transcription from "first byte differs" to "only branch distances differ", so the
+unit is blocked by the pad again rather than by my parameter order. It is not recorded: 5 of
+the 6 extra bytes come from something other than the pad and the C is not settled.
+
+Ledger 517 rows (unchanged), PENDING 39; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 209: the summary audited against the ledger (no rows)
 `docs/SUMMARY.md` was written at round 195 and its four headline numbers had gone stale by six
 rows. Audited it against the ledger and `tools/coverage.py`: **517 rows** (MATCH 38, RELOCS
