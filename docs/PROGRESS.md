@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 73: the bitfield layout pinned, and the real blocker named (no new rows)
+Round 72's open question is answered. `437e:0032`'s table entry is a 4-byte struct
+whose second word is a bitfield group laid out **8 / 3 / 4 / 1** from the low bit:
+
+    struct E { char pad[2]; unsigned a:8; unsigned b:3; unsigned c:4; unsigned d:1; };
+
+which reproduces the original's `and ch,7` (preserve bits 8-10), the `shl ax,11`
+(field `c` at bit 11) and the trailing `or byte [..+1],0x80` (field `d`).
+
+But three transcriptions - with and without a local pointer, with the index and the
+pointer declared `register` - all fail on the same thing: MSC 7 **spills the table
+pointer across the intervening `h2()` call** (`89 5E FE` / `8B 5E FE`) and therefore
+builds an `ENTER` frame, while the original keeps the scaled pointer in SI
+(`C1 E6 02`, then three `[si+0x866E]` accesses). `register` does not change it: MSC
+only keeps SI/DI for values with no call in between.
+
+That is now recorded in `docs/CONVENTIONS.md` as a class-level statement, because it
+will decide several other candidates the same way: *a value that must stay live
+across a call* is out of reach even when the logic is fully understood.
+
+Ledger 455 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 796 B (3.341 %).
+
 ## Round 72: a bitfield writer decoded (no new rows)
 Back at the unblocked pool after the compiler thread. `437e:0032` (58 B) was
 decoded byte by byte and is a **bitfield writer into a 4-byte table**:

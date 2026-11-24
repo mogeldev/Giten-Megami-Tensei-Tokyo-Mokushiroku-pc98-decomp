@@ -458,3 +458,17 @@ like - an unprototyped callee was tried and MSC still emits `98`. The same appli
 to integer promotion of `char` parameters in general, which suggests the original
 compiler is pre-ANSI in this respect. Thirteen unmatched units (885 bytes) carry
 the pattern and are now the `byte argument without promotion` class.
+
+## Values live across a call: MSC spills, the original keeps them in a register
+
+`437e:0032` keeps a scaled table pointer in SI across an intervening call
+(`C1 E6 02` then `[si+0x866E]` after `h2()`), while MSC 7 allocates a frame slot
+and reloads it (`89 5E FE` / `8B 5E FE`) - which also forces an `ENTER` frame that
+the original does not have. Declaring the pointer or the index `register` does not
+help: MSC still spills anything that must survive a call, because its register
+allocator only keeps SI/DI for values with no call in between.
+
+Practical consequence: a function whose source needs a *pointer or index kept
+across a call* cannot be reproduced with MSC 7, even when every instruction is
+understood. `437e:0032` is fully decoded (a bitfield writer: `(old & 0x0700) |
+(value << 11)`, then bit 15 via a byte OR) and still out of reach for this reason.
