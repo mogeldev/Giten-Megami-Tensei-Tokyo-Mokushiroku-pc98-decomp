@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 105: `/G0` on the system-info routine - down to scratch-register choice (no rows)
+`1486:0002` (89 B) is a system-info routine: it calls one function with a far pointer to
+a DGROUP object (0x9740) and to a stack local, derives a value from the local, and ORs
+three flag bits into globals 0x9738/0x9739, returning a far pointer to them. The
+transcription gets the whole structure right - the `lea`/`push ss` pair for the local,
+the flag tests, the two zeroing stores, the far-pointer return - and differs in exactly
+three places, all scratch-register choices:
+
+    original   lea cx,[bp-4] ; push ss ; push cx      and  dx = 0 ; push dx
+    MSC 7      lea ax,[bp-4] ; push ss ; push ax      and  cx = 0 ; push cx
+
+plus one argument order (`[bp+08]` before `[bp+06]` in the original, i.e. the call
+passes `b` before `a`).
+
+So the older compiler reaches for CX and DX where MSC reaches for AX and CX. That is
+the same family as the `mov bx,ax` / `mov es,dx` exchange from round 74 and the
+BX-as-register-variable class: scratch-register naming, not structure.
+
+`/G0` has now been applied to five units - one row (`103b:000c`, 63 B), and four
+reduced to one- or two-trait statements. The remaining classic-frame-with-locals
+candidates are `11e1:0004` (91 B, a loop) and `10fa:0008` (105 B, a buffer formatter
+with three global far-pointer stores); both are decoded at the block level but need
+their parameter lists pinned before transcription.
+
+Ledger 476 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 327 B (3.522 %).
+
 ## Round 104: `/G0` applied to three more units, all one trait short (no rows)
 Continued the `/G0` sweep. Three units were transcribed; none matched, and each miss is
 a different already-named trait:
