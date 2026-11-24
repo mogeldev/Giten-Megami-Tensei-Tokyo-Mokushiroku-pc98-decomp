@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 61: the third member of the address-of-parameter family (95 B)
+`crelay59.c` (`/Os`): `5108:0008` (95 of a 96-byte unit; the last byte is padding) -
+`h1(&a, &b); h2(&b, &c); h3(&a, &b); r = h4(a, b, 1); if (r >= 0x20) r = h5(0, c, 0); h6(); return r;`.
+
+Found by scanning for the `8D 46 <n>` + `16` + `50` idiom (address of a parameter
+pushed as SS:BP) that round 60's row introduced: it returned ten units, three of
+which are clearly the same template. `511b:000e` is its twin and matches to a
+**single modrm byte** - the original computes the third `&b` into AX
+(`8D 46 08`), MSC 7 into CX (`8D 4E 08`) - so it stays out, but it is the closest
+one-byte miss in the ledger's history.
+
+The idiom scan is the right generalisation of round 60: a verified shape becomes a
+search key, and the search found the family in one command instead of several
+rounds of size-band guessing.
+
+Ledger 455 rows - MATCH 38, RELOCS 393, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 796 B (3.341 %)**.
+
 ## Round 60: a guarded initialiser chain (86 B)
 `crelay58.c` (`/Os`): `5116:0008` (86 B) -
 `h1(&a, &b); h2(&b, &c); r = h3(a, b, 0); if (r >= 0x20) r = h4(0, c, 0); g_4090 = 0x0A; h5(); return r;`.
