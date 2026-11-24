@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 169: two byte globals, two different widenings (37 B)
+`4c9c:065e` (37 B) pushes five arguments from globals and then calls a second function with
+two constants:
+
+    h1(g_995b, g_995c, g_9954, g_9956, g_9958);
+    h2(1, 1);
+
+The interesting part is that the two byte globals are pushed **differently**: the first as
+`A0 <g>` / `2A E4` / `50` (zero-extended) and the second as `A0 <g>` / `50` (not extended).
+One prototype explains both - `h1`'s first parameter is `int`, so the `unsigned char` is
+converted for it, and its second is `char`, so no conversion happens. Declaring the first
+parameter `unsigned char` instead removes the `2A E4` and loses the match, which is the
+reverse of the intuition that matching the argument's type is the way to get matching code.
+
+So round 165's rule now has its converse recorded by the same unit: **the prototype decides
+the widening, in both directions.**
+
+Ledger **499 rows** - MATCH 38, RELOCS 431, ASM 2, PENDING 28; verify and checkled
+green; own-code coverage **11 132 B (3.797 %)**.
+
 ## Round 168: a missed sibling, and the tool bug behind it (32 B)
 While looking for the twin of `2daa:001c`, `2dad:000c` (32 B) turned out to match the *same*
 source - the two units differ only in which helper the middle far call reaches, i.e. a
