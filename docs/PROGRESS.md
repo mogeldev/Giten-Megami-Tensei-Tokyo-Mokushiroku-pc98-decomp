@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 34: two small relays (62 B) from the candidate pool
+`crelay42.c` (`/Os`):
+
+- `2a0f:000e` (31 B) - `h1l(h4l(a, b, c, d))`: a four-argument call whose long
+  result is pushed straight into the next call (`52 50`).
+- `3891:0006` (31 B) - `h1i(h3i(a, b, a) * c)`: the first parameter is `register`
+  (pushed from SI twice) and the multiplier is the **last** parameter, which is
+  why `F7 6E 06` reads it from the frame.
+
+Three more candidates probed and classified:
+
+- `2216:000a` (31 B) - correct except the CX staging pattern again
+  (`8B 4E 06` + `0B C9` + `51`): compare-then-push goes through CX in the
+  original, through memory in MSC 7.
+- `41d8:000c` (30 B) - differs only in `03 F6` (`add si,si`) where MSC 7 emits
+  `D1 E6`, so it is the same trait-1 shape as the `add bx,bx` probes: ASM-only.
+  The classification predicate only listed `03 C0/C6/C9/D2/DB/ED/FF`, so `03 F6`
+  and `03 E4` were added; no unit moved, because `41d8:000c` is already counted
+  by an earlier predicate - the map is stable, the predicate is just complete now.
+
+Ledger 433 rows - MATCH 38, RELOCS 371, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage 8 692 B (2.964 %).
+
 ## Round 33: a triple relay (30 B) and the fragment discovery
 `crelay41.c` (`/Os`): `31f1:0002` (30 B) - `h1(a); h2(a); h3(a);` with a
 `register` parameter, so the value is pushed from SI three times instead of being
