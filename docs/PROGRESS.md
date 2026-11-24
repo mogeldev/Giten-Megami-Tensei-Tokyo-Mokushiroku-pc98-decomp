@@ -1,5 +1,39 @@
 # PROGRESS
 
+## Round 244: three sibling rows at once, and the tooling caught two mistakes (3 x 27 B)
+The near/far rule again, applied to the PENDING column: of 41 pending rows, only one is
+near-epilogued, but the screen turned up **three sibling units** - `3807:0004`, `380c:0000`,
+`3811:0004` - each a 28-byte window whose disassembly is:
+
+    push bp / mov bp,sp / push si
+    si = [bp+04]            ; offset
+    es = [bp+06]            ; segment
+    push es:[si]
+    call <target>
+    es = [bp+06]
+    es:[si] = ax
+    pop si / leave / ret 4
+
+That is `*p = h(*p)` through a far pointer, with a **near** callee - the image's call is `E8`,
+not the `9A` of a far call. One source shape matches all three, since they differ only in their
+call target:
+
+    void __near __pascal F(int __far *p) { *p = h(*p); }
+
+**The ledger's tooling caught two of my mistakes in a row**, which is the point of it:
+
+1. first attempt used size 26, and `verify.py` rejected it - "does not end at a return
+   instruction (ends `5ec9c204`)". The function is **27** bytes; the 28-byte window's last byte
+   is padding;
+2. I appended new rows instead of converting the existing PENDING rows, and `checkled.py`
+   reported `duplicate addresses` for all three.
+
+Both were fixed by editing rather than appending: the three PENDING rows became RELOCS rows at
+27 bytes, sharing one source file.
+
+Ledger **523 rows** - MATCH 39, **RELOCS 444**, ASM 2, PENDING 38 (three converted); verify and
+checkled green; own-code coverage **11 645 B (3.972 %)**.
+
 ## Round 243: the summary brought to the current state, and a full sweep (consolidation)
 Ten rounds on from round 228, `docs/SUMMARY.md` had drifted again in its four headline numbers;
 it now reads **523 rows** (MATCH 39, RELOCS 441, ASM 2, PENDING 41), **480** verified, **11 564
