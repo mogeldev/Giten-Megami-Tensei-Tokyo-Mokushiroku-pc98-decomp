@@ -10,7 +10,7 @@
 | MATCH | 38 |
 | RELOCS | **411** |
 | ASM (excluded from C coverage) | 2 |
-| PENDING | **22** |
+| PENDING | **24** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -36,6 +36,8 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `3807:0004` **UPD_FP (dup 1/3)** (28 B) — `*p = HELP(*p)` through a far pointer built from a seg/off pair. Original loads it split: `8B 76 04` + `8E 46 06` + `26 FF 34`
 - `380c:0000` **UPD_FP (dup 2/3)** (28 B) — byte-identical to 3807:0004, same split-load cause
 - `3811:0004` **UPD_FP (dup 3/3)** (28 B) — byte-identical to 3807:0004, same split-load cause
+- `1036:000c` **LONG_IFELSE** (52 B) — `long r, u
+- `200d:0006` **FAR_PTR_STORE** (42 B) — `register char *p
 
 ## Coverage (honest byte metric)
 
@@ -47,7 +49,7 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
 | of which **verified** | **10264 (3.501%)** |
-| PENDING bytes | 841 |
+| PENDING bytes | 935 |
 
 Code functions: **2523**, of which verified **449**.
 
@@ -55,8 +57,8 @@ Code functions: **2523**, of which verified **449**.
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
-| 0x0000 | 619 | 46 | 65131 | 1074 (1.7%) | 897 | 360 | 159 |
-| 0x0001 | 525 | 86 | 65757 | 1955 (3.0%) | 0 | 569 | 148 |
+| 0x0000 | 619 | 46 | 65131 | 1074 (1.7%) | 897 | 360 | 211 |
+| 0x0001 | 525 | 86 | 65757 | 1955 (3.0%) | 0 | 569 | 190 |
 | 0x0002 | 763 | 184 | 65522 | 4025 (6.1%) | 0 | 0 | 191 |
 | 0x0003 | 561 | 124 | 64435 | 2778 (4.3%) | 0 | 0 | 343 |
 | 0x0004 | 55 | 9 | 33329 | 432 (1.3%) | 66 | 11282 | 0 |

@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 102: the two bracketing near-misses recorded as PENDING (no new rows)
+Round 100 and 101 produced two units that are fully understood but unreachable, and
+they bracket the original's compiler between them - worth recording as ledger entries
+rather than leaving in prose:
+
+- **`200d:0006` (42 B)** - under `/G1` the only difference is the `or reg,ax` peephole
+  (`0B F6` versus `0B F0`); under `/G0` the only difference is `6A 01` (the original's
+  push-imm8) versus `B8 01 00` / `50`. Same source, two flags, one byte wrong either
+  way: the clearest single demonstration that the original combines a classic frame
+  with 80186 encodings.
+- **`1036:000c` (52 B)** - under `/G0` everything matches (prologue `83 EC 08`, long
+  staging `89 56 FE 0B D0`, pushes, teardown) except the original's nop padding
+  (`75 06 ... EB 19 90` versus `75 05 ... EB 18`). It is now the cleanest test case for
+  the padding class: one byte, no other differences, four optimizer settings checked.
+
+Both are PENDING rows now, so the next attempt starts from a precise statement instead
+of re-deriving it.
+
+Also decoded for the next round: `103b:000c` and `1070:0008` (63 and 67 B) are a
+matched pair of marshalling functions that pass far pointers to stack parameters
+(`lea ax,[bp+0E]` / `push ss` / `push ax`) and to a DGROUP object (0x4AD0), with three
+calls and a local spill at `[bp-6]`. They are the next `/G0` candidates but need the
+parameter list pinned down first.
+
+Ledger 475 rows - MATCH 38, RELOCS 411, ASM 2, **PENDING 24**; verify and checkled
+green; own-code coverage 10 264 B (3.501 %).
+
 ## Round 101: `/G0` fixes the frame; the nop padding is still the wall (no rows)
 Applied round 100's finding and measured its scope. Units whose image shows a **classic
 frame with locals** (`55 8B EC 83 EC nn`) and are still unmatched: **32 in total**, of
