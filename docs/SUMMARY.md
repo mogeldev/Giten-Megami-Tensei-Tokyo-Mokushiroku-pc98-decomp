@@ -6,20 +6,20 @@ original image.
 
 ## Results
 
-*(snapshot at round 228; `tools/report.py` regenerates the current numbers into
+*(snapshot at round 243; `tools/report.py` regenerates the current numbers into
 `docs/STATUS.md`)*
 
 | | |
 |---|---|
-| ledger rows | **519** (MATCH 38, RELOCS 438, ASM 2, PENDING 41) |
-| verified against the image | **476** |
+| ledger rows | **523** (MATCH 39, RELOCS 441, ASM 2, PENDING 41) |
+| verified against the image | **480** |
 | own code matched from source | **11 351 bytes of 293 211 (3.871 %)** |
 | code functions inventoried | 2 523 |
 | unmatched units classified into walls | 1 402 across 20 classes |
 
 "RELOCS" means the bytes match with relocation fields masked; "MATCH" means they match with
 no masking at all. Both are rebuilt from source by `tools/verify.py` on demand, and a full
-sweep of all 519 rows takes about ten minutes.
+sweep of all 523 rows takes about ten minutes.
 
 ## What was actually learned
 
@@ -116,3 +116,21 @@ be excluded by inspection.
 That is the honest reading of the 3.871 %: not a failure of effort, but a measured boundary.
 What is left is enumerated - 41 PENDING functions with their C written down, twelve cut
 windows, and a wall list with a size hanging off each entry.
+
+## What changed in the last fifteen rounds
+
+Rounds 232-242 found **five rows** (42, 78, 31 and 62 bytes plus one correction) after thirty
+rounds that found almost none - and every one of them came from a *rule*, not from a better
+candidate pool:
+
+- **the `ENTER` screen** (round 232): MSC under `/G1` emits `C8` for functions with locals, the
+  same frame the original chose, so those units are clear of the frame wall. Two of the five
+  rows came from there;
+- **the near/far tell** (round 238): a function ending in `ret n` whose first parameter is at
+  `[bp+04]` is **near**; far functions start at `[bp+06]`. Getting this wrong shifts every
+  operand by two, and it made two previously-failed transcriptions (rounds 216 and 222) match
+  unchanged.
+
+That is the pattern worth carrying forward: **a rule that closes an "open question" reopens
+every unit filed against it at once.** The remaining fourteen rounds are consolidation, with the
+ledger at 523 rows and the walls measured.

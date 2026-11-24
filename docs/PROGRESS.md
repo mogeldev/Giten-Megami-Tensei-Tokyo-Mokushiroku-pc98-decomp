@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 243: the summary brought to the current state, and a full sweep (consolidation)
+Ten rounds on from round 228, `docs/SUMMARY.md` had drifted again in its four headline numbers;
+it now reads **523 rows** (MATCH 39, RELOCS 441, ASM 2, PENDING 41), **480** verified, **11 564
+of 293 211 bytes (3.944 %)**, and it gained a section on what the last fifteen rounds changed.
+
+That section is worth its space because the answer is not "more rows": rounds 232-242 found
+**five rows after thirty rounds that found almost none**, and every one came from a *rule*
+rather than from a better pool.
+
+- the **`ENTER` screen**: MSC under `/G1` emits `C8` for functions with locals, the same frame
+  the original chose, so those units are clear of the frame wall - two rows came from there;
+- the **near/far tell**: a function ending in `ret n` whose first parameter is at `[bp+04]` is
+  near; far functions start at `[bp+06]`. Getting it wrong shifts every operand by two, and it
+  made two previously-failed transcriptions (rounds 216 and 222) match **unchanged**.
+
+Then ran the full `tools/verify.py`: **523/523 rows ok**, the tenth full sweep. `checkled.py`
+consistent.
+
+Ledger 523 rows; own-code coverage 11 564 B (3.944 %).
+
 ## Round 242: a bounds-checked pointer return, two branch distances out (no rows)
 Applied round 238's near/far rule to a wider near-ret screen (20-100 bytes, pads allowed):
 six candidates, and the freshest one was transcribed - `42e8:006c` (35 B):
