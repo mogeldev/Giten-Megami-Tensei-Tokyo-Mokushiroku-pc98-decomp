@@ -84,7 +84,7 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 352a:0004 | reset_9b30 | 22 | PENDING | `g_9b30 = 0; g_9b42 = 0;` then `far_call(0x18, 1)`. **Reclassified (round 87):** blocked by TWO traits - the zero stores use `C7 06 <g> 00 00` (explicit zero) and the call is a direct `9A` far call |
 | 4527:000a | reset_9b30b | 22 | PENDING | duplicate body of reset_9b30 (second code copy), same two causes (explicit zero stores + `9A` far call) |
 | 458e:a20e | SLOT_FILL | 166 | PENDING | Slot fill routine (pascal, 1 far param). Best variant 162/166 B; remaining diff: original walks the offset only in SI (no write-back of the parameter), MSC7 C writes the param/stack slot back |
-| 4fad:0006 | CONV | 16 | PENDING | `table[c]` word lookup at DGROUP 0x396A. **Reclassified (round 87):** the original indexes with `03 DB` (`add bx,bx`), i.e. trait 1 (doubling by add). Not fixable from C |
+| 4fad:0006 | IDX_142A | 16 | ASM | src=src/calib/casm4.c; flags="/G1 /AM /Gs /Os"; `g_39 6a[i]` word lookup where the original scales with `03 DB` (`add bx,bx`); byte-identical to 35ca:2306 modulo the table address, so the same inline-assembly scaling applies. **ASM row: byte-verified, not C-derived** - excluded from coverage (round 27; previously PENDING as trait 1) |
 | 1ee7:0024 | f_1ee7_0024 | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_4670` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
 | 1ef8:0050 | f_1ef8_0050 | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_4686` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
 | 20b2:000e | f_20b2_000e | 4 | RELOCS | src=src/calib/cunit3.c; flags="/G1 /AM /Gs /Os"; word getter `return g_06de` (`A1 <disp> CB`); hidden unit recovered by tools/split.py |
@@ -443,3 +443,5 @@ eturn psub(g_78c4); one push [disp16] then the translated call; image `90 0E E8`
 | 416f:0042 | F_36E7 | 41 | RELOCS | src=src/calib/crelay25.c; flags="/G1 /AM /Gs /Os"; ninth member of the 36e7 family (DGROUP far pointer at `2A88`); image `90 0E E8` = LINK /F translation of the object's `9A` |
 | 3b5e:0008 | F_3BAA | 14 | RELOCS | src=src/calib/cfarl2.c; flags="/G1 /AM /Gs /Os"; byte-identical to a verified sibling modulo call targets |
 | 416f:006c | F_36E7 | 41 | RELOCS | src=src/calib/crelay25.c; flags="/G1 /AM /Gs /Os"; byte-identical to a verified sibling modulo call targets |
+| 3238:009c | _get_l | 8 | RELOCS | src=src/calib/cget3.c; flags="/G1 /AM /Gs /Os"; reuses a calibration probe shape (confirmed by match.py) |
+| 3e34:0044 | _init_234e | 7 | RELOCS | src=src/calib/cset3.c; flags="/G1 /AM /Gs /Os"; reuses a calibration probe shape (confirmed by match.py) |

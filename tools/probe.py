@@ -80,13 +80,25 @@ def ledger_rows():
 
 
 def symbols(obj):
-    """(name, bytes) for every public symbol, sized to the next symbol."""
+    """(name, pattern) for every public symbol.
+
+    The pattern masks every FIXUPP site (2 or 4 bytes), so two instances of the
+    same shape that differ only in their relocated operands - call targets,
+    global addresses, DGROUP pointers - compare equal. match.py still confirms
+    every hit, so a wildcard can never produce a false row.
+    """
     try:
         ledatas, pubdefs = omf.load(obj)
     except Exception:
         return []
     data = b"".join(ld["data"] for ld in ledatas if ld["seg"] == 1)
     base = min((ld["off"] for ld in ledatas if ld["seg"] == 1), default=0)
+    fix = []
+    for ld in ledatas:
+        if ld["seg"] != 1:
+            continue
+        for (foff, fsize) in ld.get("fixups", []):
+            fix.append((ld["off"] + foff - base, fsize))
     offs = sorted({off - base for (seg, off) in pubdefs.values() if seg == 1})
     out = []
     for name, (seg, off) in pubdefs.items():
@@ -95,9 +107,16 @@ def symbols(obj):
         o = off - base
         nxt = [x for x in offs if x > o]
         end = nxt[0] if nxt else len(data)
-        body = data[o:end].rstrip(b"\x90")
+        body = list(data[o:end])
+        while body and body[-1] == 0x90:
+            body.pop()
+        for (foff, fsize) in fix:
+            for k in range(foff, min(foff + fsize, o + len(body))):
+                if k >= o:
+                    body[k - o] = None
         if body:
-            out.append((name, body))
+            out.append((name, bytes([0 if b is None else b for b in body]), len(body),
+                        frozenset(i for i, b in enumerate(body) if b is None)))
     return out
 
 
@@ -118,6 +137,9 @@ def main():
     # build the probe library: (src, flags, msc, nodpmi, name, normbytes, size)
     lib = []
     for src in sorted(glob.glob(os.path.join(ROOT, "src", "calib", "*.c"))):
+        # inline-assembly probes are ASM rows, not C coverage - never claim them here
+        if "__asm" in open(src, encoding="utf-8", errors="replace").read():
+            continue
         flags, msc, nodpmi = "/G1 /AM /Gs /Os", "", False
         # reuse the flags recorded for this source in the ledger, if any
         for name, s, f, m, nd in known.values():
@@ -127,9 +149,9 @@ def main():
         obj = os.path.join(ROOT, "build", os.path.splitext(os.path.basename(src))[0] + ".OBJ")
         if not os.path.exists(obj):
             continue
-        for name, body in symbols(obj):
+        for name, pat, n, wild in symbols(obj):
             lib.append((os.path.relpath(src, ROOT).replace("\\", "/"), flags, msc, nodpmi,
-                        name, norm(body), len(body)))
+                        name, pat, n, wild))
 
     lib.sort(key=lambda x: -x[6])
     hits = []
@@ -137,9 +159,16 @@ def main():
         if lin in seen:
             continue
         b = IMG[lin - 0x10000: lin - 0x10000 + size]
-        nb = norm(b.rstrip(b"\x90"))
-        for src, flags, msc, nodpmi, name, pat, n in lib:
-            if n > len(nb) or pat != nb[:n]:
+        nb = b.rstrip(b"\x90")
+        for src, flags, msc, nodpmi, name, pat, n, wild in lib:
+            if n > len(nb):
+                continue
+            ok = True
+            for i in range(n):
+                if i not in wild and pat[i] != nb[i]:
+                    ok = False
+                    break
+            if not ok:
                 continue
             hits.append((va, n, name, src, flags, msc, nodpmi))
             seen.add(lin)

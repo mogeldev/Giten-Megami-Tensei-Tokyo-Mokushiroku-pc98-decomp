@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 27: wildcard every fixup site (2 C rows, 1 ASM reclassification)
+`tools/probe.py` now builds each probe symbol's pattern by masking **every
+FIXUPP site** it finds in the object (2 or 4 bytes), not just the call-target
+shapes its normaliser knew about. Two instances of a shape that differ only in
+their relocated operands - call targets, global addresses, DGROUP pointers - now
+compare equal, and `match.py` still confirms every hit, so a wildcard can never
+produce a false row.
+
+That found `3238:009c` (8 B, `_get_l`) and `3e34:0044` (7 B, `_init_234e`).
+
+**Important guard added:** the first run also proposed RELOCS rows from
+`src/calib/casm4.c`, which is an *inline-assembly* probe (`__asm add bx,bx` for
+the `03 DB` scaling that MSC 7 never emits). Claiming those as `RELOCS` would
+have smuggled ASM-derived evidence into C coverage, so `probe.py` now skips any
+probe file containing `__asm` outright.
+
+**PENDING -> ASM:** while checking that, `4fad:0006` turned up. It had been parked
+as PENDING ("trait 1, not fixable from C"), but its bytes are identical to the
+ASM-verified `35ca:2306` modulo the table address, so it is now an ASM row with
+the same inline-assembly note. PENDING count 23 -> 22.
+
+Ledger 427 rows - MATCH 38, RELOCS 365, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage 8 505 B (2.901 %).
+
 ## Round 26: four rows (137 B) from a masking gap in the sweep tools
 The two 41-byte units `3d99:0004` and `416f:0042` turned out to be plain members
 of the round-13 `36e7` family, already covered by `crelay25.c` - the sweeps had

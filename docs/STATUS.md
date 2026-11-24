@@ -8,9 +8,9 @@
 | Status | Count |
 |---|---|
 | MATCH | 38 |
-| RELOCS | **363** |
-| ASM (excluded from C coverage) | 1 |
-| PENDING | **23** |
+| RELOCS | **365** |
+| ASM (excluded from C coverage) | 2 |
+| PENDING | **22** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -25,7 +25,6 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `352a:0004` **reset_9b30** (22 B) — `g_9b30 = 0
 - `4527:000a` **reset_9b30b** (22 B) — duplicate body of reset_9b30 (second code copy), same two causes (explicit zero stores + `9A` far call)
 - `458e:a20e` **SLOT_FILL** (166 B) — Slot fill routine (pascal, 1 far param). Best variant 162/166 B
-- `4fad:0006` **CONV** (16 B) — `table[c]` word lookup at DGROUP 0x396A. **Reclassified (round 87):** the original indexes with `03 DB` (`add bx,bx`), i.e. trait 1 (doubling by add).
 - `473f:0036` **_far_long_const** (7 B) — Returns the long 0x43A30000. Original materialises the low word with `B8 00 00` (mov ax,0)
 - `4737:0002` **SLOT_PTR** (32 B) — `i = (v < 0
 - `2aa3:0048` **ZERO_Z** (38 B) — Zeroes six words of a far struct in the order +6, +0, +8, +2, +0xA, +4. Original loads the pointer as `8B 5E 06` + `8E 46 08` and keeps AX=0 throughou
@@ -47,10 +46,10 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | Code bytes | 294174 |
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
-| of which **verified** | **8490 (2.896%)** |
-| PENDING bytes | 857 |
+| of which **verified** | **8505 (2.901%)** |
+| PENDING bytes | 841 |
 
-Code functions: **2523**, of which verified **401**.
+Code functions: **2523**, of which verified **403**.
 
 ## Regions (64 KiB)
 
@@ -58,8 +57,8 @@ Code functions: **2523**, of which verified **401**.
 |---|---|---|---|---|---|---|---|
 | 0x0000 | 619 | 39 | 65131 | 752 (1.2%) | 897 | 360 | 159 |
 | 0x0001 | 525 | 74 | 65757 | 1595 (2.4%) | 0 | 569 | 148 |
-| 0x0002 | 763 | 166 | 65522 | 3390 (5.2%) | 0 | 0 | 191 |
-| 0x0003 | 561 | 116 | 64435 | 2580 (4.0%) | 0 | 0 | 359 |
+| 0x0002 | 763 | 168 | 65522 | 3405 (5.2%) | 0 | 0 | 191 |
+| 0x0003 | 561 | 116 | 64435 | 2580 (4.0%) | 0 | 0 | 343 |
 | 0x0004 | 55 | 6 | 33329 | 173 (0.5%) | 66 | 11282 | 0 |
 
 <!-- MANUAL-BEGIN -->
