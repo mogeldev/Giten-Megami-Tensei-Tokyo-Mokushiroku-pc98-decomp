@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 33: a triple relay (30 B) and the fragment discovery
+`crelay41.c` (`/Os`): `31f1:0002` (30 B) - `h1(a); h2(a); h3(a);` with a
+`register` parameter, so the value is pushed from SI three times instead of being
+reloaded from the frame each time.
+
+**The candidate pool was over-counted, and now is not.** `tools/classify.py` has a
+new class *"fragment (no prologue)"*: **339 units / 27 814 bytes** are inventory
+windows that do not even start with a function prologue, so they began in the
+middle of a routine and can never be matched as functions. With that class (and
+the broadened jump-merge and MK_FP predicates from rounds 31-33) the honest
+candidate bucket - "unclassified" - is down from 922 units / 50 096 bytes at
+round 24 to **516 units / 25 427 bytes**.
+
+**Six-unit family narrowed to one byte.** `3dde:0006`, `3de0:0004`, `3de4:000c`,
+`3de6:000a`, `3de8:0022` and `3dec:0000` (30 B each) are one shape:
+`void f(unsigned seg, register int off) { hh(seg, off, *(unsigned __far *)MK_FP(seg, off + 2) + 1); }`.
+MSC 7 reproduces every instruction except that the original inlines the far
+access (`8B 46 08` + `8E C0` + `26 8B 44 02`) while MSC 7 calls the `MK_FP`
+helper (`83 C4 04`, `99`, `8B D8`, `8E C2`). So the "inlined MK_FP" class now
+covers **parameter** segments too, not just globals, and its predicate was
+broadened to `8E 06` / `8E C0`.
+
+Ledger 431 rows - MATCH 38, RELOCS 369, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage 8 630 B (2.944 %).
+
 ## Round 32: inner functions of large units (1 row, 12 B)
 Large inventory "units" usually contain **several functions**: a 248-byte unit can
 be one 65-byte function followed by further code. `tools/probe.py` now enumerates

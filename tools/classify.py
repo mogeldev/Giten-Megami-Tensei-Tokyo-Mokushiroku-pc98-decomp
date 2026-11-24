@@ -17,6 +17,9 @@ IMG = open(os.path.join(ROOT, "..", "giten", "DDS98", "DDS98.EXE"), "rb").read()
 
 # (label, predicate, note)
 TRAITS = [
+    ("fragment (no prologue)", lambda b: not (b[:3] == b"\x55\x8b\xec" or b[:1] == b"\xc8"),
+     "the unit does not start with a function prologue, so the inventory window began "
+     "in the middle of a routine: it cannot be matched as a function at all"),
     ("ENTER frame", lambda b: b[:1] == b"\xc8",
      "`C8 xx xx 00` prologue - the original never uses ENTER; MSC 7 only emits "
      "it with /Gs plus a local, so these come from the older compiler"),
@@ -27,9 +30,10 @@ TRAITS = [
                                                         b"\x03\xdb", b"\x03\xc9", b"\x03\xff")
                                             for i in range(len(b) - 1)),
      "`add ax,ax`-style doubling for `x * 2` - MSC 7 uses `shl`"),
-    ("ES from global", lambda b: b"\x8e\x06" in b,
-     "`mov es,[disp16]` - the original inlines `MK_FP(global, off)` and addresses "
-     "through ES; MSC 7 calls the `MK_FP` helper and then does `mov es,dx`"),
+    ("inlined MK_FP", lambda b: b"\x8e\x06" in b or b"\x8e\xc0" in b,
+     "`mov es,[disp16]` or `mov es,ax` right before an ES-relative access - the "
+     "original inlines `MK_FP(seg, off)` (with a global or a parameter segment); "
+     "MSC 7 calls the `MK_FP` helper and then does `mov es,dx`"),
     ("far pointer in DS:BX", lambda b: b"\xc5\x5e" in b or b"\xc5\x5f" in b,
      "`lds bx,[bp+..]` - the original keeps a far pointer in DS:BX across a loop "
      "and tests it with `mov ax,ds; or ax,bx`; MSC 7 keeps it in the stack frame"),
@@ -39,6 +43,10 @@ TRAITS = [
      "`B8 00 00 9A` stack-probe call - MSC 7 with a far data threshold, never in the original"),
     ("ES absolute access", lambda b: b"\x26\xa1" in b or b"\x26\xa3" in b,
      "`mov ax,es:[disp16]` - MSC 7 emits `les bx` + `es:[bx]` instead"),
+    ("inline interrupt", lambda b: b"\xcd\x21" in b or b"\xcd\x2f" in b or b"\xcd\x31" in b,
+     "an inline `int 21h` / `int 2Fh` / `int 31h` - the original issues DOS, multiplex "
+     "or DPMI calls in line; MSC 7 only offers library wrappers (`intdos`, `int86`), "
+     "so these are hand-written or builtin-generated"),
     ("AH argument", lambda b: re.search(b"\xb4[\x00-\xff][^\\x00]{0,6}\x9a", b, re.S) is not None,
      "`mov ah,imm` before a far call - an argument in AH, a DOS/EMS register "
      "convention the original used and MSC 7 cannot be told to produce"),
