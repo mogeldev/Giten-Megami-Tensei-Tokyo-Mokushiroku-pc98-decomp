@@ -704,3 +704,8 @@ Open question worth one test: do any two frame-only misses (`4349:005c`, `42fe:0
 - `38d2:0006` (54 B): `p = G(n); i = 0; while (p->cnt > i) i = H(n,i);` Body matches; the original executes `mov di,[bp+6]` *before* `xor si,si` and keeps the pointer only in `[bp-4]`, MSC hoists `xor si,si` first and also copies the offset into DI (`mov di,bx`). Four loop spellings, same result.
 - `382d:000a` (58 B): `p = G(n); r = K(p->f); p->f = *L(v,&t); return r;` The original saves only SI (`r`) and leaves `p` in the frame; MSC saves DI and SI (`r` in DI, a second copy of the pointer offset in SI). Prologue differs at byte 4 (`56` vs `57 56`). Six spellings including `register`.
 - Next untried from the screen: `39f9:0006` (bit-field insert, `sub al,al` wall suspected), `2162:0006` (switch), `4b5d:000c`, `4307:000a` (`ret 6`, byte fields in a 4-byte record).
+
+### Round 15: 4307:000a, and a read of the PENDING list
+
+- `4307:000a` (58 B, near, `ret 6`): clamp-add on byte field `[rec+2]` of a 4-byte record (`if (len + n > max) n = max - len; len += n; return n`). With a plain `unsigned char` field MSC gives the same compare/subtract body but `55 8B EC` and a byte `add [bx+2],dl`; with an `unsigned len:8` bit-field it does the word read-modify-write the original has, but via BX and a `push si` only at the end. The original keeps the record pointer in SI and has `C8 02`. Seven spellings. BX wall again.
+- All 38 PENDING notes re-read: the residues are pad bytes (`90`), `add r,r` doubling, shared `ret`, `xor` vs `mov ax,0`, BX/SI roles, `les` splits - each already on the proven-unreachable list. No PENDING row has an untested source-level lever.
