@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 55: the three codegen profiles mapped (no new rows)
+Following round 54's cdecl finding, I checked whether another optimisation level
+reproduces the original more often. It does in part: **`/Od` matches the original's
+instruction selection much better than `/Os`** - stores become `C7 06 <g> <imm>`,
+the cdecl cleanup is `83 C4 <n>`, comparisons use `3D <imm> 74`, exactly as the
+original. The blocker is the frame: `/Od` emits ENTER unless `G0`, and `/G0 /Od`
+emits `55 8B EC 81 EC <n> 00 56 57` (reserving all locals and always saving
+SI/DI), while the original almost always has the bare `55 8B EC`.
+
+A scan of the whole unmatched pool found exactly **one** unit with the full
+`/G0 /Od` prologue (`1971:0006`), and it is a mid-routine fragment, so the profile
+is documented but not usable for rows. The three available profiles and where each
+one diverges from the original are now recorded in `docs/CONVENTIONS.md`.
+
+This closes the "try other flags" line of investigation: `/Ot` and `/Ox` behave
+like `/Os` on these units, `/Od` fixes selection but breaks the frame, and the
+original is unoptimised selection with a bare classic frame - a combination MSC 7
+cannot produce.
+
+Ledger 453 rows (unchanged this round); verify and checkled green; own-code
+coverage 9 615 B (3.279 %).
+
 ## Round 54: cdecl argument order and cleanup form corrected (no new rows)
 `2d9b:0002` (85 B) came close - a global-flag init unit
 (`if (!(g_1bee | g_1bec)) { cd6(...); g_1bec = 1; g_1bee = 0; h3(...); }`) - and the

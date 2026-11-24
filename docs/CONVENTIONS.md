@@ -376,3 +376,27 @@ pushes a far-pointer argument last (`... 1E 68 <disp> 9A`), the pointer is the
 
 The `83 C4 0C` afterwards confirms six words of arguments, which is only reachable
 with the pointer counted once.
+
+## There is a third codegen profile: unoptimised with `55 8B EC` frames
+
+`/Od` reproduces the original's *instruction selection* far better than `/Os` in
+several units: stores become `C7 06 <g> <imm>`, comparisons become `3D <imm> 74`,
+and cdecl cleanup is `83 C4 <n>` - all matching the original, where `/Os` uses AX
+staging and `mov sp,bp`. The catch is the frame: `/Od` emits `C8 <n> 00 00`
+(ENTER) unless `G0`, in which case it emits
+
+    55 8B EC 81 EC <n> 00 56 57 ...
+
+i.e. a classic frame that reserves all locals up front and always saves SI and
+DI. The original usually has the bare `55 8B EC` form, so `/G0 /Od` is only a
+match for functions whose prologue is exactly that longer form - a scan of the
+whole pool finds **one** such unit (`1971:0006`), and it is a mid-routine fragment
+that cannot be a ledger row.
+
+So the three available profiles are:
+- `/Os` (used for every verified row) - matches instruction selection for
+  optimized code but stages through AX/SI differently and prefers `mov sp,bp`;
+- `/Od` - matches unoptimised selection but frames with ENTER;
+- `/G0 /Od` - correct frame shape but always reserves locals and saves SI/DI.
+
+The original sits between them: unoptimised selection with a bare classic frame.
