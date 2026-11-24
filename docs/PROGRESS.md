@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 118: both sweeps empty, one more unit down to scheduling (no rows)
+Ran `tools/reuse.py` and `tools/probe.py` again now that twelve sources have been added
+since the last sweep: **both report zero**. The sibling and pattern seams are exhausted
+for the current source set.
+
+One more pool unit was transcribed: `3b2b:000c` (66 B) -
+`g_1760 = a; g_1762 = b; if (!h1(b, a)) { if (!h2(b, a)) { g = 0; g = 0; return -1; }
+return h3(b, a); } return 0;` with `a` in SI (so the parameter list is `(int b, register
+int a)`). The whole body matches - all three calls, both guards, the zeroing pair and
+both return paths - except two instructions at the top:
+
+    original   8B 76 06 8B 46 08 89 36 <g1> A3 <g2>     (load both, then store both)
+    MSC 7      8B 76 06 89 36 <g1> 8B 46 08 A3 <g2>     (load, store, load, store)
+
+MSC interleaves the second load with the first store; the original loads both
+parameters before storing either. That is the same scheduling family as round 117's
+hoisted constants, and no source order fixes it because the store order is already
+correct.
+
+So the pool's remaining units are now dominated by scheduling differences: the C is
+known, the encoding is known, and the instruction *order* is the only gap.
+
+Ledger 481 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 535 B (3.593 %).
+
 ## Round 117: a scheduling wall named - constant pushes hoisted across a call (no rows)
 With the clean relay subset drained, two longer units were transcribed:
 
