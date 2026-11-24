@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 188: the adjacency filter run backwards (no rows, PENDING record)
+The filter so far looked for units that *begin* where a verified row ends. Reversed - units
+that **end** where a verified row begins, i.e. the function immediately before a matched one
+- it yields **57** candidates, and two were transcribed:
+
+- `4aae:0006` (26 B) is `int f(int a) { if (a == -1) return a; return h(a); }`, the same
+  shape as round 122's row `37ec:0006` that matched, but this one has a `90` after the early
+  return's jump (`EB 07 90`) where MSC emits nothing. That is the **seventh** witness of the
+  late-peephole padding and the first in an early-return shape - recorded as PENDING.
+- `47e8:000e` (28 B) is `int f(int a) { if (a == -1) return a; return h() + a; }`, two
+  branch-distance bytes from matching for the same reason.
+
+So both directions of the adjacency filter are productive for *candidates*, and both have now
+handed their discoveries to the same wall. That is worth knowing: the padding is no longer a
+special case of return paths, it is the single most common remaining cause across every
+filter that finds anything.
+
+Ledger 510 rows - MATCH 38, RELOCS 436, ASM 2, **PENDING 34**; verify and checkled
+green; own-code coverage 11 260 B (3.840 %).
+
 ## Round 187: full sweep, and a scaled-long argument that resists (no rows)
 Ran `tools/verify.py` without `--fast`: **509/509 rows ok** (MATCH 38, RELOCS 436, ASM 2,
 PENDING 33) - the sixth full sweep, and the first since round 178. The false-positive risk
