@@ -1,5 +1,43 @@
 # PROGRESS
 
+## Round 100: the frame is `/G0`, and it costs the 80186 pushes
+Chased the alternative-compiler thread into a **concrete flag finding** that corrects a
+standing conclusion.
+
+Measured on the same source with MSC 7.0 and MSC 6.00A (byte-identical in both):
+
+    /G0 /AM /Gs /Os   55 8B EC 83 EC 02 FF 76 06 9A ... 8B E5 5D CA 02 00   <- classic frame
+    /G1 /AM /Gs /Os   C8 02 00 00 FF 76 06 9A ... C9 CA 02 00              <- ENTER frame
+
+`/G0` means "8086 target"; `ENTER`/`LEAVE` are 80186 instructions, so `/G0` *cannot*
+emit them and uses the classic frame. Round 55's conclusion that the bare classic
+frame is "unreachable with MSC 7" was therefore wrong: it is reachable, via `/G0`.
+
+What is *not* reachable is the **combination** the original actually uses: classic
+frame plus 80186 encodings. `200d:0006` demonstrates it in one unit - under `/G0` it
+now differs in exactly one instruction, the original's `6A 01` versus our
+`B8 01 00` / `50`. `/G0` cannot encode `push imm8`, and `/G1` (which can) forces
+`ENTER`.
+
+Practical consequence, recorded in `docs/CONVENTIONS.md`: units **with locals** must be
+compiled with `/G0` (all 473 existing rows used `/G1`, which is why any unit with a
+local frame had to fail), and a unit whose image contains `6A` cannot be matched by
+any MSC 6/7 flag combination.
+
+Two experiments along the way, both useful to have settled:
+
+- the MSC 6.00A tools need `--no-dpmi` (they are real-mode); with HDPMI loaded they
+  exit silently. The ledgers MS6 rows still reproduce (`1aa1:0130` verified again).
+- MSC 5.1 and the disk-extracted 6.00A driver still produce nothing even with the
+  fixed harness; only `toolchain/msc6c` and `msc7i` work.
+
+First `/G0` application: `1036:000c` (52 B) got down to two differences - its local
+area is 8 bytes where we reserve 4, and one branch distance follows from that. Not a
+row yet, but it is the closest any locals-bearing unit has come.
+
+Ledger 473 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 10 264 B (3.501 %).
+
 ## Round 99: the LINK /F idea does not yet explain the miss (no rows)
 Tried to substantiate round 98's link-time hypothesis and could not. A sweep of the
 image shows folded calls (`0E E8`) only where the callee is in the **same** code

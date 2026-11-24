@@ -575,3 +575,29 @@ no matched row has yet been found where a branch crosses a folded call, which is
 would settle whether LINK adjusts the displacement. Until such a row exists, treat
 `13d5:000c` as an unexplained one-byte miss rather than as evidence for a link-time
 effect.
+
+## `/G0` and `/G1` couple the frame to the instruction set - use `/G0` for units with locals
+
+Measured this round (MSC 7.0 and MSC 6.00A agree byte for byte):
+
+    int far pascal A(int a) { int x; x = h1(a); return h2(x); }
+
+    /G0 /AM /Gs /Os   55 8B EC 83 EC 02 FF 76 06 9A ... 8B E5 5D CA 02 00
+    /G1 /AM /Gs /Os   C8 02 00 00 FF 76 06 9A ... C9 CA 02 00
+
+So `/G0` (8086 target) uses the **classic frame** because `ENTER`/`LEAVE` do not
+exist on the 8086, while `/G1` uses `ENTER`. This corrects the round-55 conclusion
+"unoptimised selection + bare classic frame is unreachable with MSC 7": the frame is
+reachable, via `/G0`.
+
+The catch is that the original combines the classic frame with 80186 encodings - it
+pushes small literals with `6A` (`push imm8`), which `/G0` cannot encode: it emits
+`B8 01 00` / `50` instead. So:
+
+* a unit **with locals and without `6A`** can be matched under `/G0` - the frame now
+  agrees, and this is the first setting that does;
+* a unit **with `6A`** cannot be matched by any MSC 6/7 flag combination: `/G0` gets
+  the frame right but the push wrong, `/G1` the push right but the frame wrong.
+
+Practical rule: compile units with locals under `/G0`, and check the image for `6A`
+before expecting a match.
