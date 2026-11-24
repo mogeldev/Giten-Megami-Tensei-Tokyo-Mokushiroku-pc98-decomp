@@ -289,3 +289,14 @@ two sequences are semantically identical and differ in one byte, so a unit that
 is otherwise perfect and shows `0B F0` / `0B C7` / `0B C6` is blocked by this
 peephole and nothing else. It is the most frequent remaining one- or two-byte
 blocker in the 30-40 byte band.
+
+## Register parameters are assigned in reverse by the original compiler
+
+For a function with two `register` parameters, MSC 7 keeps the **first** declared
+one in SI and the **second** in DI. The original does the opposite: the first
+declared parameter lives in DI and the second in SI (verified on `3ae7:0000`
+against a direct compile: `(register int a, register int b, ...)` gives
+`8B 76 0C` / `8B 7E 0A` from MSC 7, while the original has the same values in the
+other registers). Units blocked only by this are `20f9:000c`, `218f:0004`,
+`2191:0008` and `3ae7:0000`; the source shapes are known and recorded, so they
+need no further source searching - only the older compiler reproduces them.

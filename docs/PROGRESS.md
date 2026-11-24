@@ -1,5 +1,34 @@
 # PROGRESS
 
+## Round 36: two far stores of one result (36 B) and the register-parameter reversal
+`crelay44.c` (`/Os`): `388d:0022` (36 B) - `*a = h(x); *b = h(x);`, two
+far-pointer stores of the same call result with the argument in a register.
+
+**Register-parameter assignment is reversed in the original, now proven.** A
+direct compile shows MSC 7 keeping the first declared `register` parameter in SI
+and the second in DI (`8B 76 0C` / `8B 7E 0A` for
+`(register int a, register int b, int c, int d)`); the original `3ae7:0000` has
+the same two values in the **other** registers. This is the mechanism behind the
+`20f9:000c` puzzle from round 12 and behind `218f:0004` / `2191:0008`, so all
+four are now classified with known source shapes rather than "unexplained".
+Recorded in `docs/CONVENTIONS.md`.
+
+Three more candidates probed this round:
+
+- `223e:0004` (32 B) - `8E 46 08` (segment half of a far pointer loaded
+  separately): the split-far-pointer class.
+- `2f3d:0008` (30 B) - `26 A3` (ES-absolute store): the ES-absolute class.
+- `322c:002c` (43 B) - correct except `50` vs `56` (the temporary pushed from AX
+  in the original, from SI in MSC 7), the same scheduler difference as
+  `3e34:000a`.
+
+Also confirmed the straight-line relay filter (no conditional jumps, two or more
+translated calls) is a good candidate source: it produced 26 units, of which one
+matched and the rest fell into four named classes.
+
+Ledger 435 rows - MATCH 38, RELOCS 373, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage 8 762 B (2.988 %).
+
 ## Round 35: a nested relay (34 B) and the `or reg,ax` peephole pinned down
 `crelay43.c` (`/Os`): `3a4a:0052` (34 B) - `h1(h1(h3(a, a, b)))`, three calls
 nested through AX with the first parameter in a register (pushed from SI twice).
