@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 221: one store register away (no rows, PENDING record)
+`3e48:000a` (24 B) is a clamp that also publishes its result:
+
+    if (a < 1) a = 15;
+    g_1bbc = a;
+    return a;
+
+Three source shapes were compiled. Under `/G1 /Ox` **23 of the 24 bytes match** - the clamp,
+the signed `jge`, the constant 15, the return path - and the difference is one instruction:
+the original stores the value from **DX** (`89 16 BC 1B`), MSC stores it from AX (`A3 BC 1B`).
+
+That is the register-naming wall again, in its most compact form: a value that is both stored
+and returned is kept in DX by the original and in AX by MSC, and there is no source form that
+changes which register holds a return value.
+
+Recorded as PENDING at 24 bytes. It also stands as a clean example of where the project now
+sits: the C is unambiguous, the size is right, 96 % of the bytes match, and the last 4 % is a
+register choice that no declaration, prototype or flag reaches.
+
+Ledger 519 rows - MATCH 38, RELOCS 438, ASM 2, **PENDING 41**; verify and checkled
+green; own-code coverage 11 351 B (3.871 %).
+
 ## Round 220: two decode lessons and a PENDING row (no rows)
 Screened for units clear of every wall measured so far - 15 candidates - and transcribed two.
 
