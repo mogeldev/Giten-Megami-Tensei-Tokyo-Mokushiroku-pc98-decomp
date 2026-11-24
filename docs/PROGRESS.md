@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 205: screening for split windows (no rows, PENDING record)
+Wall 18 says a return in the middle of a unit means the window spans two functions. That is
+easy to state and harder to screen: **161 unmatched units** contain a mid-unit `C3`/`CB`, but
+most of those hits are the byte appearing inside an immediate or as data.
+
+One of them was transcribed to test the idea on a real case - `3b5d:0000` opens with the tail
+of a function (`8B C6 5E 5F CB`) and the next function begins at `3b5d:0006`:
+
+    if (!g_995d) h((char __far *)0x1766);
+
+It is one `90` from matching: the original has `1E 68 66 17 90` where MSC emits `1E 68 66
+17`, so the `jnz` distance differs by one - wall 2 again, in the padding after a
+`push ds`/`push imm16` pair. Recorded as PENDING at the second function's true start.
+
+So the split-window screen works but is noisy, and what it finds still lands on the same two
+or three walls. Both facts are consistent with where the project is: the *inventory* has
+recoverable functions the ledger does not name, and the *compiler* has behaviours no source
+form reaches, and the intersection is small.
+
+Ledger 517 rows - MATCH 38, RELOCS 438, ASM 2, **PENDING 39**; verify and checkled
+green; own-code coverage 11 351 B (3.871 %).
+
 ## Round 204: the second function inside the mis-cut window (no rows, PENDING record)
 Round 203 matched the first 27 bytes of `1ab4:000c` and left the remaining 45 bytes as a
 separate function. Transcribing that one gives
