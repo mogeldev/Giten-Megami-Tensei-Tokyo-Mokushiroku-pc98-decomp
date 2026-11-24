@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 198: doubling in address arithmetic (no rows, PENDING record)
+`41d8:000c` (30 B) is a far-pointer subscript through a call result:
+
+    int __far *p;
+    p = h(g_2f5c);
+    return p[i];
+
+Under `/G1 /Ox` **28 of 30 bytes match**, and the two that do not are the index scaling: the
+original emits `03 F6` (`add si,si`), MSC emits `D1 E6` (`shl si,1`). That is the same
+doubling difference as `4e11:007e` (round 139), and seeing it here matters because it is
+**address arithmetic** rather than a value computation - so the doubling idiom is not a
+property of `x * 2` in an expression, it is how the original compiler scaled any index.
+
+Recorded as PENDING with that diagnosis. Two shapes were compiled (`p[i]` on a variable and
+on the call result directly) and both give MSC's `shl`.
+
+The unit is also a good example of why the ledger has a PENDING state at all: the C is
+certain, the difference is two bytes, the cause is named, and nothing source-level closes it.
+
+Ledger 513 rows - MATCH 38, RELOCS 436, ASM 2, **PENDING 37**; verify and checkled
+green; own-code coverage 11 260 B (3.840 %).
+
 ## Round 197: the push-order rule tested against the whole pool (no rows)
 Round 196's rule says a unit whose prologue is `56 57` (SI saved before DI) can still match,
 while `57 56` cannot. That is directly testable: **seven** unmatched units have the
