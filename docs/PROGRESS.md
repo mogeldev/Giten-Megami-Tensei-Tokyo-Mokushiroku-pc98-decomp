@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 246: a null-checked dereference, blocked at the first load (no rows)
+Screened for small units that take a segment register from the frame (`8E 46 xx`) - the shape
+round 244's family used - and transcribed `2ad2:0006` (33 B):
+
+    long __far *p;
+    if (!p) return 0;
+    return *p;
+
+The structure is clear and matches what the bytes say (`8E 46 08` sets ES from the parameter's
+segment, `26 8B 07` / `26 8B 57 02` read the long through it, `33 C0 99` returns zero). Two
+source shapes compiled and both are blocked at the **first** instruction: the original loads the
+offset into **BX** (`8B 5E 06`), MSC into AX - the register-naming wall, and the same one that
+blocks `50b1:0008`.
+
+The `8E 46 xx` screen found **18** small units; this was one, and the rest carry segment work,
+table walks or pads. It is a thinner seam than the `ENTER` list, and it does not have that
+list's structural advantage.
+
+Ledger 523 rows (unchanged), PENDING 38; verify and checkled green; own-code
+coverage 11 645 B (3.972 %).
+
 ## Round 245: the derived documents regenerated (consolidation round)
 Regenerated `docs/STATUS.md` and `docs/BLOCKED.md` from the ledger and the classifier - the
 first time since round 218 - and brought `docs/SUMMARY.md`'s four headline numbers up to date
