@@ -31,6 +31,8 @@ def main():
     ap.add_argument("--msc-dir", default="MSC7I",
                     help="DOS directory of the toolchain on drive C: "
                          "(MSC7I = MS C 7.0, MSC6I = MS C 6.00ax)")
+    ap.add_argument("--cd", help="DOS directory to change into before running CL "
+                                "(MSC 6.0 loads c1.err/c23.err from the current directory)")
     ap.add_argument("--no-dpmi", action="store_true",
                     help="do not load the HDPMI32 TSR (MSC 6.0 needs no DPMI)")
     ap.add_argument("--force", action="store_true",
@@ -80,9 +82,11 @@ def main():
         f"SET INCLUDE=C:\\{a.msc_dir}\\INCLUDE",
         f"SET LIB=C:\\{a.msc_dir}\\LIB",
     ]
+    if a.cd:
+        lines.append(f"cd {a.cd}")
     if not a.no_dpmi:
         lines.append("HDPMI32")
-    lines.append(f'{a.msc_dir}\\BIN\\CL.EXE /c {a.flags} /Fo{obj} {src_f} '
+    lines.append(f'C:\\{a.msc_dir}\\BIN\\CL.EXE /c {a.flags} /Fo{obj} {src_f} '
                  f'> D:\\BUILD\\{base}.CL.TXT')
     conf = "[cpu]\r\ncycles=max\r\n[autoexec]\r\n" + "\r\n".join(lines) + "\r\nexit\r\n"
     with open(CONF, "w", encoding="ascii", newline="") as f:

@@ -1,5 +1,34 @@
 # PROGRESS
 
+## Round 69: two harness fixes, MSC 6.0 CL still silent (no new rows)
+Chased the last blocker on the pre-MSC7 toolchain. Three findings, two of them
+lasting improvements:
+
+1. **DOSBox-X needs the APPDATA redirect.** Run by hand without it, the emulator
+   exits immediately and *nothing* in the autoexec runs - which is why several of
+   round 68's manual probes produced no files at all and looked like compiler
+   failures. With `APPDATA`/`LOCALAPPDATA`/`USERPROFILE` pointing at
+   `dosboxx_home`, the same conf works. Every manual DOSBox test from now on must
+   take the same environment as `build.py`.
+2. **The extraction is byte-perfect.** `tools/extract_disks.py`'s output for
+   `C1.EXE` (148 060 B) and `C2.EXE` (354 338 B) is **md5-identical** to the
+   copies already in `toolchain/msc6c`, so the SZDD decompressor is correct and the
+   DOS driver from DISK6 (`C 6.00A Sep 6 1990`, `-DMSDOS`, references
+   `c1.err`/`c23.err`) is the genuine article.
+3. **`build.py` grew two options it needed**: `--cd <dir>` (MSC 6.0 loads
+   `c1.err`/`c23.err` from the current directory) and an absolute
+   `C:\<MSC_DIR>\BIN\CL.EXE` path (required once `--cd` changes the directory).
+
+With those in place the DOS driver still produces no object and no output at all -
+not even its banner - so it is failing before it can print. The next probes are
+`dir C:\MSC6DOS\BIN\CL.EXE > file` from inside the session (to confirm the mount
+sees the binary) and running `C1.EXE` directly, which would tell whether the driver
+or the phase binary is the problem.
+
+MSC 7 is unaffected: the main toolchain still compiles and `verify.py` is green.
+
+Ledger 455 rows (unchanged), PENDING 22; own-code coverage 9 796 B (3.341 %).
+
 ## Round 68: the MSC 6.00A distribution unpacked (no new rows)
 Built `tools/extract_disks.py`, which reads the eight 1.2 MB FAT12 images in
 `toolchain/msc6_disks` and decompresses Microsoft COMPRESS streams (`SZ` + `88 F0
