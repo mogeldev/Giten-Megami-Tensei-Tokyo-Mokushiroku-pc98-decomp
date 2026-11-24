@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 20: a guarded relay pair (125 B) with a fastcall signature
+`crelay33.c` (`/Os`), two members of one shape:
+
+- `3b72:0002` (61 B) - `r = fc4(a, b, c, d); fc4b(g_17d2, c, 1); if (r) { h1(1); h2(); } return c;`
+  with the third parameter `register` (so it is pushed from SI four times) and
+  the DGROUP far pointer argument emitted as `1E 68 <disp>`.
+- `3b6e:0002` (64 B) - the same shape, but the branch's second call passes a
+  **constant to a `__fastcall` callee**: `B8 24 00` loads AX and the call
+  follows with no push. Declaring that callee Pascal instead produces `6A 24` +
+  push and shifts the whole tail by two bytes.
+
+That is the first place where the *calling convention of a callee* (not the
+caller) is what the byte pattern encodes: an argument in AX with no push can
+only be `__fastcall`, and the repository already resolves `@`-prefixed
+`__fastcall` symbols in `match.py` for exactly this case.
+
+Ledger 417 rows - MATCH 38, RELOCS 355, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 8 134 B (2.774 %).
+
 ## Round 19: two long call chains (113 B) with a shared rule
 `crelay32.c` (`/Os`):
 
