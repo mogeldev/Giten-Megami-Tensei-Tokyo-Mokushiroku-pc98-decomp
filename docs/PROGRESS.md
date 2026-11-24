@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 93: register parameters, pinned down (no new rows)
+`3ede:00a0` (64 B) is a global-writing relay - `h1(); h2(b, g_838e);` then six stores
+including two byte globals - and it was transcribed in one attempt. Everything matches
+except one exchange in the prologue:
+
+    original   8B 7E 08 (DI = b)   8B 76 06 (SI = a)
+    MSC 7      8B 76 08 (SI = b)   8B 7E 06 (DI = a)
+
+That single exchange explains the "reversed register roles" class that has blocked
+units since round 36: **the original allocates register parameters in declaration order
+(a -> SI, b -> DI), MSC 7 allocates them in order of first use** (`h2(b, ...)` touches
+`b` first, so `b` gets SI). When a body's first use is not its first declared
+parameter, every register reference in the unit swaps and no source reordering can fix
+it without also moving the stack offsets. Recorded in `docs/CONVENTIONS.md`.
+
+This also means the earlier phrasing ("the original reverses them for multi-register
+functions") was backwards for such units - the original is in declaration order and
+MSC is the one that reverse-allocates.
+
+Also re-read the PENDING list against the newer rules; nothing there is unblocked, but
+`20b4:0160` (_read24) is the most promising remaining unknown.
+
+Ledger 472 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 10 239 B (3.492 %).
+
 ## Round 92: the alternative-compiler thread is unresolved, not negative (no rows)
 Continued round 91's corrected diagnostics. With `--run` working, both DOS 6.00A
 passes were exercised directly - `CL.EXE /c /AM /Gs /Os` from its own directory with

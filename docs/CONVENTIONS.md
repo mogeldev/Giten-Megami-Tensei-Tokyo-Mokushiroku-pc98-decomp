@@ -526,3 +526,18 @@ Four formulations were tried (plain, `(char)`, `6L`, `0x0006`) and all give `6A`
 routing the value through a variable changes it, and then to `B8 06 00` / `50`
 (`mov ax,6` / `push ax`), which is not the original either. Note the original does use
 `6A` elsewhere in the image, so this is a per-site choice, not a compiler-wide habit.
+
+## Register parameters: MSC assigns by first use, the original by declaration
+
+`3ede:00a0` pins this down. Its two parameters end up as `a -> SI`, `b -> DI` in the
+original (declaration order), while MSC 7 - given `register int a, register int b` -
+puts **`b` in SI** because `b` is the first one the body uses (`h2(b, g)`) and `a`
+only appears later. The two prologue loads (`8B 7E 08` / `8B 76 06` versus
+`8B 76 08` / `8B 7E 06`) are then swapped, and that is the *only* difference in the
+whole 64-byte function.
+
+This sharpens the round-36 note ("the original reverses the roles"): the original's
+allocation follows the declaration, MSC's follows first use. When the two happen to
+agree the unit matches; when the body's first use is not the first declared parameter,
+every register reference in the unit is swapped and no source reordering fixes it
+without moving stack offsets.
