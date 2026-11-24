@@ -1,5 +1,21 @@
 # PROGRESS
 
+## Round 228: the summary brought to the end-state (documentation round)
+Updated `docs/SUMMARY.md` to the current numbers - **519 rows** (MATCH 38, RELOCS 438, ASM 2,
+PENDING 41), 476 verified, 11 351 of 293 211 bytes (3.871 %) - and added a section describing
+rounds 199-228 in one paragraph: the rounds that did not add rows, and what they measured
+instead.
+
+The numbers there were six rows stale and one wall count stale (seventeen versus the twenty
+now in `docs/WALLS.md`), which is exactly the drift the round-209 audit was for. Keeping the
+front page honest costs a few minutes per ten rounds and is the cheapest quality control the
+project has.
+
+Then ran the full `tools/verify.py`: **519/519 rows ok**, the ninth full sweep. `checkled.py`
+consistent.
+
+Ledger 519 rows, PENDING 41; own-code coverage 11 351 B (3.871 %).
+
 ## Round 227: two more cut windows, both walled (no rows)
 Disassembled the next two entries from `cutwin.py`'s list of twelve.
 

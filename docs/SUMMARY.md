@@ -6,12 +6,12 @@ original image.
 
 ## Results
 
-*(snapshot at round 209; `tools/report.py` regenerates the current numbers into
+*(snapshot at round 228; `tools/report.py` regenerates the current numbers into
 `docs/STATUS.md`)*
 
 | | |
 |---|---|
-| ledger rows | **517** (MATCH 38, RELOCS 438, ASM 2, PENDING 39) |
+| ledger rows | **519** (MATCH 38, RELOCS 438, ASM 2, PENDING 41) |
 | verified against the image | **476** |
 | own code matched from source | **11 351 bytes of 293 211 (3.871 %)** |
 | code functions inventoried | 2 523 |
@@ -19,13 +19,13 @@ original image.
 
 "RELOCS" means the bytes match with relocation fields masked; "MATCH" means they match with
 no masking at all. Both are rebuilt from source by `tools/verify.py` on demand, and a full
-sweep of all 512 rows takes about ten minutes.
+sweep of all 519 rows takes about ten minutes.
 
 ## What was actually learned
 
 The decompilation itself is the smaller half. The larger half is a description of **how the
 original compiler differs from MSC 7.0**, which is what stops the remaining 96 % from
-matching. `docs/WALLS.md` holds seventeen numbered walls with witnesses; the important ones:
+matching. `docs/WALLS.md` holds twenty numbered walls with witnesses; the important ones:
 
 - **frame style** - the original always emits `55 8B EC`, MSC omits it for functions that
   need no frame and uses `ENTER` (`C8`) when they have locals under `/G1`. `/G0` gives the
@@ -90,3 +90,17 @@ The 39 PENDING rows fall into two groups, and the difference matters:
 Both groups are re-testable in one command via `tools/recheck.py`, so the split is a statement
 about the compiler, not a closed door: if a matching toolchain appears, the first group is
 where the rows will come from.
+
+## The last thirty rounds, in one paragraph
+
+Rounds 199-228 did not add many rows - five since round 203 - and that is the most useful thing
+about them. They **measured the walls** instead: doubling is proved unreachable (twelve
+compilations, always `shl`) and sits in front of **199 units / 66 381 bytes, about 23 % of the
+remaining code**; the pad byte is proved unreachable (six statement shapes, no `90` in a body);
+`BX` is never a C variable (9 units / 672 B); the register-cached parameter accounts for 41
+units / 5 378 B; and the prologue push order (`57 56` vs `56 57`) lets a candidate's fate be
+predicted from four bytes.
+
+The result is that the project now knows **why** it stopped where it did. That is a different
+and more durable claim than "these were hard", and it is the claim the PENDING column exists to
+support.
