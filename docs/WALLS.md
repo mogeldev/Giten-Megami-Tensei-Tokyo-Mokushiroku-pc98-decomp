@@ -300,3 +300,20 @@ shape has produced it yet.
 
 Practical rule: a unit whose two arms end in identical instruction runs, with a short `jmp`
 between them, is at this wall and belongs in PENDING.
+
+## 17. Range guards cache the index in BX; MSC compares the frame slot
+
+A recurring shape in this binary is a bounds-checked table lookup:
+
+    if (i >= 0 && i < N) return table[i];
+    return -1;
+
+The original loads `i` into **BX once** (`8B 5E 06`) and tests the register twice; MSC emits
+`83 7E 06 00` / `cmp [bp+6],N` and only loads BX to index. Four units show it:
+`43a1:0000`, `4a9f:0004`, `3e48:000a` and `2141:00a6`. It is a register-*caching* decision
+(wall 7's family), and no combination of `register` on the parameter changes it, because a
+parameter can only be register-ised when the function also keeps something else in a
+register.
+
+Practical rule: a unit whose guard tests a register that was loaded once from the frame is
+at this wall; a unit that tests the frame slot directly is probably not the same function.

@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 190: a seventeenth wall - range guards and the index register (no rows)
+Worked larger units from the reversed adjacency filter. Two transcribed, both blocked by the
+same thing:
+
+- `4a9f:0004` (34 B) is a bounds-checked word-table lookup -
+  `if (i >= 0 && i < 6) return g_9965[i]; return -1;` - and the first difference is that the
+  original loads `i` into BX once (`56 8B 5E 06`) and tests the register twice, while MSC
+  compares the frame slot directly (`83 7E 06 00`).
+- `4690:0000` (34 B) is `r = h(a, b); if (r > 0) return r - 1; return g_9946;` - under `/Ox`
+  MSC gives it a frame (`ENTER`) because of the temporary, so the shape diverges.
+
+The first one is the fourth unit with the identical pattern (`43a1:0000`, `3e48:000a`,
+`2141:00a6` are the others), so it is now **wall 17** in `docs/WALLS.md`: a bounds-checked
+table lookup caches the index in BX and MSC compares the frame slot. No `register` placement
+changes it, because registering the parameter costs the function its other register.
+
+The rule is useful in both directions: a unit whose guard tests a register loaded once from
+the frame is at this wall, and a unit that tests the frame slot directly is probably *not*
+the function I was about to write.
+
+Ledger 510 rows (unchanged), PENDING 34; verify and checkled green; own-code
+coverage 11 260 B (3.840 %).
+
 ## Round 189: a shape-matching mode for sibling search (tooling round)
 `tools/reuse.py` only found *byte-identical* siblings, which is a narrow idea of reuse: two
 functions that differ only in **which globals they touch** are the same source with a
