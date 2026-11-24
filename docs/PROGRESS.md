@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 251: the segment-register choice confirmed as a wall (no rows)
+Retried round 248's whitespace-skip pair (`1df5:0008`, `1dfc:0066`) with two more shapes - one
+through a `struct __far *`, one through a local copy of the pointer - to try to make MSC address
+the string with **ES** as the original does. It does not: every form emits `8E 5E 08` (load DS
+from the parameter) where the original has `8E 46 08` (load ES).
+
+So the segment-register choice is a wall of its own, alongside the BX and CX ones: the object
+always contains one specific byte, and it is not the byte the original has. The remaining
+difference in this 39-byte function is that single byte plus the `26` prefix that follows it -
+four bytes in total across a function that otherwise matches instruction for instruction, and
+worth **two rows** because the units are duplicates.
+
+That is the shape of the last few rounds: candidates that would have matched a hundred rounds
+ago except for one register, and rules that explain exactly which one - but which no source form
+can override.
+
+Ledger 523 rows (unchanged), PENDING 38; verify and checkled green; own-code
+coverage 11 645 B (3.972 %).
+
 ## Round 250: the session's shape, written down (documentation round)
 Six rounds left, so this is the note that says what the last 250 rounds actually did - not as a
 list of commits but as an account a reader can check against the ledger.
