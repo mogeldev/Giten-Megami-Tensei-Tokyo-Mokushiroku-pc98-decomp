@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 97: the last unclassified units, assessed (no new rows)
+Widened round 96's completeness filter to 64-130 bytes: **12 complete, unclassified
+units** remain outside every known class. Two were transcribed or decoded this round:
+
+- `10b7:0006` (33 B) - `if (g_4a4c.lim < p) { p -= 2; p[0] |= 1; if (g_4a4c.base > p)
+  g_4a4c.base = p; }`. Semantics are clear and the struct layout (+6 lim, +8 base) is
+  right, but the **addressing style** differs: the original keeps the parameter in BX
+  and the global's address in SI (`8B 5E 06` / `BE 4C 4A` / `39 5C 06`), while MSC 7
+  puts the parameter in SI and addresses the global absolutely
+  (`39 36 06 00`). A new detail on the staging family - the original prefers a base
+  register for repeated field accesses.
+- `13d5:000c` (96 B) - a `for(;;)` dispatch on a character: `'e'`/`'E'` runs a
+  six-argument call and returns, `'f'` runs a five-argument call and jumps back to the
+  top (`EB E0`), anything else runs a third six-argument call and returns. The `90`
+  bytes in it sit after `CB` (between blocks, not after a short jump), so they are not
+  the nop-padding class. Decoded but not yet transcribed - the loop shape has no
+  obvious C form that produces the backwards jump while still ending both other paths
+  in a return.
+
+The other ten are interrupt wrappers (`1233`, `138c`, `103b`, `11ea`, `11e1`), `les`
+users (`1070`, `1486`), an address-arithmetic walker (`12aa`), a five-`movs` copy
+(`4f67`), and a digit parser (`133f`) - all in families already documented.
+
+Ledger 473 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 10 264 B (3.501 %).
+
 ## Round 96: an if/else over two calls, from the unclassified list (25 B)
 `crelay69.c` (`/Os`): `34b7:001c` (25 B) - `if (!a) h1(); else h2();`. The two calls
 share a tail, so there is no nop padding and no branch-distance problem; the unit's
