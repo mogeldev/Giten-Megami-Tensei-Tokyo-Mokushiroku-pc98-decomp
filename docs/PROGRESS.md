@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 95: probe.py re-proposed claimed windows - fixed (no new rows)
+Ran the full `probe.py` sweep (all 150 calibration sources against every window in
+the image) hoping for free sibling rows. It reported one hit, `3670:00e2 = _F_3309`
+(12 B) - but that window was **already in the ledger**, and `--write` appended it a
+second time. `verify.py` caught it immediately (`DUP 3670:00e2`), the duplicate was
+removed, and the ledger is back to 472 rows.
+
+The cause is in `probe.py`'s second pass, which walks every return-delimited window
+inside an *unmatched* unit: it never checked whether the window's start address is
+already claimed, so any window that a ledger row happens to cover gets proposed again.
+A guard on the computed offset fixes it, and a re-run reports **0 hits** - so the
+sweep is genuinely exhausted rather than being suppressed by the fix.
+
+Two smaller screens were tried first and produced nothing: a declaration-order
+register-parameter screen (no units, as round 94 predicted) and a single-register
+parameter screen (no units survived the wall filters). The pool's remaining units are
+not reachable by byte-pattern screens alone.
+
+Ledger 472 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 10 239 B (3.492 %).
+
 ## Round 94: screening with the new rule finds nothing new (no rows)
 Tried to turn round 93's finding into a search: units whose prologue uses the
 declaration-order assignment (`56 57` push order with `SI = a`, `DI = b`). The screen

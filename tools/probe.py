@@ -212,6 +212,11 @@ def main():
                             break
                     if ok:
                         off = va.split(":")[0] + ":" + "%04x" % (int(va.split(":")[1], 16) + start)
+                        if off in known:
+                            # window already recorded in the ledger (round 95: the
+                            # second pass used to re-propose claimed windows, which
+                            # --write then appended as duplicates)
+                            break
                         hits.append((off, end - start, name, src, flags, msc, nodpmi))
                         seen.add(lin)
                         break
