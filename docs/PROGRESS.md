@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 43: the biggest single row in twenty rounds (77 B)
+`crelay50.c` (`/Os`): `3ba3:0006` (77 B) -
+`r = h4(a, b, c, d); h4b(g_17d2, c, 1); if (r) { h1(1); h2(); h4c(h3(g_98e4)); } return c;`.
+The third parameter must be `register` (pushed from SI twice, and returned from
+SI at the end), the first call's result lives in DI, and two DGROUP object
+pointers appear as `1E 68 <disp>` pairs. This is the same family as the round-20
+`3b72:0002` guarded relay, one nesting level deeper.
+
+Two near-misses recorded:
+
+- `4998:000c` (112 B) - a two-branch relay that matches for 111 of 112 bytes: the
+  original emits an extra `90` between a short jump and `xor ax,ax`
+  (`B8 01 00 EB 03 90 33 C0`), which shifts both branch distances by one. Writing
+  the else-form of the same source changes nothing, so that padding byte is an
+  artifact of the older compiler.
+- `3e4f:003a` and `2f3f:0006` are units whose first function is already verified;
+  `nextup.py` no longer lists them because it now excludes claimed units
+  correctly (round 42 fix).
+
+`tools/nextup.py` produced the candidate for this round directly - the first time
+the ranking tool has been used end to end.
+
+Ledger 444 rows - MATCH 38, RELOCS 382, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 131 B (3.114 %)**.
+
 ## Round 42: tools/nextup.py, a 442-unit accounting error fixed, one row (29 B)
 **New tool `tools/nextup.py`** replaces the ten ad-hoc scan scripts used in
 rounds 12-40: it skips claimed units, CRT, fragments and every `classify.py`
