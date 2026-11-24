@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 208: MSC 6.0 has stopped working in this environment (no rows)
+Tried to re-open the "is the original compiler pre-6.0?" question by rebuilding the doubling
+test with MSC 6.0 - if 6.0 emitted `add reg,reg`, the original would plausibly be a 5.x-era
+compiler and a whole class would reopen.
+
+It cannot be tested right now: `--msc-dir MSC6C` reports "no OBJ produced" with **no compiler
+output at all**, while `--msc-dir MSC7I` on the same source succeeds (341-byte object). The
+CL.EXE exists, `build.py`'s existence check passes, and the failure is identical with
+`--no-dpmi` and with `--run` substituting the CL line verbatim - so the DOSBox invocation
+starts and the compiler produces nothing, rather than the toolchain being absent.
+
+Recorded in `docs/GAP.md` as an **environment regression, not a compiler finding**. Nothing in
+the MSC 6.0 conclusions depends on it (rounds 140-146 established that 6.0's codegen matches
+7.0's for every wall that matters), and no ledger row was ever verified with 6.0, so the
+ledger is unaffected. The note is there so a future session does not spend a round
+rediscovering it.
+
+Ledger 517 rows (unchanged), PENDING 39; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 207: thirteen PENDING rows in the registry (tooling round)
 Added four more hypotheses to `src/pending/pending1.c` and `tools/pending.txt`, bringing the
 machine-re-testable set to **13 of the 39 PENDING rows**:

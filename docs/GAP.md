@@ -231,3 +231,21 @@ already tolerates.
 
 So the "try another linker" avenue is closed by construction rather than by experiment,
 which is worth recording so it is not re-opened.
+
+## Round 208: MSC 6.0 no longer produces an object
+
+`--msc-dir MSC6C` used to work (rounds 140-146). It now reports "no OBJ produced" with no
+compiler output at all, while `--msc-dir MSC7I` on the same source works normally:
+
+    MSC7I : OK: build\crelay92.OBJ (341 Bytes)
+    MSC6C : ERROR: no OBJ produced
+
+`toolchain/msc6c/BIN/CL.EXE` exists and `build.py` passes its existence check, and the same
+failure occurs with `--no-dpmi` and with `--run` replacing the CL line verbatim - so the
+DOSBox invocation is starting and the compiler is not producing output, rather than the
+toolchain being missing.
+
+This is an **environment regression, not a compiler finding**: nothing in the MSC 6.0
+conclusions (rounds 140-146: 6.0's codegen matches 7.0's for every wall that matters) depends
+on being able to rebuild with it today, and no ledger row was ever verified with it. Anyone
+re-testing the pending set should start from MSC 7.0, which works.
