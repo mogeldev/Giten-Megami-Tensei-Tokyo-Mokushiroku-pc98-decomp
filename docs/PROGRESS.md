@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 175: round 174's narrowed wall pays a row immediately (15 B)
+Round 174 found that MSC emits `2B C0` (`sub ax,ax`) when the zero being stored is
+**wider than AX**. That prediction was tested on the first small unit containing `2B C0`,
+and `1ab9:0004` (15 B) matched on the first compile:
+
+    g_536e = h();
+    g_9650 = 0;
+
+with `g_9650` declared `long`. The `long` store makes MSC choose the older zeroing form,
+producing exactly the image's `2B C0 A3 <lo> A3 <hi>`.
+
+So wall 12's narrowed statement is now a *rule with a use*: a unit whose zeroing is `2B C0`
+is reachable when the zero is being widened, and the way to get it is to declare the
+destination `long` (or otherwise wider than the source value), not to look for a flag.
+
+Also tried `2b2e:0000` (29 B), which zeroes six bytes through a far pointer returned by a
+call (`2B C0` then three `26 89 47 xx` stores). Not yet expressed: writing `*(long *)p = 0;
+*(int *)(p + 4) = 0;` gives a shorter symbol, and `p[0] = 0` drops the zeroing entirely. The
+six bytes are probably a small struct zeroed as a whole, which is the next thing to try.
+
+Ledger **504 rows** - MATCH 38, RELOCS 434, ASM 2, PENDING 30; verify and checkled
+green; own-code coverage **11 214 B (3.825 %)**.
+
 ## Round 174: a cut unit, and a zeroing opcode that goes the other way (no rows)
 Worked `cutwin.py`'s list - units whose inventory window cuts the function short. The
 smallest pair, `3d85:000e` (window 10 B, real 47 B), was transcribed in full:
