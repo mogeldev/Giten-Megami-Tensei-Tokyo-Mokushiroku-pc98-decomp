@@ -354,3 +354,15 @@ function the ledger will need its own row for.
 Practical rule: before transcribing, check for a return instruction that is not at the end of
 the unit. If there is one, match only up to it and treat the remainder as a separate
 function.
+
+### The nop is unreachable too (round 206)
+
+The padding mechanism needs the compiler to put a `90` **inside** a function body. Six
+statement shapes were compiled to see whether MSC ever does - an empty `else`, a trailing
+`;`, a `switch` with `default: break;`, an `if (x) { }`, `do { } while (0)`, and a two-armed
+`if` - and **none of them emits a `90` in the body**. MSC's only `90` is the alignment byte
+at the end of a segment.
+
+So, like the doubling wall, this one is closed rather than open: the eleven PENDING rows whose
+sole remaining difference is a pad byte are not waiting for a flag, they are waiting for a
+different compiler. That distinction is now recorded in `docs/SUMMARY.md`.

@@ -71,3 +71,18 @@ matching. `docs/WALLS.md` holds seventeen numbered walls with witnesses; the imp
 
 `docs/MATCHING.md` (the ledger) → `docs/WALLS.md` (why the rest doesn't match) →
 `docs/CONVENTIONS.md` (source rules learned) → `docs/README.md` (tools).
+
+## Which PENDING rows can ever match
+
+The 39 PENDING rows fall into two groups, and the difference matters:
+
+- **proven unreachable with MSC 7.0** - the pad byte (`90` inside a body, round 206), `add
+  reg,reg` doubling (round 199), `and` where MSC emits `test`, `mov si,[disp16]`, the
+  `bx=ax`-before-`es=dx` order, `inc`/`dec` switch chains. No source form and no flag reaches
+  these; they would need a compiler closer to the original's;
+- **unexplained** - the rest, where the difference is understood but its cause is not yet
+  named.
+
+Both groups are re-testable in one command via `tools/recheck.py`, so the split is a statement
+about the compiler, not a closed door: if a matching toolchain appears, the first group is
+where the rows will come from.

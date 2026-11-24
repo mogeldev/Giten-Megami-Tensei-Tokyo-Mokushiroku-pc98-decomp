@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 206: the nop closed, and what that means for PENDING (no rows)
+Round 199 closed the doubling class by asking whether MSC ever emits `add reg,reg`. This
+round asked the same of the **pad byte**: does MSC ever put a `90` inside a function body?
+
+Six statement shapes were compiled - an empty `else`, a trailing `;`, a `switch` with
+`default: break;`, an `if (x) { }`, `do { } while (0)`, and a two-armed `if`. **None emits a
+`90` in the body**; MSC's only `90` is the alignment byte at the end of a segment.
+
+So the padding mechanism - seven witnesses, and the cause of most of the remaining one-byte
+near-misses - is closed rather than open. That changes what the PENDING column means, so
+`docs/SUMMARY.md` now says it plainly: the 39 PENDING rows split into those **proven
+unreachable** with this compiler (pad byte, doubling, `and`-for-`test`, `mov si,[disp16]`,
+the `bx=ax`/`es=dx` order, `inc`/`dec` switch chains) and those still **unexplained**. If a
+matching toolchain ever appears, the first group is where the rows come from.
+
+That is the honest end-state for this phase: not "these were too hard", but "these are the
+exact behaviours the original compiler has and MSC 7.0 does not".
+
+Ledger 517 rows (unchanged), PENDING 39; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 205: screening for split windows (no rows, PENDING record)
 Wall 18 says a return in the middle of a unit means the window spans two functions. That is
 easy to state and harder to screen: **161 unmatched units** contain a mid-unit `C3`/`CB`, but
