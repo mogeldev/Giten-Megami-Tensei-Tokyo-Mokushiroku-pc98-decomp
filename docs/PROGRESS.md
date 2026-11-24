@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 227: two more cut windows, both walled (no rows)
+Disassembled the next two entries from `cutwin.py`'s list of twelve.
+
+`39fc:000c` (window 38, real 45) is a guarded three-call sequence:
+
+    if (b != -1) {
+        h1(c, b);
+        h2(c, a, 1);
+        h3(c);
+    }
+
+The structure is clear and the parameter mapping is settled (pascal: `0A` first, `06` last), but
+every call is preceded by a `90` - the padding wall, three times in one function.
+
+`2da7:0028` (window 18, real 35) turned out to be the **same fragment** as `2daa:000a` from
+round 183: it begins mid-function (`push [bp+06]` with no prologue) and ends in `leave`, so the
+inventory cut it out of a larger function that starts before the window.
+
+So the cut-window list continues to be a list of functions the inventory could not bound, not a
+list of easy rows - four inspected, four walled. That is now enough evidence to stop working
+through it: the twelve entries are worth keeping for a future toolchain, not for this one.
+
+Ledger 519 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 226: the cut-window survey (no rows)
 `tools/cutwin.py` lists units whose inventory window *cuts the function short* - a row may use
 the real, larger size (round 174's practice). There are **12 of them, 884 bytes in total**, and
