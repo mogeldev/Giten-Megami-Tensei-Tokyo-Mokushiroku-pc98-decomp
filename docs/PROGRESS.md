@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 222: a 62-byte long accumulator, and a parameter-layout puzzle (no rows)
+Screened for larger units clear of every wall (60-130 bytes): only **four** exist, and the
+smallest was transcribed - a function that maintains a running maximum:
+
+    v = g_40b0;
+    g_40ac += b - a;
+    if (g_40ac > v) g_40b0 = g_40ac;
+
+where `a` and `b` are `long` parameters. The original's instruction sequence is now fully
+understood: it loads the old maximum into DX:AX, subtracts one long parameter from the other
+with a borrow chain into `g_40ac`/`g_40ae`, then compares the high word first with a signed
+branch, then the low word with an unsigned one - a textbook 32-bit signed comparison.
+
+What does not line up is the **parameter layout**: the original reads `[bp+04]` and `[bp+06]`
+for the low/high of one subtract and `[bp+08]`/`[bp+0A]` for the other, while MSC's forms read
+`[bp+06]`/`[bp+08]`. So the subtraction is right and the pair of longs it subtracts is
+mismatched - the opposite of the usual situation, where the layout is obvious and the codegen
+differs.
+
+Not recorded. The remaining question is narrow and worth writing down: how MSC places two
+`long` parameters in a pascal frame, which round 210's table does not cover (it measured
+`int`s only).
+
+Ledger 519 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 221: one store register away (no rows, PENDING record)
 `3e48:000a` (24 B) is a clamp that also publishes its result:
 
