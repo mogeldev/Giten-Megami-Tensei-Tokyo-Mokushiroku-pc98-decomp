@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 47: a four-case switch (93 B) and the `default:`-first rule
+`crelay53.c` (`/Os`): `1f5f:0000` (93 B) - a `switch` on the fourth parameter whose
+four cases return the callee's long result and whose default builds
+`((long)a << 16) | (unsigned)b` (`8B 46 0A` / `8B 56 0C`).
+
+**New rule (recorded in `docs/CONVENTIONS.md`):** the `default:` clause must be
+written **first** in the switch. Written last, MSC 7 emits the default block after
+the case blocks and every branch distance shifts; written first, the default
+lands directly after the compare chain exactly as the original does. That single
+reordering turned a 12-byte mismatch into a match.
+
+This is the fourth source-level layout rule found in four rounds, together with:
+negated branch conditions (round 45), separate statements for accumulation and
+for divide-plus-offset (round 46), and no variable for a call result that is only
+tested once (round 45).
+
+Ledger 448 rows - MATCH 38, RELOCS 386, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 422 B (3.213 %)**.
+
 ## Round 46: a running sum with a signed divide (78 B)
 `crelay52.c` (`/Os`): `5155:000a` (78 B) -
 `t = g1(nc(a)); t += g1(nc(b)); t += g1(nc(c)); t = t / 3; t = t + 5; return (unsigned char)h1(t);`.

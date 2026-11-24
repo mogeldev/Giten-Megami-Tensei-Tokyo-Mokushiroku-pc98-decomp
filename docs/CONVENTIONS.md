@@ -315,3 +315,19 @@ perfect match (`4998:000c` matched 111 of 112 bytes for exactly this reason, and
 several offsets (`EB 02 90`, `EB 03 90`, `EB 23 90`), so `tools/classify.py` only
 recognises the narrow forms; treat "one byte off, at a branch distance" as this
 class first.
+
+## Switch layout: write `default:` first
+
+For a `switch` whose cases return the callee's result, MSC 7 lays the default
+block out **last** when `default:` is written last, and **directly after the
+compare chain** when it is written first. The original `1f5f:0000` has the default
+first, so the working source is
+
+    switch (x) {
+    default: return ((long)a << 16) | (unsigned)b;
+    case 0: return h1(a, b, c);
+    ...
+    }
+
+Writing `default:` at the end instead shifts the default block and every branch
+distance in the function.
