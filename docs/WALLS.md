@@ -435,3 +435,15 @@ exactly.
 It is a narrower relative of wall 6/7 (register naming), but worth separating because the tell
 is unambiguous: **a `push bx` in a prologue means the source kept something live in BX, and no
 C declaration reproduces it.**
+
+### How much sits behind wall 17 (round 219)
+
+Counting unmatched units whose bytes load a frame slot into a register and then test that
+register (`8B 4E|5E|76|7E xx` followed by `0B C9`/`0B F6`/`0B C0` or `85 C0`):
+
+**41 units, 5 378 bytes.**
+
+That is the same order as the doubling class counted by trait (37 units / 4 767 B) and much
+smaller than doubling counted by opcode presence (199 units). The pattern is therefore a
+common *shape* but a secondary blocker: many of those 41 also sit behind something else, which
+is what the attempts keep showing.

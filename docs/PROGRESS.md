@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 219: wall 17 measured (no rows)
+Tried `1f7f:0036` (33 B) - a guard, a call, and a `long` decrement:
+
+    if (a) { h(a); g_46f4--; }
+    return 0;
+
+Both declaration shapes give the same result: under `/Os` the original loads the parameter
+into CX and tests the register (`8B 4E 06` / `0B C9`), while MSC compares the frame slot
+(`83 7E 06 00`); under `/Ox` the shapes nearly align and only a branch distance differs. So the
+unit sits behind wall 17, the register-cached parameter.
+
+Measured that wall rather than guessing at it: unmatched units that load a frame slot into a
+register and then test it number **41 units / 5 378 bytes** - the same order as the doubling
+class *by trait* (37 / 4 767) and much smaller than doubling *by opcode presence* (199). So
+wall 17 is a common shape but a secondary blocker: many of its units also sit behind something
+else, which is exactly what the attempts keep showing.
+
+Ledger 517 rows (unchanged), PENDING 39; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 218: the reports regenerated and a full sweep (maintenance round)
 Regenerated the two derived documents - `docs/STATUS.md` and `docs/BLOCKED.md` - from the
 ledger and the classifier, so the published state matches the rows rather than a memory of
