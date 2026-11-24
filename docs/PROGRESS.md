@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 223: long parameters, measured and one puzzle left (no rows)
+Round 222's open question was how MSC places two `long` parameters in a pascal frame. This
+round compiled `f(long a, long b)` and `f(int x, long a, long b)` and dumped them.
+
+The clear part: a `long` parameter is loaded as a **pair of word loads with the low word
+first** (`8B 46 0A` / `8B 56 0C`), and the epilogue is `retf 08`. So a unit that reads
+`[bp+04]`/`[bp+06]` and `[bp+08]`/`[bp+0A]` is working with two `long`s rather than four
+`int`s - which is what makes `1e2f:0008` readable.
+
+The unclear part: those offsets overrun an eight-byte parameter area (`04`..`0B`) by one word,
+and I could not reconcile that with the `retf 08`. Rather than write down a rule that might be
+wrong, `docs/CONVENTIONS.md` now records the measured pair and **leaves the overrun as an open
+question** - explicitly contrasted with the `int` and `char` tables, which were measured
+cleanly and are trustworthy.
+
+That is the honest split: two facts gained, one question left open rather than papered over.
+
+Ledger 519 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 222: a 62-byte long accumulator, and a parameter-layout puzzle (no rows)
 Screened for larger units clear of every wall (60-130 bytes): only **four** exist, and the
 smallest was transcribed - a function that maintains a running maximum:

@@ -827,3 +827,19 @@ unit whose parameter "looks" unsigned means it is declared signed.
 
 This also corrects a reading hazard: `FF 87` is `inc word [bx+disp]`, *not* `call far` (that
 is `FF 9F`). Misreading it once turned a table increment into a table dispatch.
+
+## Long parameters: measured, and one puzzle left (round 223)
+
+Compiling `void __far __pascal A(long a, long b)` and `void __far __pascal B(int x, long a,
+long b)` and dumping them shows the first `long` read as `8B 46 0A` / `8B 56 0C` (low then
+high) with a `retf 08` epilogue.
+
+The instruction pair is unambiguous; what is *not* yet explained is that `0A`/`0C` overruns an
+eight-byte parameter area (`04`..`0B`) by one word. Either the parameter area is larger than
+`retf 8` suggests, or the dump's grouping of the two loads is misleading. **This stays an open
+question** rather than a documented rule - unlike the `int` and `char` tables, which were
+measured cleanly.
+
+What the measurement does establish, and what matters for reading a unit: a `long` parameter
+is loaded as a **pair of word loads with the low word first**, so a unit that reads
+`[bp+04]`/`[bp+06]` and `[bp+08]`/`[bp+0A]` is working with two `long`s, not four `int`s.
