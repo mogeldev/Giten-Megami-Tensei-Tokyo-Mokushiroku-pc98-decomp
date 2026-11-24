@@ -1,5 +1,34 @@
 # PROGRESS
 
+## Round 129: the largest remaining candidate decoded (no rows)
+`1c97:000c` (110 B) - the biggest no-wall unit in the pool - is now fully decoded:
+
+    long __near __pascal f(long a, long b, long c)      /* ret 0x0C, three longs */
+    {
+        long r;
+        r = h1(c);
+        if (!r) return 0;
+        if (h2(r + 0x600, a + 0x600, b)) h3(a);
+        else h4(r);
+        return 0;
+    }
+
+The three `+0x600` additions are the `05 06 00` / `83 D2 00` (add + adc) pairs, and the
+parameter mapping was pinned by their offsets: `a` at 0C/0E, `b` at 08/0A, `c` at 04/06.
+
+The transcription produces the same operations but only 57 bytes, because the original
+keeps **halves of two longs in registers** across the calls: `r`'s low word lives in SI
+(`8B F0` after `h1`) and `a`'s low word in DI (`8B 7E 0C`), with only `r`'s high word
+spilled to `[bp-2]`. MSC allocates both longs as frame slots (`89 46 FC` / `89 56 FE`)
+and merges the two `return 0` paths into one epilogue.
+
+So this is the assignment-persistence wall applied to `long`, with a partial spill that
+MSC has no equivalent for. Worth having decoded: it removes the largest item from the
+"unclassified" list as a known quantity rather than an unknown one.
+
+Ledger 483 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 600 B (3.615 %).
+
 ## Round 128: a documentation index, and the mid-size pool measured (no rows)
 Screened the pool above the sizes previous rounds covered (100-220 bytes): only **two**
 no-wall units exist there, `1c97:000c` (110 B) and `50ff:000e` (138 B), and both are long
