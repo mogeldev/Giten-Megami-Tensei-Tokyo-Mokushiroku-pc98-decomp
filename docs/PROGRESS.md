@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 170: the five-hundredth row (46 B)
+`4df7:000a` (46 B) is a guarded chain of calls whose last value is returned:
+
+    if (h1(a)) {
+        h4(0);
+        h2(1);
+        return h3(1, 0);
+    }
+    return 0;
+
+All four callees are **far**; the first attempt had them near and the diff was one byte at
+the first call (`E8` where the image has `90` - the start of the LINK /F translation of a
+far call). With them far, the whole 46 bytes match, including the `33 C0` that only the
+else path needs because the if-body returns through `h3`.
+
+That makes **500 ledger rows**: MATCH 38, RELOCS 432, ASM 2, PENDING 28, of which 470 are
+verified against the image and **11 178 bytes of own code (3.812 %)** are matched from
+source.
+
+Also tried `2e68:000c` (50 B), a two-word long comparison returning -1/1/0. Its structure
+matches exactly and it is **one byte** short: the branch distance differs by exactly the
+`90` in `B8 01 00 EB 03 90 33 C0` - the same late-peephole padding as `3cd1:02f2`, now seen
+in a fourth unit.
+
+Ledger **500 rows**; verify and checkled green; own-code coverage **11 178 B (3.812 %)**.
+
 ## Round 169: two byte globals, two different widenings (37 B)
 `4c9c:065e` (37 B) pushes five arguments from globals and then calls a second function with
 two constants:
