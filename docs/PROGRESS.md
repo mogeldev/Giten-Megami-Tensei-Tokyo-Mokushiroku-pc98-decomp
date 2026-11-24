@@ -1,5 +1,33 @@
 # PROGRESS
 
+## Round 141: the MSC 6.0 driver works - the compiler passes are the wrong platform (no rows)
+Round 140 installed the DOS driver and it still did nothing. This round found out why,
+and the answer overturns two earlier conclusions:
+
+- **the driver is not silent.** `CL.EXE > file` with no arguments writes
+  `usage: cl [ option... ] filename... [ -link linkoption... ]` into the file. Compiler
+  messages *are* redirectable, which means rounds 70-71's "cannot be observed" was never
+  about the console;
+- **a real compile fails one level down.** `CL` echoes the source name and then writes
+  `This program cannot be run in DOS mode.` - that is `C1.EXE` refusing to run. Every
+  `C1.EXE`/`C2.EXE` pair on DISK1, DISK2 and DISK6 is the same Windows/OS-2 pair
+  (148 060 / 354 338 bytes), so the `msc6_disks` set simply does not contain a DOS
+  compiler.
+
+Where it does live: `DISK8.IMG` has `C1L.EX$`, `C2L.EX$`, `C3L.EX$`, `CL.EX$`,
+`SETUP.BAT` and `SETUP.CMD` - the DOS-shaped set. Its `CL.EX$` unpacks to a stream
+starting `KW`: Microsoft **KWAJ** compression, which `tools/extract_disks.py` does not
+implement (it handles SZDD only).
+
+So the next step is a bounded tooling task: add a KWAJ decoder, unpack DISK8's compiler,
+and the DOS 6.00A toolchain finally runs. That toolchain is the one most likely to
+explain walls 3 (immediate encoding), 4 (register assignment), 6 (register reuse),
+7 (scratch naming) and 9 (scheduling) - all five are "how the older compiler allocated
+and ordered things".
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 140: the installed MSC 6.0 was the OS/2 build - found the DOS one (no rows)
 Went back to the compiler question with one specific doubt: whether the `msc6dos` set is
 really the DOS distribution. It is **not**. `DISK6.IMG`, which round 68 extracted from,

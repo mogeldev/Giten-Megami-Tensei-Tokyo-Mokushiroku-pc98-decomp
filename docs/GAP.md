@@ -169,3 +169,24 @@ So the DOS 6.00A driver is now in place and still silent. The remaining explanat
 narrower: the driver may need the `SETUP`-written configuration that the retail
 distribution installs (`msc51` has `NEW-CONF.SYS` / `NEW-VARS.BAT` for exactly that), or
 it reports through the console (INT 10h) which the dummy video driver hides.
+
+### Round 141: the compiler DOES talk - it was the passes that could not run
+
+Two facts settle the round-70/71/140 confusion:
+
+1. **MSC 6.0's driver is not silent.** `CL.EXE > D:\BUILD\E9.TXT` with no arguments writes
+   `usage: cl [ option... ] filename... [ -link linkoption... ]` into the file. So the
+   messages *are* redirectable and the harness was never the problem.
+2. **The passes are the wrong platform.** A real compile echoes the source name and then
+   writes `This program cannot be run in DOS mode.` - that is `C1.EXE` refusing to run.
+   The `C1.EXE`/`C2.EXE` shipped in `msc6_disks` (DISK1, DISK2 and DISK6 all carry the
+   same 148 060 / 354 338 byte pair) are Windows/OS-2 binaries.
+
+Where the DOS passes are: `DISK8.IMG` carries `C1L.EX$`, `C2L.EX$`, `C3L.EX$`, `CL.EX$`,
+`SETUP.BAT` and `SETUP.CMD` - a set that looks like the DOS distribution. Its `CL.EX$`
+decompresses to a stream beginning `KW`, i.e. Microsoft **KWAJ** compression, which
+`tools/extract_disks.py` does not implement (it handles SZDD only).
+
+So the next step on this thread is concrete: teach the extractor KWAJ, unpack DISK8's
+`CL.EX$` and `C1L/C2L/C3L`, and the DOS 6.00A compiler should finally run - which is the
+toolchain most likely to explain walls 3, 4, 6, 7 and 9.
