@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 76: a field-forwarding pair (24 B)
+`crelay61.c` (`/Os`): `2b8b:000e` (24 B) - `h1(); h2(p->f6);`, a no-argument call
+followed by a call forwarding a far pointer's field (`C4 5E 06` load, `26 FF 77 06`
+push).
+
+Three near-misses this round confirmed classes rather than adding rows:
+
+- `2b33:0006` (23 B) - `p->tab[i]` on a far struct. MSC emits `D1 E6` (`shl si,1`)
+  for the index doubling where the original emits `03 F6` (`add si,si`), and
+  rewriting the source as `i + i` or as explicit byte arithmetic does not change it:
+  the doubling idiom is the `add reg,reg` class, confirmed on a second unit.
+- `3eb9:0006` and the `3ede:000a` / `3ede:0024` pair - char-member getters, blocked
+  only by the `8B D8` / `8E C2` swap (MSC sets ES first).
+- `4e9b:0008` - the long load/store where the original stages through BX.
+
+One process note worth recording: while transcribing `2b8b:000e` I mis-copied its
+`retf` count into the comment and briefly believed the row was a prefix match. A
+direct byte comparison against the image (`img` vs `obj` in one script) settled it in
+seconds - that check is cheaper than re-deriving the size, and should be the reflex
+whenever a row looks too good.
+
+Ledger 457 rows - MATCH 38, RELOCS 395, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 844 B (3.357 %)**.
+
 ## Round 75: a nested call with a register parameter (24 B)
 `crelay60.c` (`/Os`): `32da:000c` (24 B) - `h2(h1(a));` with the parameter declared
 `register`, so the inner call pushes SI and the outer one pushes the returned AX.
