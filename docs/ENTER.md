@@ -698,3 +698,9 @@ Open question worth one test: do any two frame-only misses (`4349:005c`, `42fe:0
 
 - `39b5:0004` (54 B): `p = G(n); *px = p->x + 1; *py = p->y + 1; H(n,0,0);` The original keeps `n` in DI and the returned pointer in BX/ES (`mov bx,ax; mov es,dx`), and the first two loads go through `es:` twice. Eight spellings (plain, `register` on `p` or `n`, spare local) all fail at byte 0 or 4 (`55 8B EC` vs `C8`, `56 57` vs `57 56`): BX wall plus the push-order tell. Not recorded.
 - `2033:0004` is listed as 54 B but is a **cut window**: the function runs on past `0x35` (`mov [bp-0xc],ax` is followed by five `lea`/`push ss` pairs, a `call far 25ca:174a` and a second half past `0x70`), so the true size is well over 100 B. Do not take 54 from this table.
+
+### Round 14: 38d2:0006, 382d:000a (both near misses, both register allocation)
+
+- `38d2:0006` (54 B): `p = G(n); i = 0; while (p->cnt > i) i = H(n,i);` Body matches; the original executes `mov di,[bp+6]` *before* `xor si,si` and keeps the pointer only in `[bp-4]`, MSC hoists `xor si,si` first and also copies the offset into DI (`mov di,bx`). Four loop spellings, same result.
+- `382d:000a` (58 B): `p = G(n); r = K(p->f); p->f = *L(v,&t); return r;` The original saves only SI (`r`) and leaves `p` in the frame; MSC saves DI and SI (`r` in DI, a second copy of the pointer offset in SI). Prologue differs at byte 4 (`56` vs `57 56`). Six spellings including `register`.
+- Next untried from the screen: `39f9:0006` (bit-field insert, `sub al,al` wall suspected), `2162:0006` (switch), `4b5d:000c`, `4307:000a` (`ret 6`, byte fields in a 4-byte record).
