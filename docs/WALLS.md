@@ -173,3 +173,12 @@ compiles to `9A ... 80 3E <g> 00 74 05 9A ... CB` with no `55 8B EC` at all, and
 Detectable without disassembly: an unmatched unit whose body contains no `[bp+xx]` /
 `[bp-xx]` reference but which still opens `55 8B EC` and closes `5D CB`/`C9` belongs
 here. Example: `1270:000e` (22 B), `141f:0000` / `1420:000f` / `1466:0052` (9 B each).
+
+### `/Ox` and wall 7 (round 139)
+
+`/Ox` makes MSC cache a value in **SI** where the original uses **DX**, so it does *not*
+help the scratch-naming family - it just swaps one wrong register for another. Verified
+on `1e38:0002` (`8B 16 <g>` versus `push si`) and `4e11:007e` (`8B 56` versus `push si`).
+The one case where `/Ox` did align a scratch register was wall 6 (register reuse across
+a push, `50ff:000e`) and the large-function CX cache (`1f45:00b0`); everything else in
+this family stays blocked under every flag combination tried.

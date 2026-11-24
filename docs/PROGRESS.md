@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 139: `/Ox` does not help the scratch-naming wall (no rows)
+Two PENDING rows re-tested under `/Ox` and `/Ox /Oi`, both previously blocked on a
+scratch register:
+
+- `1e38:0002` (56 B, RECORD_CFG) - wanted `8B 16 <g>` (the saved global in DX);
+  `/Ox` gives `push si` instead;
+- `4e11:007e` (40 B, WEIGHT2) - wanted `8B 56`; `/Ox` gives `push si` too.
+
+So `/Ox` swaps one wrong register for another in this family. The two places it *does*
+help are now precisely known: register reuse across a push (`50ff:000e`) and the
+CX cache in a large function (`1f45:00b0`). `docs/WALLS.md` records that boundary.
+
+Also tried this round: widening the far-pointer-to-parameter screen from `16 50..52` to
+any `16 50..57` - it returns **zero** further units, so `3cd1:02f2` (round 138) was the
+only one of that shape in the pool.
+
+Three rounds without a row now (137-139). The remaining candidates have all been tried in
+at least two flag configurations; the honest position is that this toolchain has been
+taken as far as it goes on them.
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 138: a range check down to the padding byte exactly (no rows, PENDING record)
 Screened for units that pass far pointers to their own parameters - the shape that
 round 132/133's `int __far *` casts unlocked - and found one: `3cd1:02f2` (56 B).
