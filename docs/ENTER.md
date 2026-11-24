@@ -807,3 +807,7 @@ The family is now **one instruction** from a row on `3809:0000` and two on `3813
 - `380d:000c` (56 B): same lever reaches **+0x11**; there the original keeps the staged nibble in **DX** (`mov dx,ax` / `xor ch,ah` order) where MSC puts it in BX (`mov bx,ax`). Eight spellings (extra local, `register`, split shifts); register naming (wall 6), no source lever found.
 
 Standing: `3809:0000` is 1 instruction from a row, `380d:000c` ~3, `3813:0000` 2. The remaining differences are operand-form / register-choice questions that depend on MSC's allocator state, which no spelling here has moved.
+
+### Round 29: bit-field and register-parameter forms for 3813:0000
+
+Nine more spellings (volatile bit-field union with swap/assign forms, `register` parameter, plain `x` instead of `(unsigned char)x`). The bit-field swap (`t = x.f.n0; x.f.n0 = x.f.n1; x.f.n1 = t`) reaches +0x10 but then uses the read-modify-write `and/or` form (`25 F0 00 / C0 E8 04 / 83 E1 F0 / 0B C1`), not the original's `xor [bp-2],reg` form; the `xor`-assign spelling reaches +0x11 and then loses to CX/AX. Together with rounds 27-28: **three rounds, ~40 spellings, no change in the best position** (+0x11 for `3813:0000`, +0x15 for `3809:0000`). The family is recorded as unreached; further spellings of the same two statements are unlikely to add information.
