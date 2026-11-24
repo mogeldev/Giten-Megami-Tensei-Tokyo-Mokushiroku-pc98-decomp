@@ -34,7 +34,8 @@ TRAITS = [
      "`mov es,[disp16]` or `mov es,ax` right before an ES-relative access - the "
      "original inlines `MK_FP(seg, off)` (with a global or a parameter segment); "
      "MSC 7 calls the `MK_FP` helper and then does `mov es,dx`"),
-    ("far pointer in DS:BX", lambda b: b"\xc5\x5e" in b or b"\xc5\x5f" in b,
+    ("far pointer in a register pair", lambda b: b"\xc5\x5e" in b or b"\xc5\x5f" in b
+                                        or b"\xc4\x76" in b or b"\xc4\x7e" in b,
      "`lds bx,[bp+..]` - the original keeps a far pointer in DS:BX across a loop "
      "and tests it with `mov ax,ds; or ax,bx`; MSC 7 keeps it in the stack frame"),
     ("split far-pointer load", lambda b: b"\x8e\x46" in b or b"\x8e\x4e" in b,
@@ -65,12 +66,12 @@ TRAITS = [
      "`or ax,di` where MSC 7 canonicalises to loading the register operand first"),
 ]
 
-ROW = re.compile(r"^\|\s*([0-9a-f]{4}):([0-9a-f]{4})\s*\|")
+ROW = re.compile(r"^\|\s*([0-9a-f]{4}):([0-9a-f]{4})\s*\|", re.M)
 
 
 def main():
     led = open(os.path.join(ROOT, "docs", "MATCHING.md"), encoding="utf-8").read()
-    done = {int(m.group(1), 16) * 16 + int(m.group(2), 16) for m in ROW.finditer(led, re.M)}
+    done = {int(m.group(1), 16) * 16 + int(m.group(2), 16) for m in ROW.finditer(led)}
     crt = {int(r["linear"], 16) for r in csv.DictReader(open(os.path.join(ROOT, "ground_truth", "foreign_crt.csv")))}
 
     units = {}

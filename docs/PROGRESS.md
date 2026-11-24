@@ -1,5 +1,35 @@
 # PROGRESS
 
+## Round 42: tools/nextup.py, a 442-unit accounting error fixed, one row (29 B)
+**New tool `tools/nextup.py`** replaces the ten ad-hoc scan scripts used in
+rounds 12-40: it skips claimed units, CRT, fragments and every `classify.py`
+trait, then ranks the rest by "translated calls minus conditional branches" so
+the straight-line relays that keep turning into rows come first.
+
+Building it exposed a **bug in `classify.py` itself**: it passed `re.M` as the
+*pos* argument of `Pattern.finditer`, which silently matched nothing, so the
+"already claimed" set was empty. Every `BLOCKED.md` produced since round 24
+counted already verified rows as unmatched. With the bug fixed the real numbers
+are:
+
+| | before (wrong) | now |
+|---|---|---|
+| unmatched units | 1 796 | **1 433** |
+| unclassified candidates | 516 units / 25 427 B | **254 units / 17 098 B** |
+| fragments | 339 units / 27 814 B | 237 units / 26 163 B |
+
+So the honest remaining C-transcribable pool is **17 KB**, not 25 KB - the
+decompilation is further along than the map suggested.
+
+The round's row: `crelay49.c` (`/Os`) `2d3a:0002` (29 B) - `h1(c, d); h2(a, b);`,
+two two-argument far relays back to back.
+
+Also extended the register-pair trait to `C4 76` / `C4 7E` (far pointer in
+ES:SI/ES:DI), which correctly classifies `2d6f:002a`.
+
+Ledger 443 rows - MATCH 38, RELOCS 381, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 053 B (3.088 %)**.
+
 ## Round 41: a negated six-argument call (29 B)
 `crelay48.c` (`/Os`): `3e7f:0118` (29 B) - `return 1 - h6(a, b, 1, 0x10, g_98e4);`.
 The negation is `48 F7 D8` (`dec ax` / `neg ax`), the DGROUP object pointer is
