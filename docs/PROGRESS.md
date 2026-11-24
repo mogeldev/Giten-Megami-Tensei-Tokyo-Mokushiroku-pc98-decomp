@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 59: batch screening pays off, two units down to one prologue (no new rows)
+First round with the batched method: six candidates transcribed mechanically, one
+compile, all matched at once. Two of them came back **byte-identical except for a
+single prologue instruction pair**:
+
+- `1070:0008` (67 B) - `r = h2(g_4ad0, 4); v = h3(g_4ad0, a, b, &c); h4(g_4ad0, r); return v;`
+- `103b:000c` (63 B) - the same shape with the pointer passed in as a parameter
+  (`(char __far *)p`), so all three calls take the far form of a DGROUP pointer.
+
+Both are `G0` cdecl functions with locals, and there MSC 7 splits the reservation
+into `B8 04 00` / `2B E0` / `50` where the original emits a single `83 EC 06`.
+Declaring the function `__pascal`, dropping the `&parameter` argument and casting
+the pointer all leave the split form in place, so the two units stay out of the
+ledger - but at 130 bytes combined they are the closest miss in many rounds and
+are now a documented class.
+
+The batch method itself worked as intended: six candidates cost one compile instead
+of six, and the transcription of each was a straight read of the push order. That
+is the throughput fix the last five rounds needed.
+
+Ledger 453 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 615 B (3.279 %).
+
 ## Round 58: `/G0` confirmed on a near function, and a change of method (no new rows)
 `13db:000c` (50 B) is a near-Pascal function with a long parameter
 (`void f(long v, int n) { if (n) h2(h1(v) + 1, v + n); }`). It confirmed two things:

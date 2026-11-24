@@ -426,3 +426,19 @@ Not every function uses the `C9`-style frame. `13db:000c` ends `8B E5 5D C2 06 0
 That unit also cleans a cdecl call with `8B E5` instead of `add sp,4`, another `G0`
 trait. When a unit's epilogue has `8B E5 5D` (or `5D` alone), compile that source
 with `G0` and expect the cdecl cleanup to match as well.
+
+## `G0` cdecl function with locals: the frame is allocated in two steps
+
+Under `G0`, a function that both takes parameters and has locals gets a split
+prologue from MSC 7:
+
+    B8 04 00   mov ax,4
+    2B E0      sub sp,ax
+    50         push ax          ; together: 6 bytes reserved for 3 locals
+
+where the original emits a single `83 EC 06`. Every other byte of `1070:0008`
+(67 B) and `103b:000c` (63 B) then matches, so this is the only thing keeping
+those two units out of the ledger: they are `G0` cdecl functions with a stack
+local and a `&parameter` argument, and MSC always splits the reservation there.
+Declaring the function `__pascal`, dropping the `&parameter` and casting the
+pointer all leave the split form in place.
