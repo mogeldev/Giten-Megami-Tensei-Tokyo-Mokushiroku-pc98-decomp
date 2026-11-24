@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 132: the 138-byte state machine is 136 bytes right (no rows, PENDING record)
+Round 131 left `50ff:000e` decoded but with an unresolved question about the `h5` call
+sites. The answer turned out to be simple: the three `h5` calls pass their arguments in
+the order written, so one declaration covers all three, and the two `h5` calls that look
+shared are a jump-merge where the differing argument is pushed before the jump.
+
+Two more things had to be right, and both were:
+
+- the **parameter addresses are cast to `int __far *`** - that cast is the only thing that
+  makes MSC emit `lea ax,[bp+0A]` / `push ss` / `push ax` instead of a near `push ax`;
+- the guard is `h4(b, c) == 1` (`48 75 1D` = `dec ax` / `jnz`), and the two branches
+  differ only in the third argument of their `h5` call and of the merged second `h5`.
+
+Result: **136 of 138 bytes match**. The remaining two are `8D 46 06` versus `8D 4E 06`
+(and its `push`): for the second pointer of `h2`'s argument list, the original **reuses
+AX** - the value has already been pushed, and `push ss` does not clobber AX - while MSC
+takes a fresh CX. That is register reuse across a push, the same family as wall 6.
+
+Recorded as a PENDING row rather than a near-miss note, because the C is now exact and
+only two bytes of register naming stand between it and a 138-byte ledger entry.
+
+Ledger 484 rows - MATCH 38, RELOCS 419, ASM 2, **PENDING 25**; verify and checkled
+green; own-code coverage 10 600 B (3.615 %).
+
 ## Round 131: the last large candidate decoded to block level (no rows)
 `50ff:000e` (138 B) - the only remaining no-wall unit above 100 bytes - is now decoded
 to the block level. It is a three-parameter far-Pascal state machine (params at 0A, 08,
