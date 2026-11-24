@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 62: the pointer-exchange family matches modulo a scratch register (no new rows)
+Two more members of the family found in rounds 60-61, both now down to **two bytes**:
+
+- `50ff:000e` (138 B) - `h1(&a,&b); h2(&b,&c); h3(&a,&b); if (h4(b,c) != 1) { r = h5(b,c,0); if (r >= 0x20) r = h6(0,a,1); } else { r = h6(b,c,1); if (r >= 0x20) r = h5(0,a,0); } h7(); return r;`
+  ('the two branches tail-merge into one call with different arguments);
+- `511b:000e` (96 B) - the twin of round 61's row, differing in the same place.
+
+Both differ only in the scratch register MSC picks for the **second** `&parameter` in a
+pair: the original computes both into AX (`8D 46 08 ... 8D 46 06`), MSC 7 puts the
+second in CX (`8D 46 08 ... 8D 4E 06`). Notably MSC's choice is *context dependent* -
+the identical prefix in round 61's `5108:0008` does come out as AX/AX and matches -
+so this is an allocation decision, not a source shape.
+
+Also confirmed the nop-padding class on a fourth unit: `3cd1:02f2` (56 B) is a
+bounds check (`h1(&x,&y); return x >= 0 && g_193c > x && y >= 0 && g_193e > y;`)
+that differs only by the `90` the original inserts after its `jmp`
+(`B8 01 00 EB 03 90 33 C0` versus MSC's `B8 01 00 EB 02 33 C0`). The if-return,
+ternary and bare-boolean formulations all give MSC's form.
+
+Ledger 455 rows (unchanged); verify and checkled green; own-code coverage
+9 796 B (3.341 %).
+
 ## Round 61: the third member of the address-of-parameter family (95 B)
 `crelay59.c` (`/Os`): `5108:0008` (95 of a 96-byte unit; the last byte is padding) -
 `h1(&a, &b); h2(&b, &c); h3(&a, &b); r = h4(a, b, 1); if (r >= 0x20) r = h5(0, c, 0); h6(); return r;`.
