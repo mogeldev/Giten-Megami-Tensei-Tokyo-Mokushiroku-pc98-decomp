@@ -14,8 +14,12 @@ and indexes through `es:[si+..]`, while MSC loads it with `C4 5E 06` into ES:BX 
 indexes through BX. Every instruction is understood; the register choice is not
 reachable.
 
-Ledger 461 rows - MATCH 38, RELOCS 399, ASM 2, PENDING 22; verify and checkled
-green; own-code coverage **9 964 B (3.398 %)**.
+A second row came free from the sweep: `tools/reuse.py` matched `1e10:000a` (27 B)
+against round 79's `F_1DFC` source, byte-identical modulo the call targets, so it was
+added directly.
+
+Ledger 462 rows - MATCH 38, RELOCS 400, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 991 B (3.407 %)**.
 
 ## Round 83: two giant blobs explain the byte count (no new rows)
 Checked how the remaining unmatched bytes are distributed by segment, and found that
