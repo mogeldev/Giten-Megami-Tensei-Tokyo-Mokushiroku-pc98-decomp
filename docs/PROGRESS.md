@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 117: a scheduling wall named - constant pushes hoisted across a call (no rows)
+With the clean relay subset drained, two longer units were transcribed:
+
+- `1f45:00b0` (59 B) - a length selector that caches its argument in **CX** and compares
+  it twice (`8B 4E 06` / `83 F9 19` / `83 F9 14`). MSC compares the frame slot twice and
+  never uses CX for a parameter, so this is the CX-caching habit already seen on
+  `1e1e:002a`.
+- `3e34:000a` (58 B) - `h1(8); s = h2(0x0F, 0x4000); h3(1, 0, a, b, s); h4(s); g = 0;`.
+  Two things came out of it. The first call is `__fastcall` (the value arrives in AX
+  with no push, `B8 08 00`), and the immediate is **8**, not the `0x800` I first read -
+  a byte-order slip in my own decode that `dis.py` would have prevented. The remaining
+  difference is new:
+
+      original   call 6A 0F 68 00 40 call 8B F0 50 ... 6A 00 6A 01 call
+      MSC 7      call 6A 01 6A 00 FF 76 08 FF 76 06 6A 0F 68 00 40 call ...
+
+  MSC pushes `h3`'s **constant** arguments before calling `h2`, because they do not
+  depend on its result; the original keeps strict statement order. That is a scheduling
+  wall, now recorded in `docs/CONVENTIONS.md`, and it explains a class of "the calls are
+  right but the bytes are interleaved" misses.
+
+Ledger 481 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 535 B (3.593 %).
+
 ## Round 116: a fourth data point on register assignment, and the clean pool drains (no rows)
 `218f:0004` and `2191:0008` (36 B each, differing only in call targets) decode cleanly as
 `h1(-1); h3(h2(a, b), a, b);` with both parameters in registers - and they miss **only**

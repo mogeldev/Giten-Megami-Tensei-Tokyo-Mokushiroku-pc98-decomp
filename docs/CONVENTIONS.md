@@ -618,3 +618,19 @@ first use fails on `3874`, and "lowest offset" fails on `3874` and `218f`. MSC's
 allocator is doing something demand-driven that this project has not reverse-engineered.
 Treat any unit whose prologue loads **two** register parameters as test-me-not-predict,
 and bracket it with `register` on one parameter at a time.
+
+## MSC hoists a later call's constant pushes; the original keeps them in order
+
+`3e34:000a` is `h1(8); s = h2(0x0F, 0x4000); h3(1, 0, a, b, s); h4(s); g = 0;`.
+The original emits the calls strictly in statement order. MSC 7 pushes `h3`'s two
+constant arguments *before* calling `h2`:
+
+    original   B8 08 00 call  6A 0F 68 00 40 call  8B F0 50 FF 76 08 FF 76 06 6A 00 6A 01 call
+    MSC 7      B8 08 00 call  6A 01 6A 00 FF 76 08 FF 76 06 6A 0F 68 00 40 call  8B F0 56 call
+
+because the constants do not depend on `h2`'s result. Any unit where one call's
+arguments precede a preceding call's invocation is this effect, not a source-order
+mistake - and no flag turns it off.
+
+Also from the same unit: the first call is `__fastcall` - the value arrives in AX
+(`B8 08 00`) with no push at all, which is the tell recorded in round 45.
