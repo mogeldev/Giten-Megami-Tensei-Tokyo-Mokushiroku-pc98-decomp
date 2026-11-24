@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 216: a six-argument pass-through, one offset out (no rows)
+`2d60:000e` (31 B) is the simplest possible shape - a function that forwards all six of its
+parameters to one call:
+
+    h(a, b, c, d, e, f);
+
+Five pushes and a byte push (`8A 46 0E` then `50`) match the original exactly, in order, and so
+does the `90`-prefixed call. The single difference is the **offset of the byte parameter**: the
+original reads `[bp+0E]`, MSC reads `[bp+10]`.
+
+That is the pascal offset table from round 210 applied to a `char` parameter: with six
+two-byte slots the first parameter should land at `[bp+0E]`, and MSC puts it one word higher.
+Two declaration shapes were compiled (with and without an explicit `return`) and both give
+`[bp+10]`, so the extra word comes from how a `char` parameter is counted rather than from the
+call itself.
+
+Not recorded: the C is trivial and certainly right, but "certainly right" is not the standard
+this ledger uses, and the offset discrepancy is unexplained. It is worth returning to - a
+forwarding function is about the cheapest row the project can produce.
+
+Ledger 517 rows (unchanged), PENDING 39; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 215: BX is never a C variable (no rows)
 Round 214 left the `119c` family blocked by a `push bx` before any argument push. This round
 tried to force it three ways - an explicit pointer temporary, explicit field temporaries, and
