@@ -42,10 +42,13 @@ TRAITS = [
      "the unit opens with a frame and never references `[bp+nn]`, so the function has no "
      "parameters and no locals: the original still emits `55 8B EC` while MSC omits the "
      "frame entirely (verified on 1270:000e; /G0 and /Gd both keep it frameless)"),
-    ("sub ax,ax zeroing", lambda b: b"\x2b\xc0" in b,
-     "the original zeroes a register with `2B C0` (`sub ax,ax`); MSC 7 always emits `33 C0` "
-     "(`xor ax,ax`), so a unit containing the older form cannot match. Verified on 3da5:000a, "
-     "which differs only in that byte pair; 25 unmatched units (19.7 KB) carry it"),
+    ("sub ax,ax zeroing",
+     lambda b: b"\x2b\xc0" in b or b"\x2a\xe4" in b or b"\x2a\xc0" in b or b"\x2b\xc9" in b,
+     "**not a wall for the `2A E4` form**: round 146 verified that MSC 7 emits `2A E4` for a "
+     "`(unsigned char)` load (`int f(unsigned i) { return (unsigned char)g[i]; }`), and for a "
+     "byte field of a struct with `>1` alignment. Only the `sub ax,ax` / `sub cx,cx` forms are "
+     "unreachable (MSC emits `33 C0`), and `4344:000e` differs from its transcription only in "
+     "instruction order (`C1 E3 02 2A E4 8A 87` versus `C1 E3 02 8A 87 ... 2A E4`)"),
     ("byte argument without promotion",
      lambda b: re.search(rb"(?:\x8a\x46[\x00-\xff]\x50|\xa0[\x00-\xff][\x00-\xff]\x50)", b) is not None,
      "the original pushes a `char` argument straight from the byte it loaded (`8A 46 <n>` + `50`, "

@@ -1,5 +1,37 @@
 # PROGRESS
 
+## Round 146: `2A E4` is NOT a wall - a class of 74 units reopens (no rows)
+The "sub ax,ax zeroing" class (20 units when it was written, 74 after widening the trait
+this round to `2A E4` / `2A C0` / `2B C9`) said MSC always emits `33 C0`. **It does not.**
+Compiling
+
+    int f(unsigned i) { return (unsigned char)g[i]; }
+
+gives `8A 87 <t> 2A E4` - MSC emits `sub ah,ah` exactly as the original does for a byte
+load that has to be zero-extended. The same holds for a byte field of a struct with
+alignment greater than one. So **74 units / 15 007 B**, which were filed as permanently
+blocked, are candidates; `tools/classify.py` now says so in the class description, and
+`BLOCKED.md`'s unclassified pool drops from 140 to **129 units (8 455 B)**.
+
+Two of the class's units were then transcribed: `3ede:000a` and `3ede:0024` (25 B each),
+
+    int f(int a) { return h(a)[1]; }        /* h returns unsigned char __far * */
+
+and they differ from the object in **one instruction pair's order**:
+
+    original   8B D8 8E C2      bx = ax ; es = dx
+    MSC 7      8E C2 8B D8      es = dx ; bx = ax
+
+`/Ot`, `/Ox` and `/Oi` all keep MSC's order, so this is wall 9 (scheduling), not a flag
+issue.
+
+The lesson is worth as much as a row: a class description is a *hypothesis*, and
+"compiler X always emits Y" is the kind of hypothesis that silently parks a whole class
+of units. It has now been tested twice this round and was wrong once.
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 145: full sweep, and the state of the pool written down (no rows)
 Ran `tools/verify.py` without `--fast`: **488/488 rows ok** (MATCH 38, RELOCS 423,
 ASM 2, PENDING 25), `checkled.py` consistent. Third full sweep of the project.
