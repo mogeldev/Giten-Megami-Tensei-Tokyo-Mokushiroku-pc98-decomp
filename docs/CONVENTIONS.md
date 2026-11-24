@@ -331,3 +331,27 @@ first, so the working source is
 
 Writing `default:` at the end instead shifts the default block and every branch
 distance in the function.
+
+## Source-level rules that decide a match (round 50 summary)
+
+Each of these was earned by a specific near-miss; applying them first saves a
+compile cycle. Ordered by how often they have paid off:
+
+| rule | example | found |
+|---|---|---|
+| a `register` parameter/ local stages through SI (or DI) instead of reloading from the frame | `8B 76 06` + repeated `56` instead of `FF 76 06` | r12 |
+| a value moved into **AX right before** a far call is an *argument*: the callee is `__fastcall` | `B8 23 00` + call, `8B C6` + call | r20, r37, r49 |
+| declare the callee `__far` when the image shows `90 0E E8`; `__near` gives a 3-byte `E8` and shifts everything | | r46 |
+| accumulation and divide-plus-offset must be **separate statements**, not one expression | `t += g(...)` vs `t = a + b + c` | r46 |
+| write branch conditions **negated** when the original lays the then-block out first | `if (!h(...))` emits `jnz` over the block | r45 |
+| write `default:` **first** in a switch to get the original's block order | | r47 |
+| an unprototyped callee makes MSC clean arguments with `mov sp,bp` instead of `add sp,N` | `8B E5` | r28 |
+| a `long` local that is written but never read reserves its bytes and nothing else | `83 EC 04` | r29 |
+| do not give a call result its own variable when it is only tested once (it adds a DI push) | | r45 |
+| Pascal arguments push **left to right**, so the first argument sits at the highest offset | four-word far function: `a`=bp+0C ... `d`=bp+06 | r25 |
+| a byte global read uses the moffs form `A0 <disp>`; caching it in a local is sometimes required | | r18, r48 |
+
+What no source formulation reaches (older-compiler artefacts, catalogued in
+`docs/BLOCKED.md`): `ENTER` frames, `2B C0` zeroing, `add reg,reg` doubling,
+jump-merge booleans with `xor ax,ax`, the `or reg,ax` peephole, nop-padded jumps,
+frames on functions with no locals, and reversed register-parameter assignment.

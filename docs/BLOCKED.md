@@ -5,14 +5,14 @@ by the code-generation idiom that prevents a match. Regenerate after each
 round. Counts may include segment aliases (the inventory lists some code
 under two spellings), so treat them as an upper bound.
 
-1430 unmatched units (excluding CRT and verified).
+1425 unmatched units (excluding CRT and verified).
 
 | class | units | bytes | why it stays open |
 |---|---|---|---|
 | ENTER frame | 584 | 85251 | `C8 xx xx 00` prologue - the original never uses ENTER; MSC 7 only emits it with /Gs plus a local, so these come from the older compiler |
 | fragment (no prologue) | 237 | 26163 | the unit does not start with a function prologue, so the inventory window began in the middle of a routine: it cannot be matched as a function at all |
 | add reg,reg doubling | 65 | 17655 | `add ax,ax`-style doubling for `x * 2` - MSC 7 uses `shl` |
-| unclassified | 241 | 16231 | no known blocker - these are the real candidates for new source shapes |
+| unclassified | 236 | 15957 | no known blocker - these are the real candidates for new source shapes |
 | jump-merge boolean | 75 | 6992 | `jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns |
 | inlined MK_FP | 70 | 6523 | `mov es,[disp16]` or `mov es,ax` right before an ES-relative access - the original inlines `MK_FP(seg, off)` (with a global or a parameter segment); MSC 7 calls the `MK_FP` helper and then does `mov es,dx` |
 | split far-pointer load | 68 | 6314 | `mov es,[bp+xx]` loading only the segment half of a far pointer - blocked trait |
@@ -44,7 +44,7 @@ Largest: `159d:03e4` (4519 B), `1847:000c` (1413 B), `2ff9:000a` (1002 B), `4c9c
 
 Largest: `2baa:0004` (4612 B), `1c4d:0006` (1190 B), `19e2:0008` (986 B), `1b39:0000` (852 B), `1a22:000e` (750 B), `1dc7:000a` (522 B), `307b:0018` (517 B), `1b1b:000e` (466 B), `1349:0000` (416 B), `4416:0002` (407 B), `1f0d:0084` (394 B), `43db:0184` (381 B)
 
-## unclassified (241 units, 16231 bytes)
+## unclassified (236 units, 15957 bytes)
 
 no known blocker - these are the real candidates for new source shapes
 

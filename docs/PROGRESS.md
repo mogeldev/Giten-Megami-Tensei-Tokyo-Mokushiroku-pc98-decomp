@@ -1,5 +1,33 @@
 # PROGRESS
 
+## Round 50: milestone summary (no new rows, one artefact)
+Fifty rounds in, the ledger stands at **451 rows** (MATCH 38, RELOCS 389, ASM 2,
+PENDING 22) and **9 525 B of own code (3.249 %)** are byte-verified against MSC 7.
+Every metric that matters has stayed green throughout: `verify.py` rebuilds and
+re-matches every row on each run, `checkled.py` keeps the bookkeeping honest, and
+no unverified increment has ever been committed.
+
+The round's artefact is a **rules table in `docs/CONVENTIONS.md`** that collects the
+eleven source-level rules earned since round 12, each with the example that
+proved it and the round it was found (register staging, the fastcall tell, `__far`
+vs `__near`, statement splitting, negated conditions, `default:` first,
+unprototyped cleanup, the unused-`long` frame, single-use call results, Pascal
+push order, moffs byte loads). It ends with the list of older-compiler artefacts
+that no source formulation reaches, which is what `docs/BLOCKED.md` classifies.
+
+Two probes this round, both blocked on scheduling rather than shape:
+
+- `1dfc:0116` / `1e12:0006` (34 B each) - `h2(cd4(a, b, a, b))` with a cdecl
+  four-argument callee. MSC 7 cleans the cdecl arguments with `83 C4 08`
+  immediately after the call; the original postpones the same `add sp,8` until
+  after the following call. Everything else matches.
+- `2daa:001c` / `2dad:000c` (32 B) - a byte global pushed without sign extension.
+
+`docs/BLOCKED.md` regenerated: 1 425 unmatched units, of which 237 (26 KB) are
+mid-routine fragments that can never be functions.
+
+Ledger 451 rows (unchanged this round); verify and checkled green.
+
 ## Round 49: a fastcall tail and a long sum (76 B)
 `crelay55.c` (`/Os`), two rows:
 
