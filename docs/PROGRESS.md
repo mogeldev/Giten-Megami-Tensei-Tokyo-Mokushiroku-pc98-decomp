@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 224: the pending registry re-swept (no rows)
+Ran `tools/recheck.py --sweep`: all **13 registered PENDING rows** recompiled under their
+flags plus four alternatives each - 65 compilations - and **0 now match**. That is the
+expected result, and it is the point of having the tool: the negative answer costs one command
+instead of thirteen rounds.
+
+Added nothing else this round, deliberately. Three consecutive rounds have ended without a row,
+and the honest reading is not that the work has stalled but that the *remaining* candidates are
+gated on the walls measured in rounds 199-223 - doubling (199 units / 66 KB), the register
+cache (41 / 5.4 KB), BX (9 / 672 B), the pad byte, narrowing, `les`, segments and string
+instructions. With 32 rounds left, the mix that made the ledger grow - one screen, one or two
+transcriptions, a wall note when it misses - is still the right mix; it just yields rows more
+slowly than it did at round 150.
+
+Worth stating plainly for the record: **no ledger row has been added since round 203**, and
+the last twelve rounds have produced seven named walls, four measurements and one open
+question. That is a real contribution to a decompilation project - it is a map of why the rest
+cannot be done with this toolchain - but it is not the same as rows, and the round notes should
+not imply otherwise.
+
+Ledger 519 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 223: long parameters, measured and one puzzle left (no rows)
 Round 222's open question was how MSC places two `long` parameters in a pascal frame. This
 round compiled `f(long a, long b)` and `f(int x, long a, long b)` and dumped them.
