@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 86: two more pure relays (58 B), and a push-encoding observation
+`crelay67.c` (`/Os`), continuing round 85's relay screen:
+
+- `4f5c:0004` (25 B) - `g_2e2a = 0; hb(g_860e, a);`, an immediate store followed by a
+  call with a DGROUP object pointer;
+- `3bd6:004c` (33 B) - `hd(a, b, c, d); nf(c); return c;`, a four-argument far call,
+  then a near call forwarding the third parameter, which is also returned.
+
+Both units include a padding byte, so each row is one byte smaller than the
+inventory says - the same trap as round 85.
+
+Three further candidates were screened and are blocked on small, named things:
+
+- `41e7:000a` (22 B) - `h(0x4827, 6, a);`. MSC emits `6A 06` (the 80186 push-imm8)
+  where the original emits `68 06 00` (push-imm16). The original uses `6A` freely
+  elsewhere in the image, so this is a context-dependent choice MSC makes for a
+  literal `int` argument; a cast or a wider constant did not change it.
+- `2054:000e` (30 B) - `hc(q * 0x50, p + q * 0x50, r, s, t);`: MSC pushes the
+  `imul` result before adding the second parameter, the original adds first. One
+  instruction of scheduling.
+- `3ea9:0042` (23 B) - the original doubles the call result with `03 C0`
+  (`add ax,ax`), MSC with `D1 E0` - the doubling class, now on a fourth unit.
+
+Ledger 471 rows - MATCH 38, RELOCS 409, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **10 210 B (3.482 %)**.
+
 ## Round 85: seven rows from a pure-relay screen (159 B)
 Screened the pool for units whose body contains **nothing but** framing, pushes,
 calls and a return - no `les`, no segment moves, no stores, no compares, no shifts.
