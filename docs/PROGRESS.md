@@ -1,5 +1,22 @@
 # PROGRESS
 
+## Round 195: a one-page summary of the whole project (documentation round)
+`docs/PROGRESS.md` is now ~190 round notes long, which is the right record and the wrong
+front door. Added **`docs/SUMMARY.md`**: results in four numbers, the seven walls that
+actually matter with their witnesses, the five working methods that produced the rows, what
+would move the needle (and what would not), and a reading order. Linked from the index.
+
+The section worth quoting is the last one: the seventeen walls are not reachable from
+source, and the 36 PENDING rows are the evidence rather than the excuse - each has its C
+recovered, each misses by one to six bytes of compiler choice, and each can be re-tested in
+one command if a matching toolchain ever appears.
+
+The round itself added no rows; it also produced no claims that the ledger does not already
+support, which is the only standard a summary should be held to.
+
+Ledger 512 rows (unchanged), PENDING 36; verify and checkled green; own-code
+coverage 11 260 B (3.840 %).
+
 ## Round 194: the long comparison recorded, and a full sweep (no rows)
 `2e68:000c` (50 B) had been transcribed in round 170 and found one byte short, but never
 entered in the ledger. It is now a PENDING row:
