@@ -23,6 +23,10 @@ TRAITS = [
     ("ENTER frame", lambda b: b[:1] == b"\xc8",
      "`C8 xx xx 00` prologue - the original never uses ENTER; MSC 7 only emits "
      "it with /Gs plus a local, so these come from the older compiler"),
+    ("inline long shift", lambda b: b"\x8a\xe0\x2a\xc0" in b,
+     "the original inlines a 32-bit `x << 8` as `mov ah,al` / `sub al,al` (and the high "
+     "word with `mov dh,dl` / `mov dl,ah`); MSC 7 calls the shift helper for the same "
+     "expression (`9A __aFulshl`), so any unit doing long shifts is unreachable"),
     ("nop-padded branch", lambda b: b"\xeb\x03\x90" in b or b"\xeb\x02\x90" in b
                                        or b"\x74\x03\x90" in b or b"\x75\x03\x90" in b,
      "the original pads a short jump with a `90` before the next block (`EB 03 90 33 C0`); "

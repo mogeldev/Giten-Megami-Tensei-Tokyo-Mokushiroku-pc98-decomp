@@ -400,3 +400,21 @@ So the three available profiles are:
 - `/G0 /Od` - correct frame shape but always reserves locals and saves SI/DI.
 
 The original sits between them: unoptimised selection with a bare classic frame.
+
+## Long shifts are inlined in the original, not called
+
+For a 32-bit `v << 8` the original emits the shift inline:
+
+    8A E0   mov ah,al        ; low word << 8
+    2A C0   sub al,al
+    ...
+    8A F2   mov dh,dl        ; carry into the high word
+    8A D4   mov dl,ah
+
+MSC 7 emits a call to the shift helper instead (`B1 08` + `9A ...`), so every
+expression built from `(long)x << 8` or `(long)x << 16` diverges at the first
+shift. `20b4:0160` (_read24) is the canonical case: the original assembles a
+24-bit value with inline byte shifts and no call at all, and no formulation of the
+same value in MSC 7 avoids the helper. Fourteen unmatched units contain the idiom,
+including six functions over 130 bytes, so this is one of the larger remaining
+classes (now `inline long shift` in tools/classify.py).

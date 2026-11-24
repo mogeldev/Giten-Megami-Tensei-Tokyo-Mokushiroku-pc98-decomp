@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 57: the inline-long-shift class (3.8 KB) - no new rows
+Chased the oldest open PENDING row, `20b4:0160` (_read24, 37 B), and proved why it
+cannot be written: the original **inlines** a 32-bit `x << 8` as `8A E0` (`mov
+ah,al`) / `2A C0` (`sub al,al`) for the low word and `8A F2` / `8A D4` for the
+carry into the high word, whereas MSC 7 calls the shift helper (`B1 08` + `9A`)
+for every formulation of the same value - a single expression, a chained
+`v = (v << 8) + g`, and both signed and unsigned variants were tried and all emit
+the helper.
+
+That makes it a class, and a large one: a scan found **12 unmatched units carrying
+the idiom, 3 810 bytes** - six of them functions over 130 bytes
+(`1a51:000c` 248 B, `1a61:0004` 224 B, `1a6f:0004` 196 B, `1c0c:000c` 183 B,
+`1a81:000a` 138 B, `224b:0004` 131 B). They are now `inline long shift` in
+`tools/classify.py` and documented in `docs/CONVENTIONS.md`.
+
+`docs/BLOCKED.md` after the change: **233 unclassified units / 15 801 B** (from
+241 / 16 231 B last round), 17 classes.
+
+Ledger 453 rows (unchanged), PENDING still 22; verify and checkled green; own-code
+coverage 9 615 B (3.279 %).
+
 ## Round 56: a wrong hypothesis withdrawn from the ledger (no new rows)
 `31e3:0064` (W_COND, 32 B) had stood PENDING since round 18 with the note that its
 extra `90` "looks like jump-target alignment decided at link time". Round 45's
