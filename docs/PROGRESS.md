@@ -22,7 +22,8 @@ Also re-checked the two most persistent PENDING rows with this round's tools:
 `tools/probe.py` was swept again across every calibration symbol: only the known
 `3670:00e2` hit, already in the ledger.
 
-Ledger 453 rows (unchanged), **PENDING now 21**; verify and checkled green;
+Ledger 453 rows (unchanged), PENDING still 22 - the row keeps its status, only
+its diagnosis changed; verify and checkled green;
 own-code coverage 9 615 B (3.279 %).
 
 ## Round 55: the three codegen profiles mapped (no new rows)
