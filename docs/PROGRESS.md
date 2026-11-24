@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 48: a nested two-argument relay (27 B)
+`crelay54.c` (`/Os`): `388d:0006` (27 B) - `h2b(h2(a, a), 0);`, the inner call's
+result serving as the outer first argument, with the parameter `register` so both
+uses push SI and the result arrives in AX with no staging.
+
+Probed and blocked, both by named classes:
+
+- `1270:000e` (22 B) - `fc0(); if (g_4abf) fc1();`. Caching the byte in a local
+  (`c = g_4abf; if (c)`) reproduces the original instruction pair exactly
+  (`A0 <disp>` + `0A C0` instead of `80 3E <disp> 00`), but the original also has
+  a `55 8B EC` / `5D` frame although the function has no locals and no
+  parameters - MSC 7 only emits a frame when it must, so this stays
+  generation-blocked even though the interesting part is matched.
+- `2daa:001c` (32 B) - a byte global pushed without sign extension (`A0 <disp>` +
+  `50`), the same odd idiom as `2127:000c`.
+
+`reuse.py` reports no siblings after the row.
+
+Ledger 449 rows - MATCH 38, RELOCS 387, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 449 B (3.223 %)**.
+
 ## Round 47: a four-case switch (93 B) and the `default:`-first rule
 `crelay53.c` (`/Os`): `1f5f:0000` (93 B) - a `switch` on the fourth parameter whose
 four cases return the callee's long result and whose default builds
