@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 121: the padding has two causes, and I can name both (no rows)
+Tested round 120's hypothesis on the unit that motivated it. `4998:000c` (112 B) has a
+**single shared epilogue**, so "the compiler does not merge return paths" does not
+explain its pad. What it does show is:
+
+    0x64  B8 01 00     mov ax,1
+    0x67  EB 03        jmp 0x6c
+    0x69  90           nop
+    0x6a  33 C0        xor ax,ax     <- 2 bytes where a 3-byte `mov ax,0` fits
+    0x6c  C9 CA 08 00  leave / retf 8
+
+with `48eb:000c` identical. That reads as a **late peephole**: the compiler laid out a
+3-byte `mov ax,0`, shortened it to `xor ax,ax` afterwards, and padded the freed byte
+rather than re-laying out the jump - which is why the jump distance is correct for the
+*padded* layout.
+
+So wall 2 has at least two causes: non-merged epilogues (`13d5:000c`) and late
+instruction shortening (`4998:000c`, `48eb:000c`). `1036:000c`'s pad (after a jump,
+before a `push`) fits neither exactly, so the family is not fully explained - and that
+is now what `docs/WALLS.md` says, rather than implying a single rule.
+
+The practical consequence is unchanged: neither cause is reachable from MSC 7, which
+lays out after peepholing and merges paths under `/Os`.
+
+Ledger 481 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 535 B (3.593 %).
+
 ## Round 120: the nop padding is a non-merged epilogue, not a padding rule (no rows)
 Tested whether MSC can be made to emit the `90` at all, and it can - just not the way I
 had been thinking. Compiling

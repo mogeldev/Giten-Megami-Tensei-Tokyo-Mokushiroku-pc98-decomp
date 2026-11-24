@@ -124,3 +124,26 @@ it with itself (`200d:0006`).
    settle several at once. Both extracted drivers currently run and exit without
    producing objects (`GAP.md`), and the remaining hypothesis needs an observable
    console.
+
+### The padding has (at least) two causes
+
+Round 121 checked the hypothesis on the unit it came from. `4998:000c` has a **single
+shared epilogue** (`C9 CA 08 00` reached from both paths), so the non-merged-epilogue
+explanation does not cover it. What it does show is:
+
+    0x64  B8 01 00     mov ax,1
+    0x67  EB 03        jmp 0x6c
+    0x69  90           nop        <- padding
+    0x6a  33 C0        xor ax,ax  <- 2 bytes where a 3-byte `mov ax,0` would fit
+    0x6c  C9 CA 08 00  leave / retf 8
+
+and `48eb:000c` has exactly the same shape. That reads as a **late peephole**:
+the compiler laid out `mov ax,0` (3 bytes), later shortened it to `xor ax,ax` (2 bytes),
+and padded the freed byte with `90` rather than re-laying out the jump. The jump
+distance is correct for the padded layout, so whatever did the shortening knew the
+padding would be there.
+
+So there are at least two causes: non-merged epilogues (round 120, `13d5:000c`) and
+this late-shortening pad (`4998:000c`, `48eb:000c`). `1036:000c`'s pad sits after a jump
+before a `push`, matching neither description exactly - so the family is not fully
+explained yet.
