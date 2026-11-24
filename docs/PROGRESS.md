@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 253: a final state check, and a stale stub removed (maintenance round)
+Checked the repository as it would be found by a successor:
+
+- `git status` clean, **266 tracked files**, no binaries (the round-231 audit still holds);
+- fifteen documents in `docs/`, indexed by `README.md`;
+- `verify.py` and `checkled.py` green.
+
+One thing did not survive the check: **`docs/PENDING.md`** was an empty table (`| va | name |
+diff-bytes | cause |` with no rows) from an early round, superseded by the PENDING rows in
+`MATCHING.md` and by `tools/pending.txt`. Nothing linked to it. Removed rather than filled,
+because two places to look for the same thing is worse than one.
+
+That is the right kind of end-of-project work: not adding, but making sure what is there can be
+trusted and found. Deleting a stub is a small diff and removes a source of doubt.
+
+Ledger 523 rows (unchanged), PENDING 38; verify and checkled green; own-code
+coverage 11 645 B (3.972 %).
+
 ## Round 252: the segment-register wall written up as wall 21 (documentation round)
 Round 251 established that the ES-versus-DS choice is not steerable; this round recorded it as
 **wall 21** in `docs/WALLS.md` with its witnesses, and updated `docs/SUMMARY.md`'s wall count.
