@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 131: the last large candidate decoded to block level (no rows)
+`50ff:000e` (138 B) - the only remaining no-wall unit above 100 bytes - is now decoded
+to the block level. It is a three-parameter far-Pascal state machine (params at 0A, 08,
+06) with six calls:
+
+- `h1(&a, &b)`, `h2(&b, &c)`, `h3(&a, &b)` - each passing **far pointers to its own
+  parameters** (`8D 4E 0A` / `16 51` = `lea cx,[bp+0A]` / `push ss` / `push cx`);
+- `h4(b, c)`, whose result selects one of two branches (`48 75 1D` = `dec ax` / `jnz`);
+- in each branch `h5(...)` returns a value compared against `0x20` (two different
+  argument lists), and then a third `h5` call and a final `h6()`.
+
+What is *not* pinned yet is the exact C: the two `h5` call sites push their arguments in
+orders that do not agree with a single three-argument declaration (one is `b, c, 0`, the
+other `0, a, 1`), so either the callee has a variable-argument shape or two different
+functions share the address `0x0948` at different call sites. That is worth one more
+round, but not a guess.
+
+With this, every unit above 100 bytes in the no-wall pool has been decoded; the only
+unknowns left in that pool are three small ones.
+
+Ledger 483 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 600 B (3.615 %).
+
 ## Round 130: full verification sweep and the long variant of wall 5 (no rows)
 Ran `tools/verify.py` without `--fast`: **483/483 rows ok** - MATCH 38, RELOCS 419,
 PENDING 24 - and `checkled.py` consistent. That is the second full sweep of the project
