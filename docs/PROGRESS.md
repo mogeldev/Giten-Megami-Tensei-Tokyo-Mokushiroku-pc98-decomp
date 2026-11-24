@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 212: a clean-pool screen, and a nineteenth wall (no rows)
+Round 211 showed that 23 % of the remaining code sits behind the doubling wall, so this round
+screened for what is **not**: unmatched units with no `add reg,reg` doubling, no `sub ax,ax`
+zeroing, no segment/port/string operations, starting with a frame and ending cleanly - **145
+candidates**, the pool that should be matchable if anything is.
+
+Two were transcribed:
+
+- `4d98:000a` (18 B) is `return (a + b) & 3;`. The original loads both parameters as **words**;
+  MSC loads them as **bytes**, because `& 3` bounds the range and narrowing is legal. Four
+  forms were tried (plain, `unsigned`, via a temporary, `% 4`) and all four narrow - so this
+  is **wall 19**, a range-narrowing wall, and a third case of the original's optimiser being
+  *less* aggressive than MSC 7.0's.
+- `1270:000e` (22 B) did not compile as a unit at all (the symbol came out shorter than the
+  window), so it was set aside.
+
+The narrowing wall is worth naming because it explains a family: every unit with `& mask` or
+`% n` on a parameter is likely blocked, and the original's word loads are the tell.
+
+Ledger 517 rows (unchanged), PENDING 39; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 211: how much sits behind the doubling wall (no rows)
 Round 199 closed the doubling class with six source forms. This round tried six more
 (`(unsigned)x * 2`, `x - (-x)`, `(int)((long)x * 2)`, `x + (x)`, `(x << 1)`,

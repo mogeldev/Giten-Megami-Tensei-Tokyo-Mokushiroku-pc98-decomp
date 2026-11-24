@@ -383,3 +383,19 @@ the largest known barrier in the binary.
 
 It also explains the shape of the remaining pool: half the units that "nearly match" do so
 except for an index scale, which is why so many of the PENDING rows are two bytes short.
+
+## 19. MSC narrows loads when a mask bounds the range
+
+`4d98:000a` (18 B) is `return (a + b) & 3;` with two `int` parameters. The original loads both
+as **words** (`8B 56 08`); MSC loads them as **bytes** (`8A 56 08`) because the `& 3` proves
+the value fits in two bits, and the narrowing is legal.
+
+Four forms were tried - `(a + b) & 3`, with `unsigned`, through a temporary, and `% 4` - and
+all four narrow. `% 4` additionally becomes a different instruction sequence (`and` versus
+`dec`/`and`).
+
+So a mask or modulus on a parameter value is a wall in itself: the original compiler did not
+perform the range narrowing, and MSC does. It is a third instance of the general pattern - the
+original's optimiser is *less* aggressive than MSC 7.0's in several places (no narrowing, no
+`shl` for doubling, no `test`-for-`and`), which is consistent with it being an earlier
+compiler.
