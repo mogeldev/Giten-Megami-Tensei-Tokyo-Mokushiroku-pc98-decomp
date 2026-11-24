@@ -69,7 +69,7 @@ rows. Verification therefore does not depend on which OBJ currently sits in
 | 31e3:0022 | W_2000 | 21 | RELOCS | src=src/calib/cwrap2.c; flags="/G1 /AM /Gs /Os"; same wrapper with 0x2000 |
 | 31e3:0038 | W_8000 | 21 | RELOCS | src=src/calib/cwrap2.c; flags="/G1 /AM /Gs /Os"; same wrapper with 0x8000 |
 | 31e3:004e | W_4000 | 21 | RELOCS | src=src/calib/cwrap2.c; flags="/G1 /AM /Gs /Os"; same wrapper with 0x4000 |
-| 31e3:0064 | W_COND | 32 | PENDING | `if (b == 1) f1(a); else f2(a);` — ours emits `75 0A … EB 08`, the original `75 0B … EB 09 90`. The single extra `90` after the `jmp` looks like jump-target alignment decided at link time (this unit sits at an odd image offset), not a source difference; kept PENDING until that can be proven |
+| 31e3:0064 | W_COND | 32 | PENDING | `if (b == 1) f1(a); else f2(a);` - ours emits `75 0A ... EB 08`, the original `75 0B ... EB 09 90`. The extra `90` is the **nop-padding class** proven in round 45 (see CONVENTIONS: the original pads a short jump with `90`; `4998:000c` and `3b88:000e` fail by the same single byte). The earlier "link-time jump alignment" hypothesis is withdrawn - the padding is emitted by the compiler, not the linker. Address is not a `units.csv` boundary; bytes measured directly |
 | 2e01:0014 | _get_long_7bc2 | 8 | RELOCS | src=src/calib/cunit1.c; flags="/G1 /AM /Gs /Os"; long getter `return g_7bc2;` (`A1`/`8B 16`); hidden unit recovered by `tools/split.py` |
 | 4a91:001e | _get_long_9973 | 8 | RELOCS | src=src/calib/cunit1.c; flags="/G1 /AM /Gs /Os"; same shape for the long at 0x9973; hidden unit |
 | 477b:0028 | _sext14 | 10 | RELOCS | src=src/calib/cunit1.c; flags="/G1 /AM /Gs /Os"; `return (g_9971 << 2) >> 2;` — sign-extend a 14-bit value (`shl ax,2` / `sar ax,2`); hidden unit |

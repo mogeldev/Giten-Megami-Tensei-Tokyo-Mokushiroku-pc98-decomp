@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 56: a wrong hypothesis withdrawn from the ledger (no new rows)
+`31e3:0064` (W_COND, 32 B) had stood PENDING since round 18 with the note that its
+extra `90` "looks like jump-target alignment decided at link time". Round 45's
+nop-padding proof settles it: the padding is emitted by the **compiler** (the same
+`EB <n> 90` form that makes `4998:000c` and `3b88:000e` miss by exactly one byte),
+so the link-time-alignment hypothesis is withdrawn and the row now cites the
+proven class. Ledger accuracy matters more than the row count here - a wrong
+diagnosis in the ledger is worse than an unexplained one.
+
+Also re-checked the two most persistent PENDING rows with this round's tools:
+
+- `20b4:0160` (_read24, 37 B) - a 24-bit read assembles `g_f3a/g_f3b/g_f3c` with
+  inline byte shifting (`8A E0 2A C0` = shift a byte into AH) and no runtime call.
+  Every natural long formulation (`<< 8`, `<< 16`, chained `v = (v << 8) + g`)
+  calls MSC's 32-bit shift helper, so the source must operate on 16-bit
+  intermediates; not solved this round.
+- `1871:7874` (SEG_OF, 24 B) - still needs `les` + `mov ax,es` after zeroing a
+  local, which MSC never emits for a far-pointer parameter.
+
+`tools/probe.py` was swept again across every calibration symbol: only the known
+`3670:00e2` hit, already in the ledger.
+
+Ledger 453 rows (unchanged), **PENDING now 21**; verify and checkled green;
+own-code coverage 9 615 B (3.279 %).
+
 ## Round 55: the three codegen profiles mapped (no new rows)
 Following round 54's cdecl finding, I checked whether another optimisation level
 reproduces the original more often. It does in part: **`/Od` matches the original's
