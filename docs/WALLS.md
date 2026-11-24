@@ -218,3 +218,17 @@ subexpressions is written first. Five shapes were compiled (`|` in both orders, 
 index in an `int` and in an `unsigned` variable, and `n % 8` instead of `n & 7`): all five
 produce byte-identical code. The original does the opposite - the mask table goes into AL
 first. So `2603:463c`'s single remaining difference is not expressible in C.
+
+## 15. Direct memory-to-SI/DI loads (`8B 36` / `8B 3E`)
+
+The original sometimes loads a word straight from an absolute address into a pointer
+register: `8B 36 10 00` (`mov si,[0x0010]`), and `159d:190d` / `159d:1914` do the same with
+`A1` plus `8B FE`. MSC 7 does not emit that form: it loads through AX or BX instead
+(`BB 10 00 8B 1F` for `bx = 0x10; bx = [bx]`), and with a `register` pointer it emits
+`push si` + `BB` (under `/Os`) or `BB` alone (under `/Ox`).
+
+Five source shapes were compiled for `159d:18f2` (the 9-byte byte-mask on the BIOS pointer
+at `0x0010`): plain pointer, `register char *`, `register int` plus a cast, subscript and
+explicit `+ 10`. None produce `8B 36`, so the encoding itself is unreachable - a sixth
+form of the register-naming family, but a distinct one worth naming because it is about
+*encodings*, not allocation.

@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 157: a fifteenth wall - the encoding, not the allocation (no rows)
+Sorted the smallest frameful units in segments that already match (7 candidates) and read
+three of them:
+
+- `2d49:0034` (21 B) pushes a global byte straight into a call's argument list
+  (`A0 <g>` / `50`), i.e. a byte pushed without promotion - wall 12;
+- `3ea9:0042` (23 B) doubles a value with `03 C0` (`add ax,ax`) - wall 8;
+- `416f:011c` (31 B) builds a far pointer with `add ax,imm16` / `push ds` / `push ax` -
+  wall 11's inlined `MK_FP`.
+
+Then moved to the fragment class, where `159d:18f2` (9 B) is
+`((char *)*(int *)0x10)[0x0A] &= 0x7F;` - a byte mask on the BIOS data area's pointer.
+Five shapes were compiled (plain pointer, `register char *`, `register int` with a cast,
+subscript, explicit `+ 10`); none produce the original's `8B 36 10 00` (`mov si,[0x0010]`),
+because MSC always loads through AX or BX.
+
+That is **wall 15**, and it is worth separating from the register-naming walls: those are
+about *which* register the allocator picks, this one is about which *encoding* the
+compiler is willing to emit at all. Recorded in `docs/WALLS.md` with the evidence.
+
+Ledger 491 rows (unchanged), PENDING 27; verify and checkled green; own-code
+coverage 10 902 B (3.718 %).
+
 ## Round 156: a no-frame comparison getter, two bytes short (no rows, PENDING record)
 Widened the "near matched code" heuristic to segments with at least one verified row and
 sorted by size, which surfaces much smaller units. `5026:013e` (17 B) is the simplest
