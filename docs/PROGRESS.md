@@ -1,5 +1,38 @@
 # PROGRESS
 
+## Round 256: closing report
+Final round. The state, verified, is:
+
+| | |
+|---|---|
+| ledger rows | **523** (MATCH 39, RELOCS 444, ASM 2, PENDING 38) |
+| verified functions | **483** |
+| own code matched from source | **11 645 of 293 211 bytes (3.972 %)** |
+| walls | **21**, eight of them measured in units and bytes |
+| PENDING rows | **38**, their C recovered, 13 re-testable with one command |
+| published | documentation, C sources, Python tools and CSV metadata - no game binary, no toolchain, no credentials |
+
+`tools/verify.py` (full) green on all 523 rows, `tools/checkled.py` consistent, working tree
+clean, everything pushed.
+
+**What the session added.** Between rounds 180 and 256: 18 ledger rows (36 rows since round 100),
+six new walls with witnesses, three measured class sizes, four declaration facts that each
+turned a failed transcription into a row, and a tooling change (`recheck.py` plus the pending
+registry) that makes 13 known-good sources re-testable in one command.
+
+**What it did not do.** It did not move the percentage much - 3.825 % to 3.972 % in 76 rounds -
+and the reason is documented rather than glossed: 23 % of the remaining code sits behind a
+provably unreachable `add reg,reg` doubling, and the rest behind a dozen equally specific
+compiler behaviours that no declaration, flag or source form reaches.
+
+**What a successor should do first.** `docs/HANDOFF.md`, then `docs/ENTER.md` (the `C8`-framed
+units, where MSC makes the same frame choice as the original), then `tools/recheck.py --sweep`
+if a different toolchain ever appears. The 38 PENDING rows are the best evidence of where the
+boundary is; the 21 walls are the map of it.
+
+That is the honest end state: a modest, fully reproducible decompilation, a measured boundary,
+and a method that does not have to be re-derived.
+
 ## Round 255: the final verification (maintenance round)
 Ran `tools/verify.py` without `--fast` for the last time this session: **523/523 rows ok** -
 the eleventh full sweep - with `tools/checkled.py` consistent and `tools/coverage.py`
