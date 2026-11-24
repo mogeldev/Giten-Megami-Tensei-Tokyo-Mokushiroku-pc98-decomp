@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 203: a mis-cut window becomes a row (27 B)
+Round 202 left `1ab4:000c` (72 B) unexplained: everything matched except the `if (g_536c)` arm,
+whose branch distance was one byte out. Disassembling it properly showed why - there is a
+**`ret` at offset 0x1A with a second function's code after it**. The window spans two
+functions, so no single C function could ever match it.
+
+Matching only the first 27 bytes did:
+
+    g_9950 = 0;
+    g_9b18 = 0;
+    if (g_536c) g_536e = -1;
+
+Two details fell out of the disassembly and are worth keeping:
+
+- the two `long` globals are cleared with `2B C0` and **four** word stores (round 175's rule,
+  seen at double length);
+- the guard is `cmp al,[0x536c]` - it compares the already-zero AL against the byte rather
+  than comparing the byte with an immediate, because the compiler knew AX was zero.
+
+The mis-cut is now **wall 18** with a screening rule: a return instruction that is not at the
+end of the unit means the window spans two functions, so match only up to it.
+
+Ledger **515 rows** - MATCH 38, RELOCS 438, ASM 2, PENDING 37; verify and checkled
+green; own-code coverage **11 351 B (3.871 %)**.
+
 ## Round 202: a reset function, mostly right (no rows)
 Next member of the long-store zeroing class: `1ab4:000c` (72 B), which clears two `long`
 globals and then either stores -1 or cleans up and calls three functions with far pointers to

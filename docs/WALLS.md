@@ -339,3 +339,18 @@ So this class - 37 units / 4 767 bytes in `BLOCKED.md` - is closed for this tool
 original's doubling idiom cannot be produced, and the units that carry it are unreachable
 rather than unexplained. The same applies to the index scaling in `41d8:000c` and the value
 doubling in `4e11:007e`, which are now understood as one behaviour rather than two.
+
+## 18. Windows that span two functions
+
+`1ab4:000c` is inventoried as one 72-byte function but contains a `ret` at offset `0x1A` with
+another function's code after it. A `C3`/`CB` in the middle of a unit, with code following
+that cannot be reached from the start, means the window spans **two** functions - the third
+such case found (`2141:00a6`/`00b4` is split at a `jmp`, `2daa:0000`/`000a` at a segment
+boundary).
+
+The first function of `1ab4:000c` is 27 bytes and matches as a row; the second is a separate
+function the ledger will need its own row for.
+
+Practical rule: before transcribing, check for a return instruction that is not at the end of
+the unit. If there is one, match only up to it and treat the remainder as a separate
+function.
