@@ -751,3 +751,13 @@ verify.py re-run at the start of this round: green, 530 rows.
 - `2141:00a6` contains a `90` (pad wall); `10b7:0006` has `dec bx; dec bx` and `mov sp,bp; pop bp` (an epilogue MSC does not emit with `push si`) - not tried.
 
 State after round 20: every unit of the linear screen has a named wall. The ENTER-list and PENDING-list have no untested source-level lever left.
+
+### Round 21: widened linear screen (<= 200 B, calls allowed): 90 units, 14 read
+
+New screen result: 90 unmatched units with a `55 8B EC` or `C8` frame, 14-200 B, ledger-disjoint by linear address, none with `90`/far call/doubling/port/string opcodes or an `mov si,ax; mov es,dx` pair. Read this round (all no-call, short): `10d3:0008` (`strlen` with `repne scasb` - string-op wall), `3de8:0008`/`2d62:000e`/`2d64:0008` (exchange through a far/es: global - BX wall; `2d64` also has a `90`-class `or` on `es:`), `2b2c:0006`/`29e9:000a`/`29eb:0006` (linked-list walks), `37a4:000c` (`imul bx,[bp+6],0x1e`), `29f0:000c` (array add with carry), `2d06:0006` (`lds bx,[bx]` list walk), `1df5:0008` (string scan), `1e17:000a` (`sbb ax,ax; inc ax; inc ax`), `4386:0000`, `1e1e:0046`.
+
+- `29e9:000a` (28 B): `while (p->next) p = p->next; return p;`. The original loads with `les bx,[bp+6]` and tests the 32-bit pointer as `mov dx,[bx]; or dx,[bx+2]`; MSC under `/Ox` uses `lds` (`C5`) and re-reads through AX. Ten spellings (struct, `long` test, local copy, `for`) - segment-register wall (MSC reserves DS/ES use for its own scheme).
+- `1e1e:0046` (33 B): store low byte, advance, store high byte if `v > 0xff`; returns the pointer. Original keeps `v` in CX and the pointer in `es:bx`; MSC saves SI, copies the offset, reloads ES twice. Parameter order `(p, v)`. Four spellings.
+- `4386:0000` (33 B): XOR into a 7-bit field of a 4-byte record - MSC emits byte operations (`mov al,[bx+0x866f]; xor al,[bp+8]; and al,7f; xor [bx+0x866f],al`), the original works on the word. Six bit-field spellings; narrowing wall.
+
+None of the other 76 was disassembled; the screen list is saved here only as counts. Five rows in 21 rounds (`2a2b:0038`, `477b:0000`, `3db8:0008`, `379e:0006`, `375a:0008`).
