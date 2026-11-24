@@ -104,3 +104,15 @@ predicted from four bytes.
 The result is that the project now knows **why** it stopped where it did. That is a different
 and more durable claim than "these were hard", and it is the claim the PENDING column exists to
 support.
+
+## The search space is measured out (round 230)
+
+The most productive filter of the whole project - units beginning exactly where a verified row
+ends - applied to the current inventory *with* every wall screen the project has learned,
+returns **two** candidates, both already diagnosed. The filter that found four rows in rounds
+184-185 now finds nothing new, because every candidate it reaches is understood well enough to
+be excluded by inspection.
+
+That is the honest reading of the 3.871 %: not a failure of effort, but a measured boundary.
+What is left is enumerated - 41 PENDING functions with their C written down, twelve cut
+windows, and a wall list with a size hanging off each entry.

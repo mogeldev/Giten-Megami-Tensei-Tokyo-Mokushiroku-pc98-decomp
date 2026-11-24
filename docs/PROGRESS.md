@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 230: the search space measured out (no rows)
+Re-ran the most productive filter of the whole project - units that begin exactly where a
+verified row ends - now with the accumulated wall screen applied (no doubling, no `sub ax,ax`
+zeroing, no segment/port/string work, no `b4`-immediate calls, no `90` inside the body, under
+sixty bytes).
+
+**Two candidates survive**, and both are already diagnosed:
+
+- `2141:00a6` (14 B) - the `neg`/return pair, blocked by wall 2;
+- `4e9b:0008` (24 B) - the register-pair return, blocked by the load order.
+
+That is the clearest measurement the project has produced of where it stands. The filter that
+found four rows in rounds 184-185, applied to the *same* inventory, now returns nothing new -
+not because the inventory changed but because every candidate it finds is now understood well
+enough to be excluded by inspection.
+
+The conclusion is not "nothing is left"; it is that **what is left is enumerated**: 41 PENDING
+functions whose C is written down, twelve cut windows, and a wall list with measured sizes
+hanging off each entry. The remaining twenty-six rounds are best spent keeping that record
+accurate rather than re-deriving it.
+
+Ledger 519 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 229: the frame MSC omits (no rows)
 `1270:000e` (22 B) is the smallest possible statement sequence:
 
