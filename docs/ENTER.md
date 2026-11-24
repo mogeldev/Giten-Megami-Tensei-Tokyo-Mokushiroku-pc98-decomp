@@ -5,7 +5,10 @@ locals, which is the frame the original uses too - so these units are clear of t
 that blocks most of the `55 8B EC` pool. Round 232 matched the first one worked
 (`2a87:0008`, 42 bytes, a `MATCH` with no relocation masking).
 
-Work these before anything else: a screen of the whole image finds only these.
+**579 units** in the image begin with `C8`. Most of them sit behind another wall, so the list
+below is a *superset*: round 232's wall screen (no doubling, no `sub ax,ax` zeroing, no
+segment/port/string work, no `B4`-immediate call, no `90` in the body, under 60 bytes) leaves
+only **eight**, and those are the ones to work first - they are marked "clear" below.
 
 | va | size | status |
 |---|---|---|
@@ -28,7 +31,7 @@ Work these before anything else: a screen of the whole image finds only these.
 | `38ad:000e` | 38 | open |
 | `396f:000a` | 38 | open |
 | `39ff:000a` | 38 | open |
-| `3b29:0006` | 38 | open |
+| `3b29:0006` | 38 | open | clear |
 | `2e84:000c` | 39 | open |
 | `4739:0002` | 39 | open |
 | `1f7f:0058` | 40 | open |
@@ -67,9 +70,9 @@ Work these before anything else: a screen of the whole image finds only these.
 | `33d7:0000` | 48 | open |
 | `34b7:003c` | 48 | open |
 | `375a:0008` | 48 | open |
-| `3809:0000` | 48 | open |
+| `3809:0000` | 48 | open | clear |
 | `3982:0004` | 48 | open |
-| `47c8:000a` | 48 | open |
+| `47c8:000a` | 48 | open | clear |
 | `4959:0004` | 48 | open |
 | `4a9c:0004` | 48 | open |
 | `4f3a:0006` | 48 | open |
@@ -77,7 +80,7 @@ Work these before anything else: a screen of the whole image finds only these.
 | `3670:0062` | 49 | open |
 | `206b:02ec` | 50 | open |
 | `3209:0000` | 50 | open |
-| `3813:0000` | 50 | open |
+| `3813:0000` | 50 | open | clear |
 | `42cf:0094` | 50 | open |
 | `1ec4:007a` | 51 | open |
 | `31ca:0002` | 51 | open |
@@ -107,7 +110,7 @@ Work these before anything else: a screen of the whole image finds only these.
 | `20ae:0008` | 56 | open |
 | `2fae:0008` | 56 | open |
 | `2fb2:0000` | 56 | open |
-| `380d:000c` | 56 | open |
+| `380d:000c` | 56 | open | clear |
 | `3a33:000a` | 56 | open |
 | `489c:000a` | 56 | open |
 | `48a0:0002` | 56 | open |
@@ -222,7 +225,7 @@ Work these before anything else: a screen of the whole image finds only these.
 | `1df5:0030` | 76 | open |
 | `202b:0038` | 76 | open |
 | `23e2:0006` | 76 | open |
-| `2a2b:0038` | 76 | open |
+| `2a2b:0038` | 76 | open | clear |
 | `3180:011e` | 76 | open |
 | `349a:018a` | 76 | open |
 | `3824:0000` | 76 | open |
@@ -232,7 +235,7 @@ Work these before anything else: a screen of the whole image finds only these.
 | `4744:00b4` | 77 | open |
 | `37f3:0006` | 78 | open |
 | `3a68:0008` | 78 | open |
-| `4332:0048` | 78 | open |
+| `4332:0048` | 78 | open | clear |
 | `46b0:0006` | 78 | open |
 | `2b17:0074` | 79 | open |
 | `2f08:0054` | 79 | open |

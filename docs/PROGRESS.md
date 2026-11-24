@@ -5,10 +5,14 @@ Round 232 matched an `ENTER`-framed unit and noted that the pool had never been 
 before. This round enumerated it properly and wrote the result to **`docs/ENTER.md`** - the
 complete list of `C8`-framed units, their sizes, and which of them are still open.
 
-There are fifteen such units in the inventory; one is now matched (`2a87:0008`), leaving
-fourteen, and three of those are consecutive addresses (`3809:0000`, `380d:000c`, `3813:0000`)
-whose code looks like the same nibble-swap operation over the same pair of locals - a small
-family that would pay several rows at once.
+**579 units in the image begin with `C8`** - far more than the eight that survived round 232's
+wall screen, so the document states both numbers and marks the wall-filtered subset: those
+eight are the ones worth working, and the other 571 sit behind a second wall that would have to
+be solved first.
+
+Three of the eight are consecutive addresses (`3809:0000`, `380d:000c`, `3813:0000`) whose code
+looks like the same nibble-swap operation over the same pair of locals - a small family that
+would pay several rows at once.
 
 The document exists because the *reason* to prefer these units is structural, not empirical:
 MSC under `/G1` emits `ENTER` for functions with locals, which is exactly the frame the
