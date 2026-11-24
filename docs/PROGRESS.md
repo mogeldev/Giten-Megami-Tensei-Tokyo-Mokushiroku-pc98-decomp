@@ -1,5 +1,36 @@
 # PROGRESS
 
+## Round 25: the 36e7 shape with a zero constant (41 B) - and a layout rule nailed down
+`crelay37.c` (`/Os`): `509a:0042` (41 B) - `fc4(a, b, c, d); fc3(g_3970, c, 0); return c;`,
+the round-13 `36e7` family shape with a **zero** constant instead of one.
+
+**Pascal parameter layout, settled (this kept being mis-derived):**
+1. arguments are pushed **left to right**, so the first argument is pushed first;
+2. because the stack grows down, the **first** argument therefore sits at the
+   *highest* offset: for a far function with four words, `a` is at `bp+0C`, `b` at
+   `bp+0A`, `c` at `bp+08`, `d` at `bp+06` (a far return address occupies
+   `bp+02`/`bp+04` before the arguments).
+3. a `register` parameter keeps its declaration position but lives in a register:
+   the first `register` parameter takes SI, the second DI.
+
+Two near-misses this round, both two bytes from matching and both filed under
+their class:
+
+- `1f72:0044` and its sibling `1f7c:0008` (40 B each) - correct except that the
+  original stages the first parameter in **CX** (`8B 4E 06` at the top, then
+  `51`) and builds the test as `or ax,cx`; MSC 7 reloads from memory and ORs
+  `[bp+08]`. Source shape settled:
+  `long f(int a, int b) { if (b | a) { h2(b, a); g_46ec--; } return 0; }` (the
+  trailing `83 2E <lo> 01` / `83 1E <hi> 00` pair is a 32-bit decrement, not the
+  `and/sbb` idiom it looks like).
+- `3877:0000` (41 B) - correct except the order in which the two register
+  parameters are loaded into SI and DI: the original loads DI first.
+
+`docs/BLOCKED.md` regenerated.
+
+Ledger 421 rows - MATCH 38, RELOCS 359, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 8 353 B (2.849 %).
+
 ## Round 24: tools/classify.py - a map of what is left (0 new rows)
 Three transcription attempts all landed on generation-specific codegen, so the
 round produced `tools/classify.py` and `docs/BLOCKED.md` instead: every
