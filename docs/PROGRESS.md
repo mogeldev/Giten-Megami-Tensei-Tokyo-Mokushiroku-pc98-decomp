@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 38: a sibling pair (67 B) and the argument-evaluation-order class
+Two rows, both from re-using verified shapes:
+
+- `2dbb:0000` (36 B) - a sibling of the round-13 `2d97:001e`
+  (`fc1(a); fc3(g_1bee, g_1bec, 0x1BE8); fc0();`, DGROUP pointer at `1A0C`);
+- `2a0f:002e` (31 B) - a sibling of the round-34 `2a0f:000e` (`F_2A0F`), found by
+  `tools/reuse.py` immediately after the first row landed.
+
+Both sweeps were run after adding them; `reuse.py` yielded the second row and
+`probe.py` reported nothing new beyond a row that was already in the ledger.
+
+**New class identified: argument evaluation order.** `31dd:0008` (27 B) is
+`h1(fc2(a, fc0()))`: the original evaluates the **second** argument first
+(`90 0E E8` before `FF 76 06`), MSC 7 pushes `a` and then evaluates `fc0()`. With
+no local in the original there is no source formulation that makes MSC 7 evaluate
+right to left, so this is a compiler difference, not a shape problem.
+
+Ledger 439 rows - MATCH 38, RELOCS 377, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **8 922 B (3.043 %)**.
+
 ## Round 37: two straight-line relays (93 B) - own-code coverage crosses 3 %
 `crelay45.c` (`/Os`):
 
