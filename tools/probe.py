@@ -41,6 +41,10 @@ def norm(b):
             out[i + 3:i + 5] = b"\x00\x00"
             i += 5
             continue
+        if out[i:i + 2] == b"\x1e\x68":          # push ds; push <DGROUP disp16>
+            out[i + 2:i + 4] = b"\x00\x00"
+            i += 4
+            continue
         if out[i] == 0x9A:
             out[i + 1:i + 5] = b"\x00\x00\x00\x00"
             i += 5

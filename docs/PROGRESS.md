@@ -1,5 +1,35 @@
 # PROGRESS
 
+## Round 26: four rows (137 B) from a masking gap in the sweep tools
+The two 41-byte units `3d99:0004` and `416f:0042` turned out to be plain members
+of the round-13 `36e7` family, already covered by `crelay25.c` - the sweeps had
+missed them for **four rounds** because their normaliser did not mask the
+relocated DGROUP far-pointer push. `1E 68 <disp16>` is a fixup site, exactly like
+`9A seg off`, so patterns that differ only in that displacement were treated as
+different shapes.
+
+Fix: `tools/reuse.py` and `tools/probe.py` now mask `1E 68 xx xx` as well. The
+re-run immediately produced:
+
+- `3d99:0004` and `416f:0042` (41 B each) - `36e7` family members (pointer at
+  `1B1A` / `2A88`);
+- `416f:006c` (41 B) - a tenth `36e7` family member;
+- `3b5e:0008` (14 B) - a `cfarl2.c` sibling.
+
+Both sweeps are exhausted again afterwards (0 candidates each). Lesson recorded:
+the pattern normaliser must mask **every** relocated operand form, and only
+`90 0E E8`, `9A` and `E8` were on the list - `1E 68 <disp>` (DGROUP pointer),
+`B8 <disp>` and `BE <disp>` (immediate symbol loads) are candidates for the same
+treatment if another near-miss shows up.
+
+Also filed as blocked this round (2 bytes each, source shapes settled):
+`37a8:0008` and `37ab:0002` (42 B) - the original keeps the range value in DI and
+the argument in **CX** (`8B 4E 04` once, then `3B F9` / `03 C1`), while MSC 7 puts
+the register local in SI and reloads the argument from memory.
+
+Ledger 425 rows - MATCH 38, RELOCS 363, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 8 501 B (2.899 %).
+
 ## Round 25: the 36e7 shape with a zero constant (41 B) - and a layout rule nailed down
 `crelay37.c` (`/Os`): `509a:0042` (41 B) - `fc4(a, b, c, d); fc3(g_3970, c, 0); return c;`,
 the round-13 `36e7` family shape with a **zero** constant instead of one.
