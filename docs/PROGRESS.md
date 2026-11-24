@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 68: the MSC 6.00A distribution unpacked (no new rows)
+Built `tools/extract_disks.py`, which reads the eight 1.2 MB FAT12 images in
+`toolchain/msc6_disks` and decompresses Microsoft COMPRESS streams (`SZ` + `88 F0
+27`, 12-byte header, LZSS over a 4 KB ring). It now provides a real DOS
+toolchain tree:
+
+- **CL.EXE (28 858 B, DISK6)** - the plain DOS driver: `e_lfanew = 0`, no NE/PE
+  header, unlike DISK2's `CL.EX$` which `PACKING.LST` calls the "OS/2 compiler
+  driver" (that is the NE binary behind round 67's "cannot be run in DOS mode");
+- CL.MSG / CL.ERR beside it, C1.EXE (148 060 B) and C2.EXE (354 338 B) from DISK1.
+
+That resolves the round 67 question: the workspace *had* a Windows/OS-2 CL, and the
+DOS one was one disk away. The extractor documents the preference and is reusable
+for any other compressed file on the set.
+
+**Still open:** the DOS driver produces no object and no console output under
+DOSBox-X even with its message files in place and the phases on `PATH`. Two
+findings for the next attempt: DOSBox-X in this workspace silently does nothing when
+its stdout is redirected to null (all manual tests must capture output), and the
+driver exits without printing even its banner, which suggests it is not reaching the
+phase binaries at all.
+
+Ledger 455 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 796 B (3.341 %).
+
 ## Round 67: the MSC 6.0 failure diagnosed, and the original disks found (no new rows)
 Round 66 left the older-compiler route blocked. This round found **why**, and found
 the means to fix it.

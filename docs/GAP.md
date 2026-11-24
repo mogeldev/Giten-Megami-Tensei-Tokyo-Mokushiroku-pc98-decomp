@@ -52,24 +52,27 @@ several traits. The final row is the set blocked by none of them.
 - The honest conclusion: this reconstruction is **complete as far as this
   toolchain allows**, at roughly 0.7 % of own code. Going further needs the
   original compiler generation, not more C variants.
-## MSC 6.0 toolchains produce no object - cause found (round 67)
+## MSC 6.00A disks unpacked; the DOS driver is DISK6's CL.EXE (round 68)
 
-`toolchain/msc6i/BIN/CL.EXE` is **not a DOS program**: run under DOSBox it prints
-"This program cannot be run in DOS mode." (the 16-bit Windows / NE stub message).
-A header check over every CL.EXE in the tree:
+`tools/extract_disks.py` reads the eight FAT12 images under `toolchain/msc6_disks`
+and decompresses the Microsoft COMPRESS streams (`SZ` + `88 F0 27`, 12-byte
+header, LZSS with a 4 KB ring). Running it into `toolchain/msc6dos/BIN` yields:
 
-| toolchain | CL.EXE size | format |
-|---|---|---|
-| msc7i | 71 680 | runs in DOSBox (the toolchain every verified row uses) |
-| msc6i | 29 859 | **NE (16-bit Windows)** - cannot run in DOS |
-| msc6b | 71 680 | PE header |
-| msc6c | 81 184 | MZ/DOS, but produces no object and no CL log |
-| msc51 | 31 329 | MZ but EXEPACK-packed (see the MSC 5.1 section) |
+| file | from | size | note |
+|---|---|---|---|
+| CL.EXE | DISK6 `CL.EX$` | 28 858 | **DOS driver** (`e_lfanew = 0`, no NE/PE header) |
+| CL.MSG / CL.ERR | DISK6 | 2 697 / 1 656 | its message and error files |
+| C1.EXE | DISK1 `C1.EX$` | 148 060 | DOS pass 1 |
+| C2.EXE | DISK1 `C2.EX$` | 354 338 | DOS pass 2 |
+| C1.ERR / C23.ERR | DISK1 | 19 500 / 3 649 | phase error files |
 
-So the pre-MSC7 codegen questions cannot be answered from `msc6i`/`msc6b` at all,
-and `msc6c` needs its launcher investigated.
+The `PACKING.LST` explains the earlier confusion: the disks ship **two** CL
+drivers - `DISK2:CL.EX$` is the "OS/2 compiler driver" (NE, hence "This program
+cannot be run in DOS mode"), `DISK6:CL.EX$` is the "DOS compiler driver". The
+extractor therefore prefers DISK6 for `CL.EX$`.
 
-**The original MSC 6.0 distribution is present**: `toolchain/msc6_disks/DISK1..8.IMG`
-(8 x 1.2 MB floppy images). The DOS-hosted `CL.EXE`/`C1.EXE`/`C2.EXE` are almost
-certainly inside; extracting them into a fresh `toolchain/msc6dos` is the concrete
-next step for this line of investigation.
+**Still open:** the DOS driver still produces no object and no console output under
+DOSBox-X, with `CL.MSG`/`CL.ERR` beside it and `C1.EXE`/`C2.EXE` on `PATH`. Note
+that DOSBox-X silently does nothing when its stdout is redirected to null in this
+workspace, so any manual test must run with its output captured to a variable -
+that cost most of this round's debugging time.
