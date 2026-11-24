@@ -11,8 +11,8 @@ original image.
 
 | | |
 |---|---|
-| ledger rows | **523** (MATCH 39, RELOCS 441, ASM 2, PENDING 41) |
-| verified against the image | **480** |
+| ledger rows | **523** (MATCH 39, RELOCS 444, ASM 2, PENDING 38) |
+| verified against the image | **483** |
 | own code matched from source | **11 351 bytes of 293 211 (3.871 %)** |
 | code functions inventoried | 2 523 |
 | unmatched units classified into walls | 1 402 across 20 classes |

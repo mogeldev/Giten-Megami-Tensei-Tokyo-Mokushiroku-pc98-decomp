@@ -1,5 +1,22 @@
 # PROGRESS
 
+## Round 245: the derived documents regenerated (consolidation round)
+Regenerated `docs/STATUS.md` and `docs/BLOCKED.md` from the ledger and the classifier - the
+first time since round 218 - and brought `docs/SUMMARY.md`'s four headline numbers up to date
+with them: **523 rows** (MATCH 39, RELOCS 444, ASM 2, PENDING 38), **483** verified, **11 645 of
+293 211 bytes (3.972 %)**.
+
+Also applied round 244's shape to the rest of the inventory: the distinctive six-byte sequence
+`8B 76 04 8E 46 06` (offset into SI, segment into ES) occurs in only **two** other unmatched
+units (`41ef:0882`, `1c1d:0000`), both much larger and both byte-copy loops with segment
+work. So the three siblings really were the whole family - a small, complete result rather than
+the start of a seam.
+
+With eleven rounds left the remaining work is consolidation: keep the ledger verified, keep the
+derived documents matching it, and leave the summary accurate.
+
+Ledger 523 rows; verify and checkled green; own-code coverage 11 645 B (3.972 %).
+
 ## Round 244: three sibling rows at once, and the tooling caught two mistakes (3 x 27 B)
 The near/far rule again, applied to the PENDING column: of 41 pending rows, only one is
 near-epilogued, but the screen turned up **three sibling units** - `3807:0004`, `380c:0000`,

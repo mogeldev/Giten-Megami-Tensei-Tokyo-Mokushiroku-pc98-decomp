@@ -7,10 +7,10 @@
 
 | Status | Count |
 |---|---|
-| MATCH | 38 |
-| RELOCS | **438** |
+| MATCH | 39 |
+| RELOCS | **444** |
 | ASM (excluded from C coverage) | 2 |
-| PENDING | **39** |
+| PENDING | **38** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -33,9 +33,6 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `1e38:0002` **RECORD_CFG** (56 B) — `int f(int a, int b, int c)` - `old = g_40ba
 - `465d:0000` **UPD** (60 B) — `if (s) { if (x != -1) s->t->x = x
 - `4e11:007e` **WEIGHT2** (40 B) — `return 2*(5*(abs(a)+1) + abs(b)) + c
-- `3807:0004` **UPD_FP (dup 1/3)** (28 B) — `*p = HELP(*p)` through a far pointer built from a seg/off pair. Original loads it split: `8B 76 04` + `8E 46 06` + `26 FF 34`
-- `380c:0000` **UPD_FP (dup 2/3)** (28 B) — byte-identical to 3807:0004, same split-load cause
-- `3811:0004` **UPD_FP (dup 3/3)** (28 B) — byte-identical to 3807:0004, same split-load cause
 - `1036:000c` **LONG_IFELSE** (52 B) — `long r, u
 - `200d:0006` **FAR_PTR_STORE** (42 B) — `register char *p
 - `3cd1:02f2` **RANGE_CHECK** (56 B) — `h((int __far *)&a, (int __far *)&b)
@@ -53,6 +50,8 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `41d8:000c` **FAR_SUBSCRIPT** (30 B) — `int __far *p
 - `1ab4:0028` **F_1AB4B** (44 B) — `if (g_536e != 0 && g_536e != -1) h(g_536e)
 - `3b5d:0006` **F_3B5D** (18 B) — `if (!g_995d) h((char __far *)0x1766)
+- `2121:000a` **TABLE_INC** (24 B) — `if (a < 16) g_6cb6[a]++
+- `3e48:000a` **CLAMP_STORE** (24 B) — `if (a < 1) a = 15
 
 ## Coverage (honest byte metric)
 
@@ -63,19 +62,19 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | Code bytes | 294174 |
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
-| of which **verified** | **11351 (3.871%)** |
-| PENDING bytes | 1433 |
+| of which **verified** | **11645 (3.972%)** |
+| PENDING bytes | 1397 |
 
-Code functions: **2523**, of which verified **476**.
+Code functions: **2523**, of which verified **483**.
 
 ## Regions (64 KiB)
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
-| 0x0000 | 619 | 53 | 65131 | 1368 (2.1%) | 897 | 360 | 255 |
-| 0x0001 | 525 | 94 | 65757 | 2256 (3.4%) | 0 | 569 | 290 |
-| 0x0002 | 763 | 189 | 65522 | 4178 (6.4%) | 0 | 0 | 424 |
-| 0x0003 | 561 | 130 | 64435 | 2979 (4.6%) | 0 | 0 | 447 |
+| 0x0000 | 619 | 54 | 65131 | 1430 (2.2%) | 897 | 360 | 255 |
+| 0x0001 | 525 | 96 | 65757 | 2329 (3.5%) | 0 | 569 | 314 |
+| 0x0002 | 763 | 192 | 65522 | 4259 (6.5%) | 0 | 0 | 364 |
+| 0x0003 | 561 | 131 | 64435 | 3057 (4.7%) | 0 | 0 | 447 |
 | 0x0004 | 55 | 10 | 33329 | 570 (1.7%) | 66 | 11282 | 17 |
 
 <!-- MANUAL-BEGIN -->
