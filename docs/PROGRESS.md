@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 22: a counter guard (62 B) and the argument-push order confirmed
+`crelay35.c` (`/Os`): `505f:000e` (62 B, near Pascal) -
+`t = n + g_395e; if (p3(1, 0x64, 2) > t) { g_395e++; if (fc(4) != -1) g_395e++; return 0; } g_395e = 0; return 1;`.
+Both returns share one epilogue, so the compiler keeps a single return block.
+
+**Confirmed rule:** Pascal arguments are pushed **left to right**, so the literal
+order in the source is literally the byte order of the pushes
+(`6A 01 6A 64 6A 02` = `p3(1, 0x64, 2)`). Getting the literals backwards was the
+only difference in the first attempt, and the same rule fixed the `3d94:0010`
+parameter order in round 21.
+
+Probed and generation-blocked (identical everywhere except one instruction):
+
+- `3e34:000a` (58 B) matches byte for byte up to +0x18, where the original
+  pushes the temporary from **AX** (`50`) after saving it to SI (`8B F0`), while
+  MSC 7 always pushes it from SI (`56`). Source shape is settled
+  (`f1(8); t = p2(0x0F, 0x4000); p5(t, a, b, 0, 1); f1(t); g_1bb8 = 0;`), so only
+  the older scheduler can reproduce it.
+- `2d6f:002a` needs the far pointer itself in SI (`C4 76 08`) and the loaded word
+  in BX; MSC 7 always uses BX for the pointer.
+
+Ledger 420 rows - MATCH 38, RELOCS 358, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 8 312 B (2.835 %).
+
 ## Round 21: a loop with two register variables and a five-argument chain (116 B)
 `crelay34.c` (`/Os`):
 
