@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 187: full sweep, and a scaled-long argument that resists (no rows)
+Ran `tools/verify.py` without `--fast`: **509/509 rows ok** (MATCH 38, RELOCS 436, ASM 2,
+PENDING 33) - the sixth full sweep, and the first since round 178. The false-positive risk
+noted in round 186 therefore did not affect the ledger: every row's size is within its
+object symbol.
+
+Then tried `3aed:0006` (38 B) from the adjacency filter, a call whose first argument is a
+`long` built by scaling a parameter:
+
+    h((long)p3 * 10 + p2 + 0x14, p4);
+
+The original computes `ax = p3*10 + p2 + 0x14` and sign-extends into `dx`, but MSC under
+`/Os` pushes a constant before doing any of that (the parameter offsets differ from the
+first load), and under `/Ox` it evaluates the two parameters in the opposite order. Two
+source shapes were tried and both miss at the first load, so this is wall 9 again - not a
+finding, just another data point that the scaled-long idiom is not reachable.
+
+The adjacency filter has now yielded four rows and is thinning: of the seven mid-size
+candidates, one is this unit, two are wall-2/16 witnesses, and the rest carry segment or
+port operations.
+
+Ledger 509 rows; verify (full) and checkled green; own-code coverage 11 260 B (3.840 %).
+
 ## Round 186: the padding wall gains a sixth witness (no rows, PENDING record)
 Continued the adjacency filter with `4962:000c` (48 B), a table scan:
 

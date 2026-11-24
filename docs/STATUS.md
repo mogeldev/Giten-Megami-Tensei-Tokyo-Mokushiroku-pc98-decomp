@@ -8,9 +8,9 @@
 | Status | Count |
 |---|---|
 | MATCH | 38 |
-| RELOCS | **434** |
+| RELOCS | **436** |
 | ASM (excluded from C coverage) | 2 |
-| PENDING | **30** |
+| PENDING | **33** |
 
 PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 
@@ -44,6 +44,9 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 - `37c1:0004` **TABLE_SCAN** (30 B) — `int f(void) { int i
 - `3d91:0020` **CMP_GETTER** (17 B) — `int f(void) { return g_1b12 < g_1b14
 - `3d85:000e` **LONG_STORE** (47 B) — `if (!g_1b0e) g_1b12 = 0
+- `20f6:0000` **FASTCALL_BITS** (23 B) — `void __fastcall f(unsigned x) { if (x & 1) h()
+- `3ebd:0068` **FAR_DEREF** (17 B) — `return *h(g_29c0)
+- `4962:000c` **TABLE_SCAN2** (48 B) — `for (i = 0
 
 ## Coverage (honest byte metric)
 
@@ -54,19 +57,19 @@ PENDING cases (details in `docs/MATCHING.md`, idioms in `docs/IDIOMS.md`):
 | Code bytes | 294174 |
 | − Foreign CRT (signatures) | 963 |
 | = **Own code bytes** | **293211** |
-| of which **verified** | **11214 (3.825%)** |
-| PENDING bytes | 1129 |
+| of which **verified** | **11260 (3.840%)** |
+| PENDING bytes | 1217 |
 
-Code functions: **2523**, of which verified **472**.
+Code functions: **2523**, of which verified **474**.
 
 ## Regions (64 KiB)
 
 | Region | Functions | ok | Code-B | verified | CRT | Data | PENDING |
 |---|---|---|---|---|---|---|---|
-| 0x0000 | 619 | 51 | 65131 | 1313 (2.0%) | 897 | 360 | 211 |
-| 0x0001 | 525 | 93 | 65757 | 2192 (3.3%) | 0 | 569 | 217 |
-| 0x0002 | 763 | 189 | 65522 | 4178 (6.4%) | 0 | 0 | 341 |
-| 0x0003 | 561 | 129 | 64435 | 2961 (4.6%) | 0 | 0 | 343 |
+| 0x0000 | 619 | 52 | 65131 | 1341 (2.1%) | 897 | 360 | 211 |
+| 0x0001 | 525 | 93 | 65757 | 2192 (3.3%) | 0 | 569 | 240 |
+| 0x0002 | 763 | 189 | 65522 | 4178 (6.4%) | 0 | 0 | 358 |
+| 0x0003 | 561 | 130 | 64435 | 2979 (4.6%) | 0 | 0 | 391 |
 | 0x0004 | 55 | 10 | 33329 | 570 (1.7%) | 66 | 11282 | 17 |
 
 <!-- MANUAL-BEGIN -->
