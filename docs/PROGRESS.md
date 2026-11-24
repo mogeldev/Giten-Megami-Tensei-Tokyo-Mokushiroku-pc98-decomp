@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 183: a fragment proved to be one, and a clean probe (no rows)
+Tried `2daa:000a` (17 B) as a `__fastcall` long XOR - `g_1be8 ^= v; h();` - and the
+transcription came within **one byte**: everything matches except that the original ends
+`C9 CA 02 00` (`leave` / `retf 2`) where the object ends `CB`.
+
+`leave` implies a frame, and the unit has no `push bp`: so the unit is a **fragment of a
+function that starts before the segment boundary**. Reading backwards confirms it - at
+`2daa:0000` the code is already mid-function (`call`, two global loads, the XOR pair, a
+second `call`, then `leave`), and the prologue lies in the previous segment. The inventory
+cut the function twice (`2daa:0000` and `2daa:000a`) and neither piece is a function.
+
+That is the second mis-cut region found (`2141:00a6` / `2141:00b4` was the first, a function
+split at its `jmp`), and it has a one-line screening test that the classifier already
+applies: a unit that contains `C9` or `5D` but does not start with `55 8B EC` is a fragment.
+Both cases are in the "fragment (no prologue)" class, which is why they were correctly
+excluded from the candidate pools - the lesson is only that the *reason* is worth knowing
+before spending a compile on one.
+
+Also ran `tools/probe.py` across the whole calibration corpus: **0 pattern hits**, as in
+round 146.
+
+Ledger 506 rows (unchanged), PENDING 32; verify and checkled green; own-code
+coverage 11 214 B (3.825 %).
+
 ## Round 182: the pending registry gains a flag sweep (tooling round)
 `tools/recheck.py` now takes `--sweep`: for every registered pending row it recompiles the
 source under the registered flags **and** the four common alternatives
