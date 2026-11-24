@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 138: a range check down to the padding byte exactly (no rows, PENDING record)
+Screened for units that pass far pointers to their own parameters - the shape that
+round 132/133's `int __far *` casts unlocked - and found one: `3cd1:02f2` (56 B).
+
+Transcribing it took three attempts and each narrowed the diff:
+
+1. `h(...); if (a < 0 || a >= g_193c) return 0; ...` - MSC merged the four checks and the
+   jump layout was 8 bytes off;
+2. with `h` as `__near` instead of `__far` the first diff disappeared (the call encoding
+   was the only issue there);
+3. rewriting as **one** condition - `if (a >= 0 && a < g_193c && b >= 0 && b < g_193e)
+   return 1; return 0;` - reproduced the layout exactly.
+
+What remains is **two branch distances**, `1C`/`1B` and `14`/`13`, i.e. exactly the
+`90` padding byte in the original's `B8 01 00 EB 03 90 33 C0` (ours is
+`B8 01 00 EB 02 33 C0`). That makes this the **cleanest witness yet** for the
+late-peephole form of wall 2: the compiler laid out a 3-byte `mov ax,0`, shortened it to
+`33 C0` afterwards, and padded the freed byte instead of re-laying out the jump - and the
+jump distance is correct for the padded layout, which is why every path to the epilogue
+depends on that one byte.
+
+Recorded as a PENDING row; it is the unit to re-run first if the padding is ever
+explained.
+
+Ledger 488 rows - MATCH 38, RELOCS 423, ASM 2, **PENDING 25**; verify and checkled
+green; own-code coverage 10 869 B (3.707 %).
+
 ## Round 137: the CX cache survives `/Ox` in short functions (no rows)
 Round 135 showed `/Ox` makes MSC cache a selector in CX - but only in a *large*
 function. Two short units tried this round show the limit:
