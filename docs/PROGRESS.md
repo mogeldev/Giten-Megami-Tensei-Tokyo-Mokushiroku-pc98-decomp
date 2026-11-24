@@ -1,5 +1,33 @@
 # PROGRESS
 
+## Round 202: a reset function, mostly right (no rows)
+Next member of the long-store zeroing class: `1ab4:000c` (72 B), which clears two `long`
+globals and then either stores -1 or cleans up and calls three functions with far pointers to
+its own globals:
+
+    g_9950 = 0;
+    g_9b18 = 0;
+    if (g_536c) { g_536e = -1; return; }
+    if (g_536e != 0 && g_536e != -1) h(g_536e);
+    g_536e = 0;
+    h3((char __far *)&g_9950, (char __far *)&g_9b18, (char __far *)&g_9b10);
+
+The two `long` clears match exactly (`2B C0` plus four word stores, round 175), the far
+pointers match (the `(char __far *)&g` cast of round 132), and the trailing `push ds`/`push
+imm` triples line up. What does not is the `if (g_536c)` arm: the original's `jz` skips 6
+bytes where MSC's skips 7 or 8, so the `-1` store or the return path is one instruction
+different, and every following byte shifts.
+
+Two return types were tried (far pascal and near cdecl - the original's `C3` says near) and
+neither fixes the arm. The remaining difference is small but structural, so the unit is not
+recorded as PENDING: unlike the others, its C is not *known* yet, only close.
+
+That distinction is worth keeping - PENDING means "C known, bytes differ", and this unit is
+still in the "C nearly right" state.
+
+Ledger 514 rows (unchanged), PENDING 37; verify and checkled green; own-code
+coverage 11 324 B (3.862 %).
+
 ## Round 201: the long-store zeroing class pays a row immediately (64 B)
 Round 200 split the "sub ax,ax zeroing" class and noted that its 72 reachable units are all
 over 40 bytes. Working the first of them, `2e76:0000` (64 B), matched on the first try:
