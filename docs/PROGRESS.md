@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 53: the `+ 1` guard idiom (33 B)
+`crelay57.c` (`/Os`): `42ac:000a` (33 B) - `if (fc(a) + 1) h1(a); else h2(a);`. The
+guard compiles to `inc ax` / `jz` - the idiom for testing a call result against
+-1 without a compare - and both branches relay the same `register` parameter from
+SI. Two `99`-style details made this round: the call must be declared `__near`
+(the image has a 3-byte `E8`), and the `+ 1` must be *in the condition*, not a
+`!= -1` comparison.
+
+The idiom turned up in 59 unmatched units, so I scanned them as potential
+siblings. That scan was mostly negative but informative:
+
+- `3aa3:0008`, `3dc1:0046`, `3dc1:0074`, `31df:0004`, `42b9:000c` - all use the
+  same dispatch chain but each block is nop-padded (`EB 0A 90`, `EB 04 90`), so
+  they belong to the padding class.
+- `49f0:0004` (42 B) - `r = h1(a); if (b && !(h2(r) + 1)) r = -1; return r;`
+  matches structurally; the original pushes the *stale AX* copy of `r` for the
+  second call and assigns `-1` through AX, while MSC 7 uses the SI copy
+  throughout - the round-22 AX/SI staging difference.
+
+Ledger 453 rows - MATCH 38, RELOCS 391, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 615 B (3.279 %)**.
+
 ## Round 52: tooling - nop-padded units ranked last (no new rows)
 `tools/nextup.py` now recognises the nop-padding class (`EB <offset> 90`) and ranks
 those units **behind everything else** instead of letting them head the list. They
