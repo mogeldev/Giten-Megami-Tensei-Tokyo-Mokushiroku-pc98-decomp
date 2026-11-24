@@ -551,30 +551,19 @@ register a parameter gets** follows the declaration (a -> SI, b -> DI), while **
 order the prologue loads them** follows first use. MSC 7 couples both to first use,
 which is why an exchange in the prologue is the signature of this class.
 
-## LINK /F can leave a near-branch displacement one byte short
+## Branch displacements skip the padding - they are never "one byte short"
 
-At `13d5:000c` a `jnz` whose target is the next block carries displacement `1B`
-where the self-consistent value for the bytes present is `1A`: the target lands one
-byte into the following instruction. The block it jumps over contains a far call that
-`/FARCALLTRANSLATION` folded from `9A seg off` (5 bytes) to `0E E8 rel16` (4 bytes),
-so a block the compiler measured with the longer call shrank after the displacement
-was emitted.
+`13d5:000c` was recorded in rounds 98-99 as having a link-mangled branch displacement
+(`75 1B` where `1A` looked self-consistent). That was an arithmetic error on my part,
+and `tools/dis.py` settles it: the `jnz` at 0x0D targets **0x2A**, which is the start of
+the following `cmp` - it simply skips the `90` padding byte at 0x29. The same unit's
+`EB E0` targets 0x25 (`8B E5`), the shared epilogue, not the function's first
+instruction. Both displacements are exactly right.
 
-Consequence for matching: a unit whose branch displacement is off by exactly the
-number of folded calls it jumps over cannot be reproduced by any source - the object
-file would have to be linked with `/F` (or the displacement repaired) and then
-compared. Keep these in mind before classifying a one-byte branch miss as padding or
-scheduling.
-
-**Status of that hypothesis (round 99):** unproven. A sweep of matched rows shows that
-folded calls (`0E E8`) only appear where the callee is in the *same* code segment -
-units calling another segment keep `9A`, e.g. `34b7:001c`'s image is
-`... 75 07 9A ... EB 05 9A ...`, whose displacements are all self-consistent against
-the 5-byte `9A`. So a shrink can only affect units whose callees are in-segment, and
-no matched row has yet been found where a branch crosses a folded call, which is what
-would settle whether LINK adjusts the displacement. Until such a row exists, treat
-`13d5:000c` as an unexplained one-byte miss rather than as evidence for a link-time
-effect.
+So there is no link-time displacement effect to account for: a branch whose target is
+one byte past an apparent block boundary is the **nop-padding class**, nothing else.
+Use `tools/dis.py <va> [len]` before drawing any conclusion about a displacement - two
+of my earlier hypotheses were wrong in exactly this way.
 
 ## `/G0` and `/G1` couple the frame to the instruction set - use `/G0` for units with locals
 

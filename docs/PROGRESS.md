@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 108: a disassembly helper, and two rounds of mistaken analysis corrected
+Added `tools/dis.py` - not a disassembler, just an annotator that prints offsets, bytes
+and the few facts that keep causing mistakes (jump targets, call forms, returns,
+push/lea/mov encodings). Instruction lengths are computed only for a listed opcode set
+and anything unknown is printed as `?` without advancing further assumptions.
+
+It immediately paid for itself on `13d5:000c`, the unit rounds 98-99 argued about:
+
+- the `jnz` at 0x0D targets **0x2A**, which is the start of the following `cmp` - it
+  skips the `90` padding at 0x29. The displacement is correct; my "one byte short" claim
+  was my own arithmetic, and round 98's link-time explanation plus round 99's withdrawal
+  are both superseded by this;
+- the `EB E0` at 0x43 targets **0x25** (`8B E5`), the shared epilogue - not the function's
+  first instruction as round 98 said. So the unit is an ordinary
+  `if ('e'||'E') { h6(); return; } if ('f') h5(); else h6b();` with both other paths
+  converging on the epilogue;
+- its only remaining obstacle is the two `90` padding bytes after the `CB` and the `jmp`,
+  i.e. the nop-padding class, on a fully decoded 94-byte function.
+
+`docs/CONVENTIONS.md` now carries the corrected rule in place of the withdrawn LINK
+section: a branch whose target is one byte past an apparent block boundary is padding,
+and `tools/dis.py` should be run before any displacement conclusion.
+
+Ledger 476 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 327 B (3.522 %).
+
 ## Round 107: full verification sweep - all 476 rows reproduce (no new rows)
 Ran `tools/verify.py` without `--fast`, i.e. every ledger row rebuilt from its recorded
 source and settings and re-matched against the image. Result: **476/476 ok** - MATCH 38,
