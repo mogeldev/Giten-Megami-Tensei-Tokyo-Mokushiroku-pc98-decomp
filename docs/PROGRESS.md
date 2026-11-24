@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 167: a third row from the `char` prototype find (32 B)
+`2daa:001c` (32 B), the next unit in the byte-argument class:
+
+    h1(a);
+    h3(g_1bec, (char *)0x1BE8);
+    h2();
+
+Three details, two of them already known:
+
+- the byte global pushes as-is because `h3` declares `char` (round 165's rule);
+- the constant pointer is `(char *)0x1BE8` - a near pointer pushed with `68 imm16`;
+- the last call takes **no argument**. Writing the sequence as `h2(h3(...))` inserts a
+  `push ax` that the image does not have - the only difference between the first attempt
+  and the match was that one instruction.
+
+That last point is the mirror of the usual C idiom: the natural way to write "call h3, then
+call h2" when h3 returns a value is to nest or to assign, and both leave a push behind. Here
+the original simply discards the result.
+
+Ledger **497 rows** - MATCH 38, RELOCS 429, ASM 2, PENDING 28; verify and checkled
+green; own-code coverage **11 063 B (3.773 %)**.
+
 ## Round 166: two rows in two rounds from the `char` prototype find (32 B)
 Round 165's discovery that a byte argument pushes unconverted only when the *callee*
 declares `char` reopened the "byte argument" class (23 units). The first one tried,
