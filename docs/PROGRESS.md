@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 201: the long-store zeroing class pays a row immediately (64 B)
+Round 200 split the "sub ax,ax zeroing" class and noted that its 72 reachable units are all
+over 40 bytes. Working the first of them, `2e76:0000` (64 B), matched on the first try:
+
+    long r, z;
+    r = h1();
+    z = 0;
+    if (sel == 1) z = h2();
+    h3(a, r, z);
+
+Three things had to be right and all three came from rules the project already had:
+
+- `z = 0` on a **`long`** local produces `2B C0` plus two word stores (round 175);
+- the frame is `enter 8, 0` with `r` at `[bp-8]`/`[bp-6]` and `z` at `[bp-4]`/`[bp-2]` -
+  **declaration order**, which round 158 established for locals;
+- the whole thing needs `/Ox`: under `/Os` MSC allocates the two longs in the *opposite*
+  frame order and every store shifts by two bytes.
+
+So the largest remaining class is not just reachable in principle; its first member matched
+in one compile, and the reason it did is that three separately-earned rules composed.
+
+Ledger **514 rows** - MATCH 38, RELOCS 437, ASM 2, PENDING 37; verify and checkled
+green; own-code coverage **11 324 B (3.862 %)**.
+
 ## Round 200: the biggest class measured, not closed (no rows)
 Round 199 closed the doubling class by experiment; this round asked the same question of the
 **largest** class - "sub ax,ax zeroing", 74 units and 15 KB - and got a more interesting
