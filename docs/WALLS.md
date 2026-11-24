@@ -209,3 +209,12 @@ on `1e38:0002` (`8B 16 <g>` versus `push si`) and `4e11:007e` (`8B 56` versus `p
 The one case where `/Ox` did align a scratch register was wall 6 (register reuse across
 a push, `50ff:000e`) and the large-function CX cache (`1f45:00b0`); everything else in
 this family stays blocked under every flag combination tried.
+
+### `|` operand order is not source-controlled (round 152)
+
+For `return table[bit] | array[index];` MSC always loads **`array[index]` into AL first**
+and ORs the table byte second, whatever the source order and whichever of the two
+subexpressions is written first. Five shapes were compiled (`|` in both orders, the bit
+index in an `int` and in an `unsigned` variable, and `n % 8` instead of `n & 7`): all five
+produce byte-identical code. The original does the opposite - the mask table goes into AL
+first. So `2603:463c`'s single remaining difference is not expressible in C.

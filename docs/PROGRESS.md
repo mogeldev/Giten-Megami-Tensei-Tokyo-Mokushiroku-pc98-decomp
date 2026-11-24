@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 152: the `|` operand order settled (no rows)
+Continued the sweep work on `2603:463c`, the close PENDING row. Five source shapes were
+compiled under `/Ox` and compared byte for byte:
+
+| shape | code |
+|---|---|
+| `g_4642[n & 7] | g_76b4[n / 8]` | identical |
+| `g_76b4[n / 8] | g_4642[n & 7]` | identical |
+| `int b = n & 7;` then the OR | identical |
+| `unsigned b = n & 7;` then the OR | identical |
+| `n % 8` instead of `n & 7` | much worse (a full division) |
+
+So MSC's evaluation order for `|` is **not** source-controlled: it always puts
+`array[index]` into AL first and ORs the table byte second, while the original does the
+reverse. That closes the unit for good rather than leaving it as "one more shape might
+work", and it is recorded in `docs/WALLS.md` with the five-shape evidence.
+
+`tools/regsweep.py` (round 151) was also run on the unsigned clamp pair:
+`2a29:000c` with 64 register/signedness variants across two flag sets - no match, so the
+DX-versus-AX difference is not a parameter declaration issue there either.
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 151: a variant sweep tool, since guessing one shape at a time has run dry (no rows)
 Round 150 named the bottleneck: the remaining near-misses differ in choices MSC makes
 internally, so each unit needs several equivalent C shapes tried before one matches. Doing
