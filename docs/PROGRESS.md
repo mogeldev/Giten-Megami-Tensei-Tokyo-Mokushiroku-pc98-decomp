@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 154: a row from the reverse declaration trick (33 B)
+Rather than sweeping more variants, this round looked for unmatched units in segments
+that already have several matched rows - the same module usually means the same style.
+`3e19:0002` (33 B, a segment with 12 verified rows) is
+
+    a = h1(); b = h2(); h3(); h4(a, b); return 0;
+
+and it needed two things that are now recorded in `docs/CONVENTIONS.md`:
+
+- **the register locals are declared in reverse**: the original assigns the first result
+  to DI and the second to SI, while MSC gives SI to the first `register` local, so the
+  declaration is `register int b, a;`;
+- **the function returns `int` 0, not `void`**: the original's `33 C0` before the pops is
+  the only difference from the `void` version, which is two bytes shorter.
+
+The "look near matched code" heuristic is worth keeping: of the eleven unmatched units in
+segments with three or more matches, this was the first one read.
+
+Ledger **489 rows** - MATCH 38, RELOCS 424, ASM 2, PENDING 25; verify and checkled
+green; own-code coverage **10 902 B (3.718 %)**.
+
 ## Round 153: four more sweep runs, and the linker question closed by construction (no rows)
 `tools/regsweep.py` was run against two more units with known candidate sources:
 

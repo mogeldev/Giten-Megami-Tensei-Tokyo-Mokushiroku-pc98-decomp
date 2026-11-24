@@ -675,3 +675,19 @@ the original instead of aligning it, and on `13db:000c` it hoists a register sav
 original does not have. Use it when the diff is "the same register under a different
 name", and fall back to `/Os` when the original is the one doing *less* optimisation
 (no value kept across statements, no register for a dead temporary).
+
+## Register locals: MSC gives SI to the first declared, so declare them in reverse
+
+When the original keeps two values in DI and SI, MSC's `register` locals are assigned in
+**declaration order**, first to SI. If the source's natural order would put the *first*
+computed value in SI but the original has it in DI, reverse the declaration:
+
+    /* a = h1(); b = h2();   original: a in DI, b in SI */
+    register int b, a;        /* b first, so MSC gives SI to b and DI to a */
+    a = h1();
+    b = h2();
+
+Verified on `3e19:0002` (33 B), which matches exactly this way. The same unit also
+confirms a related trap: the original ends with `33 C0` before the pops, so the function
+returns **int 0**, not `void` - a `void` version is byte-identical except that it is two
+bytes shorter.
