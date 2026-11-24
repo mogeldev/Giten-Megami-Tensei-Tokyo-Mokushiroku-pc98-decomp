@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 240: round 222's unit lands, from the same rule again (62 B)
+Round 222 transcribed `1e2f:0008` (62 B) - a 32-bit running maximum over two `long` parameters -
+and could not reconcile the parameter offsets: the subtraction looked like it was using the
+wrong operands. Round 238's near/far rule explains it completely. The epilogue is `ret 8` and
+the first parameter is read at `[bp+04]`, so the function is **`__near __pascal`**; under
+`__far` every offset shifts by two, which is what made the operands look mismatched.
+
+With that one change the whole 62 bytes matched under `/G1 /AM /Gs /Ox`.
+
+    v = g_40b0;
+    g_40ac += b - a;
+    if (g_40ac > v) g_40b0 = g_40ac;
+
+**That is four rows in four rounds (78, 31, 31→62 bytes... precisely: 78, 31, 62 and the
+round-232 42-byte MATCH), and three of them came from a single new rule.** Round 222's note
+ended by calling the parameter layout "an open question"; it is now closed, and the closure is
+worth two rows on its own.
+
+The lesson generalises beyond this binary: when a transcription fails on *offsets* rather than
+on instructions, suspect a declaration-level mismatch (near/far, pascal/cdecl) before suspecting
+the compiler, because one wrong attribute moves every operand by a constant.
+
+Ledger **523 rows** - MATCH 39, **RELOCS 441**, ASM 2, PENDING 41; verify and checkled
+green; own-code coverage **11 564 B (3.944 %)**.
+
 ## Round 239: round 216's unit lands, three rounds after it failed (31 B)
 Round 216 transcribed `2d60:000e` (31 B) - a six-parameter pass-through - and was one parameter
 offset out: with `__far __pascal` the `char` parameter landed at `[bp+10]` instead of the
