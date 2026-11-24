@@ -1,5 +1,22 @@
 # PROGRESS
 
+## Round 84: the cdecl reversal pays again (38 B)
+`crelay65.c` (`/Os`): `1ebd:000e` (38 B) - `if (cd(b, a)) h2b(1, g_4668); return 1;`.
+The first transcription pushed the two parameters in the wrong order and differed at
+exactly two offsets; writing the cdecl call as `cd(b, a)` (round 79's reversal rule)
+made the whole unit match, including the `8B E5` cleanup that MSC 7 chooses in this
+context.
+
+The other candidate examined, `4718:0008` (48 B), is a far-struct word swap
+(`p->f80 = p->f82; p->f84 = p->f86;`) and is blocked on staging rather than logic:
+the original holds the pointer halves in SI/DI (`8B 76 06` / `8B 46 08` / `8E C7`)
+and indexes through `es:[si+..]`, while MSC loads it with `C4 5E 06` into ES:BX and
+indexes through BX. Every instruction is understood; the register choice is not
+reachable.
+
+Ledger 461 rows - MATCH 38, RELOCS 399, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 964 B (3.398 %)**.
+
 ## Round 83: two giant blobs explain the byte count (no new rows)
 Checked how the remaining unmatched bytes are distributed by segment, and found that
 two entries dominate:
