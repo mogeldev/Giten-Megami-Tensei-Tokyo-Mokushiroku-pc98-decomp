@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 109: a cut-window row, and 83 units behind the same mistake (34 B)
+`crelay71.c` (`/G1 /AM /Gs /Os`): `4dca:000c` (34 B) - `h3(h2(h1(c, d, a, b)), 1);`.
+
+This unit had been **filed as a fragment in round 89 and never tried**: `units.csv` says
+28 bytes, but the function is 34 - the window ends inside its last far call. `dis.py`
+showed the `C9 CA 08 00` four bytes past the window, and the transcription matched on
+the first attempt.
+
+That mistake is systematic, so it is now measured and given a tool. `tools/cutwin.py`
+lists units whose declared window does not end at a return but where a return follows
+within 64 bytes with no intervening `55 8B EC` prologue: **83 units, 9 471 bytes**.
+Some are still false positives (a unit that tail-jumps out with `E9`, or whose real end
+lies past 64 bytes), but the list is small enough to work by hand and it contains the
+class of function that has been silently excluded from every screen so far.
+
+Both results came from tools written in the last two rounds, not from harder analysis.
+
+Ledger 477 rows - MATCH 38, RELOCS 413, ASM 2, PENDING 24; verify and checkled
+green; own-code coverage **10 361 B (3.534 %)**.
+
 ## Round 108: a disassembly helper, and two rounds of mistaken analysis corrected
 Added `tools/dis.py` - not a disassembler, just an annotator that prints offsets, bytes
 and the few facts that keep causing mistakes (jump targets, call forms, returns,
