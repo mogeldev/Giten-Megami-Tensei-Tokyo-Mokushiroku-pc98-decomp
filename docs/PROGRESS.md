@@ -1,5 +1,33 @@
 # PROGRESS
 
+## Round 85: seven rows from a pure-relay screen (159 B)
+Screened the pool for units whose body contains **nothing but** framing, pushes,
+calls and a return - no `les`, no segment moves, no stores, no compares, no shifts.
+Twenty-nine units qualified; five were transcribed in one compile and all five
+matched, and the sibling sweep then added two more:
+
+| row | size | shape |
+|---|---|---|
+| `47c0:0000` | 22 | `h(a, 1, 0x64);` with `a` in a register (pushed from SI) |
+| `4aa1:0006` | 21 | `h2(h1(a));` |
+| `2d3e:000e` | 23 | `h2f(h1b(a, b));` with the outer call `__fastcall` (result stays in AX) |
+| `2d58:0006` | 23 | `h3(h0(), a, 1);` |
+| `2e7a:0000` | 30 | `h2(h4(h0(), a, b));` |
+| `4aaa:0006`, `4ab0:0000` | 21 each | siblings of `4aa1:0006` (found by `reuse.py`) |
+
+Three levers did the work, and each was already in the rule table: `register` on a
+parameter that is pushed (SI staging), `__fastcall` for a tail that leaves the value
+in AX, and reading the size from the object symbol rather than the inventory - two
+of these units include a padding byte, and `2e7a`'s inventory size (28) actually cuts
+the function two bytes short, which `verify.py` caught as "does not end at a
+return".
+
+The screen itself is the reusable artefact: excluding the instruction families that
+produce the known walls leaves a list where each unit needs at most one lever.
+
+Ledger 469 rows - MATCH 38, RELOCS 407, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **10 152 B (3.462 %)**.
+
 ## Round 84: the cdecl reversal pays again (38 B)
 `crelay65.c` (`/Os`): `1ebd:000e` (38 B) - `if (cd(b, a)) h2b(1, g_4668); return 1;`.
 The first transcription pushed the two parameters in the wrong order and differed at
