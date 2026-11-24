@@ -820,3 +820,7 @@ Screen: ENTER or `55 8B EC` frame, 200-800 B, ledger-disjoint by linear address,
 - `1ed7:000c`: a chain of 10+ bit-field read-modify-writes (`shl cx,15; sar cx,14; xor cl,al; and cx,2; es:xor [si+4],cx`) with a `push es; push si; call far` in the middle. The bit-field insert (round 26's `1 - v` lever) matters here but there are about twenty of them; not attempted.
 
 The other 129 units each contain 1-12 wall opcodes; none read.
+
+### Round 31: 1ed7:000c (209 B) - all but the last two instructions
+
+The bit-field chain compiles to the original **byte for byte up to +0xC8** with `signed` one-bit fields (`int b0:1` ...) in a struct whose first four bytes are padding, `/Ox`, far-pascal, and the body `p->b1 = p->b0; p->b5 = p->b4; H(p); p->b2 = p->b0 & ~p->b1; p->b3 = p->b1 & ~p->b0; p->b6 = p->b4 & ~p->b5; p->b7 = p->b5 & ~p->b4; return p;`. The `shl/sar` sign-extension staging, `not`/`and`/`xor` and the `es:xor [si+4]` inserts all match, including the mid-function relay (`push es; push si; mov di,es; call`). The only miss is the return: the original ends `mov ax,si; mov dx,es` (`8B C6 8C C2`); MSC ends `mov ax,si; mov dx,di` (`8B C6 8B D7`) because it keeps the segment in DI across the call and does not reuse ES. Fifteen spellings of the return (temporary, `register`, `long` cast, `p+0`, `return q`) give the same two bytes. Two bytes from a ledger row; not recorded.
