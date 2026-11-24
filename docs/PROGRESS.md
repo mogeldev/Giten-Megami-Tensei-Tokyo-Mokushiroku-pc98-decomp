@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 215: BX is never a C variable (no rows)
+Round 214 left the `119c` family blocked by a `push bx` before any argument push. This round
+tried to force it three ways - an explicit pointer temporary, explicit field temporaries, and
+`s[0].x` subscripts - and MSC answered `push si`, `push di`, or an `ENTER` frame. **It never
+allocates BX to a C variable.** BX stays its scratch register (shift counts, far-pointer
+offsets, table indices).
+
+Measured the class: **9 unmatched units (672 B)** whose prologue saves BX. Five of them are a
+tight family (`119c:000c`, `119e:000c`, `11a0:000c`, `11a2:000c`, `11a4:000a`), 30-32 bytes
+each, differing only in their call target. Two members are otherwise *transcribed exactly*:
+
+    struct S { int x, y; };
+    long __near __fastcall h(long a, int b);
+    void __far __pascal f(struct S *s, int v) { *(long *)s = h(*(long *)s, v); }
+
+That is wall 20 with an unambiguous tell: a `push bx` in a prologue means the source kept
+something live in BX, and no C declaration reproduces it.
+
+The class is small, which is itself useful: it means this particular barrier is *not* where the
+mass of the remaining code sits - unlike the doubling wall's 199 units.
+
+Ledger 517 rows (unchanged), PENDING 39; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 214: a sibling family, blocked by the BX save (no rows)
 Narrowed round 212's clean pool to **30 single-call candidates** (no doubling, no zeroing, no
 segment or port work, exactly one call) and transcribed one - a function that overwrites a

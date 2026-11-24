@@ -418,3 +418,20 @@ temporary (`t = h1(); h2(a, t);`) either gets a frame (`ENTER`) or keeps MSC's o
 So this is a sub-case of wall 9 with its own tell: if the original's call sequence starts with
 a **call** and the first `push` comes after it, the source had a nested call in a *later*
 argument, and MSC cannot reproduce the order.
+
+## 20. BX is never a C variable
+
+The original keeps near pointers and loop counters in **BX** and saves it first thing (`55 8B
+EC 53` / `push bx`). MSC never does: every attempt to produce that (`struct S *q; q = s;`,
+`*(long *)s = ...`, `s[0].x`) puts the pointer in **SI** or **DI**, or earns a frame (`ENTER`).
+BX stays MSC's scratch register - shift counts, far-pointer offsets, table indices - and is not
+handed to a C variable.
+
+The class is small but conspicuous: **9 unmatched units (672 B)** whose prologue saves BX, five
+of them a tight family of 30-32-byte functions (`119c:000c`, `119e:000c`, `11a0:000c`,
+`11a2:000c`, `11a4:000a`) that differ only in their call target and are otherwise transcribed
+exactly.
+
+It is a narrower relative of wall 6/7 (register naming), but worth separating because the tell
+is unambiguous: **a `push bx` in a prologue means the source kept something live in BX, and no
+C declaration reproduces it.**
