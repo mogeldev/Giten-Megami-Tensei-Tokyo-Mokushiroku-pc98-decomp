@@ -6,6 +6,39 @@ which round.
 
 # PROGRESS
 
+## Round 263: the option sweep, and why the compiler search is over - no switch produces add reg,reg
+**Point 1 - the compiler generation question is answered by evidence in the binary.** The
+runtime string in `DDS98.EXE` reads `MS Run-Time Library - Copyright (c) 1992, Microsoft Corp`.
+The libraries of the MSC 7.0 and MSC 6.0b trees carry exactly `1992`; MSC 5.1's carry `1988`.
+So the original linked a 1992 runtime, which rules out 5.1 on its own and fits MSC 6.0b/7.0
+(round 262 already showed 6.0 and 7.0 agree on doubling). The "older compiler" hypothesis was
+probably wrong from the start; round 262's experiments confirmed it rather than discovering it.
+
+**Point 2 - every documented switch, tried.** Read the option list from the compiler's own
+`CL.MSG` (not from memory) and compiled a doubling/zeroing/guard test under **330 flag sets**:
+five memory models x `/G0 /G1 /G2` x 22 option combinations (`/Od /Os /Ot /Ox /Oq /f- /Gq /Gc
+/Gy /Zr`, the `/Oa /Oc /Oe /Og /Ol` family singly and together, and combinations with `/Gq`
+(v6 compatibility) and `/f-`). Result: **79 distinct objects, none containing `add r,r` with the
+same register.** The positive control passes - the same extraction sees `D1 E0` in the control
+object, and even `t + t` on an `int` compiles to a double shift, so a blind spot in the
+detector is excluded. (`/Za` produced no object on these sources; it rejects the `far`/`pascal`
+extensions the test needs, and is not a plausible original setting.)
+
+What the sweep did show: `/Oa /Oc /Og /Oi /Ol /Ow /Oz` are all aliases for `/Ot`'s output on
+this test, `/On /Oo- /Op /Or /Ob1 /Ob2 /Ze /J /Gd /Gx` equal the unoptimised output, `/Oe` equals
+`/Ox`. So the option space is small: **17 distinct code-generation behaviours** for the
+two-CPU case, and none of them reaches the original.
+
+**Point 3 - the result is a stop.** Both lines the objective named for compilers - older
+compiler generations (5.1, 6.0) and compiler options (330 sets) - are now answered by
+experiment. The remaining differences (`add` for doubling, the `90` pad, BX/CX/segment register
+choices, tail merging, ES instead of DS) are not reachable by any switch of any available
+Microsoft C 5.1-7.0. What is left is either a different build of the same compiler or code the
+original authors generated some other way, and neither is testable here.
+
+Ledger unchanged at 525 rows (MATCH 39, RELOCS 446, ASM 2, PENDING 38); verify and checkled
+green; own-code coverage 11 681 B (3.984 %).
+
 ## Round 262: MSC 5.1 unpacked and running, both older compilers swept - one row, no new walls moved
 **MSC 5.1 now runs.** `tools/unexepack.py` (new) unpacks the EXEPACK'd compiler passes offline,
 which sidesteps the missing `LOADFIX`. Two bugs on the way, both caught by validating rather

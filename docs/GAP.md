@@ -261,3 +261,13 @@ sources on 5.1, 6.0 and 7.0: **doubling is `D1 E0` on all three** (the original 
 `55 8B EC` (the original uses `55 8B EC`, so 5.1 is the wrong generation for the frame); a plain-`int`
 zero return is `2B C0` on 5.1 and 6.0 but `33 C0` on 7.0. `tools/oldsweep.py` re-sweeps every calibration and pending
 source under an older compiler: one new candidate in total, reachable with 7.0 as well.
+
+## Round 263: which compiler built the binary, and every switch tried
+
+The binary embeds `MS Run-Time Library - Copyright (c) 1992`; the MSC 7.0 and 6.0b libraries
+carry 1992 and MSC 5.1's carry 1988, so 5.1 is excluded by the binary itself. Every documented
+`CL` option (read from `CL.MSG`) was then compiled over five memory models, three CPU settings
+and 22 option combinations: 330 flag sets, 79 distinct objects, 17 distinct code-generation
+behaviours, and **none emits `add r,r` for a doubling** (positive control confirms the detector).
+The doubling, pad-byte, register-choice and tail-merge walls are therefore not switch-reachable
+on any available Microsoft C 5.1-7.0.

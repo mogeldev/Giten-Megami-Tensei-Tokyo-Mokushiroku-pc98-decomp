@@ -173,3 +173,12 @@ masked and `match.py` already models LINK's `/FARCALLTRANSLATION`.
    machine-re-testable: `python tools/recheck.py --sweep` retests all of them across five
    flag sets in about a minute.
 4. **`docs/GAP.md`** — what a different toolchain would have to change.
+
+## 9. Do not repeat these (all tested, all negative)
+
+- **Another Microsoft C generation.** 5.1 (1988), 6.0 and 7.0 all emit `D1 E0` for doubling; the
+  binary's own runtime string says 1992 (`GAP.md`, round 263).
+- **Another compiler option.** 330 flag sets from the compiler's own option list; none produces
+  `add r,r`.
+- **Another source spelling of `x * 2`.** Twelve forms, always `shl` (`WALLS.md`).
+- **Declaring the callee `register`** to move a stack argument into SI/DI: MSC still pushes it.

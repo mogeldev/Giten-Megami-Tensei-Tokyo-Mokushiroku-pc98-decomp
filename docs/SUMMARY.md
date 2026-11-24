@@ -150,3 +150,10 @@ Where this leaves the project: the C for a large part of the remaining code is r
 the bytes are not, for reasons that are now specific and written down rather than vague. Anyone
 continuing has `HOWTO.md` for the loop, `ENTER.md` for the best-odds list, and this file for
 why the number is what it is.
+
+## Is another compiler worth trying? (round 263)
+
+No, for Microsoft C 5.1-7.0. The binary embeds a **1992** Microsoft runtime, matching MSC 6.0b/7.0
+and excluding 5.1 (1988). 5.1, 6.0 and 7.0 all emit `shl` for doubling, and 330 option
+combinations from the compiler's own option list never emit `add r,r`. The remaining walls are
+not reachable by any switch or generation available here.
