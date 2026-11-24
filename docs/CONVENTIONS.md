@@ -669,3 +669,9 @@ So the "register assignment" wall recorded in rounds 93/112/113/116 is at least 
 *flag* artefact, not a compiler-generation difference. Compile a unit whose only
 difference is a register name under `/Ox` (`/G1` for the frame and 80186 encodings,
 `/G0` when it has locals) before concluding anything about the allocator.
+
+`/Ox` is not a blanket fix: on `322c:002c` it *reverses* the SI/DI assignment against
+the original instead of aligning it, and on `13db:000c` it hoists a register save the
+original does not have. Use it when the diff is "the same register under a different
+name", and fall back to `/Os` when the original is the one doing *less* optimisation
+(no value kept across statements, no register for a dead temporary).

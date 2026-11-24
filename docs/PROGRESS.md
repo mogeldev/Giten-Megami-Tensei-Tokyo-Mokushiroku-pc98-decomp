@@ -1,5 +1,34 @@
 # PROGRESS
 
+## Round 134: the `/Ox` lever tested against seven blocked units (no rows)
+Round 133 found `/Ox` resolves some register-naming misses, so this round applied it to
+the units that had been blocked on exactly that:
+
+| unit | under `/Os` | under `/Ox` |
+|---|---|---|
+| `37ef:000c` | index in BX, compare in memory | same, plus `push si` - still differs |
+| `3874:000a` | register pair swapped | still swapped |
+| `4ab2:000c` | register reused differently | still differs |
+| `3ae7:0000` | register pair | produces a shorter symbol - further away |
+| `1486:0002` | frame 4 versus 6 | frame now 6 ✓, but MSC keeps `a` in SI |
+| `322c:002c` | pushes SI where the original pushes AX | **reverses** the assignment instead |
+| `13db:000c` | pushes memory where the original loads first | hoists a register save |
+
+So `/Ox` is **not a blanket fix**: it aligns the allocator on some units (`218f:0004`,
+`50ff:000e`) and actively diverges on others. The useful distinction, now recorded in
+`docs/CONVENTIONS.md`, is *which side is optimising more*: when the original and MSC
+nominally agree and only the register name differs, `/Ox` can align them; when the
+original is doing **less** optimisation than MSC (no value kept across statements, no
+register for a dead temporary), `/Os` is right and `/Ox` makes it worse.
+
+One partial win worth noting: `1486:0002`'s frame size was fixed by making the call
+result `volatile` (6 bytes, matching the original), which confirms the original keeps
+that value in memory rather than in a register - but MSC then keeps a *parameter* in SI
+that the original reloads, so the unit is still a wall-5 case.
+
+Ledger 486 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 810 B (3.687 %).
+
 ## Round 133: `/Ox` is a lever - three rows, 210 B (largest single round since round 96)
 Round 132 left `50ff:000e` two bytes from a row, differing only in which register MSC
 used for a `lea`. Trying the other optimiser settings on that unit produced the answer
