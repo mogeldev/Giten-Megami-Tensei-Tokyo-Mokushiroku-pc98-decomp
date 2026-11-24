@@ -317,3 +317,14 @@ register.
 
 Practical rule: a unit whose guard tests a register that was loaded once from the frame is
 at this wall; a unit that tests the frame slot directly is probably not the same function.
+
+### The prologue push order is fixed (round 196)
+
+When a function saves both registers the original pushes **DI then SI** (`57 56`); MSC
+pushes **SI then DI** (`56 57`). Verified on `31cd:0006`, whose count variable lands in SI and
+whose parameter in DI - the same assignment as the original - so the only difference is the
+order the two saves are emitted in. It is not affected by declaration order, by `/Ox`, or by
+using an early `return` instead of `if (n) { ... }`.
+
+Practical rule: a unit whose prologue is `57 56` and whose body otherwise matches is at this
+wall; a unit whose prologue is `56 57` may still match if the assignment is natural.

@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 196: the prologue push order (no rows)
+`31cd:0006` (34 B) is a counted loop:
+
+    register int n;
+    n = h1();
+    if (n) { do { h2(a); } while (--n); }
+
+Three shapes were compiled - a plain local, a `register` local, and an early `return` instead
+of the `if` block. The `register` version gets the *assignment* right - `n` in SI, the
+parameter in DI, exactly as the original - and then differs in **one instruction pair**: the
+original saves DI first (`57 56`), MSC saves SI first (`56 57`).
+
+That is a new, precise fact and it is now in `docs/WALLS.md`: the prologue push order is
+fixed by register number and cannot be steered from the source. It also explains a couple of
+earlier near-misses that I had attributed to the assignment rather than the save order.
+
+The practical value is a screening rule: a unit whose prologue is `57 56` and whose body
+otherwise matches is at this wall; a unit whose prologue is `56 57` may still match.
+
+Ledger 512 rows (unchanged), PENDING 36; verify and checkled green; own-code
+coverage 11 260 B (3.840 %).
+
 ## Round 195: a one-page summary of the whole project (documentation round)
 `docs/PROGRESS.md` is now ~190 round notes long, which is the right record and the wrong
 front door. Added **`docs/SUMMARY.md`**: results in four numbers, the seven walls that
