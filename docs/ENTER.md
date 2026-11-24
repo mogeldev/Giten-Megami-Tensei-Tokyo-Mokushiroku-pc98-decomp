@@ -761,3 +761,9 @@ New screen result: 90 unmatched units with a `55 8B EC` or `C8` frame, 14-200 B,
 - `4386:0000` (33 B): XOR into a 7-bit field of a 4-byte record - MSC emits byte operations (`mov al,[bx+0x866f]; xor al,[bp+8]; and al,7f; xor [bx+0x866f],al`), the original works on the word. Six bit-field spellings; narrowing wall.
 
 None of the other 76 was disassembled; the screen list is saved here only as counts. Five rows in 21 rounds (`2a2b:0038`, `477b:0000`, `3db8:0008`, `379e:0006`, `375a:0008`).
+
+### Round 22: 473f:0004, 37a8:0008, 37ab:0002
+
+- `473f:0004` (50 B, far, `retf 2`): index search over sixteen 0x21F-byte records in a far segment (0x43A3), `-1` if absent. **Record stride 0x21F is odd: declare the record under `#pragma pack(1)`** (`struct S{int id; char pad[0x21d];}`), otherwise MSC rounds the stride to 0x220 and every `add bx`/`cmp bx` constant is off. With that, the first 35 bytes match under `/Ox` including `push di`, the DS switch, the loop and the segment save/restore. The miss is the shared exit: the original has two `16 1F` (`push ss; pop ds`) paths jumping to **one** `8B C1 / EB 03 / B8 FF FF / 5F C9 CA 02 00` (`EB 06` and `EB 03`); MSC emits `EB 0A`, a duplicate epilogue and a `90`. Shared-epilogue wall. Twelve spellings.
+- `37a8:0008` / `37ab:0002` (42 B each, near `ret 6`): `if (r->lo <= v && r->hi >= v) return r->len - r->lo + v; return -1;` through a far struct pointer. Original: `push di` + `mov cx,[bp+4]` + `les bx` + `es:mov di,[bx+0x14]` and a **shared** `-1` exit; MSC emits no `push di` (re-reads `es:[bx+0x14]` twice) and duplicates the epilogue. Same wall plus register-cached member (wall 3). Five spellings.
+- `43d2:000a` has `cmpsw`-looking bytes that are really `80 3F` `es:cmp byte` forms mis-decoded by dis.py; `21f0:000a` is a 4-word store to a table at es=0x4163 (`shl bx,3`, four `es:` stores) - not tried.
