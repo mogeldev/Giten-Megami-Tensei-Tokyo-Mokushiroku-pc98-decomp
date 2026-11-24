@@ -725,3 +725,24 @@ callee-saved register) - and the practical rule stands as: **try both declaratio
 and both assignment orders** for any unit that turns on a register choice. `tools/regsweep.py`
 covers parameter subsets; the local ordering still has to be done by hand, and two units is
 not enough to state a law.
+
+## `8A E0` versus `8A C4`: which half of AX a byte result is in
+
+Two encodings one bit apart mean different things, and misreading them silently produces a
+*different program* rather than a compile error:
+
+    8A E0   mov ah, al      take the low byte of AL and move it to the high half
+    8A C4   mov al, ah      take whatever is in AH and move it to AL
+
+The original of `2b4b:0008` has `8A E0 2A C0` - `mov ah,al` / `sub al,al` - i.e. the
+second call returns a byte in AL and the code builds `byte << 8` from it. The matching C is
+
+    return x + ((unsigned)h2(...) << 8);      /* 8A E0 2A C0 */
+
+where `h2` returns `unsigned char`. Writing the same arithmetic as `h2(...) >> 8` on an
+`unsigned` return compiles to `8A C4 2A E4` (`mov al,ah` / `sub ah,ah`), which is a
+different program: with the first form the caller's AX high half holds the byte, with the
+second it holds the previous call's leftovers.
+
+So when a unit ends in `8A E0`, the callee returns a **byte**, not a word - check the callee
+declarations before writing the shift.

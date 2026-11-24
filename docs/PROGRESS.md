@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 162: a row from telling `mov ah,al` from `mov al,ah` (48 B)
+`2b4b:0008` (48 B) is two calls whose results are combined:
+
+    d = a0;
+    x = h1(d, b, c);
+    return x + ((unsigned)h2(d, b, c) << 8);
+
+It took three attempts, and the third one is the interesting part. The original ends with
+`8A E0 2A C0` - `mov ah,al` / `sub al,al` - which builds `byte << 8`. Writing the same
+arithmetic as `h2(...) >> 8` on an `unsigned` return compiles to `8A C4 2A E4`
+(`mov al,ah` / `sub ah,ah`), which **is a different program**: `8A E0` means the callee
+returned a byte in AL, `8A C4` means the code is reading AH, i.e. the previous call's
+leftovers. Declaring `h2` as returning `unsigned char` and shifting left instead gives the
+original's bytes exactly.
+
+Also had to fix the copied parameter: the original loads `[bp+0A]` - the **first**
+parameter - into DI, not the third.
+
+Recorded in `docs/CONVENTIONS.md` as the `8A E0` versus `8A C4` rule, because misreading a
+byte-return is the kind of mistake that produces a plausible but wrong decompilation rather
+than a compile error.
+
+Ledger **493 rows** - MATCH 38, RELOCS 426, ASM 2, PENDING 27; verify and checkled
+green; own-code coverage **10 978 B (3.744 %)**.
+
 ## Round 161: the register rule slips again (no rows)
 Continued through the `55 8B EC 57 56` family with `3877:0000` (41 B):
 
