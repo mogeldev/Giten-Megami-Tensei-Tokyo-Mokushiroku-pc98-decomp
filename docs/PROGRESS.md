@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 179: `__fastcall` is the missing calling convention for a whole family (no rows)
+Several unmatched units begin `56 8B F0` - save AX in SI, no frame - which I had been
+treating as an "argument in AX" oddity. It is simply **`__fastcall`**: the first argument
+arrives in AX and the callee saves it.
+
+`20f6:0000` (23 B) is the clean example:
+
+    void __fastcall f(unsigned x) { if (x & 1) h(); if (x & 2) h(); }
+
+and MSC reproduces the calling convention **exactly** - same `56 8B F0` prologue, same
+argument handling, same far calls. It is two bytes from a row, and the two bytes are
+`25 01 00` (`and ax,1`, which destroys AX and is why the compiler reloads it from SI) versus
+MSC's `F7 C6 01 00` (`test si,1`). Three source shapes (`x & 1`, `x % 2`, a register
+temporary) all give `test`.
+
+So this is not a calling-convention problem at all - `__fastcall` is supported and matches -
+but an opcode choice (`and` versus `test`) inside it. That makes the several `56 8B F0` units
+worth revisiting with the convention identified, even though this particular one is blocked.
+
+Recorded as a PENDING row with the diagnosis.
+
+Ledger 505 rows - MATCH 38, RELOCS 434, ASM 2, **PENDING 31**; verify and checkled
+green; own-code coverage 11 214 B (3.825 %).
+
 ## Round 178: wall 16 resists its obvious fix, and a full sweep (no rows)
 Tried the natural way to produce a shared epilogue on `315b:0008`, whose if-arm ends in a
 call: write the arm with an explicit **early `return`** so the fall-through path is the one
