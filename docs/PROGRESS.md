@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 127: a table-mask routine decoded, blocked on register choice (no rows)
+With wall 14 classified, the "no known wall" screen dropped from 38 to 36 units; one
+untried unit was decoded in full and transcribed:
+
+`37ef:000c` (29 B) is `if (b != -1) g_6e36[b].f0 &= ~a;` with a 0x34-byte struct. The
+decode is clean - `83 FB FF` guards, `F7 D0` complements, `6B F3 34` scales, `21 84 36 6E`
+masks the word at `[si+0x6E36]` - and the transcription produced the same *operations*
+in 24 bytes. Two differences, both register choice:
+
+    original   8B 5E 08 (BX = b)  83 FB FF (compare BX)  6B F3 34 (SI = b*0x34)  and [si+disp]
+    MSC 7      83 7E 06 FF (compare frame)            6B 5E 06 34 (BX = b*0x34) and [bx+disp]
+
+So the original loads the index into BX and scales into SI, while MSC compares the frame
+slot and scales into BX. That is walls 7 (scratch naming) and 11's cousin (which register
+the address arithmetic lands in) at once.
+
+Three more units from the same screen remain untried or blocked on named walls:
+`4e9b:0008` (long staging through BX), `1cc3:000c` and `1cba:000a` (AH-argument
+interrupt wrappers), `10b7:0006` (global address kept in SI).
+
+Ledger 483 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 600 B (3.615 %).
+
 ## Round 126: wall 14 is now a classifier trait (no new rows)
 Round 125 identified "frames where MSC omits them" as a wall but left it detectable only
 by hand. This round added it to `tools/classify.py` as **frame without frame use**: a
