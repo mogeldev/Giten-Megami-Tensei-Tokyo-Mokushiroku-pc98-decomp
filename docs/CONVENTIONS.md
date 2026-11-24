@@ -541,3 +541,12 @@ allocation follows the declaration, MSC's follows first use. When the two happen
 agree the unit matches; when the body's first use is not the first declared parameter,
 every register reference in the unit is swapped and no source reordering fixes it
 without moving stack offsets.
+
+### The two orders are independent
+
+At `3ede:00a0` the original's prologue is `57 56 8B 7E 08 8B 76 06`: it pushes DI
+before SI and loads the *second* parameter (into DI) first, even though the parameter
+declared first ends up in SI. So the original separates two decisions - **which
+register a parameter gets** follows the declaration (a -> SI, b -> DI), while **the
+order the prologue loads them** follows first use. MSC 7 couples both to first use,
+which is why an exchange in the prologue is the signature of this class.

@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 94: screening with the new rule finds nothing new (no rows)
+Tried to turn round 93's finding into a search: units whose prologue uses the
+declaration-order assignment (`56 57` push order with `SI = a`, `DI = b`). The screen
+returns **zero** units in the 24-90 byte range - because the original's prologue push
+order is DI-then-SI even when the assignment is declaration-ordered, so the byte
+pattern I filtered on does not exist.
+
+The attempt did sharpen the rule, though: the original separates the two decisions.
+**Which register a parameter gets** follows the declaration (`a -> SI`, `b -> DI`);
+**the order the prologue loads them** follows first use. At `3ede:00a0` it pushes DI
+before SI and loads `b` first, yet `a` still owns SI. MSC 7 couples both to first use,
+which is precisely why a single exchange in the prologue is this class's signature -
+and why it cannot be screened for from the prologue bytes alone: it depends on which
+parameter the body touches first.
+
+Recorded in `docs/CONVENTIONS.md`; no new rows this round.
+
+Ledger 472 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 10 239 B (3.492 %).
+
 ## Round 93: register parameters, pinned down (no new rows)
 `3ede:00a0` (64 B) is a global-writing relay - `h1(); h2(b, g_838e);` then six stores
 including two byte globals - and it was transcribed in one attempt. Everything matches
