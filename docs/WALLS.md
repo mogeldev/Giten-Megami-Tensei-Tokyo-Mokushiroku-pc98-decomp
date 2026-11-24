@@ -33,7 +33,7 @@ epilogues. Compiling `if (a) { h(a); return 1; } return 0;` with `/Ot` or `/Ox` 
 So the wall is not "the older compiler pads"; it is **"the older compiler does not merge
 return paths"**, and the padding is a side effect. That is a more useful statement: it
 
-### The mechanism, from five witnesses (round 172)
+### The mechanism (five witnesses at round 172, seven now)
 
 Five units now show the same two-byte fingerprint, and they are all the *same* shape - a
 constant stored on one path, a jump over the other path's constant, and a `90` in the gap:

@@ -13,7 +13,7 @@ original image.
 |---|---|
 | ledger rows | **523** (MATCH 39, RELOCS 444, ASM 2, PENDING 38) |
 | verified against the image | **483** |
-| own code matched from source | **11 351 bytes of 293 211 (3.871 %)** |
+| own code matched from source | **11 645 bytes of 293 211 (3.972 %)** |
 | code functions inventoried | 2 523 |
 | unmatched units classified into walls | 1 402 across 20 classes |
 
@@ -32,7 +32,7 @@ matching. `docs/WALLS.md` holds twenty-one numbered walls with witnesses; the im
   classic frame but loses 80186 encodings;
 - **nop padding** - the original lays out a block with a 3-byte `mov ax,imm16`, shortens a
   constant to `33 C0` afterwards, and fills the freed byte rather than re-laying the jump.
-  Six witnesses, all with the jump distance counting the `90`. MSC emits `33 C0` before
+  Seven witnesses, all with the jump distance counting the `90`. MSC emits `33 C0` before
   laying out, so it never has a byte to fill;
 - **register allocation** - follows *lifetime*, not declaration order: the longest-lived
   value gets SI. The source can move a short-lived parameter into DI
@@ -66,7 +66,7 @@ matching. `docs/WALLS.md` holds twenty-one numbered walls with witnesses; the im
   the original is older still (unoptimised selection, classic frames, 80186 encodings).
 - **A different linker** would change nothing: `verify.py` compares objects with relocations
   masked, and `/FARCALLTRANSLATION` is already modelled.
-- **Nothing source-level** reaches the seventeen walls. The 39 PENDING rows are the proof:
+- **Nothing source-level** reaches the walls. The 38 PENDING rows are the proof:
   their C is recovered and every one misses by one to six bytes of compiler choice, re-
   testable in one command via `tools/recheck.py`.
 
@@ -77,7 +77,7 @@ matching. `docs/WALLS.md` holds twenty-one numbered walls with witnesses; the im
 
 ## Which PENDING rows can ever match
 
-The 39 PENDING rows fall into two groups, and the difference matters:
+The 38 PENDING rows fall into two groups, and the difference matters:
 
 - **proven unreachable with MSC 7.0** - the pad byte (`90` inside a body, round 206), `add
   reg,reg` doubling (round 199/211: twelve source forms, twelve compilations, always `shl`,
@@ -113,7 +113,7 @@ returns **two** candidates, both already diagnosed. The filter that found four r
 184-185 now finds nothing new, because every candidate it reaches is understood well enough to
 be excluded by inspection.
 
-That is the honest reading of the 3.871 %: not a failure of effort, but a measured boundary.
+That is the honest reading of the 3.972 %: not a failure of effort, but a measured boundary.
 What is left is enumerated - 41 PENDING functions with their C written down, twelve cut
 windows, and a wall list with a size hanging off each entry.
 
@@ -148,5 +148,5 @@ ledger at 523 rows and the walls measured.
 
 Where this leaves the project: the C for a large part of the remaining code is recoverable, and
 the bytes are not, for reasons that are now specific and written down rather than vague. Anyone
-continuing has `HANDOFF.md` for the loop, `ENTER.md` for the best-odds list, and this file for
+continuing has `HOWTO.md` for the loop, `ENTER.md` for the best-odds list, and this file for
 why the number is what it is.

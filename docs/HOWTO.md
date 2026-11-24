@@ -8,15 +8,18 @@ re-check the whole ledger, reproduce one row, and diagnose a mismatch.
 
 ```
 ../toolchain/msc7i/           Microsoft C/C++ 7.0 (CL 8.00) — BIN, LIB, INCLUDE
-../toolchain/msc6c/           Microsoft C 6.0 (DOS CL 6.0) — optional, --msc-dir MSC6C
+../toolchain/msc6c/           Microsoft C 6.0 — kept for reference only, see below
 ../toolchain/dosboxx/         DOSBox-X (handles both; DOSBox 0.74 also works for real-mode CL)
 ../toolchain/HDPMI32.EXE      DPMI host for the 32-bit CL driver
 ../giten/DDS98/DDS98.EXE     the original binary (NOT in this repo)
 ```
 
-The MSC 6.0 set is only needed for `0E E8` (`push cs; call`) units; it is built
-from `msc6\disk8` (CL), `disk1/2` (C1/C2) and `disk7` (C3), see CONVENTIONS.md.
-It runs **without** DPMI: `build.py ... --msc-dir MSC6C --no-dpmi`.
+**MSC 6.0 does not currently produce an object in this environment** (round 208): `--msc-dir
+MSC6C` reports "no OBJ produced" with no compiler output while MSC7I on the same source works,
+and the failure is identical with `--no-dpmi` and with `--run` substituting the CL line. The
+toolchain is present and `build.py`'s existence check passes, so this is an environment
+regression rather than a missing disk. Nothing in the ledger was ever verified with 6.0, and
+`GAP.md` records the conclusions that were drawn from it while it worked.
 
 `build.py` launches DOSBox-X with `-nopromptfolder`, loads `HDPMI32`, sets
 `PATH`/`INCLUDE`/`LIB` to the MSC directory, and compiles one source file. It
@@ -149,9 +152,24 @@ generator with a colliding name once destroyed a verified source.
 
 ## 7. What is out of reach, and why
 
-`docs/CONVENTIONS.md` lists the nine codegen traits of the original compiler with the
-function that isolates each one, and `docs/GAP.md` counts the units each trait blocks.
-The practical ceiling for this toolchain is the `blocked by nothing` row of that
-table. Everything above it needs the original compiler generation, which could not be
-made runnable here: the only DOS-hosted Microsoft C 5.1 copy is EXEPACK-packed and
-this DOSBox-X build has no `LOADFIX`, and the 6.00ax set is a Windows-hosted PE.
+`docs/WALLS.md` lists the 21 walls with witnesses (eight of them measured in units and
+bytes) and `docs/BLOCKED.md` counts the units in each class. The practical ceiling for this
+toolchain is what those two documents describe; anything above it needs the original
+compiler generation.
+
+Three attempts to get closer are recorded rather than repeated: MSC 5.1's only DOS-hosted
+copy is EXEPACK-packed and this DOSBox-X build has no `LOADFIX`; MSC 6.0 matched 7.0's codegen
+for every wall that mattered and now does not build here at all (round 208, above); and a
+different linker cannot change a row, because `verify.py` compares objects with relocations
+masked and `match.py` already models LINK's `/FARCALLTRANSLATION`.
+
+## 8. Where to look next
+
+1. **`docs/ENTER.md`** — the `C8`-framed units. Structural reason to work: MSC under `/G1`
+   emits `ENTER` for functions with locals, the same frame the original chose, so these are
+   clear of the frame wall. Two rows came from here (rounds 232, 238).
+2. **`docs/BLOCKED.md`** — the unmatched units by class, biggest first.
+3. **`tools/pending.txt` + `src/pending/pending1.c`** — 13 of the 38 PENDING rows are
+   machine-re-testable: `python tools/recheck.py --sweep` retests all of them across five
+   flag sets in about a minute.
+4. **`docs/GAP.md`** — what a different toolchain would have to change.
