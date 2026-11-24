@@ -493,3 +493,12 @@ by two (near return address 2 bytes, far 4), which is what made the first
 transcription differ at three push offsets while looking otherwise perfect. When the
 parameter offsets in a unit are all two bytes lower than expected, check the return
 opcode before touching the parameter list.
+
+## cdecl: reverse the source arguments to match the push order
+
+`1dfc:00fa` shows `push a` then `push b` for a two-argument cdecl call. Because
+cdecl pushes right to left, that is `cd(b, a)` in the source - the argument order is
+the *reverse* of the order the pushes appear. The same applies to four arguments
+(`cd4(b, a, b, a)` produces `push a, b, a, b`), which is how the round-13
+`1dfc:0116` puzzle resolves: its `83 C4 08` cleanup and register staging both fall
+into place once the arguments are reversed and the second parameter is `register`.

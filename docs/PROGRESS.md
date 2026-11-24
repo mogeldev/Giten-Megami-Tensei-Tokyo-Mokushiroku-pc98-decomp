@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 79: cdecl argument order, and the round-13 puzzle solved (27 B)
+`crelay64.c` (`/Os`): `1dfc:00fa` (27 B) - `h2(cd(b, a) + 1);`, where the cdecl call's
+arguments are written in the *reverse* of the push order. The result is incremented
+in place (`40`), forwarded, and cleaned with `8B E5`.
+
+That rule also closes the **round-13 puzzle**: `1dfc:0116` / `1e12:0006` (34 B each,
+transcribed and abandoned seventeen rounds ago because MSC emitted `8B E5` and
+memory pushes where the original had `83 C4 08` and register staging) fall into place
+once two things are right - the arguments reversed (`cd4(b, a, b, a)`) and the second
+parameter declared `register`. With those, the cleanup becomes `83 C4 08` and `b`
+stages through SI, exactly as the original. The last difference is that the original
+loads `a` into **AX** once and pushes it twice, while MSC re-reads the frame slot;
+not reachable, but the unit is now a one-instruction miss instead of a mystery.
+
+Also probed: `4daa:0002` (30 B), an indirect `call [bx+0x2C28]` through a near
+function-pointer table. Getting the pointer width right (`__near __fastcall`) made
+the table access match; the remaining difference is `03 D8` (`add bx,bx`) versus
+MSC's `D1 E3` (`shl bx,1`) - the doubling class again, on a third unit.
+
+Ledger 460 rows - MATCH 38, RELOCS 398, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 926 B (3.385 %)**.
+
 ## Round 78: a scaled-divide relay (25 B) from a near-function sweep
 `crelay63.c` (`/Os`): `486e:000a` (25 B) - `h(a * b / 100);` in a near-Pascal
 function: `imul` by the second parameter, then a signed `idiv` by 100
