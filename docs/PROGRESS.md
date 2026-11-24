@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 104: `/G0` applied to three more units, all one trait short (no rows)
+Continued the `/G0` sweep. Three units were transcribed; none matched, and each miss is
+a different already-named trait:
+
+- **`41e7:000a` (22 B)** - `h(0x4827, 6, a)`. Settles the push-immediate question
+  from round 89: `/G1` gives `6A 06`, `/G0` gives `B8 06 00` / `50`, and the original
+  has `68 06 00`. So the original's compiler picks `6A` for small immediates and `68`
+  for larger ones - the standard 80186 rule - while MSC 7 either always shortens
+  (`/G1`) or never does (`/G0`). No flag combination reaches it.
+- **`122f:000c` (66 B)** - `r = c << 8; p++; r += *p;` inside `if (!h1(c))`. The
+  source shape is now exact (`unsigned char __far *p`, `register unsigned char c`,
+  the increment inside the branch), and the second load correctly zero-extends with
+  `2A E4` rather than `98`. What differs is that the original **stores `r` to its
+  frame slot before the increment** (`89 46 FE` ... `FF 46 06`) while MSC keeps `r` in
+  AX across it - the older compiler does not keep an assignment in a register across a
+  statement. Two-byte side effect: its local area is 2 bytes, MSC's 4.
+- **`1036:000c`** - already recorded as PENDING in round 102; the padding wall.
+
+So `/G0` has now been applied to four units, produced one row (`103b:000c`, 63 B), and
+turned three long-standing mysteries into precise one-trait statements.
+
+Ledger 476 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 327 B (3.522 %).
+
 ## Round 103: a 63-byte marshalling wrapper, and the value of `/G0` (63 B)
 `crelay70.c` (`/G0 /AM /Gs /Os`): `103b:000c` (63 B) - a wrapper that calls three
 functions through far pointers it builds itself. What made it work:

@@ -606,3 +606,10 @@ Scope note (round 101): of the unmatched units, only **32** have a classic frame
 locals, and **10** of those are complete, call-bearing and free of `6A`. `/G0` therefore
 unlocks a few dozen units, not a few hundred - most `ENTER` usage in the image is the
 original's own choice, not a flag artefact.
+
+### Immediate pushes: the original follows the 80186 rule, MSC does not
+
+`41e7:000a` settles it. The original pushes `0x4827` with `68 27 48` and `6` with
+`68 06 00`; MSC 7 under `/G1` pushes both with `6A` (short form) and under `/G0` with
+`B8 xx` / `50` (`mov` + `push`). So the original picks `6A` for small values and `68`
+for large ones - the 80186 rule - and no MSC 6/7 flag reproduces that selection.
