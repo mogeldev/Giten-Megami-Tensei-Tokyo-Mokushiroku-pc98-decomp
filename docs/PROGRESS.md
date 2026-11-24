@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 172: the padding wall stated as one mechanism (no rows)
+Round 171 found the fifth unit with the same two-byte fingerprint, so this round wrote the
+mechanism down in `docs/WALLS.md` instead of leaving five separate "so close" notes.
+
+The five witnesses - `3cd1:02f2`, `2e68:000c`, `1fe2:000a`, `48eb:000c`, `4998:000c` - all
+have the shape "a constant stored on one path, a jump over the other path's constant, a `90`
+in the gap", and in all five the **jump distance counts the `90`**. That is what makes the
+mechanism identifiable: the block was laid out with a 3-byte `mov ax,<imm16>`, the second
+constant was shortened to the 2-byte `33 C0` afterwards, and the freed byte was filled
+rather than the jump being re-laid-out. MSC emits `33 C0` *before* laying out the block, so
+it never has a byte to fill.
+
+The practical rule now recorded: a unit whose only difference is one byte of branch
+distance across a `90` is **at** the wall, and belongs in PENDING rather than being retried
+with another source shape. That saves future rounds from exactly the work this one didn't
+do.
+
+Ledger 501 rows (unchanged), PENDING 28; verify and checkled green; own-code
+coverage 11 199 B (3.819 %).
+
 ## Round 171: a lazy initialisation, and another padding witness (21 B)
 `3c09:0006` (21 B):
 

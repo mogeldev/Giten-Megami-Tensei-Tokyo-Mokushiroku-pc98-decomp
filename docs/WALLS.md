@@ -32,6 +32,31 @@ epilogues. Compiling `if (a) { h(a); return 1; } return 0;` with `/Ot` or `/Ox` 
 
 So the wall is not "the older compiler pads"; it is **"the older compiler does not merge
 return paths"**, and the padding is a side effect. That is a more useful statement: it
+
+### The mechanism, from five witnesses (round 172)
+
+Five units now show the same two-byte fingerprint, and they are all the *same* shape - a
+constant stored on one path, a jump over the other path's constant, and a `90` in the gap:
+
+| unit | the padded sequence | note |
+|---|---|---|
+| `3cd1:02f2` | `B8 01 00 EB 03 90 33 C0` | range check, one `return 1` |
+| `2e68:000c` | `B8 01 00 EB 03 90 33 C0` | two-word long comparison |
+| `1fe2:000a` | `B8 FF FF EB 03 90 33 C0` | guarded `return -1` |
+| `48eb:000c` | `B8 01 00 EB 03 90 33 C0` | (round 121) |
+| `4998:000c` | `B8 01 00` ... `90` | (round 121) |
+
+In every one of them the **jump distance is correct for the padded layout** - the
+displacement counts the `90` - so the padding is not dead space that a later pass could
+reclaim, it is part of the address arithmetic. That is consistent with exactly one
+mechanism: the block was laid out with a 3-byte `mov ax,<imm16>`, the *second* constant was
+shortened to the 2-byte `33 C0` afterwards, and the freed byte was filled rather than the
+jump re-laid-out.
+
+Because MSC emits `33 C0` before it lays out the block, it never has a byte to fill and so
+never produces this shape - and no source form changes that. The practical consequence: any
+unit whose only difference is one byte of branch distance across a `90` is at the wall, and
+should be marked PENDING rather than retried.
 predicts that padded units also have repeated epilogues, and it points at a lever
 (`/Ox`, `/Ot`) that reproduces the padding at the cost of a different epilogue shape.
 `48eb:000c` under `/Os` is two differences from a row (the pad and the branch distance
