@@ -840,3 +840,7 @@ Of the 13 bit-field-chain units read by wall-opcode count, only `444a:000e` and 
 ### Round 35: 1d7f:0062 (233 B, __loadds + bit-field chain on a global)
 
 The third function of the `1d7f:0000` window: `push ds; mov ax,0x48fc; mov ds,ax` then ten bit-field inserts on `g_98f8` (two single-bit copies, two loads from `g_1ac`/`g_1ae`, two word copies `g_1a8->g_98f4`, `g_1aa->g_98f6`, four `and-not` bits). `__loadds` plus `signed` one-bit fields reproduce the **first 6 bytes** and the structure; the first miss is at +0x6/+0xa: the original reads the global **twice from memory** (`mov cx,[98f8]; mov ax,[98f8]`) where MSC copies `cx` to `ax` (`8B C1`). Ten spellings (`volatile` global, volatile-cast reads, `unsigned char` sources, `&1` masks, `!` for `~`) - same operand-reuse behaviour as `3809:0000` (round 28). Not recorded.
+
+### Round 36: three __loadds functions matched (1da9:000e, 20b4:000c, 1d93:000c)
+
+Scan of the image for `push ds; mov ax,0x48FC; mov ds,ax` openings not overlapping the ledger (by linear address): 18 starts. Three simple ones matched at once: two getters (`return g;`) and a two-word copy. The 12 B and 26 B in units.csv for the getters include padding / the next function. Remaining starts: `1d950` (118 B), `1d781` (111), `1e749`/`1e7c1` (115 each), `201ce` (165), `1daed` (281), `1d6e2`, `1d726`, `1d768`, `1da80`, `1dbcf` (55, `out` port writes - unreachable), `1dadc` (`out 0x64`), `1dac2` (`pushf; cli; out`).
