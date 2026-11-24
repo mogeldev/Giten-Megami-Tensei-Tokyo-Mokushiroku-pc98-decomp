@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 46: a running sum with a signed divide (78 B)
+`crelay52.c` (`/Os`): `5155:000a` (78 B) -
+`t = g1(nc(a)); t += g1(nc(b)); t += g1(nc(c)); t = t / 3; t = t + 5; return (unsigned char)h1(t);`.
+Three call pairs accumulate into one register, then a signed divide (`99 F7 F9`)
+and a byte-truncated return (`2A E4`).
+
+**Two source-level rules, both found by iteration:**
+1. the accumulation must be **separate statements** (`t += g1(nc(b));`), not one
+   sum expression - the expression form makes MSC evaluate the operands right to
+   left, so the pushes come out in reverse parameter order;
+2. the divide and the offset must likewise be **separate statements**: the
+   combined `t / 3 + 5` loads AX before CX and folds the `+ 5` into the
+   accumulator (`05 05 00`), while the split form matches the original
+   (`B9 03 00` then `8B C6`, and `8B F0 83 C6 05`).
+
+Also confirmed again that a callee the original reaches through the /F-translated
+`90 0E E8` form must be declared `__far` - declaring it `__near` produced a
+3-byte `E8` call and shifted everything after it.
+
+Sizes are read from the object symbol (78 here); my hand count said 71 and
+`verify.py` caught it again.
+
+Ledger 447 rows - MATCH 38, RELOCS 385, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 329 B (3.182 %)**.
+
 ## Round 45: the nop-padding class (0 new rows, one byte twice)
 Two large candidates came within **one byte** this round, and both for the same
 reason:
