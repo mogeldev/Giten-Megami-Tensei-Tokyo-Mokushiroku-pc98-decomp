@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 21: a loop with two register variables and a five-argument chain (116 B)
+`crelay34.c` (`/Os`):
+
+- `416b:0006` (58 B) - a six-iteration loop
+  `d = fc0(); for (i = 0; i < 6; i++) if (h1(i) >= 0 && (flags & 0x20)) { fc2(-1 - i, 0); d++; }`.
+  Both locals must be `register`: with plain locals MSC switches to an `ENTER`
+  frame; as register variables the index lands in SI (`33 F6`, `46`) and the
+  counter in DI (`47`, `8B C7`), which is the original.
+- `3d94:0010` (58 B) - `h1(g_78c4); h2(g_78c4, 0, 0); h5(g_78c4, a, b, 0x400, 1); h1(g_78c4);`
+  in a **near**-Pascal function (`C9 C2 04 00`), with the 0x400 constant pushed
+  as imm16. The two parameter pushes are the first-declared then the
+  second-declared, so getting them backwards shifts both bytes.
+
+Also closed for good this round: `20f9:000c` and `2b25:0048` both need the OR/compare
+operand loaded from memory *before* the register operand (`8B 46 08 0B C7`), while
+MSC 7 canonicalises to register-first (`8B C7 0B 46 08`). That is an operand-order
+difference between compiler generations, not a source shape - the same class as
+the jump-merge booleans.
+
+Ledger 419 rows - MATCH 38, RELOCS 357, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 8 250 B (2.814 %).
+
 ## Round 20: a guarded relay pair (125 B) with a fastcall signature
 `crelay33.c` (`/Os`), two members of one shape:
 
