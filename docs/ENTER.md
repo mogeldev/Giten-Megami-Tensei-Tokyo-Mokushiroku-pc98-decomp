@@ -743,3 +743,11 @@ Rebuilt screen: ENTER or `55 8B EC` frame, 14-100 B, no ledger byte overlapping 
 - `25f0:0092` (39 B): subtract-loop dividing `v - 0x119` by 0xE1, result clamped to 6. `/Ox` keeps `xor bx,bx` before the loop test where the original has `sub dx,0x119` first; `/Os` gives `C8`. Three spellings.
 
 verify.py re-run at the start of this round: green, 530 rows.
+
+### Round 20: the last untested units of the linear screen
+
+- `50b1:0008` (33 B, near, `ret 4`): three-way compare `a==b ? -1 : a<b ? 0 : 1`. Body and branch conditions match under `/Ox`; the original shares **one** epilogue (`eb 0b` / `eb 03` to a common `c9 c2 04 00`), MSC duplicates `c9 c2 04 00` in every arm (jump distances `75 07` vs `75 05`). Fifteen spellings (if/else chains, single `r`, `?:`, `register`) - shared-epilogue wall (SUMMARY: 'a shared epilogue where MSC duplicates it').
+- `2a2b:0008` (47 B, far, `retf 6`): `if (hi > x) while (hi > x) x += s; else if (s <= x) do x -= s; while (x >= s); return x;` - parameters `(x, hi, s)`. With that order the loads and loops match instruction for instruction; the first difference is again the shared `mov ax,bx; leave; retf 6` (`eb 0d` in the original, a duplicated epilogue in MSC). Seven spellings.
+- `2141:00a6` contains a `90` (pad wall); `10b7:0006` has `dec bx; dec bx` and `mov sp,bp; pop bp` (an epilogue MSC does not emit with `push si`) - not tried.
+
+State after round 20: every unit of the linear screen has a named wall. The ENTER-list and PENDING-list have no untested source-level lever left.
