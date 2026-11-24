@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 211: how much sits behind the doubling wall (no rows)
+Round 199 closed the doubling class with six source forms. This round tried six more
+(`(unsigned)x * 2`, `x - (-x)`, `(int)((long)x * 2)`, `x + (x)`, `(x << 1)`,
+`y = x; y * 2`) under both `/Os` and `/Ox` - **twelve compilations, twelve `D1 E0`**. The
+closure is as firm as an experiment can make it.
+
+Then measured the class instead of guessing at it: unmatched units whose bytes contain any
+`add reg,reg` doubling (`03 C0`, `03 D2`, `03 F6`, `03 FF`, `03 DB`, `03 C9`) number
+**199 units and 66 381 bytes - about 23 % of the remaining unverified own code**.
+
+That is an upper bound (some units double *and* carry another wall, and some hits are data
+bytes inside immediates), but it is far larger than any other class and it explains the shape
+of the pool: half the units that "nearly match" do so except for an index scale, which is
+exactly why so many PENDING rows are two bytes short.
+
+Also attempted `2b33:0006` (23 B), a far-pointer field subscript; it is blocked by both
+`les` and the doubling (`add si,si`), confirming the measurement from the other direction.
+
+Ledger 517 rows (unchanged), PENDING 39; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 210: parameter offsets measured, not reasoned (no rows)
 Round 209 stumbled on a parameter-offset mismatch and guessed at the cause. This round settled
 it by compiling `void f(int a, int b, int c)` in both conventions and dumping the object:

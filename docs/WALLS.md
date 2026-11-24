@@ -331,8 +331,10 @@ wall; a unit whose prologue is `56 57` may still match if the assignment is natu
 
 ### Doubling: `add reg,reg` is unreachable (round 199)
 
-Six source forms were compiled for `x * 2` - `x * 2`, `x + x`, `x << 1`, `y = x; y += y;`,
-`2 * x`, and `x * g` - and **all six** produce `D1 E0` (`shl ax,1`). MSC never emits
+Twelve compilations were made for `x * 2` - `x * 2`, `x + x`, `x << 1`, `y = x; y += y;`,
+`2 * x`, `x * g`, `(unsigned)x * 2`, `x - (-x)`, `(int)((long)x * 2)`, `x + (x)`,
+`(x << 1)`, and `y = x; y * 2` - under `/Os` **and** `/Ox`, and **all twelve** produce
+`D1 E0` (`shl ax,1`). MSC never emits
 `03 C0` (`add ax,ax`) for a doubling, in any context or under any flag.
 
 So this class - 37 units / 4 767 bytes in `BLOCKED.md` - is closed for this toolchain: the
@@ -366,3 +368,18 @@ at the end of a segment.
 So, like the doubling wall, this one is closed rather than open: the eleven PENDING rows whose
 sole remaining difference is a pad byte are not waiting for a flag, they are waiting for a
 different compiler. That distinction is now recorded in `docs/SUMMARY.md`.
+
+### How much sits behind it (round 211)
+
+Counting unmatched units whose bytes contain any `add reg,reg` doubling (`03 C0`, `03 D2`,
+`03 F6`, `03 FF`, `03 DB`, `03 C9`):
+
+**199 units, 66 381 bytes** - about **23 % of the remaining unverified own code**.
+
+That is an upper bound rather than a class size: a unit that doubles may be blocked by
+something else as well, and some of the matches are data bytes inside immediates. But the
+scale is the point - no other single behaviour comes close, and it makes the doubling idiom
+the largest known barrier in the binary.
+
+It also explains the shape of the remaining pool: half the units that "nearly match" do so
+except for an index scale, which is why so many of the PENDING rows are two bytes short.

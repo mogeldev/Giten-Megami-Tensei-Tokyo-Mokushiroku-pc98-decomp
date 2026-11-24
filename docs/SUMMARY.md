@@ -80,7 +80,8 @@ matching. `docs/WALLS.md` holds seventeen numbered walls with witnesses; the imp
 The 39 PENDING rows fall into two groups, and the difference matters:
 
 - **proven unreachable with MSC 7.0** - the pad byte (`90` inside a body, round 206), `add
-  reg,reg` doubling (round 199), `and` where MSC emits `test`, `mov si,[disp16]`, the
+  reg,reg` doubling (round 199/211: twelve source forms, twelve compilations, always `shl`,
+  and **199 units / 66 381 B - about 23 % of the remaining code** contain it), `and` where MSC emits `test`, `mov si,[disp16]`, the
   `bx=ax`-before-`es=dx` order, `inc`/`dec` switch chains. No source form and no flag reaches
   these; they would need a compiler closer to the original's;
 - **unexplained** - the rest, where the difference is understood but its cause is not yet
