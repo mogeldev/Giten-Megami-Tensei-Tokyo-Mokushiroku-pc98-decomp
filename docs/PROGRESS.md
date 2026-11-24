@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 173: the call-free global screen is exhausted (no rows, PENDING record)
+Screened for units with **no calls at all** that touch globals - the shape most likely to
+transcribe directly, since there is no prototype or calling-convention question. There are
+**eight**, and all eight carry a named wall:
+
+| unit | shape | wall |
+|---|---|---|
+| `3e5c:0006` (18 B) | `g == 1` compiled with `dec` | 9 (opcode choice) |
+| `3d91:0020` (17 B) | `return g < g` | 2 (return-path join) |
+| `1090:0007` (17 B) | value arrives in CX | 7 |
+| `2141:00b4` (14 B) | tail of a split function | 14 |
+| `4e9b:0008`, `39e9:000a`, `3dbb:0006`, `3f44:00eb` | long/segment/pointer work | 5, 11, 15 |
+
+`3d91:0020` was transcribed and is the **sixth** unit in the one-byte-branch-distance
+family - the same shape as `5026:013e`, now recorded as PENDING alongside it. That the
+entire "no calls, globals only" class is walled is a useful negative result: the remaining
+work really is dominated by compiler-internal choices, not by anything the source can
+express.
+
+Ledger 502 rows - MATCH 38, RELOCS 433, ASM 2, **PENDING 29**; verify and checkled
+green; own-code coverage 11 199 B (3.819 %).
+
 ## Round 172: the padding wall stated as one mechanism (no rows)
 Round 171 found the fifth unit with the same two-byte fingerprint, so this round wrote the
 mechanism down in `docs/WALLS.md` instead of leaving five separate "so close" notes.
