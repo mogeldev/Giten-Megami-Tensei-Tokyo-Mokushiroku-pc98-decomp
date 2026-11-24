@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 78: a scaled-divide relay (25 B) from a near-function sweep
+`crelay63.c` (`/Os`): `486e:000a` (25 B) - `h(a * b / 100);` in a near-Pascal
+function: `imul` by the second parameter, then a signed `idiv` by 100
+(`B9 64 00`, `99`, `F7 F9`).
+
+Found by sweeping the pool for functions that end in a **near** return
+(`C2 imm16`) rather than a far one - a direct application of round 77's rule. Only
+six unmatched near functions of 24-48 bytes exist, so the sweep was both cheap and
+targeted.
+
+The other five, and where they stand:
+
+- `5069:0004` (44 B) - a clamp. It comes out one byte short because MSC expands
+  `r += 2` on a register variable as a reload plus two increments
+  (`8B 76 04 46 46`) where the original emits `83 C6 02`; the branch distance
+  differs by exactly that byte.
+- `21ee:0008` (34 B) - `8E 06 <disp>`, the inlined-`MK_FP` class.
+- `4daa:0002` (30 B) - an indirect `call [bx+0x2C28]` through a word pointer table
+  after doubling the previous call's result; transcribable but the table type would
+  have to be guessed.
+- `230e:000a`, `385d:0002` - both mix far-pointer table indexing with 5-argument
+  calls and remain undecoded.
+
+Ledger 459 rows - MATCH 38, RELOCS 397, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 899 B (3.376 %)**.
+
 ## Round 77: near versus far, and a stored-back parameter (30 B)
 `crelay62.c` (`/Os`): `4db8:0006` (30 B) - `c = nc(a, b, c); h2(c, 0);` in a
 **near**-Pascal function: the call's result is stored back into the last parameter
