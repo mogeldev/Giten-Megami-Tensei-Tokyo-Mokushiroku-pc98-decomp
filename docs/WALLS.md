@@ -63,6 +63,12 @@ it to a frame slot. Examples: `122f:000c` (original stores `r` *earlier* than MS
 `1e38:0002` (original keeps the saved global in DX for ten statements and needs no
 frame at all).
 
+Round 129 added the `long` variant: `1c97:000c` keeps **halves** of two longs in
+registers across the calls - `r`'s low word in SI and `a`'s low word in DI, with only
+`r`'s high word spilled to `[bp-2]`. MSC allocates both longs as whole frame slots
+(`89 46 FC` / `89 56 FE`). A *partial* spill of a long has no MSC equivalent at all, so
+this is the strongest form of the wall.
+
 ## 6. Register reuse
 
 The original reuses a register once its value is dead (`a` in SI, then the result in SI

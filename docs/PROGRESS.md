@@ -1,5 +1,23 @@
 # PROGRESS
 
+## Round 130: full verification sweep and the long variant of wall 5 (no rows)
+Ran `tools/verify.py` without `--fast`: **483/483 rows ok** - MATCH 38, RELOCS 419,
+PENDING 24 - and `checkled.py` consistent. That is the second full sweep of the project
+(the first was round 107 at 476 rows), so every row added since then has now been
+rebuilt from source and re-matched against the image in one pass.
+
+Also folded round 129's finding into `docs/WALLS.md`: wall 5 (assignment persistence)
+has a `long` variant in which the original keeps **halves** of two longs in registers
+across calls while MSC allocates both as whole frame slots. A partial spill of a long
+has no MSC equivalent at all, which makes `1c97:000c` the strongest witness for that
+wall rather than an outlier.
+
+No new rows. One more large candidate remains undecoded (`50ff:000e`, 138 B, six
+parameters with address-of-argument passing); it is the last one above 100 bytes.
+
+Ledger 483 rows - MATCH 38, RELOCS 419, ASM 2, PENDING 24; verify (full) and checkled
+green; own-code coverage 10 600 B (3.615 %).
+
 ## Round 129: the largest remaining candidate decoded (no rows)
 `1c97:000c` (110 B) - the biggest no-wall unit in the pool - is now fully decoded:
 
