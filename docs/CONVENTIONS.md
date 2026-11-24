@@ -746,3 +746,19 @@ second it holds the previous call's leftovers.
 
 So when a unit ends in `8A E0`, the callee returns a **byte**, not a word - check the callee
 declarations before writing the shift.
+
+## A byte argument is only pushed unconverted when the callee declares `char`
+
+`return h(g_byte, a, 1);` compiles three different ways depending on **how the callee**
+declares its first parameter:
+
+| callee parameter | code for the byte | matches the image |
+|---|---|---|
+| `char` | `A0 <g>` / `50` - pushed as-is | **yes** (`2d49:0034`) |
+| `int` | `A0 <g>` / `98` (`cbw`) - sign-extended | no |
+| `int`, argument cast to `unsigned char` | `A0 <g>` / `2A E4` - zero-extended | no |
+
+So when a unit pushes a byte loaded from memory without any widening, the callee's
+prototype is the thing to fix, not the call site: declare the parameter `char` and the
+widening disappears. This is the mirror of the usual mistake (assuming the *argument*
+controls the conversion - it is the prototype that does).

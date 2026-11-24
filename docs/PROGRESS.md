@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 165: a row from where the `char` is declared (21 B)
+`2d49:0034` (21 B) is a three-argument call whose first argument is a global byte:
+
+    return h(g_9944, a, 1);
+
+Three compilations, three different widening behaviours, and only one matches:
+
+| callee's first parameter | the byte is | matches |
+|---|---|---|
+| `char` | `A0 <g>` / `50`, pushed as-is | **yes** |
+| `int` | `A0 <g>` / `98` (`cbw`, sign-extended) | no |
+| `int` with the argument cast to `unsigned char` | `A0 <g>` / `2A E4` (zero-extended) | no |
+
+So the fix was in the **callee's prototype**, not at the call site - the opposite of the
+usual instinct, and now recorded in `docs/CONVENTIONS.md` as a three-row table.
+
+The same screen that produced this (`segments with verified rows`, 16-34 byte units,
+excluding the register-pair family) also surfaced `37c1:0004` last round, so the filter is
+carrying its weight.
+
+Ledger **495 rows** - MATCH 38, RELOCS 427, ASM 2, PENDING 28; verify and checkled
+green; own-code coverage **10 999 B (3.751 %)**.
+
 ## Round 164: a table scan down to one byte (no rows, PENDING record)
 Picked `37c1:0004` (30 B) out of the small-unit screen and it turned out to be the closest
 unit found yet:
