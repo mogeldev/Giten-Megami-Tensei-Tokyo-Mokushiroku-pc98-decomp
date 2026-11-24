@@ -1,5 +1,33 @@
 # PROGRESS
 
+## Round 101: `/G0` fixes the frame; the nop padding is still the wall (no rows)
+Applied round 100's finding and measured its scope. Units whose image shows a **classic
+frame with locals** (`55 8B EC 83 EC nn`) and are still unmatched: **32 in total**, of
+which **10** are complete, call-bearing and free of `6A`. So the `/G0` correction is
+real but its reach is tens of units, not the hundreds a first reading suggested - the
+big "ENTER frame" class in `docs/BLOCKED.md` is about units where the *original* really
+does use `ENTER`, which is a different population.
+
+`1036:000c` (52 B) was worked to a single remaining difference:
+
+    long r, u;                    /* the unused-but-referenced second long reproduces the 8-byte frame */
+    r = h1();
+    if (!r) return 0;
+    h2(r, a, b, c, d, e);
+
+Under `/G0` this gives the right prologue (`83 EC 08`), the right long staging
+(`89 56 FE 0B D0`), the right pushes and the right teardown. All that differs is the
+**nop padding**: the original's `75 06 ... EB 19 90`, ours `75 05 ... EB 18`. Four
+optimizer settings were tried for the padding (`/Os`, `/Ot`, `/Ox`, `/Od`) and none
+emits it: `/Ot` widens the branch to `08`, `/Ox` drops the second local (back to a
+4-byte frame), `/Od` switches to `81 EC`.
+
+So the padding remains the single obstacle for this family, exactly as recorded in
+round 45 - and it now has a clean, otherwise-perfect test case attached to it.
+
+Ledger 473 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 10 264 B (3.501 %).
+
 ## Round 100: the frame is `/G0`, and it costs the 80186 pushes
 Chased the alternative-compiler thread into a **concrete flag finding** that corrects a
 standing conclusion.

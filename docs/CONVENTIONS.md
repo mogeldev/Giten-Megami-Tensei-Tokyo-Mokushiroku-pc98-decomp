@@ -601,3 +601,8 @@ pushes small literals with `6A` (`push imm8`), which `/G0` cannot encode: it emi
 
 Practical rule: compile units with locals under `/G0`, and check the image for `6A`
 before expecting a match.
+
+Scope note (round 101): of the unmatched units, only **32** have a classic frame with
+locals, and **10** of those are complete, call-bearing and free of `6A`. `/G0` therefore
+unlocks a few dozen units, not a few hundred - most `ENTER` usage in the image is the
+original's own choice, not a flag artefact.
