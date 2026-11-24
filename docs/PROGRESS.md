@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 242: a bounds-checked pointer return, two branch distances out (no rows)
+Applied round 238's near/far rule to a wider near-ret screen (20-100 bytes, pads allowed):
+six candidates, and the freshest one was transcribed - `42e8:006c` (35 B):
+
+    if (i < 0 || i >= 0x40) return 0;
+    return &g_866e[i];
+
+Two source shapes compiled. Under `/Ox` the body matches instruction for instruction and the
+only differences are **two branch distances**, each two bytes longer in the object - the
+tail-merging wall (16) again: the original jumps to a shared epilogue where MSC duplicates it.
+
+One detail worth keeping: the index scale is `C1 E0 02` (`shl ax,2`) in the original, which is
+what MSC emits too - so this unit is *not* behind the doubling wall, and would have been a row
+if the epilogue were shared.
+
+The wider screen itself is now down to five unworked candidates, all of which carry a pad, a
+port, a segment register or a duplicated epilogue. That is the honest state of the near-ret
+pool.
+
+Ledger 523 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 564 B (3.944 %).
+
 ## Round 241: a six-parameter dispatch, blocked at the register call (no rows)
 `4e58:0004` (51 B) is the last clean near-ret unit in the inventory and the most intricate
 shape worked recently: it makes **three** calls, the last two with six arguments each, and the
