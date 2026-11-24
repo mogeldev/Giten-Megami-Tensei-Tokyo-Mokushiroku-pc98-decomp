@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 214: a sibling family, blocked by the BX save (no rows)
+Narrowed round 212's clean pool to **30 single-call candidates** (no doubling, no zeroing, no
+segment or port work, exactly one call) and transcribed one - a function that overwrites a
+four-byte struct with the result of a call taking the struct's own fields:
+
+    *(long *)s = h(a, s->y, s->x);
+
+Everything after the prologue lines up: the two pushed fields come from `[bx]`/`[bx+2]`, the
+call is near, and the result is stored back with `89 57 02` / `89 07` in exactly that order.
+The difference is the very first instruction: the original **saves BX before pushing any
+argument** (`push bx` at offset 3), because the pointer is live across the call; MSC pushes
+the long argument first and only reaches for BX later.
+
+That is the register-allocation-by-lifetime rule again (round 193), now seen in a prologue
+rather than a loop - and it blocks a *family*: `119c:000c`, `119e:000c` and `11a0:000c` are
+three siblings of this shape that differ only in their call target, so a fix would produce
+three rows at once. None of them is matchable as things stand.
+
+Ledger 517 rows (unchanged), PENDING 39; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 213: evaluation order before pushes (no rows)
 Round 212's clean pool has **77 call-bearing candidates**; three were transcribed this round
 and all three are blocked, but one of them produced a rule.
