@@ -52,14 +52,24 @@ several traits. The final row is the set blocked by none of them.
 - The honest conclusion: this reconstruction is **complete as far as this
   toolchain allows**, at roughly 0.7 % of own code. Going further needs the
   original compiler generation, not more C variants.
+## MSC 6.0 toolchains produce no object - cause found (round 67)
 
-## MSC 6.0 toolchains produce no object (round 66)
+`toolchain/msc6i/BIN/CL.EXE` is **not a DOS program**: run under DOSBox it prints
+"This program cannot be run in DOS mode." (the 16-bit Windows / NE stub message).
+A header check over every CL.EXE in the tree:
 
-`toolchain/msc6i` and `toolchain/msc6c` both have a `BIN/CL.EXE` and `build.py`
-starts DOSBox, but nothing is written to `build/` - not even for a one-line probe,
-with full or minimal flags. MSC 7 in the same session compiles the same probe
-normally, so the problem is specific to those toolchains (missing phase binaries
-on the mounted drive, or a CL.EXE layout the launcher does not reproduce).
-Until that is fixed, the pre-MSC7 codegen questions (the `2B C0` zero idiom,
-`add reg,reg` doubling, padded jumps) cannot be answered by experiment, only by
-reading the original.
+| toolchain | CL.EXE size | format |
+|---|---|---|
+| msc7i | 71 680 | runs in DOSBox (the toolchain every verified row uses) |
+| msc6i | 29 859 | **NE (16-bit Windows)** - cannot run in DOS |
+| msc6b | 71 680 | PE header |
+| msc6c | 81 184 | MZ/DOS, but produces no object and no CL log |
+| msc51 | 31 329 | MZ but EXEPACK-packed (see the MSC 5.1 section) |
+
+So the pre-MSC7 codegen questions cannot be answered from `msc6i`/`msc6b` at all,
+and `msc6c` needs its launcher investigated.
+
+**The original MSC 6.0 distribution is present**: `toolchain/msc6_disks/DISK1..8.IMG`
+(8 x 1.2 MB floppy images). The DOS-hosted `CL.EXE`/`C1.EXE`/`C2.EXE` are almost
+certainly inside; extracting them into a fresh `toolchain/msc6dos` is the concrete
+next step for this line of investigation.

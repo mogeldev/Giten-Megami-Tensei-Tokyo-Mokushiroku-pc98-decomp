@@ -1,5 +1,37 @@
 # PROGRESS
 
+## Round 67: the MSC 6.0 failure diagnosed, and the original disks found (no new rows)
+Round 66 left the older-compiler route blocked. This round found **why**, and found
+the means to fix it.
+
+Running `toolchain/msc6i/BIN/CL.EXE` with its output captured prints
+
+    This program cannot be run in DOS mode.
+
+which is the 16-bit Windows (NE) stub message: that CL.EXE is a *Windows* hosted
+compiler, not the DOS one, so DOSBox can never build with it. A header check over
+every toolchain in the tree gives the full picture:
+
+| toolchain | CL.EXE | verdict |
+|---|---|---|
+| msc7i (what every verified row uses) | 71 680 B | runs |
+| msc6i | 29 859 B | NE, Windows - cannot run in DOS |
+| msc6b | 71 680 B | PE header |
+| msc6c | 81 184 B | MZ, but no object and no CL log |
+| msc51 | 31 329 B | MZ, EXEPACK-packed |
+
+**The original MSC 6.0 distribution is in the workspace**:
+`toolchain/msc6_disks/DISK1..8.IMG`, eight 1.2 MB floppy images. The DOS-hosted
+compiler binaries are almost certainly inside, so extracting them into a fresh
+`toolchain/msc6dos` (FAT12 read of the images) is the concrete next step - and it
+is the only remaining path to testing the `2B C0` / `add reg,reg` / padded-jump
+classes by experiment rather than by reading.
+
+MSC 7 remains working throughout (`build.py` compiles the probe, `verify.py` is
+green): this was a fault in the alternative toolchains, not in the harness.
+
+Ledger 455 rows (unchanged), PENDING 22; own-code coverage 9 796 B (3.341 %).
+
 ## Round 66: the older-compiler route is blocked at the toolchain (no new rows)
 The `sub ax,ax` class (round 65) is exactly the kind of thing an older compiler
 would emit, so this round tried to reach MSC 6.0 to test it. Result: the
