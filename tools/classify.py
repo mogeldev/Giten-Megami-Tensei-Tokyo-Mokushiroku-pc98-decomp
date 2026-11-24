@@ -26,6 +26,12 @@ TRAITS = [
                                                         b"\x03\xdb", b"\x03\xc9", b"\x03\xff")
                                             for i in range(len(b) - 1)),
      "`add ax,ax`-style doubling for `x * 2` - MSC 7 uses `shl`"),
+    ("ES from global", lambda b: b"\x8e\x06" in b,
+     "`mov es,[disp16]` - the original inlines `MK_FP(global, off)` and addresses "
+     "through ES; MSC 7 calls the `MK_FP` helper and then does `mov es,dx`"),
+    ("far pointer in DS:BX", lambda b: b"\xc5\x5e" in b or b"\xc5\x5f" in b,
+     "`lds bx,[bp+..]` - the original keeps a far pointer in DS:BX across a loop "
+     "and tests it with `mov ax,ds; or ax,bx`; MSC 7 keeps it in the stack frame"),
     ("split far-pointer load", lambda b: b"\x8e\x46" in b or b"\x8e\x4e" in b,
      "`mov es,[bp+xx]` loading only the segment half of a far pointer - blocked trait"),
     ("chkstk preamble", lambda b: b"\xb8\x00\x00" in b and b"\x9a" in b,

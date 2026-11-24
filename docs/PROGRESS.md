@@ -1,5 +1,34 @@
 # PROGRESS
 
+## Round 30: two more classes mapped, unclassified down to 44 KB (0 new rows)
+Three transcription attempts landed on generation-specific codegen, so the round
+went into the map instead:
+
+- `1b17:0002` (75 B) - `long f(struct N __far *p)` with a list-maximum loop.
+  Everything matches except that the original loads the pointer **once into
+  DS:BX** (`C5 5E 04`) and tests it with `mov ax,ds; or ax,bx`, while MSC 7 keeps
+  it in the stack frame and reloads `C4 5E 04` each iteration. `register` on a far
+  pointer parameter changes nothing.
+- `1b74:000e` (68 B) and the earlier `3141:0002` - `MK_FP(variable_segment, off)`
+  with a field access. The original inlines it as `8E 06 <disp>` (`mov es,[g]`)
+  plus `26 <op> 44/47 xx`; MSC 7 calls the `MK_FP` helper and then does
+  `mov es,dx`. Source shape is settled for both:
+  `long f(int a, int b) { long r = h3(a,b,0); if (r == 0) return 0; ((struct P __far *)MK_FP(g_97dc, nc2(a,b)))->n++; return r; }`.
+
+New blocker classes in `tools/classify.py`:
+
+| class | units | bytes |
+|---|---|---|
+| ES from global (`8E 06`, inlined `MK_FP`) | 69 | 7 927 |
+| far pointer in DS:BX (`C5 5E`/`C5 5F`) | 7 | 749 |
+
+`docs/BLOCKED.md` regenerated: 13 classes, and the "unclassified" bucket - the
+only place new rows can still come from - is down from 922 units / 50 096 bytes
+(round 24) to **859 units / 44 452 bytes**.
+
+Ledger 429 rows - MATCH 38, RELOCS 367, ASM 2, PENDING 22 (unchanged); verify and
+checkled green; own-code coverage 8 588 B (2.929 %).
+
 ## Round 29: a flag-guarded cdecl relay (42 B) and a build hazard
 `crelay39.c` (flags `/G0 /AM /Gs /Os`): `13ad:000a` (42 B) -
 `long r; g_5284 = 1; r = h6(a,b,c,d,e,f); g_5284 = 0;`. Three details decide it:
