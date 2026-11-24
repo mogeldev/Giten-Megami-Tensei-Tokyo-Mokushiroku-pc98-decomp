@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 99: the LINK /F idea does not yet explain the miss (no rows)
+Tried to substantiate round 98's link-time hypothesis and could not. A sweep of the
+image shows folded calls (`0E E8`) only where the callee is in the **same** code
+segment; units whose callees are elsewhere keep `9A` - `34b7:001c`'s image is
+`75 07 9A ... EB 05 9A ...`, and its displacements are self-consistent against the
+five-byte `9A`. A shrink can therefore only affect units with in-segment callees, and
+no matched row has yet been found where a branch crosses a folded call - which is
+exactly the case that would decide whether LINK repairs the displacement. Until one
+turns up, `13d5:000c` stays an **unexplained one-byte miss**, and the note in
+`docs/CONVENTIONS.md` now says so instead of presenting the idea as a finding.
+
+Two more screens produced nothing usable:
+
+- complete relay units (18-60 B, no walls): exactly **one** unit (`1233:000e`), an
+  interrupt wrapper;
+- if/else shapes with two far calls: 14 units, but ten of them open with an `ENTER`
+  frame (`C8 xx xx xx`) and the rest are long-arithmetic or tail-call constructions.
+
+The pool of matchable shapes is now genuinely exhausted for this compiler: what
+remains is either a named wall or code this compiler does not generate.
+
+Ledger 473 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 10 264 B (3.501 %).
+
 ## Round 98: `13d5:000c` decoded, with a one-byte displacement puzzle (no rows)
 Worked the 96-byte character dispatcher from round 97. Its structure is now clear:
 

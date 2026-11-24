@@ -565,3 +565,13 @@ number of folded calls it jumps over cannot be reproduced by any source - the ob
 file would have to be linked with `/F` (or the displacement repaired) and then
 compared. Keep these in mind before classifying a one-byte branch miss as padding or
 scheduling.
+
+**Status of that hypothesis (round 99):** unproven. A sweep of matched rows shows that
+folded calls (`0E E8`) only appear where the callee is in the *same* code segment -
+units calling another segment keep `9A`, e.g. `34b7:001c`'s image is
+`... 75 07 9A ... EB 05 9A ...`, whose displacements are all self-consistent against
+the 5-byte `9A`. So a shrink can only affect units whose callees are in-segment, and
+no matched row has yet been found where a branch crosses a folded call, which is what
+would settle whether LINK adjusts the displacement. Until such a row exists, treat
+`13d5:000c` as an unexplained one-byte miss rather than as evidence for a link-time
+effect.
