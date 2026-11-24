@@ -6,11 +6,14 @@ original image.
 
 ## Results
 
+*(snapshot at round 209; `tools/report.py` regenerates the current numbers into
+`docs/STATUS.md`)*
+
 | | |
 |---|---|
-| ledger rows | **512** (MATCH 38, RELOCS 436, ASM 2, PENDING 36) |
-| verified against the image | **474** |
-| own code matched from source | **11 260 bytes of 293 211 (3.840 %)** |
+| ledger rows | **517** (MATCH 38, RELOCS 438, ASM 2, PENDING 39) |
+| verified against the image | **476** |
+| own code matched from source | **11 351 bytes of 293 211 (3.871 %)** |
 | code functions inventoried | 2 523 |
 | unmatched units classified into walls | 1 402 across 20 classes |
 
@@ -63,7 +66,7 @@ matching. `docs/WALLS.md` holds seventeen numbered walls with witnesses; the imp
   the original is older still (unoptimised selection, classic frames, 80186 encodings).
 - **A different linker** would change nothing: `verify.py` compares objects with relocations
   masked, and `/FARCALLTRANSLATION` is already modelled.
-- **Nothing source-level** reaches the seventeen walls. The 36 PENDING rows are the proof:
+- **Nothing source-level** reaches the seventeen walls. The 39 PENDING rows are the proof:
   their C is recovered and every one misses by one to six bytes of compiler choice, re-
   testable in one command via `tools/recheck.py`.
 

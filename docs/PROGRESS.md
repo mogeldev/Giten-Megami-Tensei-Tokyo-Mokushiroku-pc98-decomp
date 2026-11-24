@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 209: the summary audited against the ledger (no rows)
+`docs/SUMMARY.md` was written at round 195 and its four headline numbers had gone stale by six
+rows. Audited it against the ledger and `tools/coverage.py`: **517 rows** (MATCH 38, RELOCS
+438, ASM 2, PENDING 39), **476** verified, **11 351 of 293 211 bytes (3.871 %)**. The PENDING
+counts in the prose were updated too, and the file now says it is a snapshot with
+`tools/report.py` as the live source.
+
+Then tried one more candidate from the large-unit screen, `19a3:000a` (79 B) - a flag
+dispatch:
+
+    if (flags & 2) r = 1;
+    else if (flags & 8) r = h1(a, flags, c);
+    else if (flags & 4) r = h2(a, flags, c);
+    else r = h3(a, flags, c);
+
+A plain local gives an `ENTER` frame (the original has none), and a `register` local fixes
+that but the parameter MSC tests is at `[bp+08]` where the original tests `[bp+06]` - a
+pascal argument-order difference I could not resolve in the round. Not recorded: the C is not
+settled.
+
+The audit is the substantive part. A stale summary is worse than none, because it is the one
+document a reader is invited to trust without checking.
+
+Ledger 517 rows (unchanged), PENDING 39; verify and checkled green; own-code
+coverage 11 351 B (3.871 %).
+
 ## Round 208: MSC 6.0 has stopped working in this environment (no rows)
 Tried to re-open the "is the original compiler pre-6.0?" question by rebuilding the doubling
 test with MSC 6.0 - if 6.0 emitted `add reg,reg`, the original would plausibly be a 5.x-era
