@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 81: two cdecl-list candidates narrowed (no new rows)
+Working round 80's cdecl list, two units came close:
+
+- `21ec:0004` (36 B) - `if (!nc(a)) { cdp(g_1200); h2(1); }`. Every byte matches
+  except the cleanup: the original emits `83 C4 04` after the cdecl call, MSC 7
+  emits `8B E5` in this position (and the branch distance follows). That is the
+  context-dependent cleanup class from round 54 - confirmed here, not solved.
+- `200d:0006` (42 B) - `p = (char __far *)cd(x, 1); if (!p) return 0; g_5ba++;
+  return p;`. Four transcriptions (far pointer, near pointer, `register` on each)
+  bracket the shape: the *near-pointer* version with a plain `register` local gets
+  the prologue (`55 8B EC 56`), the cleanup (`83 C4 04`), the register staging
+  (`8B F0`) and the DGROUP return segment (`8C DA`) all right, and differs only in
+  the null test - the original ORs the offset with the call's segment half
+  (`0B F0`, testing the full far value) where MSC tests the offset alone
+  (`0B F6`) - plus the branch distance that follows from it.
+
+So `200d:0006` is a one-instruction miss with a fully documented cause: the older
+compiler tests a far pointer in a way MSC 7 will not.
+
+Ledger 460 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 926 B (3.385 %).
+
 ## Round 80: a six-unit family mapped, blocked by register roles (no new rows)
 Turned round 79's cdecl rule into a search: 21 unmatched units of 20-64 bytes contain
 a cdecl cleanup (`83 C4 <n>`). Six of them are one family -
