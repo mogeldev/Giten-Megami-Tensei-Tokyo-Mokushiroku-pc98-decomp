@@ -516,3 +516,13 @@ Everything else in `11a2:000c` was solved on the way: the pointer is a *near*
 pointer and the callee is `__far __fastcall`, which reproduces the whole body
 (`8B 07` / `8B 57 02` / `8B 4E 08` / call / `89 07` / `89 57 02`) - only the
 `push bx` / `pop bx` pair around it is out of reach.
+
+## Small constant arguments: `68 06 00` versus `6A 06`
+
+MSC 7 pushes a small literal argument with the 80186 short form (`6A 06`), even
+under `/G1`. The original sometimes uses the long form (`68 06 00`) for the same
+value - `41e7:000a` passes `h(0x4827, 6, a)` and differs in exactly that one byte.
+Four formulations were tried (plain, `(char)`, `6L`, `0x0006`) and all give `6A`; only
+routing the value through a variable changes it, and then to `B8 06 00` / `50`
+(`mov ax,6` / `push ax`), which is not the original either. Note the original does use
+`6A` elsewhere in the image, so this is a per-site choice, not a compiler-wide habit.

@@ -1,5 +1,27 @@
 # PROGRESS
 
+## Round 89: three more candidates closed, one new narrow class (no new rows)
+Worked the last untried units from round 87's widened screen:
+
+- `4dca:000c` (28 B) - the inventory **cuts the function mid-instruction** (`90 0E E8`
+  with no displacement). It is a fragment, like the 237 units already classified that
+  way, and cannot be a row at that size.
+- `31dd:0008` (27 B) - `h2(h1(a, h0()))`. The original calls `h0()` **before** pushing
+  `a`, MSC 7 pushes `a` first and then evaluates the call: the argument-evaluation
+  order class from round 38, confirmed on another unit.
+- `41e7:000a` (22 B) - `h(0x4827, 6, a)`. Only one byte differs: MSC pushes the small
+  literal with the 80186 short form (`6A 06`) where the original uses `68 06 00`.
+  Four formulations (plain, cast to `char`, `6L`, `0x0006`) all give `6A`; routing the
+  value through a variable gives `B8 06 00` / `50` instead, which is no closer. The
+  original does use `6A` elsewhere, so this is a per-site choice - recorded in
+  `docs/CONVENTIONS.md` as a narrow, named reference difference.
+
+No rows this round, but the widened screen is now fully triaged: every unit in it is
+either a row, a fragment, or one of the named walls.
+
+Ledger 472 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 10 239 B (3.492 %).
+
 ## Round 88: a long-result relay (29 B)
 `crelay68.c` (`/Os`): `2193:000c` (29 B) - `h1(-1); h3(h2(a), a);`. Three things had
 to line up and each was one of the existing levers:
