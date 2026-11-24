@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 137: the CX cache survives `/Ox` in short functions (no rows)
+Round 135 showed `/Ox` makes MSC cache a selector in CX - but only in a *large*
+function. Two short units tried this round show the limit:
+
+- `1e1e:002a` (27 B) - `if (x > 0xFF) return h(x); return x;`. Under `/Os` MSC compares
+  the frame slot twice; under `/Ox` it keeps the value in **SI** (`push si` in the
+  prologue), not CX. Two source shapes were tried (early-return and `if/else` with a
+  register result) and both give the SI form.
+- `2ad6:000a` (34 B) - `if (!a && !b) return 0; return h(b, a);` returning a `long`.
+  Same result: `/Os` compares memory, `/Ox` uses SI, the original uses **CX**
+  (`8B 4E 06` / `0B C1`).
+
+So the "CX-staged value" class splits in two: in `1f45:00b0` (59 B, a long-taking
+selector routine) `/Ox` produces the CX form and the unit matches; in functions of
+30 bytes or less MSC reaches for SI instead. The difference looks like register
+pressure, not a flag, so short CX-staged units stay blocked.
+
+Ledger 487 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 136: the `/Ox` win applied to the next CX-staged unit (no rows)
 Followed round 135 by transcribing `1e1e:002a` (27 B), the other CX-staged unit I had a
 candidate source for. Under `/Ox` it is now **two differences** from a row, and they are
