@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 204: the second function inside the mis-cut window (no rows, PENDING record)
+Round 203 matched the first 27 bytes of `1ab4:000c` and left the remaining 45 bytes as a
+separate function. Transcribing that one gives
+
+    if (g_536e != 0 && g_536e != -1) h(g_536e);
+    g_536e = 0;
+    h3((char __far *)&g_9950, (char __far *)&g_9b18, (char __far *)&g_9b10);
+
+and it is blocked by exactly one thing: the original **caches the state word in DX** (`8B 16
+6E 53` / `0B D2`) and tests the register twice, while MSC compares the global twice (`83 3E`)
+or, with a `register` copy, reaches for SI. Three shapes were compiled and all three give
+MSC's form. Everything else - the far-pointer triples, the final call, the store of zero -
+lines up.
+
+That is the same DX-versus-AX choice as `2141:00a6` (round 123), so this unit joins the
+PENDING set at `1ab4:0028` (the second function's true start, 44 bytes) with the diagnosis
+written down.
+
+Worth noting for the ledger's own sake: a row at a VA that is not a unit start is accepted by
+`verify.py` and `checkled.py` - which is what makes mis-cut windows recoverable at all.
+
+Ledger 516 rows - MATCH 38, RELOCS 438, ASM 2, **PENDING 38**; verify and checkled
+green; own-code coverage 11 351 B (3.871 %).
+
 ## Round 203: a mis-cut window becomes a row (27 B)
 Round 202 left `1ab4:000c` (72 B) unexplained: everything matched except the `if (g_536c)` arm,
 whose branch distance was one byte out. Disassembling it properly showed why - there is a
