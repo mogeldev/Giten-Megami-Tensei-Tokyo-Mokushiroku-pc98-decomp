@@ -800,3 +800,10 @@ New lever from round 26 (bit-fields) and a second one found here: **make the loc
 - `3813:0000` (50 B): `volatile unsigned x; unsigned d; x=a; d=(unsigned char)x&0x0f; x ^= ((a>>4)^a)&0x0f; x ^= ((unsigned char)x^(d<<4))&0xf0; return x;` reaches `+0x11` (frame, `x` store, `dl` load and `and dx,0f` all right); the original then uses CX for the shift (`mov cx,ax; shr cx,4`), MSC uses AX re-loaded from `[bp-2]`. Eight spellings.
 
 The family is now **one instruction** from a row on `3809:0000` and two on `3813:0000`; the remaining diffs are register/operand choices (wall 6 / 'memory operand where MSC prefers a register'). `380d:000c` shares the scaffold.
+
+### Round 28: nibble family, flags and operand steering
+
+- `3809:0000`: the one-instruction gap (`xor ah,[bp-1]` vs `mov ch,[bp-1]; xor ah,ch`) survives **eleven more spellings** and a flag sweep (`/Ox` + `/Oa /Ol /Ot /Oi /Oe /Ow /Gc`; `/Os` and `/Ot` alone lose the frame at +0x1). A second `volatile` (on `d`), a `volatile unsigned char *` view, byte casts and `& 0xff` all keep the extra `mov`. Only `/Ox` with one `volatile` local reaches +0x15.
+- `380d:000c` (56 B): same lever reaches **+0x11**; there the original keeps the staged nibble in **DX** (`mov dx,ax` / `xor ch,ah` order) where MSC puts it in BX (`mov bx,ax`). Eight spellings (extra local, `register`, split shifts); register naming (wall 6), no source lever found.
+
+Standing: `3809:0000` is 1 instruction from a row, `380d:000c` ~3, `3813:0000` 2. The remaining differences are operand-form / register-choice questions that depend on MSC's allocator state, which no spelling here has moved.
