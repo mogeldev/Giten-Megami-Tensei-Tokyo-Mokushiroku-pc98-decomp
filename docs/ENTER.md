@@ -42,7 +42,7 @@ only **eight**, and those are the ones to work first - they are marked "clear" b
 | `3831:0004` | 40 | open |
 | `3833:000c` | 40 | open |
 | `3dd5:0008` | 40 | open |
-| `477b:0000` | 40 | open |
+| `477b:0000` | 40 | MATCHED (round 7) |
 | `221a:000a` | 42 | open |
 | `330d:001a` | 42 | open |
 | `3ddb:000c` | 42 | open |
