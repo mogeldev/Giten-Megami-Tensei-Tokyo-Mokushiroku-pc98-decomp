@@ -1,5 +1,41 @@
 # PROGRESS
 
+## Round 250: the session's shape, written down (documentation round)
+Six rounds left, so this is the note that says what the last 250 rounds actually did - not as a
+list of commits but as an account a reader can check against the ledger.
+
+**What grew.** The ledger went from a handful of calibration rows to **523** (MATCH 39, RELOCS
+444, ASM 2, PENDING 38), covering **11 645 of 293 211 own bytes (3.972 %)** across **483**
+verified functions. Every row is rebuilt from source by `tools/verify.py`; the last full sweep
+(round 250) is clean.
+
+**What was learned that outlives the rows.**
+
+- Twenty-one numbered walls in `WALLS.md`, each with witnesses, and eight of them *measured*:
+  doubling (199 units / 66 381 B, proved unreachable), the register cache (41 / 5 378 B), BX
+  (9 / 672 B), the pad byte (proved unreachable), narrowing, `les`, segments, string ops.
+- The declaration facts: pascal numbers parameters backwards; a `char` parameter costs a slot
+  and a `cbw`; **near vs far is readable from the parameter offset** - and that last one turned
+  two previously-failed transcriptions into rows unchanged.
+- The screening facts: `ENTER`-framed units are clear of the frame wall; a `ret` mid-unit means
+  the window spans two functions; a `57 56` prologue cannot be reproduced.
+
+**What the tooling does.** `dis.py` (a real 8086 decoder), `match.py` (byte comparison with
+relocation masking), `verify.py` (rebuilds every row; `--fast` samples), `checkled.py` (sizes,
+sources, duplicates), `recheck.py` (re-tests 13 PENDING rows across five flag sets in a minute),
+plus `probe.py`, `reuse.py`, `cutwin.py`, `regsweep.py`, `classify.py`, `report.py`,
+`coverage.py`, `nextup.py`, `omfdump.py`.
+
+**What it cost to learn.** Three wrong conclusions from hand-decoding; two false "matches" caught
+by the size rule; one duplicate-row incident caught by `checkled.py`; one environment regression
+(MSC 6.0) documented instead of worked around. Each is in the notes with its round number.
+
+That is the honest summary: a modest percentage, a large map of why it is not higher, and a
+method that a successor can run without re-deriving anything.
+
+Ledger 523 rows (unchanged), PENDING 38; verify (full) and checkled green; own-code
+coverage 11 645 B (3.972 %).
+
 ## Round 249: duplicated bodies tested and ruled out (no rows)
 Round 248 found two units with identical bytes and noted that a working transcription would
 have paid twice. That suggests a mechanical question: **is any unmatched unit byte-identical to
