@@ -1,5 +1,20 @@
 # PROGRESS
 
+## Round 49: a fastcall tail and a long sum (76 B)
+`crelay55.c` (`/Os`), two rows:
+
+- `3bfc:0004` (38 B) - `r = h1(); h4(a, b, 0, 0); return h2(r);`. The tail call
+  is **`__fastcall`**: `8B C6` loads the argument into AX immediately before the
+  far call with no push. This is the third distinct way the same tell has paid off
+  (rounds 20, 37 and here) - a value moved into AX right before a call is an
+  argument, never a leftover.
+- `2a43:0004` (38 B) - `h6(a + b, c, d, e, g);`: two long parameters summed with
+  `03`/`13` (add/adc) and the result pushed as the first argument (high word
+  first), followed by four ints.
+
+Ledger 451 rows - MATCH 38, RELOCS 389, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 525 B (3.249 %)**.
+
 ## Round 48: a nested two-argument relay (27 B)
 `crelay54.c` (`/Os`): `388d:0006` (27 B) - `h2b(h2(a, a), 0);`, the inner call's
 result serving as the outer first argument, with the parameter `register` so both
