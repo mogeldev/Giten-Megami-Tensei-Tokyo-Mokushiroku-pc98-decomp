@@ -708,3 +708,20 @@ local is the only way to move it - parameters themselves are allocated before lo
 
 The load-then-`or` order is still fixed by MSC (it uses whichever operand is already in a
 register as the base), so `20f9:000c` remains two bytes out even with the DI fix.
+
+### The rule is not purely declaration order either (round 161)
+
+Two more data points were collected on the same day:
+
+| unit | declaration | assignment order | result |
+|---|---|---|---|
+| `3a3d:0006` | `register int r, a;` | `a` first, `r` second | `a` -> DI, `r` -> SI |
+| `3877:0000` | `register int a, b;` | `b` first, `a` second | `b` -> SI, `a` -> DI |
+
+The first row is consistent with "first declared goes to SI" **and** with "first assigned
+goes to DI"; the second row is consistent with neither. So the assignment is decided by
+something else again - most likely by lifetime (the value that must survive a call gets a
+callee-saved register) - and the practical rule stands as: **try both declaration orders
+and both assignment orders** for any unit that turns on a register choice. `tools/regsweep.py`
+covers parameter subsets; the local ordering still has to be done by hand, and two units is
+not enough to state a law.

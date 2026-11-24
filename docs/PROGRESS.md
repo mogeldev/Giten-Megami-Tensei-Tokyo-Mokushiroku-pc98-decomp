@@ -1,5 +1,34 @@
 # PROGRESS
 
+## Round 161: the register rule slips again (no rows)
+Continued through the `55 8B EC 57 56` family with `3877:0000` (41 B):
+
+    h2(h1(b, a, c, b, a, c, d));        /* seven arguments, then a nested call */
+
+with `a` from the first parameter and `b` from the second, both in registers. Under `/Ox`
+the unit is **two bytes from a row**, and they are the register assignment: the original
+loads `di` from the second parameter and `si` from the first, MSC does the reverse.
+
+Trying both declaration orders and both assignment orders produced a contradiction with
+round 160's row:
+
+| unit | declaration | assignment order | result |
+|---|---|---|---|
+| `3a3d:0006` | `register int r, a;` | `a` first | `a` -> DI |
+| `3877:0000` | `register int a, b;` | `b` first | `b` -> SI, `a` -> DI |
+
+The first is consistent with "first declared goes to SI" and with "first assigned goes to
+DI"; the second fits neither. So the allocation is probably driven by **lifetime** - the
+value that has to survive a call gets the callee-saved register, which is why the round-160
+row worked with `r` (survives two calls) in SI and `a` (an argument) in DI.
+
+That is now written down as the practical rule: for a unit that turns on a register choice,
+try both declaration and both assignment orders, and expect lifetime to decide. Recorded in
+`docs/CONVENTIONS.md` with the two data points, explicitly marked as not yet a law.
+
+Ledger 492 rows (unchanged), PENDING 27; verify and checkled green; own-code
+coverage 10 930 B (3.728 %).
+
 ## Round 160: the DI trick pays a row (28 B), and a second unit down to two bytes
 Round 159's "move a parameter into DI" recipe was applied to the 15 units with a
 `55 8B EC 57 56` prologue, and the first one matched:
