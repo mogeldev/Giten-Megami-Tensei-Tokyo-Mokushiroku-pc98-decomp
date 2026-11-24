@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 156: a no-frame comparison getter, two bytes short (no rows, PENDING record)
+Widened the "near matched code" heuristic to segments with at least one verified row and
+sorted by size, which surfaces much smaller units. `5026:013e` (17 B) is the simplest
+candidate found so far:
+
+    int __near __cdecl f(void) { return g_3950 < g_3952; }
+
+No frame at all (it opens with `A1`, not `55 8B EC`), two direct global reads and one
+comparison. Two details had to be right:
+
+- the comparison is **`<`, not `>`** - the natural reading gives `jge` where the original
+  has `jle`, and only the inverted source reproduces the branch;
+- it is `__near __cdecl`, so the return is `CB`.
+
+Under `/G1 /Ox` exactly **two bytes** remain: the original's first branch jumps over a
+`33 C0` to a shared return (`B8 01 00 EB 02 33 C0 CB`), while MSC returns directly and
+pads (`B8 01 00 C3 90`). That is wall 2's duplicate-epilogue form, the same one that
+`13d5:000c` shows.
+
+Recorded as a PENDING row. Also noticed along the way that `2141:00a6` and `2141:00b4`
+are two halves of one 28-byte function that `units.csv` split - the second half starts
+with the `jmp`/`nop` that made the first half look truncated.
+
+Ledger 491 rows - MATCH 38, RELOCS 424, ASM 2, **PENDING 27**; verify and checkled
+green; own-code coverage 10 902 B (3.718 %).
+
 ## Round 155: another unit down to two bytes (no rows, PENDING record)
 Continued the "look near matched code" heuristic on `20b4:0130` (27 B, from a segment with
 three verified rows):
