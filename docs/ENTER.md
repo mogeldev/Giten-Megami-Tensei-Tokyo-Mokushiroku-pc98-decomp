@@ -720,3 +720,9 @@ Screen: ENTER-framed, 20-140 B, not in the ledger, ends in a return, no `90`/far
 
 - `3f44:00bc` (91 B, far; the table says 47 - cut window, the function ends at `retf 2` at `0x58`): removes every entry equal to the argument from an int array of length `g_n` by shifting the tail down, then returns the new length. Four spellings reach the same loops under `/Ox`; the first miss is the index scale (`03 F6` `add si,si` in the original, `D1 E6` in MSC) - the doubling wall, on a 91-byte unit.
 - `3809:0000` (48 B): with a `union` of word and two bytes the structure is right (one two-byte local, two XORs into it, byte loads of the high half) and the first difference is `mov ax,[bp+4]` (original) vs `mov cx,[bp+4]` (MSC) - register naming (wall 6) again. Twelve compilations with `/Ox`, `/Ot`, `/Oa`, `register`: same.
+
+### Round 18: screen with near calls allowed (35 units), three read in full
+
+- `2b3e:0002` (82 B, far, `retf 6`): `r = {-80,-80}; if (s <= 0 && s >= -4) { r.x = -(g_a[-s]*k); r.y = g_b[-s]; } return r;` returning a 4-byte struct through a hidden pointer. Same loads, `imul [bp+0xa]`, `neg` and stores as MSC, but the original builds the word offset with `mov ax,bx; add ax,bx; sub si,ax` and MSC with `shl bx,1` - the doubling wall; second difference is the order `mov bx,[bp+6]` / `mov dx,[bp-2]` before the stores. Three spellings.
+- `430b:0004` (68 B, near): subtracts `min(n, len)` from a byte field of the 4-byte record at 0x866E and calls `H(i,-1,-1)` when it reaches zero. Index scale is `shl bx,2` in the original (so no doubling problem here); misses are `C8` vs `55` and `57 56` vs `56 57` - the byte field read through BX and `si` kept as the result across the call. Six spellings incl. bit-field.
+- `1ef8:000c` (67 B): a longer nibble-mixing routine returning a pointer to its own frame (`mov ax,si; mov dx,ss`), of the same family as `3809:0000` (wall 6).
