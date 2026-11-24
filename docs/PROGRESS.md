@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 91: the diagnostic harness was broken - a correction, not a row
+While trying a fourth screen (call-free setters, 37 units) the `--run` diagnostics came
+back empty again, and this time the cause is identified: **`build.py --run` never ran
+the given command.** It appended the normal `CL.EXE` line unconditionally and used the
+flag only to skip the object check, so rounds 70-71's conclusion that the DOS MSC 6.0
+driver "produces no object and cannot be observed" was measured through a harness that
+ignored the request. That conclusion is withdrawn as stated.
+
+`build.py` now substitutes the command for the CL line; the harness is verified end to
+end (`echo X > E:\BUILD\E.TXT` creates the file, and `; echo` after a compiler run
+proves the compiler returned). Re-running the DOS MSC 6.0 driver with a working harness
+still yields no object and no stdout/stderr capture, but two caveats keep that
+inconclusive: compiler messages go to the console (MSC 7 behaves the same under
+redirect), and a hung shell can still leave files behind - one run created its marker
+and then timed out.
+
+Also screened this round: `4d98:000a` (MSC narrows `(a + b) & 3` to byte arithmetic
+where the original stays 16-bit), `4344:000e` (correct 4-byte element scaling, but
+`2A E4` / `8A 87` come in the opposite order), `141f:0000` / `1420:000f` / `1466:0052`
+(the original gives even an empty function a full frame; MSC `/G0` emits only
+`CA 0A 00`). No rows.
+
+Ledger 472 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 10 239 B (3.492 %).
+
 ## Round 90: a branch-tolerant screen, two more walls (no new rows)
 Third screen: units with at most one branch, no known wall, 20-52 bytes. Two fresh
 candidates transcribed, both blocked on habits already named, but with a new detail:

@@ -88,8 +88,14 @@ def main():
         lines.append(f"cd {a.cd}")
     if not a.no_dpmi:
         lines.append("HDPMI32")
-    lines.append(f'C:\\{a.msc_dir}\\BIN\\CL.EXE /c {a.flags} /Fo{obj} {src_f} '
-                 f'> D:\\BUILD\\{base}.CL.TXT')
+    if a.run:
+        # diagnostic mode: run the given command instead of CL (round 91: the
+        # earlier --run never replaced the CL line, so its "no output" results
+        # said nothing about CL itself)
+        lines.append(a.run)
+    else:
+        lines.append(f'C:\\{a.msc_dir}\\BIN\\CL.EXE /c {a.flags} /Fo{obj} {src_f} '
+                     f'> D:\\BUILD\\{base}.CL.TXT')
     conf = "[cpu]\r\ncycles=max\r\n[autoexec]\r\n" + "\r\n".join(lines) + "\r\nexit\r\n"
     with open(CONF, "w", encoding="ascii", newline="") as f:
         f.write(conf)

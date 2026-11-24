@@ -92,3 +92,25 @@ binaries are md5-identical to the known-good copies, and `CL /c` with the MSC6DO
 toolchain still yields no object. The next probe must therefore capture CL's
 output *inside* the program run (e.g. have CL write its own log with `/Zs` style
 options or check `CL`'s exit code via `if errorlevel`), not via shell redirection.
+
+### Correction (round 91): the `--run` harness was broken, so the earlier "no output" evidence is void
+
+`build.py`'s `--run` mode never actually ran the supplied command: it appended the
+normal `CL.EXE ...` line unconditionally and only used the flag to skip the object
+check. Every diagnostic that concluded "the DOS MSC 6.0 driver produces no object and
+cannot be observed" (rounds 70-71) was therefore run through a harness that ignored
+the request - it says nothing about `CL.EXE` itself. `build.py` now substitutes the
+command for the CL line, verified with `--run "echo X > D:\BUILD\E.TXT"` (the file
+appears).
+
+With the harness working, `C:\MSC6DOS\BIN\CL.EXE /c /AM /Gs /Os /Fo... ...` still
+produces no object file and writes nothing to stdout or stderr (`2>` redirect
+included), while control does return to the shell - a `; echo done > D:\BUILD\D.TXT`
+after it creates the marker. Two caveats that keep this inconclusive rather than
+negative: CL's messages go to the *console* (MSC 7's `CL.EXE /badflag` likewise leaves
+no redirectable log), and a run that hangs the shell for the full 120 s timeout can
+still have produced its files (the marker test did).
+
+Next step on this thread is therefore not "does CL write a log" but a run that makes
+the driver fail visibly - e.g. a deliberately undefined symbol with `/Zs` (syntax
+check only), whose `error C2xxx` line would have to appear somewhere.
