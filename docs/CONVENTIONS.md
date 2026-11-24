@@ -270,3 +270,12 @@ self-path reference in the binary. Assumption: data read at runtime;
 clarify via the loader routines, `extract_*` tool if needed.
 
 **Build stamp in the binary:** `DDS98 date=%s, time=%s` (linear `0x59038`).
+
+## Comment hazard in calibration sources
+
+MSC 7 aborts **silently** (no object, no `CL.TXT`) if a comment ends early. Do not
+write a slash-prefixed flag immediately before an asterisk in a comment:
+`**/G0**` contains `*/`, so the comment closes there and the rest is parsed as C.
+Write flags unadorned (`G0`) or outside emphasis. This looks identical to the
+known MSC 7 crash class, so check the comment first when a new source fails with
+"no OBJ produced" and no log.

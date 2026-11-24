@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 29: a flag-guarded cdecl relay (42 B) and a build hazard
+`crelay39.c` (flags `/G0 /AM /Gs /Os`): `13ad:000a` (42 B) -
+`long r; g_5284 = 1; r = h6(a,b,c,d,e,f); g_5284 = 0;`. Three details decide it:
+
+- the callee is **cdecl**, so the six arguments are pushed right to left and the
+  caller does not pop them (the epilogue is a bare `retf`);
+- the build is **/G0**, which gives the `8B E5 5D` epilogue instead of `leave`;
+- the never-read **`long` local** is what reserves the four bytes behind the
+  initial `83 EC 04` - removing it loses the `sub sp,4` entirely.
+
+**Build hazard found (cost half an hour):** the first version of the file had
+this comment: `the build is **/G0** (the epilogue ...)`. The `**/` in `**/G0**`
+closes the comment early, so `G0** (the epilogue...` was parsed as C. The compiler
+aborted *silently* - no object, no `CL.TXT` log - which looks exactly like the
+known MSC 7 crash class. Rule for the calibration sources: never write a
+`/`-flag immediately before a `*` inside a comment; keep flags unadorned
+(`G0`, not `/G0`) or outside `**` emphasis.
+
+Ledger 429 rows - MATCH 38, RELOCS 367, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage 8 588 B (2.929 %).
+
 ## Round 28: an unprototyped call (41 B) and the CX-staging class
 `crelay38.c` (`/Os`): `1fc8:0074` (41 B) -
 `if (h(a, 0, 0) == -1L) h2(g_013a, 0x4F);`. The callee is **unprototyped**, and
