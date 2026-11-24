@@ -661,3 +661,11 @@ Nine further spellings of `3813:0000` (plain, `volatile` local, union, byte poin
 ### Round 2: 47c8:000a (48 B, far, clears 11 words after +0x2c and counts the non-zero ones)
 
 Twelve spellings (array/pointer, `register`, do-while, spare local; `/Ox`, `/Os`). `/Ox` gives the right loop and `C8 02` with a spare local, but keeps the count in DI and the counter in CX; the original counts in CX and loops on DI, and emits `xor cx,cx` before the argument loads. `/Os` spills everything to the frame. Same register-naming wall (CX is MSC's scratch); not recorded.
+
+### Round 5: four of the shortest open units, all walled
+
+- `1ff9:000a` (24 B): `les ax,[bp+6]` + `mov ax,es` into a local - MSC folds the high word to `mov ax,[bp+8]` under every flag set (nine spellings: cast, `FP_SEG`, union, `volatile`). Not reachable.
+- `3edc:000e` (28 B): `(*g(n)) >> 6` with a far callee. Right code except `mov bx,ax` / `mov es,dx` come in the opposite order (HOWTO 4.8).
+- `3a24:0006` (26 B): `g(n)->v = 0` - the original keeps the offset in SI (HOWTO 4.9); MSC uses BX.
+- `3a5c:0004`, `1e9f:0004`, `35ec:0098`: contain `90 0E E8` / far-call relays; not tried this round.
+- Note: the *open* column of this table is stale for at least `4332:0048` (already a ledger row, crelay95.c); check MATCHING.md before starting a unit.
