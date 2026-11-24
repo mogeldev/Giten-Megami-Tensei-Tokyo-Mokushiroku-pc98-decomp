@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 66: the older-compiler route is blocked at the toolchain (no new rows)
+The `sub ax,ax` class (round 65) is exactly the kind of thing an older compiler
+would emit, so this round tried to reach MSC 6.0 to test it. Result: the
+alternative-toolchain route is currently **unusable**, not merely untested.
+
+- `toolchain/msc6i` and `toolchain/msc6c` both contain `BIN/CL.EXE`, and `build.py`
+  starts DOSBox and runs it, but **no object is produced** - not for the target
+  source and not for a three-line `int f(int a) { return a + 1; }` probe, with
+  either `/G1 /AM /Gs /Os` or the minimal `/AM /Os`.
+- `toolchain/msc51` is documented in `docs/GAP.md` as EXEPACK-packed and unrunnable.
+- MSC 7 itself is unaffected: the same probe compiles and dumps correctly
+  (`55 8B EC 8B 46 06 40 C9 CA 02 00`), so this is not an environment regression.
+
+So the `sub ax,ax` / `add reg,reg` / padded-jump classes cannot be tested against
+MSC 6.0 until that toolchain actually builds, and the honest status of the
+"alternative compiler" line of the objective remains: **MSC 7 is the only compiler
+this workspace can run**.
+
+Ledger 455 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 796 B (3.341 %).
+
 ## Round 65: two more classes named (no new rows)
 Both came out of probing units that had failed before for reasons I had assumed
 rather than proven.
