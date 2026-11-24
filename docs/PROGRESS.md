@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 80: a six-unit family mapped, blocked by register roles (no new rows)
+Turned round 79's cdecl rule into a search: 21 unmatched units of 20-64 bytes contain
+a cdecl cleanup (`83 C4 <n>`). Six of them are one family -
+`1f35:0000`, `1f37:000c`, `1f3a:0008`, `1f3d:0004`, `1f40:0000`, `1f42:000c`, all
+44 bytes, differing only in the pointer constant they pass:
+
+    push di / push si; si = b; ax = c; h1(c);
+    push ax; push ds:<const>; push a; push si; di = a; h3(...); add sp,10
+    ax = si; dx = di; return            ; the long (a, b)
+
+so each is `h3(h1(c), g_<const>, a, b); return ((long)a << 16) | b;` with `b` in
+**SI** and `a` in **DI**. That is the reversed register-parameter assignment from
+round 36 (`a` is declared first but lands in DI): MSC gives the first register
+parameter SI, so no source order reproduces it while keeping the stack offsets.
+
+Transcribing one member confirmed the whole shape (`cbg1.c` matches everything except
+the staging and the return), which means the remaining five need no further analysis -
+they are the same unit with different constants. 264 bytes total, all blocked on the
+same 2-byte lever.
+
+Ledger 460 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 926 B (3.385 %).
+
 ## Round 79: cdecl argument order, and the round-13 puzzle solved (27 B)
 `crelay64.c` (`/Os`): `1dfc:00fa` (27 B) - `h2(cd(b, a) + 1);`, where the cdecl call's
 arguments are written in the *reverse* of the push order. The result is incremented
