@@ -653,3 +653,7 @@ and none has closed it.
 The family stays open and documented. It is a good example of a candidate that is *understood*
 and not *reproducible*, which is the category the project has spent its last forty rounds
 mapping.
+
+### Round 1 of the new session: nine more shapes, no change
+
+Nine further spellings of `3813:0000` (plain, `volatile` local, union, byte pointer, scoped temporary; `/Od /Ox /Os`) never gave the original's `mov [bp-2],ax` then `mov dl,[bp-2]` start. MSC either drops the local (`55 8B EC`, no `C8`) or loads the parameter byte-wise. Same two walls (6, 19); family stays open.
