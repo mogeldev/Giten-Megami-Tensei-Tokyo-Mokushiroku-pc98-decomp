@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 77: near versus far, and a stored-back parameter (30 B)
+`crelay62.c` (`/Os`): `4db8:0006` (30 B) - `c = nc(a, b, c); h2(c, 0);` in a
+**near**-Pascal function: the call's result is stored back into the last parameter
+slot (`89 46 04`) and forwarded as the first word of the next call.
+
+The one thing that had to be right is the frame: the unit ends `C9 C2 06 00`, i.e.
+`ret 6` (near), not `CA` (far). My first transcription read it as far and came out
+with three push offsets each two bytes too high - everything else matched. That rule
+is now in `docs/CONVENTIONS.md`: when every parameter offset is two bytes off, check
+the return opcode before rewriting the parameter list.
+
+Two other candidates were examined and blocked:
+
+- `1e1e:002a` (27 B) - `if (x <= 0xFF) return x; return h3(x);`. The original keeps
+  the value in **CX** for both the compare and the return (`8B 4E 06`, `81 F9 FF
+  00`, `8B C1` twice); MSC 7 compares the frame slot directly and never caches a
+  parameter in CX, in signed, unsigned, and `register` variants alike.
+- `1e1e:0008` (33 B) - a struct-returning call whose `struct L { int lo, hi; }`
+  parameter and return can be transcribed, but MSC 7's `__pascal` struct return
+  refuses to compile in this shape (silent abort, no object and no log - the known
+  symptom).
+
+Ledger 458 rows - MATCH 38, RELOCS 396, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 874 B (3.368 %)**.
+
 ## Round 76: a field-forwarding pair (24 B)
 `crelay61.c` (`/Os`): `2b8b:000e` (24 B) - `h1(); h2(p->f6);`, a no-argument call
 followed by a call forwarding a far pointer's field (`C4 5E 06` load, `26 FF 77 06`

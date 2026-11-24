@@ -484,3 +484,12 @@ compile it with `/Zp1` before assuming the structure is wrong.
 (The same unit still differs afterwards in two swapped instructions - the original
 emits `8B D8` / `8E C2` (`bx = ax`, then `es = dx`) where MSC emits the segment load
 first - so packing alone is not always enough.)
+
+## `C2`/`CA` decide the frame: near versus far
+
+`4db8:0006` ends `C9 C2 06 00` - `leave`, then `ret 6`, i.e. a **near**-Pascal
+function. Reading that byte as `CA` (far `ret imm16`) shifts every parameter offset
+by two (near return address 2 bytes, far 4), which is what made the first
+transcription differ at three push offsets while looking otherwise perfect. When the
+parameter offsets in a unit are all two bytes lower than expected, check the return
+opcode before touching the parameter list.
