@@ -6,6 +6,44 @@ which round.
 
 # PROGRESS
 
+## Round 262: MSC 5.1 unpacked and running, both older compilers swept - one row, no new walls moved
+**MSC 5.1 now runs.** `tools/unexepack.py` (new) unpacks the EXEPACK'd compiler passes offline,
+which sidesteps the missing `LOADFIX`. Two bugs on the way, both caught by validating rather
+than trusting the "ran without error" result: the run-length word is stored little-endian, and the
+bytes before the first command are raw, not zero - C2's first attempt left 148 KB of zeros and
+only the entry-point check (`B4 30 CD 21`, the DOS version call) exposed it. All four passes now
+decode with `src == dst` at the stop and a valid MZ. They are genuinely **Microsoft C 5.10,
+Feb 29 1988** (read from the binaries). Assembled as `toolchain/msc51u` (not published).
+
+**The question it answers:** does an older generation emit the original's idioms?
+| construct | MSC 5.1 | MSC 6.0 | MSC 7.0 | original |
+|---|---|---|---|---|
+| `x * 2`, `x + x`, `x << 1` | `D1 E0` | `D1 E0` | `D1 E0` | `03 C0` |
+| `g = 0; return g;` | `C7 06 g 00 00` then `2B C0` | `2B C0 A3 g` | `33 C0 A3 g` | `2B C0` family |
+| frame, no locals, `/G1` | `C8 00 00 00` (ENTER 0) | `55 8B EC` | `55 8B EC` | `55 8B EC` |
+| frame, one local, `/G1` | `C8 02 00 00` | `C8 02 00 00` | `C8 02 00 00` | `C8` |
+| frame, `/G0` | `55 8B EC .. 5D` | same | `55 8B EC .. 5D` | `55 8B EC .. 5D` |
+
+**Doubling is `shl` on all three generations (1988, 1990s, 1992).** The 199-unit / 66 KB wall is
+not a 7.0 artefact: no MS C available here emits `add reg,reg`. So the original used something
+this family cannot produce, and that class is closed for good with the toolchains in hand.
+
+**The sweep.** `tools/oldsweep.py` (new) recompiles every `src/calib` and `src/pending` source
+(492 objects, 1,173 symbols) under each older compiler and flag set, and matches every symbol
+against every unmatched unit and every return-bounded slice of larger units. Result for both
+MSC 6.0 and MSC 5.1: **one candidate, the same one** - `159d:1c33`, a 7-byte
+`mov word [0x00A2],1 ; ret`, identical on all three compilers - so it was always reachable with
+7.0, and the sweep found it only because it re-examines slices the earlier probe skipped
+(`probe.py` ignores slices under 12 bytes). Added as a row. The 12 pending sources match none
+under 5.1 or 6.0.
+
+**What this closes.** The "try an older compiler" line of the objective is now answered for
+5.1 and 6.0 by experiment, not by reading: neither reaches doubling, the pad byte or the register
+choices. What remains unexplored is any compiler that is not Microsoft C 5.1-7.0.
+
+Ledger **525 rows** - MATCH 39, RELOCS 446, ASM 2, PENDING 38; verify and checkled green;
+own-code coverage **11 681 B (3.984 %)**.
+
 ## Round 261: first zeroing-class row via MSC 6.0 work (2b2e:0000), and what 6.0 did not change
 Screened for zeroing-class units clear of the other known walls (<=80 B, no doubling, port or
 segment work): **six** exist. Worked four on both compilers.

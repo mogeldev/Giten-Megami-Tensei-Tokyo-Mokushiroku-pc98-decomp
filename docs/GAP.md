@@ -252,3 +252,12 @@ What 6.0 does differently from 7.0 (measured round 260, `/AM /G1 /Gs /Os`):
 So 6.0 **does** reach the `sub ax,ax` zeroing class that 7.0 cannot, and **does not** reach the
 doubling class (the 199-unit wall holds on a second compiler generation). Rounds 140-146's
 "MSC 6.0 behaves like MSC 7" was true for the doubling and the frame, false for zeroing.
+## Round 262: MSC 5.1 unpacked; three compiler generations compared
+
+`tools/unexepack.py` unpacks the EXEPACK'd MS C 5.10 (Feb 1988) passes, so 5.1 now builds
+(`--msc-dir MSC51U --no-dpmi`; the directory is local and not published). Measured with the same
+sources on 5.1, 6.0 and 7.0: **doubling is `D1 E0` on all three** (the original uses `03 C0`);
+5.1 emits `ENTER 0` (`C8 00 00 00`) under `/G1` even for a function with no locals, where 6.0/7.0 emit
+`55 8B EC` (the original uses `55 8B EC`, so 5.1 is the wrong generation for the frame); a plain-`int`
+zero return is `2B C0` on 5.1 and 6.0 but `33 C0` on 7.0. `tools/oldsweep.py` re-sweeps every calibration and pending
+source under an older compiler: one new candidate in total, reachable with 7.0 as well.

@@ -33,6 +33,8 @@ Screening helpers:
 | `tools/recheck.py` | re-test the PENDING rows in one pass (`tools/pending.txt` lists them) |
 | `tools/regsweep.py` | generate every `register`/signedness combination for a template and match them all |
 | `tools/coverage.py` | coverage arithmetic |
+| `tools/unexepack.py` | unpack an EXEPACK'd MZ executable (how MSC 5.1 was made runnable) |
+| `tools/oldsweep.py` | rebuild every calibration/pending source under an older compiler and look for new unit matches |
 
 ## Reading a new candidate
 
