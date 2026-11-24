@@ -18,8 +18,11 @@ IMG = open(os.path.join(ROOT, "..", "giten", "DDS98", "DDS98.EXE"), "rb").read()
 
 
 def ends_ret(c):
+    # any `ret imm16` / `retf imm16`, not just the zero-pop forms (round 110: the
+    # earlier `c[-2] == 0` test rejected retf 2 / retf 4 / ... and made complete
+    # functions look cut)
     return (c.endswith(b"\xc3") or c.endswith(b"\xcb")
-            or (len(c) >= 4 and c[-3] in (0xCA, 0xC2) and c[-2] == 0 and c[-1] == 0))
+            or (len(c) >= 4 and c[-3] in (0xCA, 0xC2)))
 
 
 def main():
@@ -31,21 +34,31 @@ def main():
     done = {int(m.group(1), 16) * 16 + int(m.group(2), 16)
             for m in re.finditer(r"^\|\s*([0-9a-f]{4}):([0-9a-f]{4})\s*\|", led, re.M)}
 
+    def first_ret(base, limit):
+        # Round 110: scan from the unit start for the first return, rather than
+        # extending from the window end.  A return *inside* the window means the
+        # function is complete (the window merely overshoots), which the earlier
+        # forward-extension version mis-reported as a cut.
+        for n in range(3, limit):
+            c = IMG[base:base + n]
+            if ends_ret(c):
+                return n
+        return None
+
     out = []
     for lin, (va, size) in units.items():
         if lin in done or lin in crt or size < 10:
             continue
         b = IMG[lin - 0x10000: lin - 0x10000 + size].rstrip(b"\x90")
-        if b[:3] != b"\x55\x8b\xec" or ends_ret(b):
+        if b[:3] != b"\x55\x8b\xec":
             continue
-        for extra in range(1, 65):
-            body = IMG[lin - 0x10000 + 3: lin - 0x10000 + size + extra]
-            if b"\x55\x8b\xec" in body:
-                break
-            cand = IMG[lin - 0x10000: lin - 0x10000 + size + extra].rstrip(b"\x90")
-            if ends_ret(cand) and len(cand) > len(b):
-                out.append((len(cand), va, size))
-                break
+        if first_ret(lin - 0x10000, size) is not None:
+            continue                      # complete inside the window
+        real = first_ret(lin - 0x10000, size + 64)
+        if real is not None and real > size:
+            body = IMG[lin - 0x10000 + 3: lin - 0x10000 + real]
+            if b"\x55\x8b\xec" not in body:
+                out.append((real, va, size))
 
     out.sort()
     print(f"# {len(out)} units whose window cuts the function ({sum(o[0] for o in out)} B)")

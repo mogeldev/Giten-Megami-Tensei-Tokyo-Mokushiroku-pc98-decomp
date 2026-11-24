@@ -1,5 +1,36 @@
 # PROGRESS
 
+## Round 110: my ad-hoc scans had a bug - the unclassified pool is 160 units, not 11
+Working round 109's cut-window list, `41e7:000a` refused to classify. The cause was in
+the *scan scripts I have been writing all along*, not in the tools: their
+`ends at a return` test was
+
+    c[-3] in (0xCA, 0xC2) and c[-2] == 0 and c[-1] == 0
+
+which only accepts `retf 0`. Every function ending `retf 2` / `retf 4` / `retf 6` /
+... was therefore treated as *not ending at a return* and silently skipped. With the
+test fixed to accept any `ret imm16`:
+
+- the "complete, unclassified prologue units" list goes from **11 to 160**;
+- round 109's cut-window count goes from **84 to 13 units (931 B)** - most of the
+  earlier list were simply functions whose final `retf n` the scan did not recognise.
+
+`tools/cutwin.py` now carries the corrected predicate and the first-return-from-start
+logic (it previously extended forward from the window end, which also mis-reported
+windows that merely overshoot a complete function).
+
+The 160-unit list is the real remaining pool and it is roughly fifteen times what the
+previous screens suggested. That does not mean 160 rows are available - the traits still
+apply - but it does mean several rounds of candidates were never even looked at.
+
+One such candidate was tried: `29ef:0007` (21 B) - `*p += v; return (v << 1) & 1;` with
+the pointer declared first (`f(int __far *p, int v)`). MSC constant-folds the mask to
+zero (`33 C0`) where the original emits `D1 D0` / `83 E0 01`, so it is blocked on
+folding, not on structure.
+
+Ledger 477 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 361 B (3.534 %).
+
 ## Round 109: a cut-window row, and 83 units behind the same mistake (34 B)
 `crelay71.c` (`/G1 /AM /Gs /Os`): `4dca:000c` (34 B) - `h3(h2(h1(c, d, a, b)), 1);`.
 
