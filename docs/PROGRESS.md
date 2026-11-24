@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 54: cdecl argument order and cleanup form corrected (no new rows)
+`2d9b:0002` (85 B) came close - a global-flag init unit
+(`if (!(g_1bee | g_1bec)) { cd6(...); g_1bec = 1; g_1bee = 0; h3(...); }`) - and the
+work on it corrected two beliefs rather than producing a row:
+
+1. **cdecl arguments push right to left.** The original pushes the four ints and
+   then the far pointer, so the pointer is the *first* argument in the source
+   (`cd6(g_1bf2, g_1be8, g_1bea, g_1bec, g_1bee)`), not the last. With that fixed
+   the push sequence matches byte for byte.
+2. **The cdecl cleanup form is context dependent.** An earlier note claimed an
+   unprototyped callee always gives `8B E5`; a minimal check disproves it - a
+   prototyped cdecl call with no locals gives `83 C4 06`, as the original does.
+   MSC 7 switches to `mov sp,bp` for calls inside a continuation block
+   (`2d9b:0002`, `1dfc:0116`), where the original keeps `add sp,<n>`.
+
+The remaining mismatch in `2d9b:0002` is exactly that cleanup byte pair plus the
+register allocation MSC does around it, so the row stays blocked - but both
+corrections are in `docs/CONVENTIONS.md` now and apply to every cdecl call site in
+the pool.
+
+Ledger 453 rows (unchanged this round); verify and checkled green; own-code
+coverage 9 615 B (3.279 %).
+
 ## Round 53: the `+ 1` guard idiom (33 B)
 `crelay57.c` (`/Os`): `42ac:000a` (33 B) - `if (fc(a) + 1) h1(a); else h2(a);`. The
 guard compiles to `inc ax` / `jz` - the idiom for testing a call result against

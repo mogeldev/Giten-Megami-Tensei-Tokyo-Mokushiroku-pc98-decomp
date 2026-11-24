@@ -355,3 +355,24 @@ What no source formulation reaches (older-compiler artefacts, catalogued in
 `docs/BLOCKED.md`): `ENTER` frames, `2B C0` zeroing, `add reg,reg` doubling,
 jump-merge booleans with `xor ax,ax`, the `or reg,ax` peephole, nop-padded jumps,
 frames on functions with no locals, and reversed register-parameter assignment.
+
+## cdecl cleanup: `add sp,N` versus `mov sp,bp`
+
+Correction to an earlier note: MSC 7 does **not** always use `mov sp,bp` for cdecl
+cleanup. A minimal check (`cd3(1,2,3)` with a prototype, no locals) produces the
+expected `83 C4 06`, exactly like the original. MSC switches to `8B E5` in other
+contexts - e.g. when the call sits inside a block that continues afterwards
+(`2d9b:0002`, `1dfc:0116`) - while the original keeps `83 C4 <n>` there. So the
+cleanup form is context dependent, and a cdecl call site inside a longer function
+is a likely mismatch even when everything else lines up.
+
+## cdecl argument order is right to left
+
+For a `__cdecl` callee MSC pushes the **last** parameter first. When the original
+pushes a far-pointer argument last (`... 1E 68 <disp> 9A`), the pointer is the
+**first** parameter in the source, not the last:
+
+    cd6(g_1bf2, g_1be8, g_1bea, g_1bec, g_1bee)   /* pushes g1bee ... g1be8, then p */
+
+The `83 C4 0C` afterwards confirms six words of arguments, which is only reachable
+with the pointer counted once.
