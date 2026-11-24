@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 142: MSC 6.0 available, and it does not help (no rows)
+Round 141 concluded that the DOS 6.00A compiler sits on DISK8 behind KWAJ compression,
+and that unpacking it was the next step. Before writing a KWAJ decoder, one check was
+worth making: is MSC 6.0 already available elsewhere. It is - **`toolchain/msc6c` compiles
+fine** (`--msc-dir MSC6C --no-dpmi`), and that is what the round-55 profile work used.
+`msc6dos` was simply one of the non-DOS distributions and can be ignored.
+
+So the experiment ran immediately, on the units whose only difference is a scratch
+register:
+
+| unit | MSC 7 /G0 /Os | MSC 6.0 /G0 /Os | MSC 7 /G0 /Ox | MSC 6.0 /G0 /Ox |
+|---|---|---|---|---|
+| `2a28:0000` | AX | AX | AX | AX |
+| `2a29:000c` | AX | AX | AX | AX |
+
+The original wants **DX**. Both compilers give AX under both optimizers, so MSC 6.0 is
+not the generation that built this binary either - which matches round 55's conclusion
+that it predates MSC 6.0.
+
+That closes the "try another compiler" avenue for the walls that matter: MSC 5.1 is the
+only older Microsoft C here and it cannot be made to run (round 92), and DISK8 contains
+no 5.x toolchain to justify a KWAJ decoder after all.
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 141: the MSC 6.0 driver works - the compiler passes are the wrong platform (no rows)
 Round 140 installed the DOS driver and it still did nothing. This round found out why,
 and the answer overturns two earlier conclusions:

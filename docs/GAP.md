@@ -190,3 +190,26 @@ decompresses to a stream beginning `KW`, i.e. Microsoft **KWAJ** compression, wh
 So the next step on this thread is concrete: teach the extractor KWAJ, unpack DISK8's
 `CL.EX$` and `C1L/C2L/C3L`, and the DOS 6.00A compiler should finally run - which is the
 toolchain most likely to explain walls 3, 4, 6, 7 and 9.
+
+### Round 142: MSC 6.0 is available after all - and behaves like MSC 7
+
+The round-140/141 investigation was chasing the wrong disk. `toolchain/msc6c` **works**
+(its `CL.EXE` plus DOS passes compile objects with `--msc-dir MSC6C --no-dpmi`, which is
+how round 55's `/G0` `/Od` profile work was done). `msc6dos` is simply one of the
+non-DOS distributions and can be ignored.
+
+So the alternative-compiler experiment does not need DISK8 unpacked. Running it:
+
+| unit | MSC 7 `/G0 /Os` | MSC 6.0 `/G0 /Os` | MSC 7 `/G0 /Ox` | MSC 6.0 `/G0 /Ox` |
+|---|---|---|---|---|
+| `2a28:0000` | AX (differs) | AX (differs) | AX (differs) | AX (differs) |
+| `2a29:000c` | AX (differs) | AX (differs) | AX (differs) | AX (differs) |
+
+The original wants **DX**. Both compilers give AX, under both optimizers, so MSC 6.0 is
+not the generation that built this binary either - consistent with round 55's conclusion
+that it predates MSC 6.0 (unoptimised instruction selection plus a classic frame).
+
+That closes the "try another compiler" avenue for the walls that matter: MSC 5.1 remains
+the only older Microsoft C available here, and its extraction cannot yet be made to run
+(round 92). Unpacking DISK8 is therefore only worth doing if a DOS *5.x* toolchain turns
+up on it - it does not.
