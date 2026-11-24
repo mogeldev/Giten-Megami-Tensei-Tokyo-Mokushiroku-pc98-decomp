@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 39: a far-pointer base in ES:BX (46 B) and the DX/BX allocation class
+`crelay46.c` (`/Os`): `37fc:000e` (46 B) - `h1(nc2(nc(n, n)->f4)); h2(n); h3(n);`
+in a near-Pascal function. The far pointer returned by the first call is used
+directly as a struct base and stays in ES:BX; introducing a local for it makes
+MSC 7 switch to an `ENTER` frame, so the working formulation is one nested
+expression.
+
+**New class: DX/BX register allocation.** `2a28:0000` and `2a28:...`-style clamps
+(`if (b > a) return a; if (c < a) a = c; return a;`, 28 B, signed and unsigned
+twins `2a28:0000` / `2a29:000c`) show the original keeping `a` in **DX** and `b` in
+**BX** (`8B 56 0A` / `8B 5E 08` / `3B DA`), while MSC 7 addresses both from the
+frame (`8B 46 0A` / `39 46 08`). `/Ox`, `/Ot` and `/Os` all give the frame form,
+so this is the older compiler's optimiser choosing DX/BX, not a flag.
+
+`37ef:000c` (29 B) was also probed: a bit-clear in a 0x34-byte record table
+(`6B 5E 06 34`, `21 87 36 6E`); MSC 7 reproduces the addressing but keeps the
+operands in a different order, same class.
+
+Ledger 440 rows - MATCH 38, RELOCS 378, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage 8 968 B (3.059 %).
+
 ## Round 38: a sibling pair (67 B) and the argument-evaluation-order class
 Two rows, both from re-using verified shapes:
 
