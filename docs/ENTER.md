@@ -791,3 +791,12 @@ Also read, not tried: `43b0:0200`/`43d2:000a` (`es:` byte flag clears - decoder 
 ### Round 26: 2d7d:0042 matched
 
 Two adjacent one-bit fields of a far global written from one parameter. `g.c = 1 - v; g.b = v;` with `unsigned v` reproduces the original's `mov al,0xFF / sub al,bl / shl al,6` complement staging; `!v`, `~v` and `v ^ 1` do not. Lesson: for a bit-field written from the *complement* of a parameter, `1 - v` is the spelling MSC compiles to `sub` from an immediate in AL. Worth trying on other bit-field writes in the unmatched pool (`3809:0000` family does not use it).
+
+### Round 27: the nibble family, closer than ever (3809:0000, 3813:0000)
+
+New lever from round 26 (bit-fields) and a second one found here: **make the local `volatile`**. That forces the original's frame-resident `x` (`mov [bp-2],ax` right after `enter`) and its AX-based loads that every earlier spelling lost to CX/BX.
+
+- `3809:0000` (48 B): `volatile unsigned x; unsigned d; x = a; d = (x >> 8) & 0x0f; x ^= ((x ^ (x >> 8)) & 0x0f) << 8; x ^= ((unsigned char)x ^ d) & 0x0f; return x;` matches **all but one instruction**: the original does `mov ah,[bp-2]; xor ah,[bp-1]` (memory operand), MSC emits `mov ah,[bp-2]; mov ch,[bp-1]; xor ah,ch`. First diff at +0x15 (`32` vs `8A`). Fourteen spellings; the memory-operand xor was not reproduced by byte casts, `& 0xff` masks or a byte-union.
+- `3813:0000` (50 B): `volatile unsigned x; unsigned d; x=a; d=(unsigned char)x&0x0f; x ^= ((a>>4)^a)&0x0f; x ^= ((unsigned char)x^(d<<4))&0xf0; return x;` reaches `+0x11` (frame, `x` store, `dl` load and `and dx,0f` all right); the original then uses CX for the shift (`mov cx,ax; shr cx,4`), MSC uses AX re-loaded from `[bp-2]`. Eight spellings.
+
+The family is now **one instruction** from a row on `3809:0000` and two on `3813:0000`; the remaining diffs are register/operand choices (wall 6 / 'memory operand where MSC prefers a register'). `380d:000c` shares the scaffold.
