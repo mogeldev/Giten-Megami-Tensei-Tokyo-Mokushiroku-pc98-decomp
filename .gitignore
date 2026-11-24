@@ -3,3 +3,5 @@ __pycache__/
 *.log
 tools/.disasm.log
 build/
+# derived from the game image: literal bytes from the original binary, kept local
+ground_truth/strings.csv
