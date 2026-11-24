@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 248: a two-unit sibling pair, one segment register out (no rows)
+Found and transcribed a pair of **byte-identical units** - `1df5:0008` and `1dfc:0066`, both
+39 bytes - which skip leading whitespace through a far pointer:
+
+    while (*p == '	' || *p == ' ' || *p == '
+') p++;
+    return p;
+
+Two source shapes compiled. Under `/Ox` the object matches for seven bytes and then differs in a
+single register: the original addresses the string through **ES** (`8E 46 08`, `26 80 3F xx`),
+MSC through **DS** (`8E 5E 08`). Everything else - the three character tests, the `jmp` back, the
+far-pointer return in DX:AX - is identical.
+
+So the pair is blocked by the segment-register choice, which is the same family as the `BX`
+wall: the compiler picks which segment register to reload and no declaration changes it.
+
+The pair is worth noting for a second reason: two units with *identical bytes* means the
+original had two functions with the same body, and one source shape would have paid two rows.
+That is the third such pair the project has found (`1ec4:0126` / `2b2c` were another).
+
+Ledger 523 rows (unchanged), PENDING 38; verify and checkled green; own-code
+coverage 11 645 B (3.972 %).
+
 ## Round 247: a handoff document (documentation round)
 Wrote **`docs/HANDOFF.md`** - the practical guide the project has been missing: prerequisites,
 the five-command loop that produced the rows, the verification order (`--fast` while iterating,
