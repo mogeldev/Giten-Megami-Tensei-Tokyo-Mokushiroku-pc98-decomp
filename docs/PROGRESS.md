@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 171: a lazy initialisation, and another padding witness (21 B)
+`3c09:0006` (21 B):
+
+    if (!g_1934) g_1934 = h(0x100, 2);
+
+A near cdecl function with no parameters and no locals, which is why it has no frame at all
+and starts with `83 3E` (compare a global against an immediate). Both spellings of the
+guard (`!g` and `g == 0`) produce byte-identical code, so it matched on the first compile.
+
+Also tried `1fe2:000a` (21 B), the `if (g_9b30) { ...; return -1; } return 0;` shape. It is
+**two bytes** short and the two bytes are the branch distance across the padding in
+`B8 FF FF EB 03 90 33 C0` - the same late-peephole form as `3cd1:02f2` and `2e68:000c`,
+now a **fifth** witness. All five are the same shape: a constant assigned on one path, a
+jump over the other path's constant, a `90` in the gap.
+
+Revising the wall's description is the next round's job; five witnesses with identical
+structure is enough to state it as a single mechanism rather than a family of coincidences.
+
+Ledger **501 rows** - MATCH 38, RELOCS 433, ASM 2, PENDING 28; verify and checkled
+green; own-code coverage **11 199 B (3.819 %)**.
+
 ## Round 170: the five-hundredth row (46 B)
 `4df7:000a` (46 B) is a guarded chain of calls whose last value is returned:
 
