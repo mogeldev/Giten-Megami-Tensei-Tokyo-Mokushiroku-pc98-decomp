@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 87: a seventh wall named - register variables in BX (no new rows)
+Widened round 86's screen to allow stores and loads, which surfaced the `11ax` family.
+`11a2:000c` (30 B) is `*p = nc(*p, v);` and it is now **fully understood**:
+
+    push bx; bx = p; ax = *p; dx = *(p+1); cx = v; call nc   ; fastcall: DX:AX = value, CX = v
+    *p = ax; *(p+1) = dx; pop bx
+
+with `p` a *near* pointer and `nc` a `__far __fastcall` function - that combination
+reproduces every instruction except the two that preserve BX. The original treats
+**BX as a callee-saved register variable**; MSC 7 only allocates SI and DI and uses
+BX as scratch, so it must spill to a frame slot and build an `ENTER` frame.
+
+Eight unmatched units (518 bytes) start with `53` in the prologue and are now the
+`register variable in BX` class - the seventh distinct compiler habit that blocks
+whole units. `docs/BLOCKED.md` has 19 classes and the unclassified pool is
+**166 units / 10 430 B**.
+
+Also screened and blocked: `3c3d:000c` and `2d60:000e` (char arguments pushed
+without promotion), `1cbf:0020` (an AH-argument interrupt wrapper).
+
+Ledger 471 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 10 210 B (3.482 %).
+
 ## Round 86: two more pure relays (58 B), and a push-encoding observation
 `crelay67.c` (`/Os`), continuing round 85's relay screen:
 

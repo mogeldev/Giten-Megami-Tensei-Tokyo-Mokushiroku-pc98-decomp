@@ -502,3 +502,17 @@ the *reverse* of the order the pushes appear. The same applies to four arguments
 (`cd4(b, a, b, a)` produces `push a, b, a, b`), which is how the round-13
 `1dfc:0116` puzzle resolves: its `83 C4 08` cleanup and register staging both fall
 into place once the arguments are reversed and the second parameter is `register`.
+
+## The original can use BX as a register variable
+
+`11a2:000c` opens `55 8B EC 53` - it **pushes BX** before using it as the working
+pointer, i.e. BX is a callee-saved register variable. MSC 7 never does this: its
+register allocator only uses SI and DI and treats BX as scratch, so the surviving
+copy has to be spilled to a frame slot (adding an `ENTER` frame). Eight unmatched
+units (518 bytes) begin with `53` in the prologue and are unreachable for this
+reason; they are now the `register variable in BX` class.
+
+Everything else in `11a2:000c` was solved on the way: the pointer is a *near*
+pointer and the callee is `__far __fastcall`, which reproduces the whole body
+(`8B 07` / `8B 57 02` / `8B 4E 08` / call / `89 07` / `89 57 02`) - only the
+`push bx` / `pop bx` pair around it is out of reach.

@@ -27,6 +27,12 @@ TRAITS = [
      "the original inlines a 32-bit `x << 8` as `mov ah,al` / `sub al,al` (and the high "
      "word with `mov dh,dl` / `mov dl,ah`); MSC 7 calls the shift helper for the same "
      "expression (`9A __aFulshl`), so any unit doing long shifts is unreachable"),
+    ("register variable in BX",
+     lambda b: b[:4] == b"\x55\x8b\xec\x53",
+     "the original pushes BX in the prologue, i.e. it uses BX as a callee-saved register "
+     "variable; MSC 7 only allocates SI and DI and treats BX as scratch, so any unit that "
+     "preserves BX cannot be reproduced. Verified on 11a2:000c, where the whole body "
+     "matches once the pointer is near and the callee fastcall"),
     ("sub ax,ax zeroing", lambda b: b"\x2b\xc0" in b,
      "the original zeroes a register with `2B C0` (`sub ax,ax`); MSC 7 always emits `33 C0` "
      "(`xor ax,ax`), so a unit containing the older form cannot match. Verified on 3da5:000a, "
