@@ -1,5 +1,35 @@
 # PROGRESS
 
+## Round 23: tools/probe.py - the probe library is exhausted (0 new rows)
+New tool `tools/probe.py` generalises `tools/reuse.py` from "unit the same length
+as a verified row" to "unit the same length as **any calibration probe symbol**":
+it loads every `src/calib/*.OBJ`, takes each public symbol's bytes (sized to the
+next symbol), normalises call targets, and compares against every unmatched unit
+in-process before confirming hits with `match.py`.
+
+Result: **zero new rows**. Once its ledger parser was fixed it skipped every
+candidate it found, and spot checks confirmed those units were already verified
+in earlier rounds under their original symbols (`2b8e:0006` = RELAY_9326,
+`3220:00a2` = RELAY_80A0, `2e35:0006` = SCAN256_A, `4e6f:0006` = NESTED_PTR, ...).
+So the 120-file calibration library has been fully exploited: no unmatched unit
+in the image reproduces a probe shape.
+
+Three bugs in the new tool were found and fixed, all worth remembering:
+1. `omfdump.load()` returns `(list_of_ledata_dicts, pubdefs_dict)`, not raw byte
+   blobs - the first version crashed on it;
+2. the ledger rows have **five** columns (`va | name | size | status | note`), so
+   a `len(cols) < 6` guard silently skipped every row and left the "already
+   claimed" set empty - which produced 57 alias duplicates;
+3. a unit window can be one byte longer than the function, so the row size must
+   be the *symbol* length, not the unit size.
+
+`verify.py`'s DUP check and `checkled.py`'s unattested-source check caught all of
+this (three times now for the DUP class), so the safety net is holding: a bad
+sweep cannot land in the ledger silently.
+
+Ledger 420 rows - MATCH 38, RELOCS 358, ASM 1, PENDING 23 (unchanged); verify and
+checkled green; own-code coverage 8 312 B (2.835 %).
+
 ## Round 22: a counter guard (62 B) and the argument-push order confirmed
 `crelay35.c` (`/Os`): `505f:000e` (62 B, near Pascal) -
 `t = n + g_395e; if (p3(1, 0x64, 2) > t) { g_395e++; if (fc(4) != -1) g_395e++; return 0; } g_395e = 0; return 1;`.
