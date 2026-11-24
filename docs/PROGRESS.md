@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 90: a branch-tolerant screen, two more walls (no new rows)
+Third screen: units with at most one branch, no known wall, 20-52 bytes. Two fresh
+candidates transcribed, both blocked on habits already named, but with a new detail:
+
+- `4ab2:000c` (32 B) - `r = h1(a); if (r != -1) h2(r);`. The original holds **both**
+  `a` and `r` in SI, reusing the register once `a` is dead: `8B 76 06` (a),
+  `56` (push a), call, `8B F0` (r). MSC 7 allocates SI for `a` and DI for `r`
+  (`57 56` in the prologue) and never reuses a dead register variable - a new detail
+  on the staging wall, and the reason the row is out of reach even though the shape is
+  identical.
+- `3a51:0004` (36 B) - `nc(z, h2(h1(x, x, y)))`. Register staging for `x` is fine, but
+  MSC evaluates `z` first (right to left) while the original pushes it last: the
+  argument-evaluation-order class from round 38, third sighting.
+
+Also seen and skipped: `1233:000e` (indirect `call far [0x51A6]` with AH arguments,
+the interrupt-wrapper class) and `39fc:000c` (five-call sequence with a `-1` guard,
+not yet decoded).
+
+The screen is small enough to finish next round; its remaining units are mostly in
+classes already named, so the expected yield is low - the honest read is that the
+pool is now dominated by the compiler habits rather than by source shapes.
+
+Ledger 472 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 10 239 B (3.492 %).
+
 ## Round 89: three more candidates closed, one new narrow class (no new rows)
 Worked the last untried units from round 87's widened screen:
 
