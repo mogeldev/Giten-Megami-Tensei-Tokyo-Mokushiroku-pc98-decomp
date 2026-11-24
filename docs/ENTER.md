@@ -734,3 +734,12 @@ Screen (`55 8B EC`, 14-90 B, ends in a return, no `90`/far call/near call/doubli
 **Rule for every future screen: compare against the ledger by *linear address* (`seg*16+off`), not by the `seg:off` string.** The screens of rounds 6-18 compared strings; the `done` set should be rebuilt from linear values and the earlier candidate lists re-filtered. Also: before saving a new source, check `Test-Path src/calib/<name>.c` - `cxchg1.c` and `cset3.c` already existed and were overwritten (restored from git before anything was committed).
 
 Remaining of the eight: `4e9b:0008` (long store+return, window is 24 B not 22), `50b1:0008` (long compare), `2a2b:0008` (loop on a range), `118f:000a` (32x32 multiply helper, `mul`).
+
+### Round 19: linear-address screen (14 units left), 4d98:000a and 25f0:0092
+
+Rebuilt screen: ENTER or `55 8B EC` frame, 14-100 B, no ledger byte overlapping by *linear* address, de-duplicated by linear address, same opcode exclusions as before. **14 units remain**: `2141:00a6`, `4d98:000a`, `4e9b:0008`, `2a28:0000`, `2a29:000c`, `10b7:0006`, `50b1:0008`, `3b29:0006`, `25f0:0092`, `2a2b:0008`, `3809:0000`, `118f:000a`, `3813:0000`, `36e7:0000`. (`2a28:0000` / `2a29:000c` are PENDING rows.)
+
+- `4d98:000a` (18 B, far, `retf 4`): `(a + b) & 3` on ints. The original adds as words (`mov dx,[bp+8]; add dx,[bp+6]; mov ax,dx; and ax,3`); MSC narrows the add to bytes (`mov al,[bp+6]; add al,[bp+8]`) because only the low bits are used - the narrowing wall (19). Fourteen spellings (`%4`, unsigned, `long` cast, temporary, `register`, commuted) all narrow. The sibling `2b3d:0000` (`(char)(a-b-0xfe)&3`) is the same shape and *does* match only because its source has an explicit byte cast.
+- `25f0:0092` (39 B): subtract-loop dividing `v - 0x119` by 0xE1, result clamped to 6. `/Ox` keeps `xor bx,bx` before the loop test where the original has `sub dx,0x119` first; `/Os` gives `C8`. Three spellings.
+
+verify.py re-run at the start of this round: green, 530 rows.
