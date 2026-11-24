@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 82: two more misses named, one of them a known peephole (no new rows)
+Round 81's `200d:0006` curious null test is explained: the original emits
+`8B F0 0B F0` (`mov si,ax` then `or si,ax`) where MSC emits `8B F0 0B F6`
+(`or si,si`). Both test the same value - it is the **`or reg,ax` peephole** recorded
+in round 35, not a semantic difference. So `200d:0006` is blocked by that peephole
+(one encoding) rather than by anything structural, which is worth knowing: the
+remaining difference between that unit and a row is a single byte pair MSC will not
+produce.
+
+Also examined:
+
+- `1f5f:005e` (32 B) - `long f(a, b) { h2(a, b); return ((long)b << 16) | a; }` with
+  the parameter roles `a -> SI`, `b -> DI`, which *is* MSC's assignment order. It
+  still misses because the original stages the second parameter through AX for the
+  push and then copies it to DI (`8B 46 08 50 8B F8`), while MSC either reads the
+  frame at the push or loads DI first - the same staging difference seen on the
+  `1f3x` family.
+- `1f45:00ec` (37 B) - the sibling shape, blocked on the reversed roles.
+
+Three of the four remaining walls (padding, `or reg,ax`, staging) are now confirmed
+on multiple units each, which is the useful outcome of these rounds even without a
+row.
+
+Ledger 460 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 9 926 B (3.385 %).
+
 ## Round 81: two cdecl-list candidates narrowed (no new rows)
 Working round 80's cdecl list, two units came close:
 
