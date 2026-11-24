@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 189: a shape-matching mode for sibling search (tooling round)
+`tools/reuse.py` only found *byte-identical* siblings, which is a narrow idea of reuse: two
+functions that differ only in **which globals they touch** are the same source with a
+different identifier, and the project has several such pairs already (`1ab9:0004` and
+`3c09:0006` are both lazy-initialisation shapes).
+
+Added `--shape`: it normalises a second time with absolute data addresses masked
+(`A1`/`A3`/`A0`/`A2` operands and `C7`'s `[disp16]`), so units that differ only in their
+globals become candidates - `match.py` still has to confirm each one, so a false candidate
+costs a compile rather than a bad row.
+
+The run over the current 510-row ledger finds **0 candidates**: no unmatched unit is a
+constant-renamed copy of a verified row at the same size. That is a genuine negative - the
+globals in this binary vary in *kind* (segment values, table bases, state words), so
+functions that differ only by address are rarer than they look.
+
+Ledger 510 rows (unchanged), PENDING 34; verify and checkled green; own-code
+coverage 11 260 B (3.840 %).
+
 ## Round 188: the adjacency filter run backwards (no rows, PENDING record)
 The filter so far looked for units that *begin* where a verified row ends. Reversed - units
 that **end** where a verified row begins, i.e. the function immediately before a matched one

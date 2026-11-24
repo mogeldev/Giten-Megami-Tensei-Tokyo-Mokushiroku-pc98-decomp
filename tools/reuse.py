@@ -27,6 +27,33 @@ def linear(va):
     return int(s, 16) * 16 + int(o, 16)
 
 
+def norm_shape(b):
+    """Like norm(), but also masks absolute data addresses.
+
+    Two functions that differ only in *which* globals they touch have the same shape, and
+    the C differs only in the identifier - so masking `A1`/`A3`/`C7`/`68`/`[bx+disp16]`
+    operands turns them into candidates. `match.py` still has to confirm each one.
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("dds98_dis", os.path.join(ROOT, "tools", "dis.py"))
+    dismod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(dismod)
+    out = bytearray(norm(b))
+    i = 0
+    while i < len(b):
+        try:
+            _, ln = dismod.decode(b, i)
+        except Exception:
+            ln = 1
+        op = b[i]
+        if op in (0xA1, 0xA3, 0xA0, 0xA2) and ln == 3:
+            out[i + 1:i + 3] = b"\x00" * 2
+        elif op == 0xC7 and ln >= 5:
+            out[i + 2:i + 4] = b"\x00" * 2       # modrm + disp16 for [disp16]
+        i += max(ln, 1)
+    return bytes(out)
+
+
 def norm(b):
     """Mask call targets and far-pointer immediates, walking instruction by instruction.
 
@@ -82,6 +109,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--write", action="store_true")
     ap.add_argument("--limit", type=int, default=60)
+    ap.add_argument("--shape", action="store_true",
+                    help="also mask absolute data addresses (same shape, different globals)")
     a = ap.parse_args()
     known = ledger()
     seen = {r["va"] for r in known}
@@ -94,7 +123,8 @@ def main():
     pats = {}
     for r in known:
         b = IMG[linear(r["va"]) - 0x10000: linear(r["va"]) - 0x10000 + r["size"]]
-        pats.setdefault((norm(b), r["size"]), []).append(r)
+        nf = norm_shape if a.shape else norm
+        pats.setdefault((nf(b), r["size"]), []).append(r)
 
     cands = []
     for lin, (va, size) in units.items():
@@ -104,8 +134,9 @@ def main():
         core = b.rstrip(b"\x90")
         if not core:
             continue
+        nf = norm_shape if a.shape else norm
         for (pat, psize), rs in pats.items():
-            if psize <= len(core) and norm(core[:psize]) == pat:
+            if psize <= len(core) and nf(core[:psize]) == pat:
                 cands.append((va, rs[0], psize))
                 break
     print(f"# {len(cands)} candidate siblings")
