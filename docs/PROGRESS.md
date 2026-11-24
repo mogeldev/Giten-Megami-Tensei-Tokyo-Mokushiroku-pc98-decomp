@@ -1,5 +1,31 @@
 # PROGRESS
 
+## Round 158: parameters are allocated before locals (no rows)
+Screened for units whose prologue is `55 8B EC 57 56` - the two-register-local shape that
+round 154's reverse-declaration trick solved - and found 15 of them. The simplest,
+`20f9:000c` (44 B), was transcribed:
+
+    int f(int a, register int b) {
+        register int r;
+        if ((a | b) != 0) { r = h1(); h2(a, b); return h3(r); }
+        return 0;
+    }
+
+with `h3` taking its argument in AX (no push). Under `/Os` it is **two bytes from a row**,
+and they are the *swap*: the original loads `b` into **DI** (`8B 7E 06`) and keeps `r` in
+**SI**, while MSC gives SI to the first register declaration - and parameters are declared
+before locals, so `b` gets SI and `r` gets DI.
+
+That is a sharper statement of wall 4 than "assignment is unpredictable": **MSC allocates
+parameters before locals**, so a unit that wants a local in SI and a parameter in DI is
+unreachable, whatever the declaration order. Making both parameters `register` does not
+help; it pushes the local to the frame (`ENTER`).
+
+Recorded in `docs/WALLS.md` next to the register-reuse notes.
+
+Ledger 491 rows (unchanged), PENDING 27; verify and checkled green; own-code
+coverage 10 902 B (3.718 %).
+
 ## Round 157: a fifteenth wall - the encoding, not the allocation (no rows)
 Sorted the smallest frameful units in segments that already match (7 candidates) and read
 three of them:

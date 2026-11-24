@@ -210,6 +210,17 @@ The one case where `/Ox` did align a scratch register was wall 6 (register reuse
 a push, `50ff:000e`) and the large-function CX cache (`1f45:00b0`); everything else in
 this family stays blocked under every flag combination tried.
 
+### Parameters are allocated before locals (round 158)
+
+A related ordering fact, verified on `20f9:000c` (44 B): the original keeps a **parameter**
+in DI and a **local** in SI, while MSC gives SI to the first `register` declaration and
+parameters are declared first, so it produces the swap (`8B 76 06` where the original has
+`8B 7E 06`). Declaring both parameters `register` moves the local to the frame (`ENTER`,
+`C8`) instead of fixing the swap.
+
+So a unit whose register assignment is "local in SI, parameter in DI" is unreachable: no
+declaration order can put the local first.
+
 ### `|` operand order is not source-controlled (round 152)
 
 For `return table[bit] | array[index];` MSC always loads **`array[index]` into AL first**
