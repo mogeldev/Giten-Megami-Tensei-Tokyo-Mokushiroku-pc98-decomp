@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 180: the `bx=ax` / `es=dx` order gets a second witness (no rows)
+Screened the smallest one-call units (9-18 bytes, classified by call count) and transcribed
+`3ebd:0068` (17 B):
+
+    return *h(g_29c0);
+
+where `h` returns an `int __far *`. It is **one byte pair** from a row, and it is the same
+pair as round 146's `3ede:000a`: the original first moves the offset into BX and then the
+segment into ES (`8B D8 8E C2`), while MSC loads ES first (`8E C2 8B D8`). Four source
+shapes were compiled - a direct `*h(...)`, a cast, a subscript and a variable - and all four
+give MSC's order, so the sequence is fixed by the code generator and not by the expression.
+
+Two witnesses with identical structure now make this a distinct sub-case of wall 9 worth
+naming: **the segment register is loaded before the offset**, always. Recorded as a PENDING
+row alongside `3ede:000a`.
+
+The screen itself is now thin: eleven tiny one-call units exist, and the others are
+fragments (`3d91:000e` starts mid-instruction), a doubling (`29e6:0002`), a long XOR taking
+its operands in registers (`2daa:000a`), or the `b451`/AH-call wrappers.
+
+Ledger 506 rows - MATCH 38, RELOCS 434, ASM 2, **PENDING 32**; verify and checkled
+green; own-code coverage 11 214 B (3.825 %).
+
 ## Round 179: `__fastcall` is the missing calling convention for a whole family (no rows)
 Several unmatched units begin `56 8B F0` - save AX in SI, no frame - which I had been
 treating as an "argument in AX" oddity. It is simply **`__fastcall`**: the first argument
