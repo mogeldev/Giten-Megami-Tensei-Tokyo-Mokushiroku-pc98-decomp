@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 144: a three-way dispatch transcribed, blocked on the register save (no rows)
+`2a7e:0000` (67 B) - one of the larger units in the CX-scratch cluster - decodes cleanly
+to a three-way dispatch:
+
+    void f(int a, int b, int c, int d)
+    {
+        if (d < 0)      h1(a, b, c);
+        else if (d > 0) h2(a, b, c);
+        else            h3(a, b, c);
+    }
+
+with four far-Pascal parameters (retf 8) and three different far callees. The original
+keeps `b` in **SI** across the whole body (`push si` immediately after the frame, `pop si`
+before leaving); MSC keeps it in the frame under `/Os` and reaches for other registers
+under `/Ox`, so the transcription is 65 or 67 bytes but `+0x3` never matches.
+
+That is wall 7 again, and the seventh unit in a row whose only remaining difference is
+which register the compiler chose. The pattern across rounds 137-144 is now explicit:
+**every unit I can still transcribe differs only in register allocation**, and the
+register-allocation family (walls 6, 7, 13a) does not respond to `/G0`, `/G1`, `/Os`,
+`/Ox` or MSC 6.0.
+
+Ledger 488 rows (unchanged), PENDING 25; verify and checkled green; own-code
+coverage 10 869 B (3.707 %).
+
 ## Round 143: the CX-scratch cluster mapped (no rows)
 Screened for units that load a parameter into CX (`8B 4E xx`), i.e. the cluster where the
 original uses CX as its scratch register for a test: **10 units, 36-130 bytes**.
