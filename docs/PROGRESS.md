@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 194: the long comparison recorded, and a full sweep (no rows)
+`2e68:000c` (50 B) had been transcribed in round 170 and found one byte short, but never
+entered in the ledger. It is now a PENDING row:
+
+    int f(long x, long y) { if (x < y) return -1; if (x > y) return 1; return 0; }
+
+The two-word signed comparison matches instruction for instruction - both halves, both
+carry chains, both branches - and the only difference is one byte of branch distance across
+the `90` in `B8 01 00 EB 03 90 33 C0`. That makes it the **sixth** witness of the padding
+mechanism and the cleanest of them, because nothing else in a 50-byte function differs.
+
+Then ran `tools/verify.py` without `--fast`: **512/512 rows ok** (MATCH 38, RELOCS 436,
+ASM 2, PENDING 36) - the seventh full sweep.
+
+Worth noting what the PENDING set now contains: 36 rows, every one a function whose C has
+been recovered and whose bytes differ by between one and six bytes of compiler-internal
+choice. If a toolchain matching the original ever becomes available, `tools/recheck.py` can
+convert them in bulk; until then they are documented evidence of where the boundary lies.
+
+Ledger 512 rows; verify (full) and checkled green; own-code coverage 11 260 B (3.840 %).
+
 ## Round 193: a retry loop with two register locals (no rows)
 `2b9a:0000` (46 B) is a do/while retry loop found by the adjacency filter:
 
