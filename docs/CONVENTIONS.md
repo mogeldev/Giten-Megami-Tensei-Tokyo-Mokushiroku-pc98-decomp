@@ -300,3 +300,18 @@ against a direct compile: `(register int a, register int b, ...)` gives
 other registers). Units blocked only by this are `20f9:000c`, `218f:0004`,
 `2191:0008` and `3ae7:0000`; the source shapes are known and recorded, so they
 need no further source searching - only the older compiler reproduces them.
+
+## Nop padding after a short jump
+
+The original compiler pads a short jump with a `90` before the next block:
+
+    B8 01 00 EB 03 90 33 C0        (original)
+    B8 01 00 EB 02 33 C0           (MSC 7)
+
+The jump length already covers the `90`, so the padding is dead code - but it
+shifts every *following* branch distance by one byte, which breaks an otherwise
+perfect match (`4998:000c` matched 111 of 112 bytes for exactly this reason, and
+`3b88:000e` misses by the same single byte at its `jz`). The padding appears with
+several offsets (`EB 02 90`, `EB 03 90`, `EB 23 90`), so `tools/classify.py` only
+recognises the narrow forms; treat "one byte off, at a branch distance" as this
+class first.

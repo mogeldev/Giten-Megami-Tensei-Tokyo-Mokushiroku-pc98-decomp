@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 45: the nop-padding class (0 new rows, one byte twice)
+Two large candidates came within **one byte** this round, and both for the same
+reason:
+
+- `3b88:000e` (119 B) - a nested guard
+  (`if (h4(...)) { if (!h2b(2,0)) { h3(a,b,1); hh(g_18ba,-1); } else { ... } } h4b(g_17d2,c,1); return c;`)
+  now matches down to a single `jz` distance byte.
+- `4998:000c` (112 B, round 43) - the same story at its `jmp`.
+
+The cause is recorded in `docs/CONVENTIONS.md`: the original pads a short jump
+with a `90` (`B8 01 00 EB 03 90 33 C0`) while MSC 7 does not, so every following
+branch distance grows by one even though the code is equivalent. A new
+`nop-padded branch` trait was added to `tools/classify.py` (narrow forms only -
+the padding also appears as `EB 23 90`, so the class is not complete).
+
+Structural lessons from `3b88:000e` worth keeping:
+- the branch condition must be written **negated** (`if (!h2b(2, 0))`) for the
+  then-block to be laid out first with a `jnz` over it - the positive form emits
+  the mirror layout;
+- a call result used only once in a condition must **not** get a variable, or MSC
+  pushes DI as well and the prologue grows by two bytes.
+
+`docs/BLOCKED.md` regenerated: unclassified down to **241 units / 16 231 B**.
+
+Ledger 446 rows (unchanged); verify and checkled green; own-code coverage
+9 251 B (3.155 %).
+
 ## Round 44: a fastcall chain and an init unit (120 B)
 `crelay51.c` (`/Os`), two rows:
 

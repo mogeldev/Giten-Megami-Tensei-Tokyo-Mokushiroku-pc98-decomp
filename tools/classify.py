@@ -23,6 +23,10 @@ TRAITS = [
     ("ENTER frame", lambda b: b[:1] == b"\xc8",
      "`C8 xx xx 00` prologue - the original never uses ENTER; MSC 7 only emits "
      "it with /Gs plus a local, so these come from the older compiler"),
+    ("nop-padded branch", lambda b: b"\xeb\x03\x90" in b or b"\xeb\x02\x90" in b
+                                       or b"\x74\x03\x90" in b or b"\x75\x03\x90" in b,
+     "the original pads a short jump with a `90` before the next block (`EB 03 90 33 C0`); "
+     "MSC 7 emits the jump without padding, so every following branch distance differs by one"),
     ("jump-merge boolean", lambda b: b"\xeb\x03\xb8\x01\x00" in b or b"\xeb\x02\x33\xc0" in b
                                  or b"\x33\xc0\xeb" in b or b"\x99\xeb" in b,
      "`jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns"),
