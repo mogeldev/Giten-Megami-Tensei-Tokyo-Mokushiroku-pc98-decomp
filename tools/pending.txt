@@ -1,0 +1,7 @@
+# src | flags | msc-dir | <va> <symbol> <size>
+src/calib/pending1.c | /G1 /AM /Gs /Os | MSC7I | 2a28:0000 P_2A28 28
+src/calib/pending1.c | /G1 /AM /Gs /Os | MSC7I | 2a29:000c P_2A29 28
+src/calib/pending1.c | /G1 /AM /Gs /Os | MSC7I | 20b4:0130 P_20B4 27
+src/calib/pending1.c | /G1 /AM /Gs /Os | MSC7I | 3ebd:0068 P_3EBD 17
+src/calib/pending1.c | /G1 /AM /Gs /Ox | MSC7I | 20f6:0000 P_20F6 23
+src/calib/pending1.c | /G1 /AM /Gs /Ox | MSC7I | 2603:463c P_2603 38

@@ -1,5 +1,34 @@
 # PROGRESS
 
+## Round 181: the PENDING rows become a testable registry (tooling round)
+Thirty-two ledger rows are PENDING: the C is believed correct and each misses by a byte or
+two. Until now each one was prose in a table, so re-testing them meant re-reading and
+re-transcribing them by hand - one round per unit, or nothing.
+
+Added `tools/recheck.py` and `tools/pending.txt`. The manifest lists, for each pending
+hypothesis, the source file, the flags, the compiler and the address/symbol/size; the tool
+compiles each source **once** and matches every row it lists, printing which ones pass. The
+first six are registered in `src/calib/pending1.c`:
+
+| row | what it is waiting for |
+|---|---|
+| `2a28:0000`, `2a29:000c` | the clamp pair - working value in DX, not AX |
+| `20b4:0130` | saved value pushed from AX rather than from the frame |
+| `3ebd:0068` | `bx=ax` before `es=dx` |
+| `20f6:0000` | `and` instead of `test` |
+| `2603:463c` | `array[i]` loaded before the table byte |
+
+All six still differ, so nothing changed - but the set can now be re-tested after any
+change to a wall's understanding, in one compile instead of six rounds. That is the point:
+the pending rows are the project's most valuable asset after the verified ones, and they
+were the only part of the ledger that could not be machine-checked.
+
+Also registered `tools/regsweep.py` in `docs/README.md`, which had been added in round 151
+and never indexed.
+
+Ledger 506 rows (unchanged), PENDING 32; verify and checkled green; own-code
+coverage 11 214 B (3.825 %).
+
 ## Round 180: the `bx=ax` / `es=dx` order gets a second witness (no rows)
 Screened the smallest one-call units (9-18 bytes, classified by call count) and transcribed
 `3ebd:0068` (17 B):

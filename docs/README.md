@@ -26,6 +26,8 @@ Screening helpers:
 | `tools/dis.py` | annotate a slice: offsets, bytes, jump targets, call forms |
 | `tools/reuse.py` | find units byte-identical to a verified source |
 | `tools/probe.py` | sweep every calibration source against every window in the image |
+| `tools/recheck.py` | re-test the PENDING rows in one pass (`tools/pending.txt` lists them) |
+| `tools/regsweep.py` | generate every `register`/signedness combination for a template and match them all |
 | `tools/coverage.py` | coverage arithmetic |
 
 ## Reading a new candidate
