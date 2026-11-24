@@ -5,38 +5,38 @@ by the code-generation idiom that prevents a match. Regenerate after each
 round. Counts may include segment aliases (the inventory lists some code
 under two spellings), so treat them as an upper bound.
 
-1402 unmatched units (excluding CRT and verified).
+1376 unmatched units (excluding CRT and verified).
 
 | class | units | bytes | why it stays open |
 |---|---|---|---|
-| ENTER frame | 584 | 85251 | `C8 xx xx 00` prologue - the original never uses ENTER; MSC 7 only emits it with /Gs plus a local, so these come from the older compiler |
-| fragment (no prologue) | 237 | 26163 | the unit does not start with a function prologue, so the inventory window began in the middle of a routine: it cannot be matched as a function at all |
+| ENTER frame | 580 | 85084 | `C8 xx xx 00` prologue - the original never uses ENTER; MSC 7 only emits it with /Gs plus a local, so these come from the older compiler |
+| fragment (no prologue) | 226 | 25859 | the unit does not start with a function prologue, so the inventory window began in the middle of a routine: it cannot be matched as a function at all |
 | sub ax,ax zeroing | 74 | 15007 | **not a wall for the `2A E4` form**: round 146 verified that MSC 7 emits `2A E4` for a `(unsigned char)` load (`int f(unsigned i) { return (unsigned char)g[i]; }`), and for a byte field of a struct with `>1` alignment. Only the `sub ax,ax` / `sub cx,cx` forms are unreachable (MSC emits `33 C0`), and `4344:000e` differs from its transcription only in instruction order (`C1 E3 02 2A E4 8A 87` versus `C1 E3 02 8A 87 ... 2A E4`) |
-| nop-padded branch | 109 | 12641 | the original pads a short jump with a `90` before the next block (`EB 03 90 33 C0`, `EB 0E 90`); MSC 7 emits the jump without padding, so every following branch distance differs by one. Verified by full analysis on 4998:000c, 3b88:000e, 31e3:0064, 3cd1:02f2 and 3b9b:000a; the pattern itself is a heuristic (185 units match it) |
-| unclassified | 129 | 8455 | no known blocker - these are the real candidates for new source shapes |
+| nop-padded branch | 106 | 12517 | the original pads a short jump with a `90` before the next block (`EB 03 90 33 C0`, `EB 0E 90`); MSC 7 emits the jump without padding, so every following branch distance differs by one. Verified by full analysis on 4998:000c, 3b88:000e, 31e3:0064, 3cd1:02f2 and 3b9b:000a; the pattern itself is a heuristic (185 units match it) |
+| unclassified | 127 | 8397 | no known blocker - these are the real candidates for new source shapes |
 | inlined MK_FP | 54 | 4348 | `mov es,[disp16]` or `mov es,ax` right before an ES-relative access - the original inlines `MK_FP(seg, off)` (with a global or a parameter segment); MSC 7 calls the `MK_FP` helper and then does `mov es,dx` |
 | add reg,reg doubling | 32 | 4038 | `add ax,ax`-style doubling for `x * 2` - MSC 7 uses `shl` |
 | split far-pointer load | 46 | 3968 | `mov es,[bp+xx]` loading only the segment half of a far pointer - blocked trait |
-| inline long shift | 12 | 3810 | the original inlines a 32-bit `x << 8` as `mov ah,al` / `sub al,al` (and the high word with `mov dh,dl` / `mov dl,ah`); MSC 7 calls the shift helper for the same expression (`9A __aFulshl`), so any unit doing long shifts is unreachable |
+| inline long shift | 11 | 3762 | the original inlines a 32-bit `x << 8` as `mov ah,al` / `sub al,al` (and the high word with `mov dh,dl` / `mov dl,ah`); MSC 7 calls the shift helper for the same expression (`9A __aFulshl`), so any unit doing long shifts is unreachable |
 | frame without frame use | 36 | 1583 | the unit opens with a frame and never references `[bp+nn]`, so the function has no parameters and no locals: the original still emits `55 8B EC` while MSC omits the frame entirely (verified on 1270:000e; /G0 and /Gd both keep it frameless) |
-| jump-merge boolean | 25 | 1482 | `jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns |
+| jump-merge boolean | 24 | 1436 | `jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns |
 | far pointer in a register pair | 16 | 1243 | `lds bx,[bp+..]` - the original keeps a far pointer in DS:BX across a loop and tests it with `mov ax,ds; or ax,bx`; MSC 7 keeps it in the stack frame |
 | CX-staged value | 9 | 690 | a value is compared and then pushed: the original loads it into **CX** once (`8B 4E xx`) and reuses it (`cmp cx,..`, `or ch,..`, `push cx`), while MSC 7 compares from memory and pushes the slot again |
 | redundant or reg,ax | 9 | 571 | `mov si,ax; or si,ax` - older codegen tests the just-moved value again |
-| byte argument without promotion | 9 | 473 | the original pushes a `char` argument straight from the byte it loaded (`8A 46 <n>` + `50`, or `A0 <disp>` + `50`) with no `cbw`/`sub ah,ah`; MSC 7 always promotes (`98` or `2A E4` first), so every such call site diverges by one or two bytes. Verified on 2127:000c and 2daa:001c |
 | register variable in BX | 5 | 362 | the original pushes BX in the prologue, i.e. it uses BX as a callee-saved register variable; MSC 7 only allocates SI and DI and treats BX as scratch, so any unit that preserves BX cannot be reproduced. Verified on 11a2:000c, where the whole body matches once the pointer is near and the callee fastcall |
+| byte argument without promotion | 5 | 356 | the original pushes a `char` argument straight from the byte it loaded (`8A 46 <n>` + `50`, or `A0 <disp>` + `50`) with no `cbw`/`sub ah,ah`; MSC 7 always promotes (`98` or `2A E4` first), so every such call site diverges by one or two bytes. Verified on 2127:000c and 2daa:001c |
 | inline interrupt | 7 | 352 | an inline `int 21h` / `int 2Fh` / `int 31h` - the original issues DOS, multiplex or DPMI calls in line; MSC 7 only offers library wrappers (`intdos`, `int86`), so these are hand-written or builtin-generated |
 | operand order | 3 | 290 | `or ax,di` where MSC 7 canonicalises to loading the register operand first |
 | rep stosw memset | 4 | 211 | word-fill inline `memset` - MSC 7 with /Oi emits `rep stosb` |
 | AH argument | 2 | 95 | `mov ah,imm` before a far call - an argument in AH, a DOS/EMS register convention the original used and MSC 7 cannot be told to produce |
 
-## ENTER frame (584 units, 85251 bytes)
+## ENTER frame (580 units, 85084 bytes)
 
 `C8 xx xx 00` prologue - the original never uses ENTER; MSC 7 only emits it with /Gs plus a local, so these come from the older compiler
 
 Largest: `41ef:0004` (2087 B), `3fcf:0036` (1786 B), `45b3:00d0` (1747 B), `4c9c:008e` (1423 B), `4b7d:000a` (1186 B), `238f:000e` (918 B), `455a:0000` (834 B), `44a4:0124` (814 B), `4c61:0004` (806 B), `258d:0008` (785 B), `3cd1:000e` (739 B), `33f2:000c` (678 B)
 
-## fragment (no prologue) (237 units, 26163 bytes)
+## fragment (no prologue) (226 units, 25859 bytes)
 
 the unit does not start with a function prologue, so the inventory window began in the middle of a routine: it cannot be matched as a function at all
 
@@ -48,13 +48,13 @@ Largest: `159d:03e4` (4519 B), `1847:000c` (1413 B), `2ff9:000a` (1002 B), `4c9c
 
 Largest: `2baa:0004` (4612 B), `19e2:0008` (986 B), `1349:0000` (416 B), `4416:0002` (407 B), `1dac:0002` (324 B), `128e:0004` (316 B), `1aa1:0000` (304 B), `19bf:0000` (292 B), `44a4:0006` (285 B), `19d1:0004` (276 B), `4b23:01d6` (264 B), `2d08:007a` (248 B)
 
-## nop-padded branch (109 units, 12641 bytes)
+## nop-padded branch (106 units, 12517 bytes)
 
 the original pads a short jump with a `90` before the next block (`EB 03 90 33 C0`, `EB 0E 90`); MSC 7 emits the jump without padding, so every following branch distance differs by one. Verified by full analysis on 4998:000c, 3b88:000e, 31e3:0064, 3cd1:02f2 and 3b9b:000a; the pattern itself is a heuristic (185 units match it)
 
 Largest: `1b7d:0004` (802 B), `307b:0018` (517 B), `1394:000c` (398 B), `43db:0184` (381 B), `43db:0006` (381 B), `1bc2:0002` (380 B), `3bab:00aa` (362 B), `13b0:0004` (348 B), `4082:0000` (286 B), `1c9e:000a` (224 B), `13c8:0008` (212 B), `10ed:0008` (208 B)
 
-## unclassified (129 units, 8455 bytes)
+## unclassified (127 units, 8397 bytes)
 
 no known blocker - these are the real candidates for new source shapes
 
@@ -78,11 +78,11 @@ Largest: `1a22:000e` (750 B), `1dc7:000a` (522 B), `1f0d:0084` (394 B), `45b3:07
 
 Largest: `4885:0006` (340 B), `4870:0004` (268 B), `225b:0005` (227 B), `1ed7:000c` (209 B), `2274:0003` (203 B), `2269:0008` (171 B), `4679:0000` (150 B), `224b:0004` (131 B), `25f0:00ba` (128 B), `1e8d:000e` (128 B), `2a93:00a6` (92 B), `3471:0006` (90 B)
 
-## inline long shift (12 units, 3810 bytes)
+## inline long shift (11 units, 3762 bytes)
 
 the original inlines a 32-bit `x << 8` as `mov ah,al` / `sub al,al` (and the high word with `mov dh,dl` / `mov dl,ah`); MSC 7 calls the shift helper for the same expression (`9A __aFulshl`), so any unit doing long shifts is unreachable
 
-Largest: `1c4d:0006` (1190 B), `1b39:0000` (852 B), `1b1b:000e` (466 B), `1a51:000c` (248 B), `1a61:0004` (224 B), `1a6f:0004` (196 B), `1c0c:000c` (184 B), `1a81:000a` (138 B), `1990:000c` (114 B), `198b:0008` (84 B), `122f:000c` (66 B), `2b4b:0008` (48 B)
+Largest: `1c4d:0006` (1190 B), `1b39:0000` (852 B), `1b1b:000e` (466 B), `1a51:000c` (248 B), `1a61:0004` (224 B), `1a6f:0004` (196 B), `1c0c:000c` (184 B), `1a81:000a` (138 B), `1990:000c` (114 B), `198b:0008` (84 B), `122f:000c` (66 B)
 
 ## frame without frame use (36 units, 1583 bytes)
 
@@ -90,11 +90,11 @@ the unit opens with a frame and never references `[bp+nn]`, so the function has 
 
 Largest: `1d9c:0006` (182 B), `133f:0002` (86 B), `111c:00a8` (81 B), `3b34:0000` (78 B), `1c18:0004` (76 B), `1466:0006` (75 B), `13de:000e` (75 B), `2d78:000c` (70 B), `3b2f:000e` (66 B), `10cd:0002` (60 B), `3162:0004` (58 B), `315b:003e` (54 B)
 
-## jump-merge boolean (25 units, 1482 bytes)
+## jump-merge boolean (24 units, 1436 bytes)
 
 `jz/...; xor ax,ax; jmp; mov ax,1` merge - MSC 7 always uses `sbb/inc` or early returns
 
-Largest: `1a95:000c` (180 B), `2a58:0000` (101 B), `5063:000c` (88 B), `3600:0002` (88 B), `2115:0002` (88 B), `4f67:0094` (71 B), `1b74:000e` (68 B), `5151:000a` (64 B), `21ff:0024` (64 B), `509a:0004` (62 B), `4df7:000a` (46 B), `1115:000e` (46 B)
+Largest: `1a95:000c` (180 B), `2a58:0000` (101 B), `5063:000c` (88 B), `3600:0002` (88 B), `2115:0002` (88 B), `4f67:0094` (71 B), `1b74:000e` (68 B), `5151:000a` (64 B), `21ff:0024` (64 B), `509a:0004` (62 B), `1115:000e` (46 B), `1113:0000` (46 B)
 
 ## far pointer in a register pair (16 units, 1243 bytes)
 
@@ -114,17 +114,17 @@ Largest: `1057:0000` (163 B), `103f:000c` (163 B), `3f0d:005a` (92 B), `377f:000
 
 Largest: `50c7:0002` (167 B), `2b91:000e` (99 B), `4a3c:0002` (78 B), `2b9a:0000` (46 B), `437e:0006` (43 B), `223b:000e` (38 B), `4690:0000` (34 B), `31cd:0006` (34 B), `2ba2:0008` (32 B)
 
-## byte argument without promotion (9 units, 473 bytes)
-
-the original pushes a `char` argument straight from the byte it loaded (`8A 46 <n>` + `50`, or `A0 <disp>` + `50`) with no `cbw`/`sub ah,ah`; MSC 7 always promotes (`98` or `2A E4` first), so every such call site diverges by one or two bytes. Verified on 2127:000c and 2daa:001c
-
-Largest: `4101:00b6` (89 B), `4101:005c` (89 B), `4101:0002` (89 B), `40e8:0006` (57 B), `2dad:000c` (32 B), `2daa:001c` (32 B), `2d60:000e` (32 B), `2127:000c` (32 B), `2d49:0034` (21 B)
-
 ## register variable in BX (5 units, 362 bytes)
 
 the original pushes BX in the prologue, i.e. it uses BX as a callee-saved register variable; MSC 7 only allocates SI and DI and treats BX as scratch, so any unit that preserves BX cannot be reproduced. Verified on 11a2:000c, where the whole body matches once the pointer is near and the callee fastcall
 
 Largest: `1192:000c` (160 B), `11ac:0008` (106 B), `11a0:000c` (32 B), `119e:000c` (32 B), `119c:000c` (32 B)
+
+## byte argument without promotion (5 units, 356 bytes)
+
+the original pushes a `char` argument straight from the byte it loaded (`8A 46 <n>` + `50`, or `A0 <disp>` + `50`) with no `cbw`/`sub ah,ah`; MSC 7 always promotes (`98` or `2A E4` first), so every such call site diverges by one or two bytes. Verified on 2127:000c and 2daa:001c
+
+Largest: `4101:00b6` (89 B), `4101:005c` (89 B), `4101:0002` (89 B), `40e8:0006` (57 B), `2d60:000e` (32 B)
 
 ## inline interrupt (7 units, 352 bytes)
 

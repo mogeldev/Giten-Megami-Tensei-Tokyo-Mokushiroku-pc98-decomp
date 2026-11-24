@@ -1,5 +1,30 @@
 # PROGRESS
 
+## Round 218: the reports regenerated and a full sweep (maintenance round)
+Regenerated the two derived documents - `docs/STATUS.md` and `docs/BLOCKED.md` - from the
+ledger and the classifier, so the published state matches the rows rather than a memory of
+them.
+
+`BLOCKED.md` now lists the classes in order of size, and the head of that list is the story of
+the last thirty rounds:
+
+| class | units | bytes |
+|---|---|---|
+| `add reg,reg` doubling | 37 | 4 767 |
+| ... | | |
+| `rep stosw` memset | 4 | 211 |
+| AH argument | 2 | 95 |
+
+The doubling class was 37 units / 4 767 bytes when `BLOCKED.md` first counted it; round 211's
+independent count (any unit whose bytes contain the opcode) gave 199 units / 66 381 B, and the
+difference is exactly what the two numbers mean: the first counts units *classified* by the
+trait, the second counts units that *contain* it. Both are in the docs now, labelled.
+
+Then ran `tools/verify.py` without `--fast`: **517/517 rows ok** - the eighth full sweep.
+`checkled.py` consistent.
+
+Ledger 517 rows, PENDING 39; own-code coverage 11 351 B (3.871 %).
+
 ## Round 217: the char-parameter slot, measured (no rows)
 Round 216 left `2d60:000e` one parameter offset out and unexplained. This round measured the
 cause by compiling pascal functions with `char` parameters and dumping them:
