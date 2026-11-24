@@ -1,5 +1,22 @@
 # PROGRESS
 
+## Round 249: duplicated bodies tested and ruled out (no rows)
+Round 248 found two units with identical bytes and noted that a working transcription would
+have paid twice. That suggests a mechanical question: **is any unmatched unit byte-identical to
+a row that is already verified?** If so, the source is known and the row is free.
+
+Searched every verified MATCH/RELOCS row's exact bytes for another occurrence at an unmatched
+unit start: **none**. So there are no free rows of that kind - the duplicate bodies in this
+binary are either both already matched or both blocked by the same wall (as `1df5`/`1dfc` are
+by the segment register), which is what one would expect if the pairs came from the same source
+construct.
+
+The check is worth keeping in mind but not worth re-running often: it is exact-match only, and
+`tools/reuse.py` already covers the near-miss version with its operand masking.
+
+Ledger 523 rows (unchanged), PENDING 38; verify and checkled green; own-code
+coverage 11 645 B (3.972 %).
+
 ## Round 248: a two-unit sibling pair, one segment register out (no rows)
 Found and transcribed a pair of **byte-identical units** - `1df5:0008` and `1dfc:0066`, both
 39 bytes - which skip leading whitespace through a far pointer:
