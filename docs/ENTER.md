@@ -811,3 +811,12 @@ Standing: `3809:0000` is 1 instruction from a row, `380d:000c` ~3, `3813:0000` 2
 ### Round 29: bit-field and register-parameter forms for 3813:0000
 
 Nine more spellings (volatile bit-field union with swap/assign forms, `register` parameter, plain `x` instead of `(unsigned char)x`). The bit-field swap (`t = x.f.n0; x.f.n0 = x.f.n1; x.f.n1 = t`) reaches +0x10 but then uses the read-modify-write `and/or` form (`25 F0 00 / C0 E8 04 / 83 E1 F0 / 0B C1`), not the original's `xor [bp-2],reg` form; the `xor`-assign spelling reaches +0x11 and then loses to CX/AX. Together with rounds 27-28: **three rounds, ~40 spellings, no change in the best position** (+0x11 for `3813:0000`, +0x15 for `3809:0000`). The family is recorded as unreached; further spellings of the same two statements are unlikely to add information.
+
+### Round 30: units over 200 B (132 candidates, 2 with no wall opcode)
+
+Screen: ENTER or `55 8B EC` frame, 200-800 B, ledger-disjoint by linear address, ends in a return; ranked by the count of wall opcodes (`90`, far call, doubling, `sub ax,ax`, `B4`, string/port ops, `int`). 132 units; only `2274:0003` (203 B) and `225b:0005` (227 B) have none; `1ed7:000c` (209 B) has one (a `90 0E E8` relay).
+
+- `2274:0003` / `225b:0005`: **fully unrolled field-by-field copies** between two far records, with `ds`/`es` set up once (`push ds; mov ds,[bp+6]` ... `pop ds`), a single `xor ax,ax` shared by every zero store, and byte/word loads through `dl`/`dx`. A loop (`for i<8`) and an unrolled copy both compile with MSC's own staging (`mov es,[bp+6]` re-loaded per field, `cx` reused, no `push ds`). This is an inline-assembler-like or macro-expanded body; no C spelling reached the shared-DS/ES layout. Two spellings each.
+- `1ed7:000c`: a chain of 10+ bit-field read-modify-writes (`shl cx,15; sar cx,14; xor cl,al; and cx,2; es:xor [si+4],cx`) with a `push es; push si; call far` in the middle. The bit-field insert (round 26's `1 - v` lever) matters here but there are about twenty of them; not attempted.
+
+The other 129 units each contain 1-12 wall opcodes; none read.
