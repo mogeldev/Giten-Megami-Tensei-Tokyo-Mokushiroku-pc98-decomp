@@ -1,5 +1,16 @@
 # PROGRESS
 
+## Round 255: the final verification (maintenance round)
+Ran `tools/verify.py` without `--fast` for the last time this session: **523/523 rows ok** -
+the eleventh full sweep - with `tools/checkled.py` consistent and `tools/coverage.py`
+confirming 483 verified functions and 11 645 of 293 211 own bytes (3.972 %).
+
+Nothing was changed this round, deliberately. The project's product is a ledger whose every
+row can be rebuilt from source (and a description of why the rest cannot), and the last sweep
+is the evidence that those two claims still hold after 255 rounds of edits.
+
+Ledger 523 rows (unchanged), PENDING 38; verify (full) and checkled green.
+
 ## Round 254: the summary's final state (documentation round)
 Added a short "final state" section to `docs/SUMMARY.md`: the five numbers that matter (523
 rows, 483 verified functions, 3.972 % of own bytes, 21 walls with eight measured, 38 PENDING
