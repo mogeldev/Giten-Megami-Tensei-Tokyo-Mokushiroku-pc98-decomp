@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 18: the smallest units (3 rows, 22 B) and two source rules
+Walking the remainder of the sub-30-byte pool for units that actually end at a
+return turned up three that are worth keeping:
+
+- `crelay31.c`: `1270:000c` (1 B) - an **empty far function** is exactly `CB`,
+  the smallest possible verified row;
+- `1534:02a5` (5 B) - `return g_0004;`: a byte global read uses the moffs form
+  `A0 <disp>` plus `cbw`, **and the function must be `__near`** - `__far` would
+  end in `CB` instead of the original's `C3`;
+- `48d6:010a` (16 B) - `g_234a = -1; fsub(g_9b40);`, an immediate store
+  followed by a global pushed into a far call that stays `9A` in the image.
+
+Probed and left open, all blocked by the older generation rather than by source
+shape:
+
+- `1a20:0002` needs the inline `memset` to use `rep stosw` (`F3 AB`, 9 words);
+  with `/Oi` MSC 7 emits `rep stosb` with 18 bytes, and without `/Oi` it calls
+  `memset`.
+- `4d98:000a` needs `(a + b) & 3` computed in DX with word ops; MSC 7 always
+  uses the byte form (`8A 46 06 / 02 46 08`) and `/Ot` does not change it.
+- `3e5c:0006`, `48d6`-style boolean merges and the `B4`-argument DOS wrappers
+  stay blocked for the same reason (jump-merge layout, `mov ah,imm` before a
+  call).
+
+Ledger 413 rows - MATCH 38, RELOCS 351, ASM 1, PENDING 23; verify and checkled
+green; own-code coverage 7 896 B (2.693 %).
+
 ## Round 17: tools/reuse.py - and a lesson about segment aliases (4 rows, 122 B)
 New tool `tools/reuse.py`: every verified row is reduced to a **normalised byte
 pattern** (all direct call targets masked) keyed by length, and every unmatched

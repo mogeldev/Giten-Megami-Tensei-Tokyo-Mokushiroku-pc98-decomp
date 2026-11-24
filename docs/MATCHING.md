@@ -428,3 +428,6 @@ eturn psub(g_78c4); one push [disp16] then the translated call; image `90 0E E8`
 | 31d3:0004 | F_31CF_08 | 29 | RELOCS | src=src/calib/crelay21.c; flags="/G1 /AM /Gs /Os"; byte-identical to a verified sibling modulo call targets |
 | 31d3:0038 | F_31CF_08 | 29 | RELOCS | src=src/calib/crelay21.c; flags="/G1 /AM /Gs /Os"; byte-identical to a verified sibling modulo call targets |
 | 36e7:01bc | F_36E7 | 41 | RELOCS | src=src/calib/crelay25.c; flags="/G1 /AM /Gs /Os"; byte-identical to a verified sibling modulo call targets |
+| 1270:000c | F_1270_C | 1 | MATCH | src=src/calib/crelay31.c; flags="/G1 /AM /Gs /Os"; an empty far function - exactly one byte `CB` |
+| 1534:02a5 | F_1534G | 5 | RELOCS | src=src/calib/crelay31.c; flags="/G1 /AM /Gs /Os"; `return g_0004;` - the byte global is read with the moffs form `A0 <disp>` and sign-extended (`98`); the function must be `__near` so the return is `C3` |
+| 48d6:010a | F_48D6 | 16 | RELOCS | src=src/calib/crelay31.c; flags="/G1 /AM /Gs /Os"; `g_234a = -1; fsub(g_9b40);` - immediate store then a global pushed into a far call that stays `9A` in the image |
