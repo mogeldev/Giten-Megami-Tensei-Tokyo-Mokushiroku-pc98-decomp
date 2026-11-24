@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 237: the nibble family's exact blocker chain (no rows)
+Finished round 236's line of attack on `3813:0000`. Writing the second `xor` with the `0xF000`
+mask the original applies brought the object within one instruction again - and the remaining
+difference is that MSC loads the parameter as a **byte** (`8A 46 04`) where the original loads
+the **word** (`8B 46 04`), because the source as written does not use the high byte until
+later.
+
+That is wall 19 (narrowing) in a new place: not a mask on a parameter, but MSC proving a high
+byte unused that the original keeps live.
+
+So the chain for this one function is now fully itemised: one two-byte local (settled), DX as
+scratch (settled), CX instead of AX for the shift (wall 6), byte-narrowing of the parameter
+(wall 19). **Four source shapes over two rounds have each moved the difference by one
+instruction and none has closed it.**
+
+`docs/ENTER.md` records all of it. The family is understood and not reproducible - which is,
+by now, the project's most common category and the one it has spent forty rounds mapping.
+
+Ledger 520 rows (unchanged), PENDING 41; verify and checkled green; own-code
+coverage 11 393 B (3.886 %).
+
 ## Round 236: the nibble family narrowed to two instructions (no rows)
 Round 235 identified `3809:0000` / `380d:000c` / `3813:0000` as a family of nibble transforms
 worth three rows between them. This round compiled four source shapes against `3813:0000` and

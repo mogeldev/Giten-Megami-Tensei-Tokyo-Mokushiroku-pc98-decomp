@@ -632,3 +632,24 @@ frame doubles to four bytes and the shape diverges at the first instruction.
 Not recorded. The translation is close - two instructions of the whole function are wrong - but
 "close" is not this ledger's standard, and the family is worth another attempt with the
 scratch-register requirement in mind.
+
+### Two more shapes, and the exact blocker (round 237)
+
+Rounding out round 236: with the second `xor` written to use the `0xF000` mask the original
+applies (`x ^= (x ^ ((a & 0x0F) << 4)) & 0xF000;`), the object still differs at offset 4 - MSC
+loads the parameter as a **byte** (`8A 46 04`) where the original loads the **word**
+(`8B 46 04`), because by that point only the low byte has been used.
+
+That is the narrowing wall (19) again, in a new place: it is not a mask on a parameter this
+time, it is MSC proving the high byte unused *because the source as written does not use it*.
+The original's later `and ax,0xF000` is a use - which suggests its source really does keep the
+high byte live throughout, rather than via a temporary.
+
+So the chain of blockers for this one function is now: one two-byte local (settled), DX as
+scratch (settled), CX instead of AX for the shift (wall 6), byte-narrowing of the parameter
+(wall 19). Four source shapes in two rounds have each moved the difference by one instruction
+and none has closed it.
+
+The family stays open and documented. It is a good example of a candidate that is *understood*
+and not *reproducible*, which is the category the project has spent its last forty rounds
+mapping.
