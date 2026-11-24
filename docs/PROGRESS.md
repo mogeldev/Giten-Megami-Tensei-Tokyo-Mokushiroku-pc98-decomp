@@ -1,5 +1,24 @@
 # PROGRESS
 
+## Round 122: two frame-less shapes (65 B)
+A screen for units free of *every* known wall (no `les`/segment moves, no interrupts, no
+padded jump, no two-register prologue) returned 23 candidates; two matched:
+
+- `crelay76.c` `F_37EC`: `37ec:0006` (31 B) - `if (a == -1) return a; h1(a); return
+  h2(a);` with the parameter `register` and the calls far then near.
+- `crelay76.c` `F_438C`: `438c:0004` (34 B) - `if (h3(x) == 9) return x - g_2fce;
+  return -1;`. The first transcription declared a local for the call result and MSC
+  built a frame; the original is `55 8B EC 56` then straight into the body, because the
+  result is compared in AX and never stored. **Declaring a variable is what broke it** -
+  removing the local and comparing the call directly matched.
+
+That second one is a reusable lesson: when the original's prologue is only
+`55 8B EC 56`, the source must have no locals at all, which usually means the call
+result is consumed inside the same expression rather than assigned first.
+
+Ledger 483 rows - MATCH 38, RELOCS 419, ASM 2, PENDING 24; verify and checkled
+green; own-code coverage **10 600 B (3.615 %)**.
+
 ## Round 121: the padding has two causes, and I can name both (no rows)
 Tested round 120's hypothesis on the unit that motivated it. `4998:000c` (112 B) has a
 **single shared epilogue**, so "the compiler does not merge return paths" does not
