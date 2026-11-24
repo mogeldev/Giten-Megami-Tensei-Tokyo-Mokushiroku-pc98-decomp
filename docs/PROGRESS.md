@@ -1,5 +1,29 @@
 # PROGRESS
 
+## Round 92: the alternative-compiler thread is unresolved, not negative (no rows)
+Continued round 91's corrected diagnostics. With `--run` working, both DOS 6.00A
+passes were exercised directly - `CL.EXE /c /AM /Gs /Os` from its own directory with
+`TMP` set, and `C1.EXE` on the same source. Neither produces an object, a stdout log,
+a stderr log, or any touched file, and both return control to the shell.
+
+Two supporting checks this round: `CL.EXE` is a plain DOS MZ image (`e_lfanew = 0` -
+no OS/2 or Windows header), so it is the right driver, and `CL.MSG`, `CL.ERR`,
+`C1.ERR`, `C23.ERR` are all present next to it, so a missing message file is not the
+cause.
+
+Important negative result: **`if errorlevel` cannot be used as evidence here.**
+DOSBox-X's built-in shell reported success for a run that produced nothing, so it
+does not distinguish a zero exit from a shell that never propagates exit codes. That
+rules out the simplest "did it run" probe and is recorded in `docs/GAP.md`.
+
+The thread stays open with two live explanations: the tools report through the console
+(INT 10h) which the SDL dummy video driver hides, or the 6.00A DOS driver needs
+something the extraction did not supply. Distinguishing them needs an observable
+screen, which the headless harness cannot provide.
+
+Ledger 472 rows (unchanged), PENDING 22; verify and checkled green; own-code
+coverage 10 239 B (3.492 %).
+
 ## Round 91: the diagnostic harness was broken - a correction, not a row
 While trying a fourth screen (call-free setters, 37 units) the `--run` diagnostics came
 back empty again, and this time the cause is identified: **`build.py --run` never ran

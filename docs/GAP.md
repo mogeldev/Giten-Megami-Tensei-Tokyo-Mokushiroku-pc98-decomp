@@ -114,3 +114,31 @@ still have produced its files (the marker test did).
 Next step on this thread is therefore not "does CL write a log" but a run that makes
 the driver fail visibly - e.g. a deliberately undefined symbol with `/Zs` (syntax
 check only), whose `error C2xxx` line would have to appear somewhere.
+
+### Round 92: both MSC 6.0 DOS passes run silently, and `if errorlevel` is not usable evidence
+
+With `--run` fixed, the DOS 6.00A tools were exercised directly:
+
+| command | object | stdout log | stderr log | files touched |
+|---|---|---|---|---|
+| `CL.EXE /c /AM /Gs /Os /Fo...` (from `C:\MSC6DOS\BIN`, `TMP` set) | no | no | no | none |
+| `C1.EXE D:\BUILD\Z1.C` | - | no | no | none |
+
+Both return control to the shell, so they are not crashing the session. Two facts
+about the binaries, re-checked this round: `CL.EXE` is a plain DOS MZ image
+(`e_lfanew = 0`, no NE/LE/OS-2 header), 28 858 bytes, and `CL.MSG` / `CL.ERR` /
+`C1.ERR` / `C23.ERR` are all present beside it, so a missing message file is not the
+explanation.
+
+The `if errorlevel` probe is **not** trustworthy here: DOSBox-X's built-in shell was
+observed to report success (`if not errorlevel 1` firing) for a run that produced
+nothing at all, so it cannot distinguish "the tool exited 0" from "the shell does not
+propagate exit codes". It should not be used as evidence either way.
+
+Status of this thread: unresolved rather than negative. The remaining explanations are
+(a) the tools write their messages through the console (INT 10h) and the SDL dummy
+video driver hides them, so they fail and exit without a redirectable message; or
+(b) the 6.00A DOS driver needs something the extraction did not provide (a `SETUP`
+step, a `TMP`/`INIT` variable with a specific shape, or a companion file outside
+`BIN`). Distinguishing them needs a run whose *screen* can be observed, which the
+current headless harness cannot do.
