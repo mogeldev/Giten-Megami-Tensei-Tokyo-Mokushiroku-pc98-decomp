@@ -1,5 +1,32 @@
 # PROGRESS
 
+## Round 52: tooling - nop-padded units ranked last (no new rows)
+`tools/nextup.py` now recognises the nop-padding class (`EB <offset> 90`) and ranks
+those units **behind everything else** instead of letting them head the list. They
+are not hidden - they are still listed - but every one of them is guaranteed to
+miss by one byte, so promoting winnable candidates is worth more than another
+compile cycle on them.
+
+Two candidates reached near-matches and both landed in known classes:
+
+- `49e9:0002` (61 B) - `if (v < 0) h1(a, b, -v); else h2(a, b, v, 0);` with the
+  long negation `F7 D8 83 D2 00 F7 DA` reproduced exactly; it misses only because
+  the original pads its `jmp` with a `90` (`EB 14 90`).
+- `3b2b:000c` (66 B) - a two-global guard
+  (`g1760 = b; g1762 = a; if (h1(a,b)) return h4(a,b); if (h2(a,b)) return h3(a,b); g1762 = g1760 = 0; return -1;`)
+  matches in every instruction; the older compiler merely hoists the `mov ax,[bp+08]`
+  above the first store.
+- `3bd3:0002` (52 B) - a range guard (`a >= 0 && a - 0x800 <= 0`) where the
+  original uses `or ax,ax` / `sub ax,0x800` / `jo` on a once-loaded AX; MSC 7
+  reloads and uses `cmp`/`jg` without the overflow guard.
+
+`register int b` on `3b2b` was worth finding: it makes MSC load `b` into SI and
+leave `a` in AX exactly as the original does, which reduced a whole-instruction
+mismatch to one moved load.
+
+Ledger 452 rows (unchanged this round); verify and checkled green; own-code
+coverage 9 582 B (3.268 %).
+
 ## Round 51: a guarded four-argument relay (57 B)
 `crelay56.c` (`/Os`): `3b72:0040` (57 B) -
 `if (h4(a,b,c,d)) { f1(1); f2(); } h4b(g_17d2, c, 1); return c;`.

@@ -59,6 +59,12 @@ def main():
         calls = core.count(b"\x90\x0e\xe8")
         branches = sum(core.count(bytes([x])) for x in (0x74, 0x75, 0x7C, 0x7D, 0xE2))
         score = calls * 3 - branches
+        # The original pads short jumps with 90 (see CONVENTIONS "Nop padding after a
+        # short jump"); those units miss by one byte and cannot match as they stand,
+        # so rank them behind everything else instead of hiding them.
+        padded = re.search(rb"\xeb[\x00-\x7f]\x90", core) is not None
+        if padded:
+            score -= 10
         out.append((score, len(core), va, core.hex(), calls, branches))
 
     out.sort(reverse=True)
