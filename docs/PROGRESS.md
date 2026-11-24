@@ -1,5 +1,25 @@
 # PROGRESS
 
+## Round 107: full verification sweep - all 476 rows reproduce (no new rows)
+Ran `tools/verify.py` without `--fast`, i.e. every ledger row rebuilt from its recorded
+source and settings and re-matched against the image. Result: **476/476 ok** - MATCH 38,
+RELOCS 412, PENDING 24 - with `checkled.py` consistent. That is the first complete sweep
+in ~35 rounds (the recent rounds used `--fast`), so the guarantee that the ledger is not
+drifting now covers every row rather than a sample.
+
+Nothing was added this round. The remaining work is unchanged from round 106: the
+`/G0`-eligible units are down to one- and two-trait misses, and the traits are
+code-generation habits (scratch-register naming, assignment persistence, branch
+padding, immediate encoding) rather than unknown C.
+
+Worth recording for the next sweep: `verify.py` takes long enough that a full run
+belongs in a round of its own rather than alongside new work, which is why `--fast`
+exists - but it should be run at full strength at intervals, and this round's result is
+the baseline that any future regression would show up against.
+
+Ledger 476 rows - MATCH 38, RELOCS 412, ASM 2, PENDING 24; verify (full) and checkled
+green; own-code coverage 10 327 B (3.522 %).
+
 ## Round 106: a PENDING note corrected - the blocker is a spill, not scheduling
 Re-examined `1e38:0002` (56 B, RECORD_CFG), which the ledger described as "scheduling
 difference only - the original loads the global before the parameter". Transcribing it
