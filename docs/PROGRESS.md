@@ -1,5 +1,26 @@
 # PROGRESS
 
+## Round 75: a nested call with a register parameter (24 B)
+`crelay60.c` (`/Os`): `32da:000c` (24 B) - `h2(h1(a));` with the parameter declared
+`register`, so the inner call pushes SI and the outer one pushes the returned AX.
+The plain-parameter form (`int a`) pushes the frame slot instead
+(`FF 76 06` vs `56`), which is exactly the one byte that made this unit fail when it
+was first transcribed in round 74's batch.
+
+That also resolves round 74's open item: the candidate compiled cleanly there but
+its match output was cut off by a neighbouring symbol's size error, so it was never
+actually compared.
+
+Two char-member getters (`3eb9:0006`, and the `3ede:000a` / `3ede:0024` pair) were
+tried again, both as a struct member and as explicit pointer arithmetic
+(`*((char __far *)h3(a) + 3)`); both forms produce
+`8E C2 8B D8` where the original has `8B D8 8E C2`. The struct-member offsets are
+correct either way, so the only remaining difference is that two-instruction swap -
+the same allocation difference as `4e72:000a`.
+
+Ledger 456 rows - MATCH 38, RELOCS 394, ASM 2, PENDING 22; verify and checkled
+green; own-code coverage **9 820 B (3.349 %)**.
+
 ## Round 74: struct packing is a flag, not a source shape (no new rows)
 Five tiny candidates (20-26 B) were transcribed in one batch. None matched, but one
 of them produced a **new compiler-flag finding**:
