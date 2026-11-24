@@ -1,5 +1,28 @@
 # PROGRESS
 
+## Round 113: the register-assignment rule is not characterisable yet (no rows)
+Two more units from the 160-unit pool, both one trait short, and between them they
+**refute** the rule I wrote down last round:
+
+- `13db:000c` (50 B) - `if (c) h2(b + c, a, b, a, h1(b, a) + 1);` in a near-Pascal
+  function (params at 08/06/04). Structure and call forms are right - the first call is
+  far (`90 0E E8`), the second near; what differs is that the original loads `b` into AX
+  and `a` into DX before pushing the last two arguments, where MSC pushes both from
+  memory. The register-push habit again (`322c:002c` was the same).
+- `4e58:0004` (51 B) - a two-call initialiser with `register` parameters `e` and `g`.
+  The whole body matches except the two prologue loads: MSC puts `g` in SI and `e` in
+  DI, the original the other way round.
+
+That second unit breaks round 112's "declaration order" conclusion, so
+`docs/CONVENTIONS.md` now carries a three-row table instead of a rule: `3ede:00a0`
+looks like first-use, `3874:000a` like declaration order, and `4e58:0004` like neither
+(it gave SI to the second-declared parameter). The practical advice recorded there is
+to treat these units as test-me-not-predict, bracketing with `register` on one
+parameter at a time.
+
+Ledger 479 rows (unchanged), PENDING 24; verify and checkled green; own-code
+coverage 10 433 B (3.558 %).
+
 ## Round 112: a two-register guard with no frame (40 B)
 `crelay73.c` (`/G1 /AM /Gs /Os`): `3238:00fe` (40 B) - `old = g_1cf0; if (v == 1 &&
 old == 0) h(old, old); g_1cf0 = v; return old;`. The unit was invisible before round
